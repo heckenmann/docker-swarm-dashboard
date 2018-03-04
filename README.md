@@ -7,7 +7,7 @@ version: '3.5'
 
 services:
   docker-swarm-dashboard:
-    image: dockerswarmdashboard
+    image: heckenmann/docker-swarm-dashboard
     deploy:
       replicas: 1
       placement:
