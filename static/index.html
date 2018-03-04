@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <title>Docker Swarm Dashboard</title>
+    <link rel="stylesheet" href="static/fontawesome-free-5.0.8/web-fonts-with-css/css/fontawesome-all.min.css">
+    <script src="static/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="static/bootstrap/dist/css/bootstrap.min.css">
+    <script src="static/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark bg-dark fixed-top mr-auto">
+        <a class="navbar-brand" href="https://github.com/heckenmann/docker-swarm-dashboard" target="_blank">
+            <img id="dockerlogo" src="static/docker.png" /> Docker Swarm Dashboard
+        </a>
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <button type="nav-link button btn-primary btn-sm" class="btn btn-primary" onclick="resetTable()"><i class="fas fa-sync"></i> Refresh</button>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="container-fluid" role="main" style="position: absolute; top: 75px;">
+        <table class="table table-condensed table-light table-sm table-hover table-striped">
+            <thead class="thead-light">
+                <tr id="tableHead">
+                    <th>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </main>
+    <img id="background-image" src="static/docker.png" />
+    <script src="static/scripts.js"></script>
+</body>
+
+</html>

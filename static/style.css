@@ -1,0 +1,24 @@
+#background-image {
+    position: fixed;
+    right: 0px;
+    bottom: 10px;
+    width: 500px;
+    opacity: 0.1;
+}
+
+thead {
+    height: 200px;
+}
+
+.rotated {
+    position: relative;
+    transform: translate(0px, -70%) rotate(-25deg);
+    width: 40px;
+    white-space: nowrap;
+    text-transform: none;
+}
+
+#dockerlogo {
+    position: relative;
+    height: 20px;
+}
