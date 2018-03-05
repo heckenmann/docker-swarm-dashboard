@@ -6,15 +6,21 @@ function resetTable() {
 
     // Load Nodes
     $.getJSON("/docker/nodes", function (nodes) {
+        nodes.sort(function (a, b) {
+            return a['Description']['Hostname'] > b['Description']['Hostname'];
+        });
         for (node in nodes) {
             $('#tableBody').append('\
-            <tr id="' + nodes[node]['ID'] + '"><td style="width: 200px;" scope="row">' + nodes[node]['Description']['Hostname'] + ' (' + nodes[node]['Status']['State'] + ')' +
-            '<br/>' + nodes[node]['Status']['Addr'] + 
+            <tr id="' + nodes[node]['ID'] + '"><td style="width: 200px;" scope="row">' + nodes[node]['Description']['Hostname'] + ' (' + nodes[node]['Spec']['Role'] + ')' +
+                '<br/>' + nodes[node]['Status']['Addr'] +
                 '</td></tr>');
         }
 
         // Load Services
         $.getJSON("/docker/services", function (services) {
+            services.sort(function (a, b) {
+                return a['Spec']['Name'] > b['Spec']['Name'];
+            });
             for (service in services) {
                 $('#tableHead').append('<th style="width: 40px;"><div class="rotated">' + services[service]['Spec']['Name'] + '</div></th>');
                 //    id="' + services[service]['ID'] + '"
@@ -23,27 +29,27 @@ function resetTable() {
 
             // Load tasks
             $.getJSON("/docker/tasks", function (tasks) {
-                for(task in tasks) {
+                for (task in tasks) {
                     taskObject = tasks[task];
-                    if(taskObject['DesiredState'] == 'shutdown') {
+                    if (taskObject['DesiredState'] == 'shutdown') {
                         continue;
                     }
 
                     badgeClass = 'badge-secondary';
-                    if(taskObject['DesiredState'] == 'running') {
+                    if (taskObject['DesiredState'] == 'running') {
                         badgeClass = 'badge-success';
-                    } else if(taskObject['DesiredState'] == 'failed'
-                    || taskObject['DesiredState'] == 'rejected'
-                    || taskObject['DesiredState'] == 'orphaned') {
+                    } else if (taskObject['DesiredState'] == 'failed'
+                        || taskObject['DesiredState'] == 'rejected'
+                        || taskObject['DesiredState'] == 'orphaned') {
                         badgeClass = 'badge-danger';
-                    } else if(taskObject['DesiredState'] == 'shutdown'
-                    || taskObject['DesiredState'] == 'complete') {
+                    } else if (taskObject['DesiredState'] == 'shutdown'
+                        || taskObject['DesiredState'] == 'complete') {
                         badgeClass = 'badge-dark';
-                    } else if(taskObject['DesiredState'] == 'new'
-                    || taskObject['DesiredState'] == 'ready'
-                    || taskObject['DesiredState'] == 'pending'
-                    || taskObject['DesiredState'] == 'preparing'
-                    || taskObject['DesiredState'] == 'starting') {
+                    } else if (taskObject['DesiredState'] == 'new'
+                        || taskObject['DesiredState'] == 'ready'
+                        || taskObject['DesiredState'] == 'pending'
+                        || taskObject['DesiredState'] == 'preparing'
+                        || taskObject['DesiredState'] == 'starting') {
                         badgeClass = 'badge-warning';
                     }
 
@@ -57,13 +63,13 @@ function resetTable() {
 }
 
 // while(true) {
-    // $('body').delay(1000);
-    // console.log("Hallo");
+// $('body').delay(1000);
+// console.log("Hallo");
 // }
 
 // F5
 // https://stackoverflow.com/questions/4788201/handling-f5-in-jquery
-$(document).bind('keydown keyup', function(e) {
+$(document).bind('keydown keyup', function (e) {
     // if(e.which === 116) {
     //    resetTable();
     //    return false;
