@@ -14,3 +14,7 @@
 .glide/
 
 /dockerswarmdashboard
+/static/docker.png
+/static/bootstrap
+/static/fontawesome*
+/static/jquery-3.3.1.min.js
