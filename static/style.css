@@ -6,19 +6,34 @@
     opacity: 0.1;
 }
 
-thead th {
+#containerTable thead th {
     height: 200px;
 }
 
-.rotated {
+#containerTable .rotated {
     position: relative;
     transform: translate(0px, -70%) rotate(-25deg);
-    width: 40px;
+    width: 30px;
     white-space: nowrap;
     text-transform: none;
+    overflow: visible;
 }
 
 #dockerlogo {
     position: relative;
     height: 20px;
+}
+
+#containerTable {
+    table-layout: initial;
+}
+
+#containerTable .firstCol {
+    /* width: 80px !important; */
+    white-space: nowrap;
+}
+
+.badge {
+    width: 70px !important;
+    margin-bottom: 2px;
 }
