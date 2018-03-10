@@ -1,6 +1,9 @@
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
 
+![Container Dashboard](screenshots/container.png)
+![Tasks Timeline](screenshots/tasks.png)
+
 ```
 ---
 version: '3.5'
