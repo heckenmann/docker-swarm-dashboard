@@ -38,7 +38,7 @@ function resetTable() {
                     for (task in tasks) {
                         taskObject = tasks[task];
                         state = taskObject['Status']['State']
-                        if (state == 'complete') {
+                        if (state == 'complete' || state == 'shutdown') {
                             continue;
                         }
 
