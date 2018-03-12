@@ -38,13 +38,15 @@ function resetTasks() {
                             badgeClass = 'badge-warning';
                         }
 
+                        currentServiceName = currentService['Spec'] == null ? (currentService['PreviousSpec'] == null ? "" : currentService['PreviousSpec']['Name']) : currentService['Spec']['Name'];
+
                         $('#tableBody').append('\
             <tr>\
             <td>'+ new Date(taskObject['Status']['Timestamp']).toLocaleString() + '</td>\
             <td><span class="badge badge-pill ' + badgeClass + '">' + state + '</span></td>\
             <td>'+ taskObject['DesiredState'] + '</td>\
             <td>'+ currentNode['Description']['Hostname'] + '</td>\
-            <td>'+ currentService['Spec']['Name'] +'</td>\
+            <td>'+ currentServiceName +'</td>\
             </tr>');
                     }
 
