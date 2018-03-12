@@ -1,9 +1,12 @@
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
 
+## Screenshots
+
 ![Container Dashboard](screenshots/container.png)
 ![Tasks Timeline](screenshots/tasks.png)
 
+## docker-compose.yml
 ```
 ---
 version: '3.5'
