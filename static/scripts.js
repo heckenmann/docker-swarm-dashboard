@@ -3,6 +3,7 @@ function refresh() {
 }
 
 function resetTable() {
+    $("#refreshButton").attr("disabled", "disabled");
     $('#containerTable').fadeOut('fast');
     $('#containerTable').promise().done(function() {
         $('#tableHead th').remove();
@@ -66,6 +67,7 @@ function resetTable() {
                     // $('tbody>tr').append('<td></td>');
 
                     $('#containerTable').fadeIn('fast');
+                    $("#refreshButton").removeAttr("disabled");     
                 });
             });
         });}

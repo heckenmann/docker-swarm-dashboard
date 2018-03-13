@@ -3,6 +3,7 @@ function refresh() {
 }
 
 function resetTasks() {
+    $("#refreshButton").attr("disabled", "disabled");
     $('#tasksTable').fadeOut('fast');
     $('#tasksTable').promise().done(function () {
         $('#tasksTable #tableBody tr').remove();
@@ -51,6 +52,7 @@ function resetTasks() {
                     }
 
                     $('#tasksTable').fadeIn('fast');
+                    $("#refreshButton").removeAttr("disabled");  
                 });
             });
         });
