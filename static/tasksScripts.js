@@ -16,7 +16,7 @@ function resetTasks() {
                     for (task in tasks) {
                         taskObject = tasks[task];
                         currentNode = nodes.find(node => node['ID'] == taskObject['NodeID']);
-                        currentService = services.find(service => service['Spec']['TaskTemplate']['ContainerSpec']['Image'] == taskObject['Spec']['ContainerSpec']['Image']);
+                        currentService = services.find(service => service['ID'] == taskObject['ServiceID']);
 
                         // TODO CopyPaste
                         state = taskObject['Status']['State']
