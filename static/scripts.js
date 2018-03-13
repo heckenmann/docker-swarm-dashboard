@@ -36,6 +36,9 @@ function resetTable() {
 
                 // Load tasks
                 $.getJSON("/docker/tasks", function (tasks) {
+                    tasks = tasks.sort(function (a, b) {
+                        return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1;
+                    });
                     for (task in tasks) {
                         taskObject = tasks[task];
                         state = taskObject['Status']['State']
