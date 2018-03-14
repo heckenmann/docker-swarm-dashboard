@@ -19,6 +19,10 @@ function resetTasks() {
                         currentNode = nodes.find(node => node['ID'] == taskObject['NodeID']);
                         currentService = services.find(service => service['ID'] == taskObject['ServiceID']);
 
+                        currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
+                        currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
+                        currentError = taskObject['Status']['Err'] == null ? "" : taskObject['Status']['Err'];
+
                         // TODO CopyPaste
                         state = taskObject['Status']['State']
                         badgeClass = 'badge-secondary';
@@ -39,15 +43,14 @@ function resetTasks() {
                             badgeClass = 'badge-warning';
                         }
 
-                        currentServiceName = currentService['Spec'] == null ? (currentService['PreviousSpec'] == null ? "" : currentService['PreviousSpec']['Name']) : currentService['Spec']['Name'];
-
                         $('#tableBody').append('\
             <tr>\
             <td>'+ new Date(taskObject['Status']['Timestamp']).toLocaleString() + '</td>\
             <td><span class="badge badge-pill ' + badgeClass + '">' + state + '</span></td>\
             <td>'+ taskObject['DesiredState'] + '</td>\
-            <td>'+ currentNode['Description']['Hostname'] + '</td>\
             <td>'+ currentServiceName +'</td>\
+            <td>'+ currentNodeName + '</td>\
+            <td>'+ currentError +'</td>\
             </tr>');
                     }
 
