@@ -18,19 +18,9 @@ func main() {
 	router.HandleFunc("/docker/services/{id}", dockerServiceDetailsHandler)
 	router.HandleFunc("/docker/nodes", dockerNodesHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
-	router.HandleFunc("/", staticHandler)
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("build")))
 	log.Println("Ready! Wating for connections...")
 	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-func staticHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	Path := r.URL.Path
-	if Path == "/" {
-		Path = "index.html"
-	}
-	http.ServeFile(w, r, "static/"+Path)
 }
 
 // Creates a client
