@@ -27,7 +27,7 @@ class TasksComponent extends Component {
     render() {
         let rows = this.state.tasks.map(task => {
             let currentNode = this.state.nodes.find(node => node['ID'] === task['NodeID']);
-            let currentService = this.state.services.find(service => service['ID'] == task['ServiceID']);
+            let currentService = this.state.services.find(service => service['ID'] === task['ServiceID']);
 
             let currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
             let currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
