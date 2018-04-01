@@ -11,6 +11,6 @@ COPY build.sh /opt/dsd/build.sh
 
 ADD http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png /opt/dsd/src/docker.png
 
-RUN sh /opt/dsd/build.sh
+RUN /opt/dsd/build.sh
 
 CMD /opt/dsd/dockerswarmdashboard
