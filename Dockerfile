@@ -15,7 +15,7 @@ RUN apk add --no-cache --virtual .tmpstuff git nodejs-npm
 
 WORKDIR /opt/dsd/app-src
 RUN npm install
-RUN npm run-script build
+RUN npm run build
 RUN mv build ..
 
 WORKDIR /opt/dsd
