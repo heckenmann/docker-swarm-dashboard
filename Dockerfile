@@ -10,10 +10,13 @@ COPY dockerswarmdashboard.go .
 
 ADD http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png ./app-src/src/docker.png
 
-RUN apk update && apk add --no-cache --virtual .tmpstuff git nodejs-npm
+RUN apk update
+RUN apk add --no-cache --virtual .tmpstuff git nodejs-npm
 
 WORKDIR /opt/dsd/app-src
-RUN npm install && npm run-script build && mv build ..
+RUN npm install
+RUN npm run build
+RUN mv build ..
 
 RUN go get "github.com/docker/docker/api/types" \
     "github.com/docker/docker/client" \
