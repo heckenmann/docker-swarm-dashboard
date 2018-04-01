@@ -15,14 +15,14 @@ RUN apk add --no-cache --virtual .tmpstuff git nodejs-npm
 
 WORKDIR /opt/dsd/app-src
 RUN npm install
-RUN npm run build
+RUN npm run-script build
 RUN mv build ..
 
+WORKDIR /opt/dsd/
 RUN go get "github.com/docker/docker/api/types" \
     "github.com/docker/docker/client" \
     "github.com/gorilla/mux" \
     "golang.org/x/net/context"
-
 RUN go build dockerswarmdashboard.go
 
 #Cleanup
