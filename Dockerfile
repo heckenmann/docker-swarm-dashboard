@@ -5,20 +5,16 @@ EXPOSE 8080
 
 RUN mkdir -p /opt/dsd
 WORKDIR /opt/dsd
-COPY app-src/ /opt/dsd/app-src
+COPY app-src/ /opt/dsd/
 COPY dockerswarmdashboard.go /opt/dsd/dockerswarmdashboard.go
 
-ADD http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png /opt/dsd/app-src/src/docker.png
+ADD http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png /opt/dsd/src/docker.png
 
 RUN apk update
 RUN apk add --no-cache --virtual .tmpstuff git nodejs-npm
 
-WORKDIR /opt/dsd/app-src
-RUN npm install
-RUN npm run build
-RUN mv build ..
+RUN npm install --production
 
-WORKDIR /opt/dsd
 RUN go get "github.com/docker/docker/api/types" "github.com/docker/docker/client" "github.com/gorilla/mux" "golang.org/x/net/context"
 RUN go build dockerswarmdashboard.go
 
