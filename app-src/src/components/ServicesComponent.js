@@ -4,35 +4,15 @@ import { getStyleClassForState } from '../Helper';
 
 class ServicesComponent extends Component {
 
-    state = {
-        initialized: false,
-        nodes: [],
-        services: [],
-        tasks: []
-    }
-
-    componentDidMount() {
-        this.loadData();
-    }
-
-    async loadData() {
-        let localState = this.state;
-        localState.nodes = (await (await fetch("/docker/nodes")).json()).sort((a, b) => { return a['Description']['Hostname'] > b['Description']['Hostname'] ? 1 : -1; });
-        localState.services = (await (await fetch("/docker/services")).json()).sort((a, b) => { return a['Spec']['Name'] > b['Spec']['Name'] ? 1 : -1; });
-        localState.tasks = (await (await fetch("/docker/tasks")).json()).sort((a, b) => { return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1; });
-        localState.initialized = true;
-        this.setState(localState);
-    }
-
     render() {
-        if (!this.state.initialized) {
+        if (!this.props.state || !this.props.state.initialized) {
             return (<div></div>);
         }
         let theads = [];
         let trows = [];
 
         // Columns
-        this.state.services.forEach(service => {
+        this.props.state.services.forEach(service => {
             theads.push(
                 <th className="dataCol"><div className="rotated">{service['Spec']['Name']}</div></th>
             );
@@ -40,10 +20,10 @@ class ServicesComponent extends Component {
         theads.push(<th></th>);
 
         // Rows
-        this.state.nodes.forEach(node => {
-            let dataCols = this.state.services.map(service => {
+        this.props.state.nodes.forEach(node => {
+            let dataCols = this.props.state.services.map(service => {
                 // Show only the last state. Array is sorted by timestamp.
-                let lastTask = this.state.tasks.find(task => {
+                let lastTask = this.props.state.tasks.find(task => {
                     return task['ServiceID'] === service['ID']
                         && task['Status']['State'] !== 'shutdown'
                         && task['Status']['State'] !== 'complete';

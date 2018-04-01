@@ -10,6 +10,7 @@ import logo from '../docker.png';
 import { ServicesComponent } from './ServicesComponent';
 
 class DashboardNavbar extends Component {
+
     render() {
         return (
             <Navbar inverse fluid>
@@ -27,7 +28,7 @@ class DashboardNavbar extends Component {
                     </LinkContainer>
                 </Nav>
                 <Nav pullRight>
-                    <NavItem><FontAwesomeIcon icon={faSync} /> Refresh</NavItem>
+                    <NavItem onClick={this.props.forceUpdate}><FontAwesomeIcon icon={faSync} /> Refresh</NavItem>
                     <LinkContainer to="/about">
                         <NavItem><FontAwesomeIcon icon={faInfoCircle} /> About</NavItem>
                     </LinkContainer>
