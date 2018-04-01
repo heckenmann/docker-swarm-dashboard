@@ -1,5 +1,4 @@
-FROM golang:1.9-alpine
-LABEL URL=https://github.com/heckenmann/docker-swarm-dashboard
+FROM alpine:3.7
 
 EXPOSE 8080
 
