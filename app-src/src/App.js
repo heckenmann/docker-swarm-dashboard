@@ -6,8 +6,8 @@ import { ServicesComponent } from './components/ServicesComponent';
 import { AboutComponent } from './components/AboutComponent';
 import { TasksComponent } from './components/TasksComponent';
 
-//import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import '../node_modules/bootswatch/cyborg/bootstrap.min.css';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+//import '../node_modules/bootswatch/darkly/bootstrap.min.css';
 import '../node_modules/font-awesome/css/font-awesome.css';
 
 import bg from './docker.png';
