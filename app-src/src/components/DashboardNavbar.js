@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import { Nav, Navbar, NavItem, MenuItem, NavDropdown, Button, FormGroup, FormControl } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import FontAwesome from 'react-fontawesome';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faSync from '@fortawesome/fontawesome-free-solid/faSync';
+import faLinode from '@fortawesome/fontawesome-free-brands/faLinode';
+import faTasks from '@fortawesome/fontawesome-free-solid/faTasks';
+import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle';
 import logo from '../docker.png';
 import { ServicesComponent } from './ServicesComponent';
 
@@ -16,15 +20,16 @@ class DashboardNavbar extends Component {
                 </Navbar.Header>
                 <Nav >
                     <LinkContainer to="/services">
-                        <NavItem><FontAwesome name="linode" /> Services / Nodes</NavItem>
+                        <NavItem><FontAwesomeIcon icon={faLinode} /> Services / Nodes</NavItem>
                     </LinkContainer>
                     <LinkContainer to="/tasks">
-                        <NavItem><FontAwesome name="tasks" /> Tasks</NavItem>
+                        <NavItem><FontAwesomeIcon icon={faTasks} /> Tasks</NavItem>
                     </LinkContainer>
                 </Nav>
                 <Nav pullRight>
+                    <NavItem><FontAwesomeIcon icon={faSync} /> Refresh</NavItem>
                     <LinkContainer to="/about">
-                        <NavItem><FontAwesome name="info-circle" /> About</NavItem>
+                        <NavItem><FontAwesomeIcon icon={faInfoCircle} /> About</NavItem>
                     </LinkContainer>
                 </Nav>
             </Navbar>

@@ -8,7 +8,7 @@ import { TasksComponent } from './components/TasksComponent';
 
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 //import '../node_modules/bootswatch/darkly/bootstrap.min.css';
-import '../node_modules/font-awesome/css/font-awesome.css';
+// import '../node_modules/@fortawesome/fontawesome/styles.css';
 
 import bg from './docker.png';
 import { Button } from 'react-bootstrap';
