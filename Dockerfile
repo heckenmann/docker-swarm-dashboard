@@ -21,4 +21,4 @@ RUN go build dockerswarmdashboard.go
 RUN apk del .tmpstuff go
 RUN rm -r /go /usr/local/go
 
-CMD ./dockerswarmdashboard
+CMD /opt/dsd/dockerswarmdashboard
