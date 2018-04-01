@@ -19,6 +19,6 @@ RUN go get "github.com/docker/docker/api/types" "github.com/docker/docker/client
 RUN go build dockerswarmdashboard.go
 
 RUN apk del .tmpstuff go
-RUN rm -r /go /usr/local/go /opt/dsd/app-src/
+RUN rm -r /go /usr/local/go
 
 CMD ./dockerswarmdashboard
