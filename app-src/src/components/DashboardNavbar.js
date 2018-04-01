@@ -8,13 +8,13 @@ import { ServicesComponent } from './ServicesComponent';
 class DashboardNavbar extends Component {
     render() {
         return (
-            <Navbar>
+            <Navbar inverse fluid>
                 <Navbar.Header>
                     <Navbar.Brand bsclass="white-space: nowrap;">
                         <img alt="logo" id="dockerlogo" src={logo} /> Docker Swarm Dashboard
                     </Navbar.Brand>
                 </Navbar.Header>
-                <Nav>
+                <Nav >
                     <LinkContainer to="/services">
                         <NavItem><FontAwesome name="linode" /> Services / Nodes</NavItem>
                     </LinkContainer>
