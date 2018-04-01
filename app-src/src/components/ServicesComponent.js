@@ -42,23 +42,27 @@ class ServicesComponent extends Component {
         // Rows
         this.state.nodes.forEach(node => {
             let dataCols = this.state.services.map(service => {
-                let label = this.state.tasks.filter(task => {
-                    return task['NodeID'] === node['ID']
-                        && task['ServiceID'] === service['ID']
+                // Show only the last state. Array is sorted by timestamp.
+                let lastTask = this.state.tasks.find(task => {
+                    return task['ServiceID'] === service['ID']
                         && task['Status']['State'] !== 'shutdown'
                         && task['Status']['State'] !== 'complete';
-                }).map(task => {
-                    return (
-                        <div><Label bsStyle={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']}</Label></div>
-                    )
                 });
-                return (
-                    <td>{label}</td>
-                )
+                if (lastTask && lastTask['NodeID'] === node['ID']) {
+                    return (
+                        <td><Label bsStyle={getStyleClassForState(lastTask['Status']['State'])}>{lastTask['Status']['State']}</Label></td>
+                    )
+                } else {
+                    return (
+                        <td></td>
+                    )
+                }
             });
             trows.push(
                 <tr>
-                    <td ref={node['ID']}>{node['Description']['Hostname']} {node['Status']['Addr']}</td>
+                    <td ref={node['ID']}>{node['Description']['Hostname']}</td>
+                    <td>{node['Status']['Addr']}</td>
+                    <td>{node['Spec']['Role']}</td>
                     {dataCols}
                     <td></td>
                 </tr>
@@ -69,7 +73,9 @@ class ServicesComponent extends Component {
             <Table id="containerTable" striped condensed hover>
                 <thead>
                     <tr>
-                        <th id="firstCol"></th>
+                        <th className="nodeAttribute">Node</th>
+                        <th className="nodeAttributeSmall">IP</th>
+                        <th className="nodeAttributeSmall">Role</th>
                         {theads}
                     </tr>
                 </thead>

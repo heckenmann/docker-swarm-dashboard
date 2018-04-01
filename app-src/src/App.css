@@ -34,8 +34,13 @@
     table-layout: inherit !important;
 }
 
-#containerTable #firstCol {
+#containerTable .nodeAttribute {
     width: 200px;
+    white-space: nowrap;
+}
+
+#containerTable .nodeAttributeSmall {
+    width: 100px;
     white-space: nowrap;
 }
 
