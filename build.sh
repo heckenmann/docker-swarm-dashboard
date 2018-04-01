@@ -1,7 +1,8 @@
 #!/bin/sh
 
 cd /opt/dsd
-apk update && apk upgrade
+ls -la
+#apk update && apk upgrade
 apk add --no-cache git nodejs-npm wget go
 wget http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png -O /opt/dsd/src/docker.png
 npm install --only=production
