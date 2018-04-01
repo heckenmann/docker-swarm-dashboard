@@ -7,7 +7,6 @@ RUN mkdir -p /opt/dsd
 WORKDIR /opt/dsd
 ADD app-src/ ./app-src/
 COPY dockerswarmdashboard.go .
-COPY build.sh .
 
 # docker logo
 ADD http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png ./app-src/src/docker.png
