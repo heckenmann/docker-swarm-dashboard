@@ -9,6 +9,6 @@ COPY dockerswarmdashboard.go /opt/dsd/dockerswarmdashboard.go
 COPY build.sh /opt/dsd/build.sh
 
 RUN chmod +x /opt/dsd/build.sh
-RUN /bin/sh /opt/dsd/build.sh
+#RUN /bin/sh /opt/dsd/build.sh
 
 CMD /opt/dsd/dockerswarmdashboard
