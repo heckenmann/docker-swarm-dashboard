@@ -9,9 +9,7 @@ COPY app-src/ /opt/dsd/
 COPY dockerswarmdashboard.go /opt/dsd/dockerswarmdashboard.go
 COPY build.sh /opt/dsd/build.sh
 
-ADD http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png /opt/dsd/src/docker.png
-
 RUN chmod +x /opt/dsd/build.sh
-RUN /opt/dsd/build.sh
+RUN /bin/sh /opt/dsd/build.sh
 
 CMD /opt/dsd/dockerswarmdashboard
