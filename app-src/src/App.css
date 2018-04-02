@@ -44,12 +44,6 @@
     white-space: nowrap;
 }
 
-.ds-label {
-    position: relative;
-    width: 100%;
-    margin-bottom: 2px;
-}
-
 #tasksTable #timestampCol {
     width: 200px;
 }
@@ -68,4 +62,14 @@
 
 #tasksTable #nodeCol {
     width: 200px;
+}
+
+table ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+table ul li {
+    padding-left: 1em;
 }
