@@ -11,4 +11,4 @@ RUN ls -la
 #RUN chmod +x /opt/dsd/build.sh
 #RUN /bin/sh /opt/dsd/build.sh
 
-CMD /opt/dsd/dockerswarmdashboard
+#CMD /opt/dsd/dockerswarmdashboard
