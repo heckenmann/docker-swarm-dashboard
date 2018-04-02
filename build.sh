@@ -15,4 +15,6 @@ go get "github.com/gorilla/mux"
 go get "golang.org/x/net/context"
 go build dockerswarmdashboard.go
 
+rm -r /root/go /root/.npm
+
 apk del --purge git nodejs-npm wget go-tools libc-dev
