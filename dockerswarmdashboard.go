@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -11,26 +12,29 @@ import (
 	"golang.org/x/net/context"
 )
 
+var (
+	cache              = map[string]cacheElement{}
+	cacheMaxAgeSeconds = 2
+)
+
+/*
+ * Cache Element.
+ */
+type cacheElement struct {
+	timestamp time.Time
+	value     []byte
+}
+
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/docker/services", dockerServicesHandler)
-	router.HandleFunc("/docker/services/{id}", dockerServiceDetailsHandler)
+	// router.HandleFunc("/docker/services/{id}", dockerServiceDetailsHandler)
 	router.HandleFunc("/docker/nodes", dockerNodesHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
-	router.HandleFunc("/", staticHandler)
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Wating for connections...")
 	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-func staticHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	Path := r.URL.Path
-	if Path == "/" {
-		Path = "index.html"
-	}
-	http.ServeFile(w, r, "static/"+Path)
 }
 
 // Creates a client
@@ -42,49 +46,97 @@ func getCli() *client.Client {
 	return cli
 }
 
-// Serves the services
-func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
-	cli := getCli()
-
-	Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
-	if err != nil {
-		panic(err)
+// Returns the cache element
+func getCacheElement(index *string) ([]byte, bool) {
+	ce, contains := cache[*index]
+	if !contains || time.Now().UnixNano()-ce.timestamp.UnixNano() > int64(2*1000000000) {
+		return nil, false
 	}
-	json.NewEncoder(w).Encode(Services)
+	return ce.value, true
 }
 
-// Serves one service
-func dockerServiceDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
+// Adds a cacheElement
+func addCacheElement(index string, json []byte) {
+	cache[index] = cacheElement{timestamp: time.Now(), value: json}
+}
 
-	cli := getCli()
-
-	Service, _, err := cli.ServiceInspectWithRaw(context.Background(), id, types.ServiceInspectOptions{})
-	if err != nil {
-		panic(err)
+func abstractHandler(w http.ResponseWriter, r *http.Request) {
+	ce, found := getCacheElement(&r.URL.Path)
+	if found {
+		w.Write(ce)
+	} else {
+		cli := getCli()
+		Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		jsonString, _ := json.Marshal(Services)
+		addCacheElement(r.URL.Path, jsonString)
+		w.Write(jsonString)
 	}
-	json.NewEncoder(w).Encode(Service)
+}
+
+// Serves the services
+func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
+	ce, found := getCacheElement(&r.URL.Path)
+	if found {
+		w.Write(ce)
+	} else {
+		cli := getCli()
+		Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		jsonString, _ := json.Marshal(Services)
+		addCacheElement(r.URL.Path, jsonString)
+		w.Write(jsonString)
+	}
 }
 
 // Serves the nodes
 func dockerNodesHandler(w http.ResponseWriter, r *http.Request) {
-	cli := getCli()
-
-	Nodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
-	if err != nil {
-		panic(err)
+	ce, found := getCacheElement(&r.URL.Path)
+	if found {
+		w.Write(ce)
+	} else {
+		cli := getCli()
+		Nodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		jsonString, _ := json.Marshal(Nodes)
+		addCacheElement(r.URL.Path, jsonString)
+		w.Write(jsonString)
 	}
-	json.NewEncoder(w).Encode(Nodes)
 }
 
 // Serves the tasks
 func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
-	cli := getCli()
-
-	Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
-	if err != nil {
-		panic(err)
+	ce, found := getCacheElement(&r.URL.Path)
+	if found {
+		w.Write(ce)
+	} else {
+		cli := getCli()
+		Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		jsonString, _ := json.Marshal(Tasks)
+		addCacheElement(r.URL.Path, jsonString)
+		w.Write(jsonString)
 	}
-	json.NewEncoder(w).Encode(Tasks)
 }
+
+// Serves one service
+//func dockerServiceDetailsHandler(w http.ResponseWriter, r *http.Request) {
+//	vars := mux.Vars(r)
+//	id := vars["id"]
+//
+//	cli := getCli()
+//
+//	Service, _, err := cli.ServiceInspectWithRaw(context.Background(), id, types.ServiceInspectOptions{})
+//	if err != nil {
+//		panic(err)
+//	}
+//	json.NewEncoder(w).Encode(Service)
+//}

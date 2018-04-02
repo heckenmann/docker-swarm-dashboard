@@ -1,0 +1,71 @@
+#background-image {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 200px;
+    opacity: 0.1;
+    z-index: -100;
+}
+
+#dockerlogo {
+    position: relative;
+    height: 25px;
+    float: left !important;
+}
+
+#containerTable .dataCol {
+    width: 60px;
+}
+
+#containerTable thead th {
+    height: 150px;
+}
+
+#containerTable .rotated {
+    position: relative;
+    transform: translate(0px, -70%) rotate(-25deg);
+    width: 30px;
+    white-space: nowrap;
+    text-transform: none;
+    overflow: visible;
+}
+
+#containerTable {
+    table-layout: inherit !important;
+}
+
+#containerTable .nodeAttribute {
+    width: 200px;
+    white-space: nowrap;
+}
+
+#containerTable .nodeAttributeSmall {
+    width: 100px;
+    white-space: nowrap;
+}
+
+.ds-label {
+    position: relative;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
+#tasksTable #timestampCol {
+    width: 200px;
+}
+
+#tasksTable #stateCol {
+    width: 100px;
+}
+
+#tasksTable #desiredstateCol {
+    width: 120px;
+}
+
+#tasksTable #serviceCol {
+    max-width: 300px;
+}
+
+#tasksTable #nodeCol {
+    width: 200px;
+}
