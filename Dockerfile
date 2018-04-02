@@ -11,4 +11,5 @@ COPY build.sh /opt/dsd
 RUN chmod +x /opt/dsd/build.sh
 RUN /bin/sh /opt/dsd/build.sh
 
-CMD dsd/dockerswarmdashboard
+WORKDIR /opt/dsd
+CMD ./dockerswarmdashboard
