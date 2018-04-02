@@ -22,21 +22,18 @@ class ServicesComponent extends Component {
         // Rows
         this.props.state.nodes.forEach(node => {
             let dataCols = this.props.state.services.map(service => {
-                // Show only the last state. Array is sorted by timestamp.
-                let lastTask = this.props.state.tasks.find(task => {
+                let tasks = this.props.state.tasks.filter((task) => {
                     return task['ServiceID'] === service['ID']
+                        && task['NodeID'] === node['ID']
                         && task['Status']['State'] !== 'shutdown'
                         && task['Status']['State'] !== 'complete';
+                }).map(task => {
+                    return (
+                        <li><Label bsStyle={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']}</Label></li>
+                    )
                 });
-                if (lastTask && lastTask['NodeID'] === node['ID']) {
-                    return (
-                        <td><Label bsStyle={getStyleClassForState(lastTask['Status']['State'])}>{lastTask['Status']['State']}</Label></td>
-                    )
-                } else {
-                    return (
-                        <td></td>
-                    )
-                }
+                return (<td><ul>{tasks}</ul></td>);
+
             });
             trows.push(
                 <tr>
