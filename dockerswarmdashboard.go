@@ -32,7 +32,7 @@ func main() {
 	// router.HandleFunc("/docker/services/{id}", dockerServiceDetailsHandler)
 	router.HandleFunc("/docker/nodes", dockerNodesHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("build")))
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Wating for connections...")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
