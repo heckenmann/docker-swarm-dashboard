@@ -3,7 +3,8 @@ FROM alpine:3.7
 EXPOSE 8080
 
 WORKDIR /opt
-ADD app-src ./dsd
+COPY app-src ./dsd
+RUN ls -la dsd
 #COPY dockerswarmdashboard.go /opt/dsd
 #COPY build.sh /opt/dsd
 #
