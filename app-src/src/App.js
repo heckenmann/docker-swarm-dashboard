@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ReactInterval } from 'react-interval';
 import './App.css';
 import { DashboardNavbar } from './components/DashboardNavbar';
 import { HashRouter, Switch, Route } from 'react-router-dom';
@@ -17,9 +18,15 @@ class App extends Component {
   state = {
     time: new Date(),
     initialized: false,
+    refreshInterval: null,
     nodes: [],
     services: [],
     tasks: []
+  }
+
+  setState = (state) => {
+    state.time = new Date();
+    super.setState(state);
   }
 
   componentDidMount() {
@@ -39,14 +46,24 @@ class App extends Component {
     this.setState(localState);
   }
 
+  toggleRefresh = () => {
+    let localState = this.state;
+    if(localState.refreshInterval) {
+      localState.refreshInterval = null;
+    } else {
+      localState.refreshInterval = 1000;
+    }
+    this.setState(localState);
+  }
 
 
   render() {
     return (
       <HashRouter>
         <div className="App">
+          <ReactInterval enabled={this.state.refreshInterval !== null} timeout={this.state.refreshInterval} callback={this.update} />
           <img alt="background" id="background-image" src={bg} />
-          <DashboardNavbar forceUpdate={this.update} />
+          <DashboardNavbar state={this.state} forceUpdate={this.update} toggleRefresh={this.toggleRefresh} />
           <Switch>
             <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
             <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
