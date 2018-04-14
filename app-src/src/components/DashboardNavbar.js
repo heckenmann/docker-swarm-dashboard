@@ -6,6 +6,8 @@ import faSync from '@fortawesome/fontawesome-free-solid/faSync';
 import faLinode from '@fortawesome/fontawesome-free-brands/faLinode';
 import faTasks from '@fortawesome/fontawesome-free-solid/faTasks';
 import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle';
+import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import faStopCircle from '@fortawesome/fontawesome-free-solid/faStopCircle';
 import logo from '../docker.png';
 
 class DashboardNavbar extends Component {
@@ -27,6 +29,7 @@ class DashboardNavbar extends Component {
                     </LinkContainer>
                 </Nav>
                 <Nav pullRight>
+                    <NavItem onClick={this.props.toggleRefresh}><FontAwesomeIcon icon={this.props.state.refreshInterval ? faStopCircle : faPlayCircle} /> Refresh-Interval</NavItem>
                     <NavItem onClick={this.props.forceUpdate}><FontAwesomeIcon icon={faSync} /> Refresh</NavItem>
                     <LinkContainer to="/about">
                         <NavItem><FontAwesomeIcon icon={faInfoCircle} /> About</NavItem>

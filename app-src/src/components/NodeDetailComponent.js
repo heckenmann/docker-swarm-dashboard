@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Table } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 
 class NodeDetailComponent extends Component {
 
