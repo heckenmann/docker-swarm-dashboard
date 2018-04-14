@@ -1,8 +1,25 @@
 import React, { Component } from 'react';
 import { Table, Label, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
+import { NodeDetailComponent } from './NodeDetailComponent'
 
 class ServicesComponent extends Component {
+
+    state = {
+        nodeDetailDialog: null
+    }
+
+    showNodeDetails = (nodeId) => {
+        let localState = this.state;
+        localState.nodeDetailDialog = nodeId;
+        this.setState(localState);
+    }
+
+    hideNodeDetails = () => {
+        let localState = this.state;
+        localState.nodeDetailDialog = null;
+        this.setState(localState);
+    }
 
     render() {
         if (!this.props.state || !this.props.state.initialized) {
@@ -37,7 +54,10 @@ class ServicesComponent extends Component {
             });
             trows.push(
                 <tr>
-                    <td ref={node['ID']}>{node['Description']['Hostname']}</td>
+                    <td>
+                        <NodeDetailComponent  node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
+                        <Button bsStyle="link" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
+                    </td>
                     <td>{node['Status']['Addr']}</td>
                     <td>{node['Spec']['Role']}</td>
                     {dataCols}

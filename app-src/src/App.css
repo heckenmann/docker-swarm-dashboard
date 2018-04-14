@@ -23,6 +23,7 @@
 
 #containerTable .rotated {
     position: relative;
+    margin-left: 15px;
     transform: translate(0px, -70%) rotate(-25deg);
     width: 30px;
     white-space: nowrap;
@@ -72,4 +73,9 @@ table ul {
 
 table ul li {
     padding-left: 1em;
+}
+
+.jsonTextarea {
+    width: 100%;
+    min-height: 400px;
 }
