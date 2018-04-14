@@ -57,6 +57,10 @@ class ServicesComponent extends Component {
                     <td>
                         <NodeDetailComponent  node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
                         <Button bsStyle="link" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
+                        {
+                            node['ManagerStatus'] && node['ManagerStatus']['Leader'] && 
+                            <Label bsStyle='primary'>Leader</Label>
+                        }
                     </td>
                     <td>{node['Status']['Addr']}</td>
                     <td>{node['Spec']['Role']}</td>
