@@ -11,7 +11,6 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 // import '../node_modules/@fortawesome/fontawesome/styles.css';
 
 import bg from './docker.png';
-import { Button } from 'react-bootstrap';
 
 class App extends Component {
 
@@ -39,6 +38,8 @@ class App extends Component {
     localState.initialized = true;
     this.setState(localState);
   }
+
+
 
   render() {
     return (
