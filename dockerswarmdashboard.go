@@ -60,24 +60,14 @@ func addCacheElement(index string, json []byte) {
 	cache[index] = cacheElement{timestamp: time.Now(), value: json}
 }
 
-func abstractHandler(w http.ResponseWriter, r *http.Request) {
-	ce, found := getCacheElement(&r.URL.Path)
-	if found {
-		w.Write(ce)
-	} else {
-		cli := getCli()
-		Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
-		if err != nil {
-			panic(err)
-		}
-		jsonString, _ := json.Marshal(Services)
-		addCacheElement(r.URL.Path, jsonString)
-		w.Write(jsonString)
-	}
+func addCorsHeader(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Allow-Origin", "*")
 }
 
 // Serves the services
 func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
+	addCorsHeader(w)
 	ce, found := getCacheElement(&r.URL.Path)
 	if found {
 		w.Write(ce)
@@ -95,6 +85,7 @@ func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
 
 // Serves the nodes
 func dockerNodesHandler(w http.ResponseWriter, r *http.Request) {
+	addCorsHeader(w)
 	ce, found := getCacheElement(&r.URL.Path)
 	if found {
 		w.Write(ce)
@@ -112,6 +103,7 @@ func dockerNodesHandler(w http.ResponseWriter, r *http.Request) {
 
 // Serves the tasks
 func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
+	addCorsHeader(w)
 	ce, found := getCacheElement(&r.URL.Path)
 	if found {
 		w.Write(ce)
