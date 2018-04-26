@@ -8,13 +8,14 @@ import faTasks from '@fortawesome/fontawesome-free-solid/faTasks';
 import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faStopCircle from '@fortawesome/fontawesome-free-solid/faStopCircle';
+import faBuilding from '@fortawesome/fontawesome-free-solid/faBuilding';
 import logo from '../docker.png';
 
 class DashboardNavbar extends Component {
 
     render() {
         return (
-            <Navbar inverse staticTop>
+            <Navbar inverse fixedTop>
                 <Navbar.Header>
                     <Navbar.Brand bsclass="white-space: nowrap;">
                         <img alt="logo" id="dockerlogo" src={logo} /> Docker Swarm Dashboard
@@ -26,6 +27,9 @@ class DashboardNavbar extends Component {
                     </LinkContainer>
                     <LinkContainer to="/tasks">
                         <NavItem><FontAwesomeIcon icon={faTasks} /> Tasks</NavItem>
+                    </LinkContainer>
+                    <LinkContainer to="/ports">
+                        <NavItem><FontAwesomeIcon icon={faBuilding} /> Ports</NavItem>
                     </LinkContainer>
                 </Nav>
                 <Nav pullRight>

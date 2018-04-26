@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Label } from 'react-bootstrap';
+import { Table, Label, Panel, Well } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 
 class TasksComponent extends Component {
@@ -24,21 +24,27 @@ class TasksComponent extends Component {
             );
         });
         return (
-            <Table striped bordered condensed hover id="tasksTable">
-                <thead>
-                    <tr>
-                        <th id="timestampCol">Timestamp</th>
-                        <th id="stateCol">State</th>
-                        <th id="desiredstateCol">DesiredState</th>
-                        <th id="serviceCol">ServiceName</th>
-                        <th id="nodeCol">Node</th>
-                        <th>Error</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows}
-                </tbody>
-            </Table>
+            <Well>
+                <Panel>
+                    <Panel.Body>
+                        <Table striped condensed hover id="tasksTable">
+                            <thead>
+                                <tr>
+                                    <th id="timestampCol">Timestamp</th>
+                                    <th id="stateCol">State</th>
+                                    <th id="desiredstateCol">DesiredState</th>
+                                    <th id="serviceCol">ServiceName</th>
+                                    <th id="nodeCol">Node</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows}
+                            </tbody>
+                        </Table>
+                    </Panel.Body>
+                </Panel>
+            </Well>
         )
     }
 

@@ -6,6 +6,7 @@ import { HashRouter, Switch, Route } from 'react-router-dom';
 import { ServicesComponent } from './components/ServicesComponent';
 import { AboutComponent } from './components/AboutComponent';
 import { TasksComponent } from './components/TasksComponent';
+import { PortsComponent } from './components/PortsComponent';
 
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 //import '../node_modules/bootswatch/darkly/bootstrap.min.css';
@@ -48,7 +49,7 @@ class App extends Component {
 
   toggleRefresh = () => {
     let localState = this.state;
-    if(localState.refreshInterval) {
+    if (localState.refreshInterval) {
       localState.refreshInterval = null;
     } else {
       localState.refreshInterval = 1000;
@@ -68,6 +69,7 @@ class App extends Component {
             <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
             <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
             <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
+            <Route exact path='/ports' component={() => (<PortsComponent state={this.state} />)} />
             <Route exact path='/about' component={AboutComponent} />
           </Switch>
         </div>
