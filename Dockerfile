@@ -25,5 +25,5 @@ EXPOSE 8080
 RUN mkdir -p /opt/dsd
 WORKDIR /opt/dsd
 COPY --from=go /tmp/dockerswarmdashboard .
-COPY --from=node /opt/dsd/* ./build/
+COPY --from=node /opt/dsd/build ./build
 CMD ./dockerswarmdashboard
