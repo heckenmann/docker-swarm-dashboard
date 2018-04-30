@@ -8,6 +8,11 @@ Docker-Image Size: 8MB
 ![Container Dashboard](screenshots/container.png)
 ![Tasks Timeline](screenshots/tasks.png)
 
+## Local Build
+```
+docker build -t heckenmann/docker-swarm-dashboard:local .
+```
+
 ## docker-compose.yml
 ```
 ---
