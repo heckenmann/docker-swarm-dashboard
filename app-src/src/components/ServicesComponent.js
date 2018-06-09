@@ -53,17 +53,35 @@ class ServicesComponent extends Component {
 
             });
             trows.push(
-                <tr>
+                <tr className={node['Status']['State'] === 'ready' ? null : 'danger'}>
                     <td>
-                        <NodeDetailComponent  node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
+                        <NodeDetailComponent node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
                         <Button bsStyle="link" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
                         {
-                            node['ManagerStatus'] && node['ManagerStatus']['Leader'] && 
+                            node['ManagerStatus'] && node['ManagerStatus']['Leader'] &&
                             <Label bsStyle='primary'>Leader</Label>
                         }
                     </td>
-                    <td>{node['Status']['Addr']}</td>
                     <td>{node['Spec']['Role']}</td>
+                    <td>
+                        {
+                            node['Status']['State'] === 'ready' &&
+                            <Label bsStyle='success'>Ready</Label>
+                            ||
+                            node['Status']['State'] === 'down' &&
+                            <Label bsStyle='danger'>Down</Label>
+                            ||
+                            <Label bsStyle='warning'>{node['Status']['State']}</Label>
+                        }
+                    </td>
+                    <td>
+                        {
+                            node['Spec']['Availability'] === 'active' && <Label bsStyle='success'>{node['Spec']['Availability']}</Label>
+                            ||
+                            <Label bsStyle='warning'>{node['Spec']['Availability']}</Label>
+                        }
+                    </td>
+                    <td>{node['Status']['Addr']}</td>
                     {dataCols}
                     <td></td>
                 </tr>
@@ -75,8 +93,10 @@ class ServicesComponent extends Component {
                 <thead>
                     <tr>
                         <th className="nodeAttribute">Node</th>
-                        <th className="nodeAttributeSmall">IP</th>
                         <th className="nodeAttributeSmall">Role</th>
+                        <th className="nodeAttributeSmall">State</th>
+                        <th className="nodeAttributeSmall">Availability</th>
+                        <th className="nodeAttributeSmall">IP</th>
                         {theads}
                     </tr>
                 </thead>
