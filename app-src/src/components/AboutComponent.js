@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { PageHeader, Table, Well } from 'react-bootstrap';
+import { Table, Card } from 'react-bootstrap';
 
 class AboutComponent extends Component {
 
     render() {
         return (
-            <Well>
-                <PageHeader>
+            <Card>
+                <h1>
                     Docker Swarm Dashboard <small>by heckenmann</small>
-                </PageHeader>
+                </h1>
                 <Table>
                     <tbody>
                         <tr>
@@ -25,7 +25,7 @@ class AboutComponent extends Component {
                         </tr>
                     </tbody>
                 </Table>
-            </Well >
+            </Card >
         );
     }
 }

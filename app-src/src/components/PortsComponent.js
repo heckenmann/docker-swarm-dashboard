@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Table, Panel, Well } from 'react-bootstrap';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faArrowRight from '@fortawesome/fontawesome-free-solid/faArrowRight';
+import { Table, Card } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/fontawesome-free-solid/faArrowRight';
 
 class PortsComponent extends Component {
 
@@ -32,27 +32,25 @@ class PortsComponent extends Component {
             });
 
         return (
-            <Well>
-                <Panel>
-                    <Panel.Body>
-                        <Table id="portsTable" striped condensed hover>
-                            <thead>
-                                <tr>
-                                    <th id="publishedPort">PublishedPort</th>
-                                    <th id="arrow"></th>
-                                    <th id="targetPort">TargetPort</th>
-                                    <th id="protocol">Protocol</th>
-                                    <th id="publishMode">PublishMode</th>
-                                    <th id="serviceName">ServiceName</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {renderedServices}
-                            </tbody>
-                        </Table>
-                    </Panel.Body>
-                </Panel>
-            </Well>
+            <Card>
+                <Card.Body>
+                    <Table id="portsTable" striped condensed hover>
+                        <thead>
+                            <tr>
+                                <th id="publishedPort">PublishedPort</th>
+                                <th id="arrow"></th>
+                                <th id="targetPort">TargetPort</th>
+                                <th id="protocol">Protocol</th>
+                                <th id="publishMode">PublishMode</th>
+                                <th id="serviceName">ServiceName</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {renderedServices}
+                        </tbody>
+                    </Table>
+                </Card.Body>
+            </Card>
         )
     }
 }

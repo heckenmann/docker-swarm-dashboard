@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Label, Button } from 'react-bootstrap';
+import { Table, FormLabel, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { NodeDetailComponent } from './NodeDetailComponent'
 
@@ -46,7 +46,7 @@ class ServicesComponent extends Component {
                         && task['Status']['State'] !== 'complete';
                 }).map(task => {
                     return (
-                        <li><Label bsStyle={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']}</Label></li>
+                        <li><FormLabel bsStyle={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']}</FormLabel></li>
                     )
                 });
                 return (<td><ul>{tasks}</ul></td>);
@@ -59,26 +59,26 @@ class ServicesComponent extends Component {
                         <Button bsStyle="link" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
                         {
                             node['ManagerStatus'] && node['ManagerStatus']['Leader'] &&
-                            <Label bsStyle='primary'>Leader</Label>
+                            <FormLabel bsStyle='primary'>Leader</FormLabel>
                         }
                     </td>
                     <td>{node['Spec']['Role']}</td>
                     <td>
                         {
                             node['Status']['State'] === 'ready' &&
-                            <Label bsStyle='success'>Ready</Label>
+                            <FormLabel bsStyle='success'>Ready</FormLabel>
                             ||
                             node['Status']['State'] === 'down' &&
-                            <Label bsStyle='danger'>Down</Label>
+                            <FormLabel bsStyle='danger'>Down</FormLabel>
                             ||
-                            <Label bsStyle='warning'>{node['Status']['State']}</Label>
+                            <FormLabel bsStyle='warning'>{node['Status']['State']}</FormLabel>
                         }
                     </td>
                     <td>
                         {
-                            node['Spec']['Availability'] === 'active' && <Label bsStyle='success'>{node['Spec']['Availability']}</Label>
+                            node['Spec']['Availability'] === 'active' && <FormLabel bsStyle='success'>{node['Spec']['Availability']}</FormLabel>
                             ||
-                            <Label bsStyle='warning'>{node['Spec']['Availability']}</Label>
+                            <FormLabel bsStyle='warning'>{node['Spec']['Availability']}</FormLabel>
                         }
                     </td>
                     <td>{node['Status']['Addr']}</td>
