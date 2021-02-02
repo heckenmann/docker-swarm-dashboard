@@ -6,7 +6,7 @@ class NodeDetailComponent extends Component {
     render() {
         return (
             <Modal show={this.props.show} onHide={this.props.closeHandler}
-                bsSize="large"
+                size="large"
                 aria-labelledby="contained-modal-title-lg">
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.node.Description.Hostname}</Modal.Title>

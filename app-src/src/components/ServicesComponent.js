@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, FormLabel, Button } from 'react-bootstrap';
+import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { NodeDetailComponent } from './NodeDetailComponent'
 
@@ -31,10 +31,10 @@ class ServicesComponent extends Component {
         // Columns
         this.props.state.services.forEach(service => {
             theads.push(
-                <th className="dataCol"><div className="rotated">{service['Spec']['Name']}</div></th>
+                <th key={'serviceTable-' + service['ID']} className="dataCol"><div className="rotated">{service['Spec']['Name']}</div></th>
             );
         });
-        theads.push(<th></th>);
+        theads.push(<th key='serviceTable-empty'></th>);
 
         // Rows
         this.props.state.nodes.forEach(node => {
@@ -46,39 +46,35 @@ class ServicesComponent extends Component {
                         && task['Status']['State'] !== 'complete';
                 }).map(task => {
                     return (
-                        <li><FormLabel bsStyle={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']}</FormLabel></li>
+                        <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge variant={getStyleClassForState(task['Status']['State'])} className='w-100'>{task['Status']['State']}</Badge></li>
                     )
                 });
-                return (<td><ul>{tasks}</ul></td>);
+                return (<td key={'td' + node['ID'] + service['ID']}><ul>{tasks}</ul></td>);
 
             });
             trows.push(
-                <tr className={node['Status']['State'] === 'ready' ? null : 'danger'}>
+                <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
                     <td>
                         <NodeDetailComponent node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
-                        <Button bsStyle="link" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
-                        {
-                            node['ManagerStatus'] && node['ManagerStatus']['Leader'] &&
-                            <FormLabel bsStyle='primary'>Leader</FormLabel>
-                        }
+                        <Button variant="link" size="sm" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
                     </td>
                     <td>{node['Spec']['Role']}</td>
                     <td>
                         {
                             node['Status']['State'] === 'ready' &&
-                            <FormLabel bsStyle='success'>Ready</FormLabel>
+                            <Badge variant="success" className='w-100'>Ready</Badge>
                             ||
                             node['Status']['State'] === 'down' &&
-                            <FormLabel bsStyle='danger'>Down</FormLabel>
+                            <Badge variant='danger' className='w-100'>Down</Badge>
                             ||
-                            <FormLabel bsStyle='warning'>{node['Status']['State']}</FormLabel>
+                            <Badge variant='warning' className='w-100'>{node['Status']['State']}</Badge>
                         }
                     </td>
                     <td>
                         {
-                            node['Spec']['Availability'] === 'active' && <FormLabel bsStyle='success'>{node['Spec']['Availability']}</FormLabel>
+                            node['Spec']['Availability'] === 'active' && <Badge variant='success' className='w-100'>{node['Spec']['Availability']}</Badge>
                             ||
-                            <FormLabel bsStyle='warning'>{node['Spec']['Availability']}</FormLabel>
+                            <Badge variant='warning' className='w-100'>{node['Spec']['Availability']}</Badge>
                         }
                     </td>
                     <td>{node['Status']['Addr']}</td>
@@ -89,7 +85,7 @@ class ServicesComponent extends Component {
         });
 
         return (
-            <Table id="containerTable" striped condensed hover>
+            <Table key="serviceTable" id="serviceTable" striped hover>
                 <thead>
                     <tr>
                         <th className="nodeAttribute">Node</th>
