@@ -12,20 +12,20 @@ body {
 }
 
 #dockerlogo {
-    position: relative;
+    /*position: relative;
     height: 25px;
-    float: left !important;
+    float: left !important;*/
 }
 
-#containerTable .dataCol {
+#serviceTable .dataCol {
     width: 60px;
 }
 
-#containerTable thead th {
+#serviceTable thead th {
     height: 200px;
 }
 
-#containerTable .rotated {
+#serviceTable .rotated {
     position: relative;
     margin-left: 15px;
     transform: translate(0px, -70%) rotate(-25deg);
@@ -35,16 +35,16 @@ body {
     overflow: visible;
 }
 
-#containerTable {
+#serviceTable {
     table-layout: inherit !important;
 }
 
-#containerTable .nodeAttribute {
+#serviceTable .nodeAttribute {
     width: 200px;
     white-space: nowrap;
 }
 
-#containerTable .nodeAttributeSmall {
+#serviceTable .nodeAttributeSmall {
     width: 100px;
     white-space: nowrap;
 }

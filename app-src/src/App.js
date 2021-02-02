@@ -7,12 +7,19 @@ import { ServicesComponent } from './components/ServicesComponent';
 import { AboutComponent } from './components/AboutComponent';
 import { TasksComponent } from './components/TasksComponent';
 import { PortsComponent } from './components/PortsComponent';
-
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import 'bootstrap/dist/css/bootstrap.min.css';
 //import '../node_modules/bootswatch/darkly/bootstrap.min.css';
-// import '../node_modules/@fortawesome/fontawesome/styles.css';
+//import '../node_modules/@fortawesome/fontawesome/styles.css';
 
 import bg from './docker.png';
+import { Jumbotron } from 'react-bootstrap';
+import { LogsComponent } from './components/LogsComponent';
+
+library.add(fab, fas, far)
 
 class App extends Component {
 
@@ -65,13 +72,16 @@ class App extends Component {
           <ReactInterval enabled={this.state.refreshInterval !== null} timeout={this.state.refreshInterval} callback={this.update} />
           <img alt="background" id="background-image" src={bg} />
           <DashboardNavbar state={this.state} forceUpdate={this.update} toggleRefresh={this.toggleRefresh} />
-          <Switch>
-            <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
-            <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
-            <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
-            <Route exact path='/ports' component={() => (<PortsComponent state={this.state} />)} />
-            <Route exact path='/about' component={AboutComponent} />
-          </Switch>
+          <Jumbotron>
+            <Switch>
+              <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
+              <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
+              <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
+              <Route exact path='/ports' component={() => (<PortsComponent state={this.state} />)} />
+              <Route exact path='/logs' component={() => (<LogsComponent state={this.state} />)} />
+              <Route exact path='/about' component={AboutComponent} />
+            </Switch>
+          </Jumbotron>
         </div>
       </HashRouter>
     );

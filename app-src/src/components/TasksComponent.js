@@ -13,9 +13,9 @@ class TasksComponent extends Component {
             let currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
             let currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
             return (
-                <tr>
+                <tr key={'tasksTable-' + task['ID']}>
                     <td>{new Date(task['Status']['Timestamp']).toLocaleString()}</td>
-                    <td><Badge bsStyle={getStyleClassForState(task['Status']['State'])} className="ds-label full-width">{task['Status']['State']} </Badge></td>
+                    <td><Badge variant={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                     <td>{task['DesiredState']}</td>
                     <td>{currentServiceName}</td>
                     <td>{currentNodeName}</td>
@@ -26,7 +26,7 @@ class TasksComponent extends Component {
         return (
             <Card>
                 <Card.Body>
-                    <Table striped condensed hover id="tasksTable">
+                    <Table striped hover id="tasksTable" size="sm">
                         <thead>
                             <tr>
                                 <th id="timestampCol">Timestamp</th>

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/fontawesome-free-solid/faArrowRight';
 
 class PortsComponent extends Component {
 
@@ -22,7 +21,7 @@ class PortsComponent extends Component {
                 return (
                     <tr key={p.PublishedPort}>
                         <td>{p.PublishedPort}</td>
-                        <td><FontAwesomeIcon icon={faArrowRight} /></td>
+                        <td><FontAwesomeIcon icon="arrow-right" /></td>
                         <td>{p.TargetPort}</td>
                         <td>{p.Protocol}</td>
                         <td>{p.PublishMode}</td>
@@ -34,7 +33,7 @@ class PortsComponent extends Component {
         return (
             <Card>
                 <Card.Body>
-                    <Table id="portsTable" striped condensed hover>
+                    <Table id="portsTable" size="sm" striped hover>
                         <thead>
                             <tr>
                                 <th id="publishedPort">PublishedPort</th>
