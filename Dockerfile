@@ -20,7 +20,7 @@ RUN npm run-script build
 RUN rm -r /opt/dsd/node_modules
 
 ##############################################################################
-FROM alpine:3.7
+FROM alpine:3
 EXPOSE 8080
 RUN mkdir -p /opt/dsd
 WORKDIR /opt/dsd
