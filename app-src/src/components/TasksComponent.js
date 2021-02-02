@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Label, Panel, Well } from 'react-bootstrap';
+import { Table, Badge, Card } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 
 class TasksComponent extends Component {
@@ -13,9 +13,9 @@ class TasksComponent extends Component {
             let currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
             let currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
             return (
-                <tr>
+                <tr key={'tasksTable-' + task['ID']}>
                     <td>{new Date(task['Status']['Timestamp']).toLocaleString()}</td>
-                    <td><Label bsStyle={getStyleClassForState(task['Status']['State'])} className="ds-label">{task['Status']['State']} </Label></td>
+                    <td><Badge variant={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                     <td>{task['DesiredState']}</td>
                     <td>{currentServiceName}</td>
                     <td>{currentNodeName}</td>
@@ -24,27 +24,25 @@ class TasksComponent extends Component {
             );
         });
         return (
-            <Well>
-                <Panel>
-                    <Panel.Body>
-                        <Table striped condensed hover id="tasksTable">
-                            <thead>
-                                <tr>
-                                    <th id="timestampCol">Timestamp</th>
-                                    <th id="stateCol">State</th>
-                                    <th id="desiredstateCol">DesiredState</th>
-                                    <th id="serviceCol">ServiceName</th>
-                                    <th id="nodeCol">Node</th>
-                                    <th>Error</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rows}
-                            </tbody>
-                        </Table>
-                    </Panel.Body>
-                </Panel>
-            </Well>
+            <Card>
+                <Card.Body>
+                    <Table striped hover id="tasksTable" size="sm">
+                        <thead>
+                            <tr>
+                                <th id="timestampCol">Timestamp</th>
+                                <th id="stateCol">State</th>
+                                <th id="desiredstateCol">DesiredState</th>
+                                <th id="serviceCol">ServiceName</th>
+                                <th id="nodeCol">Node</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows}
+                        </tbody>
+                    </Table>
+                </Card.Body>
+            </Card>
         )
     }
 

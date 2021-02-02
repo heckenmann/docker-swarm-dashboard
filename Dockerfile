@@ -1,8 +1,8 @@
 ##############################################################################
-FROM golang:1.10.1-alpine as go
+FROM golang:1.15.7-alpine as go
 RUN apk -U add git libc-dev
 COPY dockerswarmdashboard.go /tmp/dockerswarmdashboard.go
-RUN go get "github.com/docker/docker/api/types"
+#RUN go get "github.com/docker/docker/client"
 RUN go get "github.com/docker/docker/client"
 RUN go get "github.com/gorilla/mux"
 RUN go get "golang.org/x/net/context"

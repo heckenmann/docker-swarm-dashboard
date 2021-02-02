@@ -19,3 +19,5 @@ docker.png
 /app-src/node_modules
 /app-src/build
 /build
+
+.eslintcache
