@@ -1,45 +1,47 @@
 import React, { Component } from 'react';
-import { Nav, Navbar, NavItem } from 'react-bootstrap';
+import { Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faSync from '@fortawesome/fontawesome-free-solid/faSync';
-import faLinode from '@fortawesome/fontawesome-free-brands/faLinode';
-import faTasks from '@fortawesome/fontawesome-free-solid/faTasks';
-import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle';
-import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import faStopCircle from '@fortawesome/fontawesome-free-solid/faStopCircle';
-import faBuilding from '@fortawesome/fontawesome-free-solid/faBuilding';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
 
 class DashboardNavbar extends Component {
 
     render() {
         return (
-            <Navbar inverse fixedTop>
-                <Navbar.Header>
-                    <Navbar.Brand bsclass="white-space: nowrap;">
-                        <img alt="logo" id="dockerlogo" src={logo} /> Docker Swarm Dashboard
+            <>
+                <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
+                    <Navbar.Brand>
+                        <img alt="logo"
+                            id="dockerlogo"
+                            src={logo}
+                            className="d-inline-block align-top"
+                            width="30"
+                            height="30" />{' '}
+                            Docker Swarm Dashboard
                     </Navbar.Brand>
-                </Navbar.Header>
-                <Nav >
-                    <LinkContainer to="/services">
-                        <NavItem><FontAwesomeIcon icon={faLinode} /> Services / Nodes</NavItem>
-                    </LinkContainer>
-                    <LinkContainer to="/tasks">
-                        <NavItem><FontAwesomeIcon icon={faTasks} /> Tasks</NavItem>
-                    </LinkContainer>
-                    <LinkContainer to="/ports">
-                        <NavItem><FontAwesomeIcon icon={faBuilding} /> Ports</NavItem>
-                    </LinkContainer>
-                </Nav>
-                <Nav pullRight>
-                    <NavItem onClick={this.props.toggleRefresh}><FontAwesomeIcon icon={this.props.state.refreshInterval ? faStopCircle : faPlayCircle} /> Refresh-Interval</NavItem>
-                    <NavItem onClick={this.props.forceUpdate}><FontAwesomeIcon icon={faSync} /> Refresh</NavItem>
-                    <LinkContainer to="/about">
-                        <NavItem><FontAwesomeIcon icon={faInfoCircle} /> About</NavItem>
-                    </LinkContainer>
-                </Nav>
-            </Navbar>
+                    <Nav className="mr-auto" variant="dark">
+                        <LinkContainer to="/services">
+                            <Nav.Link><FontAwesomeIcon icon="box" />{' '}Services / Nodes</Nav.Link>
+                        </LinkContainer>
+                        <LinkContainer to="/tasks">
+                            <Nav.Link><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
+                        </LinkContainer>
+                        <LinkContainer to="/ports">
+                            <Nav.Link><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
+                        </LinkContainer>
+                        <LinkContainer to="/logs">
+                            <Nav.Link><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
+                        </LinkContainer>
+                    </Nav>
+                    <Nav className="mr-0">
+                        <Nav.Link onClick={this.props.toggleRefresh}><FontAwesomeIcon icon={this.props.state.refreshInterval ? "stop-circle" : "play-circle"} /> Refresh-Interval</Nav.Link>
+                        <Nav.Link onClick={this.props.forceUpdate}><FontAwesomeIcon icon="sync" /> Refresh</Nav.Link>
+                        <LinkContainer to="/about">
+                            <Nav.Link><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
+                        </LinkContainer>
+                    </Nav>
+                </Navbar>
+            </>
         );
     }
 }
