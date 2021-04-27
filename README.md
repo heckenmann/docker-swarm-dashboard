@@ -33,3 +33,8 @@ services:
     environment:
       DOCKER_API_VERSION: 1.35
 ```
+
+## logs-generator (for testing)
+```
+docker service create --name logger chentex/random-logger:latest 50 200
+```
