@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -9,12 +11,20 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"golang.org/x/net/context"
 )
 
 var (
 	cache              = map[string]cacheElement{}
 	cacheMaxAgeSeconds = 2
+	upgrader           = websocket.Upgrader{
+		//ReadBufferSize:    4096,
+		//WriteBufferSize:   4096,
+		EnableCompression: true,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		}}
 )
 
 /*
@@ -32,6 +42,7 @@ func main() {
 	// router.HandleFunc("/docker/services/{id}", dockerServiceDetailsHandler)
 	router.HandleFunc("/docker/nodes", dockerNodesHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
+	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Wating for connections...")
 	log.Fatal(http.ListenAndServe(":8080", router))
@@ -119,16 +130,68 @@ func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Serves one service
-//func dockerServiceDetailsHandler(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	id := vars["id"]
-//
-//	cli := getCli()
-//
-//	Service, _, err := cli.ServiceInspectWithRaw(context.Background(), id, types.ServiceInspectOptions{})
-//	if err != nil {
-//		panic(err)
-//	}
-//	json.NewEncoder(w).Encode(Service)
-//}
+// Serves the logs
+func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	serviceId := params["id"]
+	clientAddress := string(r.RemoteAddr)
+	log.Println("new logs-websocket-connection:", clientAddress)
+	ce, err := upgrader.Upgrade(w, r, nil)
+
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
+	}
+	defer ce.Close()
+	defer log.Println("gone:", clientAddress)
+
+	// docker-client context
+	ctx, _ := context.WithCancel(context.Background())
+	log.Println(clientAddress, serviceId)
+	cli := getCli()
+	logReader, _ := cli.ServiceLogs(ctx, serviceId, types.ContainerLogsOptions{
+		Follow:     true,
+		Tail:       "10",
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: true,
+	})
+
+	// Channel to write logs to
+	channel := make(chan []byte)
+	defer close(channel)
+
+	// Start client writer
+	go writeLogPipeToClient(ce, channel)
+
+	// Copy logs to pipe
+	bufioReader := bufio.NewReader(logReader)
+	for {
+		// Check for new client messages
+		//_, _, err = ce.ReadMessage()
+
+		// Read logs
+		line, _, err := bufioReader.ReadLine()
+		if err == io.EOF {
+			log.Println(line)
+			break
+		}
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		channel <- line
+	}
+}
+
+// Writes the content of the pipe to the client.
+func writeLogPipeToClient(websocketConn *websocket.Conn, channel chan []byte) {
+	for c := range channel {
+		// Cutting first 8 byte
+		err := websocketConn.WriteMessage(websocket.TextMessage, c[8:])
+		if err != nil {
+			log.Printf("Websocket closed: %s", websocketConn.LocalAddr().String())
+			return
+		}
+	}
+}
