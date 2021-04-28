@@ -31,7 +31,20 @@ class LogsComponent extends Component {
     };
 
     showLogs = () => {
-        this.setState({ showLogs: true, logs: [], serviceId: this.inputServiceId.value });
+        this.setState({
+            showLogs: true,
+            logs: [],
+            numberOfLines: this.inputTail.value > this.state.numberOfLines ? this.inputTail.value : this.state.numberOfLines,
+            serviceId: this.inputServiceId.value,
+            serviceName: (this.props.state.services.find(s => s['ID'] === this.inputServiceId.value))?.Spec.Name,
+            tail: this.inputTail.value,
+            since: this.inputSince.value,
+            follow: this.inputFollow.checked,
+            timestamps: this.inputTimestamps.checked,
+            stdout: this.inputStdout.checked,
+            stderr: this.inputStderr.checked,
+            details: this.inputDetails.checked
+        });
     };
 
     addLogMessage = (message) => {
@@ -61,10 +74,25 @@ class LogsComponent extends Component {
 
         let logPrinter = <>
             <SyntaxHighlighter language="javascript" style={docco}>{this.state.logs.join('\n')}</SyntaxHighlighter>
-            <Websocket url={'ws://localhost:8080/docker/logs/' + this.state.serviceId} onOpen={this.onWebsocketOpen} onMessage={this.addLogMessage} />
+            <Websocket url={'ws://localhost:8080/docker/logs/' + this.state.serviceId
+            + '?tail=' + this.state.tail
+            + '&since=' + this.state.since
+            + '&follow=' + this.state.follow
+            + '&timestamps=' + this.state.timestamps
+            + '&stdout=' + this.state.stdout
+            + '&stderr=' + this.state.stderr
+            + '&details=' + this.state.details} onOpen={this.onWebsocketOpen} onMessage={this.addLogMessage} reconnect={this.state.follow} />
         </>;
 
         let logPrinterOptions = <Form>
+            <Form.Group as={Row} controlId="logprinterservicename">
+                <Form.Label column sm="2">
+                    Service
+             </Form.Label>
+                <Col sm="10">
+                    <Form.Control type="text" defaultValue={this.state.serviceName} disabled={true} />
+                </Col>
+            </Form.Group>
             <Form.Group as={Row} controlId="logprinternumberoflines">
                 <Form.Label column sm="2">
                     Number of lines
@@ -78,7 +106,7 @@ class LogsComponent extends Component {
                     Search keyword
              </Form.Label>
                 <Col sm="10">
-                    <Form.Control type="text" />
+                    <Form.Control type="text" disabled={true} />
                 </Col>
             </Form.Group>
             <Form.Group as={Row}>
@@ -97,7 +125,7 @@ class LogsComponent extends Component {
                                 Service
                             </Form.Label>
                             <Col sm="10">
-                                <Form.Control as="select" value={this.state.serviceId} ref={node => (this.inputServiceId = node)}>
+                                <Form.Control as="select" ref={node => (this.inputServiceId = node)}>
                                     {serviceOptions}
                                 </Form.Control>
                             </Col>
@@ -107,7 +135,7 @@ class LogsComponent extends Component {
                                 Tail
                             </Form.Label>
                             <Col sm="10">
-                                <Form.Control type="text" defaultValue="50" />
+                                <Form.Control type="text" defaultValue="5"  ref={node => (this.inputTail = node)}/>
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} controlId="logsformsince">
@@ -115,7 +143,7 @@ class LogsComponent extends Component {
                                 Since
                             </Form.Label>
                             <Col sm="10">
-                                <Form.Control type="text" defaultValue="5m" />
+                                <Form.Control type="text" defaultValue="1h"  ref={node => (this.inputSince = node)}/>
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} controlId="logsformfollow">
@@ -123,7 +151,7 @@ class LogsComponent extends Component {
                                 Follow
                             </Form.Label>
                             <Col sm="10">
-                                <Form.Check />
+                                <Form.Check  ref={node => (this.inputFollow = node)}/>
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} controlId="logsformtimestamps">
@@ -131,13 +159,37 @@ class LogsComponent extends Component {
                                 Timestamps
                             </Form.Label>
                             <Col sm="10">
-                                <Form.Check defaultChecked={true} />
+                                <Form.Check defaultChecked={false} ref={node => (this.inputTimestamps = node)}/>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="logsformstdout">
+                            <Form.Label column sm="2">
+                                Stdout
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Check defaultChecked={true}  ref={node => (this.inputStdout = node)}/>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="logsformstderr">
+                            <Form.Label column sm="2">
+                                Stderr
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Check defaultChecked={true}  ref={node => (this.inputStderr = node)}/>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="logsformdetails">
+                            <Form.Label column sm="2">
+                                Details
+                            </Form.Label>
+                            <Col sm="10">
+                                <Form.Check defaultChecked={false}  ref={node => (this.inputDetails = node)}/>
                             </Col>
                         </Form.Group>
 
                         <Form.Group as={Row}>
                             <Col sm={{ span: 10, offset: 2 }}>
-                                <Button type="submit"><FontAwesomeIcon icon="desktop" /> Show logs</Button>
+                                <Button type="submit" disabled={!this.props.state.services || this.props.state.services.length === 0}><FontAwesomeIcon icon="desktop" /> Show logs</Button>
                             </Col>
                         </Form.Group>
                     </Form>}

@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -133,7 +134,16 @@ func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
 // Serves the logs
 func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	serviceId := params["id"]
+	paramServiceId := params["id"]
+
+	urlParams := r.URL.Query()
+	paramTail := urlParams["tail"][0]
+	paramSince := urlParams["since"][0]
+	paramStdout, _ := strconv.ParseBool(urlParams["stdout"][0])
+	paramStderr, _ := strconv.ParseBool(urlParams["stderr"][0])
+	paramFollow, _ := strconv.ParseBool(urlParams["follow"][0])
+	paramTimestamps, _ := strconv.ParseBool(urlParams["timestamps"][0])
+	paramDetails, _ := strconv.ParseBool(urlParams["details"][0])
 	clientAddress := string(r.RemoteAddr)
 	log.Println("new logs-websocket-connection:", clientAddress)
 	ce, err := upgrader.Upgrade(w, r, nil)
@@ -147,14 +157,16 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// docker-client context
 	ctx, _ := context.WithCancel(context.Background())
-	log.Println(clientAddress, serviceId)
+	log.Println(clientAddress, paramServiceId)
 	cli := getCli()
-	logReader, _ := cli.ServiceLogs(ctx, serviceId, types.ContainerLogsOptions{
-		Follow:     true,
-		Tail:       "10",
-		ShowStdout: true,
-		ShowStderr: true,
-		Timestamps: true,
+	logReader, _ := cli.ServiceLogs(ctx, paramServiceId, types.ContainerLogsOptions{
+		Tail:       paramTail,
+		Since:      paramSince,
+		Follow:     paramFollow,
+		Timestamps: paramTimestamps,
+		ShowStdout: paramStdout,
+		ShowStderr: paramStderr,
+		Details:    paramDetails,
 	})
 
 	// Channel to write logs to
