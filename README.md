@@ -1,9 +1,11 @@
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
 
-Docker-Image Size: 6MB
+Docker-Image Size: 10 MB
 
-## Screenshots
+**DON'T USE "latest" DOCKER-IMAGE FOR PRODUCTION!**
+
+## Screenshots (outdated!)
 
 ![Container Dashboard](screenshots/container.png)
 ![Tasks Timeline](screenshots/tasks.png)
