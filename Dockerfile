@@ -6,6 +6,7 @@ COPY dockerswarmdashboard.go /tmp/dockerswarmdashboard.go
 RUN go get "github.com/docker/docker/client"
 RUN go get "github.com/gorilla/mux"
 RUN go get "golang.org/x/net/context"
+RUN go get "github.com/gorilla/websocket"
 WORKDIR /tmp
 RUN go build dockerswarmdashboard.go
 

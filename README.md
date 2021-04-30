@@ -1,9 +1,11 @@
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
 
-Docker-Image Size: 6MB
+Docker-Image Size: 10 MB
 
-## Screenshots
+**DON'T USE "latest" DOCKER-IMAGE FOR PRODUCTION!**
+
+## Screenshots (outdated!)
 
 ![Container Dashboard](screenshots/container.png)
 ![Tasks Timeline](screenshots/tasks.png)
@@ -32,4 +34,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       DOCKER_API_VERSION: 1.35
+```
+
+## logs-generator (for testing)
+```
+docker service create --name logger chentex/random-logger:latest 50 200
 ```

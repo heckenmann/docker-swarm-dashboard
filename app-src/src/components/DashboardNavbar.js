@@ -30,7 +30,7 @@ class DashboardNavbar extends Component {
                             <Nav.Link><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/logs">
-                            <Nav.Link><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
+                            <Nav.Link><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs (beta)</Nav.Link>
                         </LinkContainer>
                     </Nav>
                     <Nav className="mr-0">
