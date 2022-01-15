@@ -74,7 +74,7 @@ class LogsComponent extends Component {
 
         let logPrinter = <>
             <SyntaxHighlighter language="javascript" style={docco}>{this.state.logs.join('\n')}</SyntaxHighlighter>
-            <Websocket url={'ws://' + location.host + '/docker/logs/' + this.state.serviceId
+            <Websocket url={'ws://' + window.location.host + '/docker/logs/' + this.state.serviceId
             + '?tail=' + this.state.tail
             + '&since=' + this.state.since
             + '&follow=' + this.state.follow
