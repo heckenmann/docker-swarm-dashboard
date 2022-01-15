@@ -1,27 +1,29 @@
 ##############################################################################
-FROM golang:1.15.7-alpine as go
+FROM golang:1.17.6-alpine as go
+ENV GO111MODULE=off
 RUN apk -U add git libc-dev
-COPY dockerswarmdashboard.go /tmp/dockerswarmdashboard.go
-#RUN go get "github.com/docker/docker/client"
+WORKDIR /tmp
+COPY go.mod ./
+COPY go.sum ./
+COPY dockerswarmdashboard.go ./
 RUN go get "github.com/docker/docker/client"
 RUN go get "github.com/gorilla/mux"
 RUN go get "golang.org/x/net/context"
 RUN go get "github.com/gorilla/websocket"
-WORKDIR /tmp
 RUN go build dockerswarmdashboard.go
 
 ##############################################################################
-FROM node:alpine as node
+FROM node:14-alpine as node
 RUN apk -U add git wget
 COPY app-src /opt/dsd
 RUN wget --quiet http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png -O /opt/dsd/src/docker.png
 WORKDIR /opt/dsd
 RUN npm install --only=production
-RUN npm run-script build
+RUN npm run build
 RUN rm -r /opt/dsd/node_modules
 
 ##############################################################################
-FROM alpine:3
+FROM alpine:3.15
 EXPOSE 8080
 RUN mkdir -p /opt/dsd
 WORKDIR /opt/dsd
