@@ -3,8 +3,6 @@ Dashboard for Docker Swarm Cluster
 
 Docker-Image Size: 10 MB
 
-**DON'T USE "latest" DOCKER-IMAGE FOR PRODUCTION!**
-
 ## Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
