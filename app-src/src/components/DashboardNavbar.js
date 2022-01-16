@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Nav, Navbar } from 'react-bootstrap';
+import { Container, Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
@@ -8,17 +8,18 @@ class DashboardNavbar extends Component {
 
     render() {
         return (
-            <>
-                <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
-                    <Navbar.Brand>
-                        <img alt="logo"
-                            id="dockerlogo"
-                            src={logo}
-                            className="d-inline-block align-top"
-                            width="30"
-                            height="30" />{' '}
-                            Docker Swarm Dashboard
-                    </Navbar.Brand>
+            <Navbar collapseOnSelect expand="lg">
+                <Navbar.Brand>
+                    <img alt="logo"
+                        id="dockerlogo"
+                        src={logo}
+                        className="d-inline-block align-top"
+                        width="30"
+                        height="30" />{' '}
+                    Docker Swarm Dashboard
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+                <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="mr-auto" variant="dark">
                         <LinkContainer to="/services">
                             <Nav.Link><FontAwesomeIcon icon="box" />{' '}Services / Nodes</Nav.Link>
@@ -40,8 +41,8 @@ class DashboardNavbar extends Component {
                             <Nav.Link><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
                         </LinkContainer>
                     </Nav>
-                </Navbar>
-            </>
+                </Navbar.Collapse>
+            </Navbar>
         );
     }
 }
