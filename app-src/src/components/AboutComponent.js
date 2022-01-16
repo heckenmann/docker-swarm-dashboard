@@ -21,8 +21,8 @@ class AboutComponent extends Component {
                                 <td><a href="https://github.com/heckenmann/docker-swarm-dashboard">https://github.com/heckenmann/docker-swarm-dashboard</a></td>
                             </tr>
                             <tr>
-                                <td>Docker Store:</td>
-                                <td><a href="https://store.docker.com/community/images/heckenmann/docker-swarm-dashboard">https://store.docker.com/community/images/heckenmann/docker-swarm-dashboard</a></td>
+                                <td>Docker Registry:</td>
+                                <td><a href="https://github.com/heckenmann/docker-swarm-dashboard/pkgs/container/docker-swarm-dashboard">https://github.com/heckenmann/docker-swarm-dashboard/pkgs/container/docker-swarm-dashboard</a></td>
                             </tr>
                         </tbody>
                     </Table>
