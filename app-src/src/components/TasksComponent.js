@@ -15,7 +15,7 @@ class TasksComponent extends Component {
             return (
                 <tr key={'tasksTable-' + task['ID']}>
                     <td>{new Date(task['Status']['Timestamp']).toLocaleString()}</td>
-                    <td><Badge variant={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
+                    <td><Badge className='w-100' bg={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                     <td>{task['DesiredState']}</td>
                     <td>{currentServiceName}</td>
                     <td>{currentNodeName}</td>
