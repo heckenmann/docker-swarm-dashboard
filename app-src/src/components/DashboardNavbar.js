@@ -8,7 +8,7 @@ class DashboardNavbar extends Component {
 
     render() {
         return (
-            <Navbar collapseOnSelect expand="xl" className='mb-3'>
+            <Navbar collapseOnSelect expand="xl" bg='dark' variant='dark' className='mb-3 border-bottom'>
                 <Container fluid>
                     <Navbar.Brand>
                         <img alt="logo"
