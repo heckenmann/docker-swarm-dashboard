@@ -67,28 +67,27 @@ class App extends Component {
 
   render() {
     return (
-      <Container fluid>
-        <HashRouter>
-          <div className="App">
-            <ReactInterval enabled={this.state.refreshInterval !== null} timeout={this.state.refreshInterval} callback={this.update} />
-            <img alt="background" id="background-image" src={bg} />
-            <DashboardNavbar state={this.state} forceUpdate={this.update} toggleRefresh={this.toggleRefresh} />
-            
-              <main role='main'>
-                <Jumbotron className="overflow-auto">
-                  <Switch>
-                    <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
-                    <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
-                    <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
-                    <Route exact path='/ports' component={() => (<PortsComponent state={this.state} />)} />
-                    <Route exact path='/logs' component={() => (<LogsComponent state={this.state} />)} />
-                    <Route exact path='/about' component={AboutComponent} />
-                  </Switch>
-                </Jumbotron>
-              </main>
-          </div>
-        </HashRouter>
-      </Container>
+
+      <HashRouter>
+        <div className="App">
+          <ReactInterval enabled={this.state.refreshInterval !== null} timeout={this.state.refreshInterval} callback={this.update} />
+          <img alt="background" id="background-image" src={bg} />
+          <DashboardNavbar state={this.state} forceUpdate={this.update} toggleRefresh={this.toggleRefresh} />
+
+          <main role='main'>
+            <Container fluid className="overflow-auto">
+              <Switch>
+                <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
+                <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
+                <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
+                <Route exact path='/ports' component={() => (<PortsComponent state={this.state} />)} />
+                <Route exact path='/logs' component={() => (<LogsComponent state={this.state} />)} />
+                <Route exact path='/about' component={AboutComponent} />
+              </Switch>
+            </Container>
+          </main>
+        </div>
+      </HashRouter>
     );
   }
 }
