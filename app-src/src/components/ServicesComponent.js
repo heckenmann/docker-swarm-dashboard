@@ -46,7 +46,7 @@ class ServicesComponent extends Component {
                         && task['Status']['State'] !== 'complete';
                 }).map(task => {
                     return (
-                        <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge variant={getStyleClassForState(task['Status']['State'])} className='w-100'>{task['Status']['State']}</Badge></li>
+                        <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge bg={getStyleClassForState(task['Status']['State'])} className='w-100'>{task['Status']['State']}</Badge></li>
                     )
                 });
                 return (<td key={'td' + node['ID'] + service['ID']}><ul>{tasks}</ul></td>);
@@ -62,19 +62,19 @@ class ServicesComponent extends Component {
                     <td>
                         {
                             node['Status']['State'] === 'ready' &&
-                            <Badge variant="success" className='w-100'>Ready</Badge>
+                            <Badge bg="success" className='w-100'>Ready</Badge>
                             ||
                             node['Status']['State'] === 'down' &&
-                            <Badge variant='danger' className='w-100'>Down</Badge>
+                            <Badge bg='danger' className='w-100'>Down</Badge>
                             ||
-                            <Badge variant='warning' className='w-100'>{node['Status']['State']}</Badge>
+                            <Badge bg='warning' className='w-100'>{node['Status']['State']}</Badge>
                         }
                     </td>
                     <td>
                         {
-                            node['Spec']['Availability'] === 'active' && <Badge variant='success' className='w-100'>{node['Spec']['Availability']}</Badge>
+                            node['Spec']['Availability'] === 'active' && <Badge bg='success' className='w-100'>{node['Spec']['Availability']}</Badge>
                             ||
-                            <Badge variant='warning' className='w-100'>{node['Spec']['Availability']}</Badge>
+                            <Badge bg='warning' className='w-100'>{node['Spec']['Availability']}</Badge>
                         }
                     </td>
                     <td>{node['Status']['Addr']}</td>
