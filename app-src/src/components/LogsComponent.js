@@ -120,7 +120,7 @@ class LogsComponent extends Component {
         </Form>
 
         return (
-            <Card>
+            <Card bg='light'>
                 <Card.Body>
                     {!this.state.showLogs && <Form onSubmit={this.showLogs}>
                         <Form.Group as={Row} className='mb-3' controlId="logsformservice">
