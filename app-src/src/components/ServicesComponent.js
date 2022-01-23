@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { NodeDetailComponent } from './NodeDetailComponent'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 class ServicesComponent extends Component {
 
@@ -49,17 +50,17 @@ class ServicesComponent extends Component {
                         <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge bg={getStyleClassForState(task['Status']['State'])} className='w-100'>{task['Status']['State']}</Badge></li>
                     )
                 });
-                return (<td key={'td' + node['ID'] + service['ID']}><ul>{tasks}</ul></td>);
+                return (<td className='align-middle' key={'td' + node['ID'] + service['ID']}><ul>{tasks}</ul></td>);
 
             });
             trows.push(
                 <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
-                    <td>
+                    <td className='align-middle'>
                         <NodeDetailComponent node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
-                        <Button variant="link" size="sm" onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}</Button>
+                        <Button variant="secondary" size="sm" className='w-100' onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}  {node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button>
                     </td>
-                    <td>{node['Spec']['Role']}</td>
-                    <td>
+                    <td className='align-middle'>{node['Spec']['Role']}</td>
+                    <td className='align-middle'>
                         {
                             node['Status']['State'] === 'ready' &&
                             <Badge bg="success" className='w-100'>Ready</Badge>
@@ -70,14 +71,14 @@ class ServicesComponent extends Component {
                             <Badge bg='warning' className='w-100'>{node['Status']['State']}</Badge>
                         }
                     </td>
-                    <td>
+                    <td className='align-middle'>
                         {
                             node['Spec']['Availability'] === 'active' && <Badge bg='success' className='w-100'>{node['Spec']['Availability']}</Badge>
                             ||
                             <Badge bg='warning' className='w-100'>{node['Spec']['Availability']}</Badge>
                         }
                     </td>
-                    <td>{node['Status']['Addr']}</td>
+                    <td className='align-middle'>{node['Status']['Addr']}</td>
                     {dataCols}
                     <td></td>
                 </tr>

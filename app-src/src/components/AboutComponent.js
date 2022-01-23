@@ -5,7 +5,7 @@ class AboutComponent extends Component {
 
     render() {
         return (
-            <Card>
+            <Card bg='light'>
                 <Card.Body>
                     <h1>
                         Docker Swarm Dashboard <small>by heckenmann</small>
