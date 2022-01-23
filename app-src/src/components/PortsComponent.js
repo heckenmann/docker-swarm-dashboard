@@ -31,7 +31,7 @@ class PortsComponent extends Component {
             });
 
         return (
-            <Card>
+            <Card bg='light'>
                 <Card.Body>
                     <Table id="portsTable" size="sm" striped hover>
                         <thead>
