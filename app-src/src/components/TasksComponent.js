@@ -24,7 +24,7 @@ class TasksComponent extends Component {
             );
         });
         return (
-            <Card>
+            <Card bg='light'>
                 <Card.Body>
                     <Table striped hover id="tasksTable" size="sm">
                         <thead>
