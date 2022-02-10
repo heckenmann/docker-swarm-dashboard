@@ -78,7 +78,7 @@ class ServicesComponent extends Component {
                             <Badge bg='warning' className='w-100'>{node['Spec']['Availability']}</Badge>
                         }
                     </td>
-                    <td className='align-middle'>{node['Status']['Addr']}</td>
+                    <td className='align-middle'>{node['ManagerStatus']['Addr']?.split(':')[0]}</td>
                     {dataCols}
                     <td></td>
                 </tr>
