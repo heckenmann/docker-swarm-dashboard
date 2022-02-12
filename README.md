@@ -3,6 +3,9 @@ Dashboard for Docker Swarm Cluster
 
 Docker-Image Size: 10 MB
 
+Use a stable release in production, not the master-build!
+Don't expose this service to the world! The endpoints offer the configuration of your services.
+
 ## Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
@@ -14,7 +17,6 @@ docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .
 ```
 
 ## docker-compose.yml
-Use a stable release in production, not the master-build!
 ```
 ---
 version: '3.5'
