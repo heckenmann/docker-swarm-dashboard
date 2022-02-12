@@ -22,8 +22,11 @@ class DashboardNavbar extends Component {
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-left">
                         <Nav className="mr-auto" variant="dark">
+                            <LinkContainer to="/stacks">
+                                <Nav.Link><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
+                            </LinkContainer>
                             <LinkContainer to="/services">
-                                <Nav.Link><FontAwesomeIcon icon="box" />{' '}Services / Nodes</Nav.Link>
+                                <Nav.Link><FontAwesomeIcon icon="server" />{' '}Services / Nodes</Nav.Link>
                             </LinkContainer>
                             <LinkContainer to="/tasks">
                                 <Nav.Link><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>

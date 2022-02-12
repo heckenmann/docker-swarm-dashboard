@@ -18,6 +18,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import bg from './docker.png';
 import { Container, Jumbotron } from 'react-bootstrap';
 import { LogsComponent } from './components/LogsComponent';
+import { StacksComponent } from './components/StacksComponent';
 
 library.add(fab, fas, far)
 
@@ -77,6 +78,7 @@ class App extends Component {
           <main role='main'>
             <Container fluid className="overflow-auto">
               <Switch>
+                <Route exact path='/stacks' component={() => (<StacksComponent state={this.state} />)} />
                 <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
                 <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
                 <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
