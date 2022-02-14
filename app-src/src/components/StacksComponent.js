@@ -9,7 +9,7 @@ class StacksComponent extends Component {
             <>
                 <tr>
                     <td>{ stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name'] }</td>
-                    <td>{ service['Spec']['Mode']['Replicated']['Replicas'] }</td>
+                    <td>{ service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode']) }</td>
                     <td>{ new Date(service['CreatedAt']).toLocaleString() }</td>
                     <td>{ new Date(service['UpdatedAt']).toLocaleString() }</td>
                 </tr>
