@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 class StacksComponent extends Component {
 
     findServicesForStack = (stackName) => {
-        return this.props.state.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
+        return this.props.state.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s1 - s0).map(service =>
             <>
                 <tr>
                     <td>{ stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name'] }</td>
@@ -22,7 +22,7 @@ class StacksComponent extends Component {
             return (<div></div>);
         }
 
-        let stacks = this.props.state.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(s =>
+        let stacks = this.props.state.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s1 - s0).map(s =>
             <>
                 <Card bg='light'>
                     <Card.Header>
