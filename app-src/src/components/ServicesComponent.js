@@ -57,7 +57,7 @@ class ServicesComponent extends Component {
                 <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
                     <td className='align-middle'>
                         <NodeDetailComponent node={node} show={this.state.nodeDetailDialog === node['ID']} closeHandler={this.hideNodeDetails} />
-                        <Button variant="secondary" size="sm" className='w-100' onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button>
+                        <Button variant="secondary" size="sm" className='w-100, text-nowrap' onClick={() => this.showNodeDetails(node['ID'])}>{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button>
                     </td>
                     <td className='align-middle'>{node['Spec']['Role']}</td>
                     <td className='align-middle'>
