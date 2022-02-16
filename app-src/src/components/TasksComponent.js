@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Table, Badge, Card } from 'react-bootstrap';
+import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
 import { getStyleClassForState } from '../Helper';
 
 class TasksComponent extends Component {
@@ -14,7 +15,7 @@ class TasksComponent extends Component {
             let currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
             return (
                 <tr key={'tasksTable-' + task['ID']}>
-                    <td>{new Date(task['Status']['Timestamp']).toLocaleString()}</td>
+                    <td>{toDefaultDateTimeString(new Date(task['Status']['Timestamp']))}</td>
                     <td><Badge className='w-100' bg={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                     <td>{task['DesiredState']}</td>
                     <td>{currentServiceName}</td>

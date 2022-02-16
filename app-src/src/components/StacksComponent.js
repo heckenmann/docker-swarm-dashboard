@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { Card, Table, Badge, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 
 class StacksComponent extends Component {
 
     findServicesForStack = (stackName) => {
-        return this.props.state.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s1 - s0).map(service =>
+        return this.props.state.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
             <>
                 <tr>
-                    <td>{ stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name'] }</td>
+                    <td className='text-nowrap'>{ stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name'] }</td>
                     <td>{ service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode']) }</td>
-                    <td>{ new Date(service['CreatedAt']).toLocaleString() }</td>
-                    <td>{ new Date(service['UpdatedAt']).toLocaleString() }</td>
+                    <td>{ toDefaultDateTimeString(new Date(service['CreatedAt'])) }</td>
+                    <td>{ toDefaultDateTimeString(new Date(service['UpdatedAt'])) }</td>
                 </tr>
             </>
         )
@@ -22,7 +23,7 @@ class StacksComponent extends Component {
             return (<div></div>);
         }
 
-        let stacks = this.props.state.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s1 - s0).map(s =>
+        let stacks = this.props.state.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(s =>
             <>
                 <Card bg='light'>
                     <Card.Header>
