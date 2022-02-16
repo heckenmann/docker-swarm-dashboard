@@ -16,11 +16,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 //import '../node_modules/@fortawesome/fontawesome/styles.css';
 
 import bg from './docker.png';
-import { Container, Jumbotron } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { LogsComponent } from './components/LogsComponent';
 import { StacksComponent } from './components/StacksComponent';
 
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
+
 library.add(fab, fas, far)
+
+SyntaxHighlighter.registerLanguage('javascript', js);
 
 class App extends Component {
 
@@ -65,10 +70,8 @@ class App extends Component {
     this.setState(localState);
   }
 
-
   render() {
     return (
-
       <HashRouter>
         <div className="App">
           <ReactInterval enabled={this.state.refreshInterval !== null} timeout={this.state.refreshInterval} callback={this.update} />

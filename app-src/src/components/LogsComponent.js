@@ -2,10 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { Component } from 'react';
 import { Card, Form, Row, Col, Button } from 'react-bootstrap';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
-import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import Websocket from 'react-websocket';
-SyntaxHighlighter.registerLanguage('javascript', js);
 
 class LogsComponent extends Component {
 
@@ -73,7 +70,7 @@ class LogsComponent extends Component {
         });
 
         let logPrinter = <>
-            <SyntaxHighlighter language="javascript" style={docco}>{this.state.logs.join('\n')}</SyntaxHighlighter>
+            <SyntaxHighlighter>{this.state.logs.join('\n')}</SyntaxHighlighter>
             <Websocket url={'ws://' + window.location.host + '/docker/logs/' + this.state.serviceId
                 + '?tail=' + this.state.tail
                 + '&since=' + this.state.since

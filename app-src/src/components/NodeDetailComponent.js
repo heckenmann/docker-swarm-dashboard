@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Modal } from 'react-bootstrap';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 
 class NodeDetailComponent extends Component {
 
@@ -13,10 +15,7 @@ class NodeDetailComponent extends Component {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <textarea className="jsonTextarea"
-                        defaultValue={JSON.stringify(this.props.node, null, "\t")}
-                        disabled="disabled"
-                    />
+                    <SyntaxHighlighter language="javascript" style={docco}>{JSON.stringify(this.props.node, null, "\t")}</SyntaxHighlighter>
                 </Modal.Body>
 
             </Modal>
