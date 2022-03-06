@@ -10,7 +10,7 @@ class DashboardNavbar extends Component {
         return (
             <Navbar collapseOnSelect expand="xl" bg='light' variant='light' className='mb-3 border-bottom'>
                 <Container fluid>
-                    <Navbar.Brand>
+                    <Navbar.Brand href="#">
                         <img alt="logo"
                             id="dockerlogo"
                             src={logo}
