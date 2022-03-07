@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, useDebugValue } from 'react';
 import { ReactInterval } from 'react-interval';
 import './App.css';
 import { DashboardNavbar } from './components/DashboardNavbar';
-import { HashRouter, Switch, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ServicesComponent } from './components/ServicesComponent';
 import { AboutComponent } from './components/AboutComponent';
 import { TasksComponent } from './components/TasksComponent';
@@ -53,9 +53,9 @@ class App extends Component {
 
   async loadData() {
     let localState = this.state;
-    localState.nodes = (await (await fetch("/docker/nodes")).json()).sort((a, b) => { return a['Description']['Hostname'] > b['Description']['Hostname'] ? 1 : -1; });
+    localState.nodes = (await (await fetch   ("/docker/nodes")).json()).sort((a, b) => { return a['Description']['Hostname'] > b['Description']['Hostname'] ? 1 : -1; });
     localState.services = (await (await fetch("/docker/services")).json()).sort((a, b) => { return a['Spec']['Name'] > b['Spec']['Name'] ? 1 : -1; });
-    localState.tasks = (await (await fetch("/docker/tasks")).json()).sort((a, b) => { return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1; });
+    localState.tasks = (await (await fetch   ("/docker/tasks")).json()).sort((a, b) => { return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1; });
     localState.initialized = true;
     this.setState(localState);
   }
@@ -80,15 +80,15 @@ class App extends Component {
 
           <main role='main'>
             <Container fluid className="overflow-auto">
-              <Switch>
-                <Route exact path='/stacks' component={() => (<StacksComponent state={this.state} />)} />
-                <Route exact path='/services' component={() => (<ServicesComponent state={this.state} />)} />
-                <Route exact path='/' component={() => (<ServicesComponent state={this.state} />)} />
-                <Route exact path='/tasks' component={() => (<TasksComponent state={this.state} />)} />
-                <Route exact path='/ports' component={() => (<PortsComponent state={this.state} />)} />
-                <Route exact path='/logs' component={() => (<LogsComponent state={this.state} />)} />
-                <Route exact path='/about' component={AboutComponent} />
-              </Switch>
+              <Routes>
+                <Route exact path='/stacks'   element={<StacksComponent state={this.state} />} />
+                <Route exact path='/services' element={<ServicesComponent state={this.state} />} />
+                <Route exact path='/'         element={<ServicesComponent state={this.state} />} />
+                <Route exact path='/tasks'    element={<TasksComponent state={this.state} />} />
+                <Route exact path='/ports'    element={<PortsComponent state={this.state} />} />
+                <Route exact path='/logs'     element={<LogsComponent state={this.state} />} />
+                <Route exact path='/about'    element={<AboutComponent />} />
+              </Routes>
             </Container>
           </main>
         </div>
