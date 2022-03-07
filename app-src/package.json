@@ -16,7 +16,7 @@
     "react-bootstrap": "^2.1.1",
     "react-dom": "^17.0.2",
     "react-interval": "^2.1.1",
-    "react-router": "^5.2.0",
+    "react-router": "^6.2.2",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^5.0.0",
