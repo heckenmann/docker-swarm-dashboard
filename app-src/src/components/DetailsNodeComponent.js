@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { JsonToTable } from 'react-json-to-table';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
-import { cleanDeep } from 'clean-deep';
+import cleanDeep from 'clean-deep';
 
 function DetailsNodeComponent(props) {
     if (!props?.state?.initialized) return <div></div>;
