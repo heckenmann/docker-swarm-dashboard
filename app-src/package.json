@@ -30,6 +30,9 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
+  "engines": {
+    "node": "^16.x"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
