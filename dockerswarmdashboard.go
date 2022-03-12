@@ -157,7 +157,6 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// docker-client context
 	ctx, _ := context.WithCancel(context.Background())
-	log.Println(clientAddress, paramServiceId)
 	cli := getCli()
 	logReader, _ := cli.ServiceLogs(ctx, paramServiceId, types.ContainerLogsOptions{
 		Tail:       paramTail,

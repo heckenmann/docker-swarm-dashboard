@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Table, Badge, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
 import { getStyleClassForState } from '../Helper';
 
@@ -18,8 +19,8 @@ class TasksComponent extends Component {
                     <td>{toDefaultDateTimeString(new Date(task['Status']['Timestamp']))}</td>
                     <td><Badge className='w-100' bg={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                     <td>{task['DesiredState']}</td>
-                    <td>{currentServiceName}</td>
-                    <td>{currentNodeName}</td>
+                    <td><Link to={'/services/' + currentService.ID}>{currentServiceName}</Link></td>
+                    <td><Link to={'/nodes/' + currentNode.ID}>{currentNodeName}</Link></td>
                     <td>{currentError}</td>
                 </tr>
             );

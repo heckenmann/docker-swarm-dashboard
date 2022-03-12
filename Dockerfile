@@ -13,13 +13,13 @@ RUN go get "github.com/gorilla/websocket"
 RUN go build dockerswarmdashboard.go
 
 ##############################################################################
-FROM node:14-alpine as node
+FROM node:16-alpine as node
 RUN apk -U add git wget
 COPY app-src /opt/dsd
 RUN wget --quiet http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png -O /opt/dsd/src/docker.png
 WORKDIR /opt/dsd
-RUN npm install --only=production
-RUN npm run build
+RUN yarn install --only=production
+RUN yarn run build
 RUN rm -r /opt/dsd/node_modules
 
 ##############################################################################
