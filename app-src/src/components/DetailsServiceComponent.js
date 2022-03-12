@@ -18,7 +18,7 @@ function DetailsServiceComponent(props) {
             <Card.Body>
                 <Tabs className="mb-3">
                     <Tab eventKey="table" title="Table">
-                        <JsonToTable  json={cleanDeep(currentService)} />
+                        <JsonToTable json={cleanDeep(currentService)} />
                     </Tab>
                     <Tab eventKey="json" title="JSON">
                         <SyntaxHighlighter language="javascript" style={docco}>{JSON.stringify(currentService, null, "\t")}</SyntaxHighlighter>
