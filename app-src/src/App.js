@@ -2,11 +2,12 @@ import React, { Component, useDebugValue } from 'react';
 import { ReactInterval } from 'react-interval';
 import './App.css';
 import { DashboardNavbar } from './components/DashboardNavbar';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, BrowserRouter } from 'react-router-dom';
 import { ServicesComponent } from './components/ServicesComponent';
 import { AboutComponent } from './components/AboutComponent';
 import { TasksComponent } from './components/TasksComponent';
 import { PortsComponent } from './components/PortsComponent';
+import { DetailsServiceComponent } from './components/DetailsServiceComponent';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -22,6 +23,8 @@ import { StacksComponent } from './components/StacksComponent';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
+import { DetailsNodeComponent } from './components/DetailsNodeComponent';
+
 
 library.add(fab, fas, far)
 
@@ -53,9 +56,9 @@ class App extends Component {
 
   async loadData() {
     let localState = this.state;
-    localState.nodes = (await (await fetch   ("/docker/nodes")).json()).sort((a, b) => { return a['Description']['Hostname'] > b['Description']['Hostname'] ? 1 : -1; });
+    localState.nodes = (await (await    fetch("/docker/nodes")).json()).sort((a, b) => { return a['Description']['Hostname'] > b['Description']['Hostname'] ? 1 : -1; });
     localState.services = (await (await fetch("/docker/services")).json()).sort((a, b) => { return a['Spec']['Name'] > b['Spec']['Name'] ? 1 : -1; });
-    localState.tasks = (await (await fetch   ("/docker/tasks")).json()).sort((a, b) => { return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1; });
+    localState.tasks = (await (await    fetch("/docker/tasks")).json()).sort((a, b) => { return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1; });
     localState.initialized = true;
     this.setState(localState);
   }
@@ -81,18 +84,36 @@ class App extends Component {
           <main role='main'>
             <Container fluid className="overflow-auto">
               <Routes>
-                <Route exact path='/stacks'   element={<StacksComponent state={this.state} />} />
-                <Route exact path='/services' element={<ServicesComponent state={this.state} />} />
-                <Route exact path='/'         element={<ServicesComponent state={this.state} />} />
-                <Route exact path='/tasks'    element={<TasksComponent state={this.state} />} />
-                <Route exact path='/ports'    element={<PortsComponent state={this.state} />} />
-                <Route exact path='/logs'     element={<LogsComponent state={this.state} />} />
-                <Route exact path='/about'    element={<AboutComponent />} />
+                <Route exact path='/stacks' element={<StacksComponent state={this.state} />} />
+                <Route exact path='/services/*' element={<this.ServiceRoutes />} />
+                <Route exact path='/' element={<ServicesComponent state={this.state} />} />
+                <Route exact path='/tasks' element={<TasksComponent state={this.state} />} />
+                <Route exact path='/nodes/*' element={<this.NodeRoutes />} />
+                <Route exact path='/ports' element={<PortsComponent state={this.state} />} />
+                <Route exact path='/logs' element={<LogsComponent state={this.state} />} />
+                <Route exact path='/about' element={<AboutComponent />} />
               </Routes>
             </Container>
           </main>
         </div>
       </HashRouter>
+    );
+  }
+
+  ServiceRoutes = () => {
+    return (
+      <Routes>
+        <Route path="/"  element={<ServicesComponent state={this.state} />} />
+        <Route path=":id" element={<DetailsServiceComponent state={this.state} />} />
+      </Routes>
+    );
+  }
+
+  NodeRoutes = () => {
+    return (
+      <Routes>
+        <Route path=":id" element={<DetailsNodeComponent state={this.state} />} />
+      </Routes>
     );
   }
 }

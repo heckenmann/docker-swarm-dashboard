@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Link } from 'react-router-dom';
 
 class PortsComponent extends Component {
 
@@ -11,6 +12,7 @@ class PortsComponent extends Component {
             .forEach(s => {
                 s.Endpoint.Ports.forEach(port => {
                     port.ServiceName = s.Spec.Name;
+                    port.ServiceID = s.ID;
                     ports.push(port);
                 });
             });
@@ -25,7 +27,7 @@ class PortsComponent extends Component {
                         <td>{p.TargetPort}</td>
                         <td>{p.Protocol}</td>
                         <td>{p.PublishMode}</td>
-                        <td>{p.ServiceName}</td>
+                        <td><Link to={'/services/' + p.ServiceID}>{p.ServiceName}</Link></td>
                     </tr>
                 )
             });
