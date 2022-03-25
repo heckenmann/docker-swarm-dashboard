@@ -7,9 +7,9 @@ import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import cleanDeep from 'clean-deep';
 
 function DetailsNodeComponent(props) {
-    if (!props?.state?.initialized) return <div></div>;
+    if (!props?.isInitialized) return <div></div>;
     let { id } = useParams();
-    let currentNode = props.state.nodes.find(s => s.ID == id);
+    let currentNode = props.nodes.find(s => s.ID == id);
     if (!currentNode) return <div>Node doesn't exist</div>;
 
     return (

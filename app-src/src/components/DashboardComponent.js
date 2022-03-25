@@ -3,15 +3,15 @@ import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 
-function ServicesComponent(props) {
-    if (!props.state || !props.state.initialized) {
+function DashboardComponent(props) {
+    if (!props || !props.isInitialized) {
         return (<div></div>);
     }
     let theads = [];
     let trows = [];
 
     // Columns
-    props.state.services.forEach(service => {
+    props.services.forEach(service => {
         theads.push(
             <th key={'serviceTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
         );
@@ -19,9 +19,9 @@ function ServicesComponent(props) {
     theads.push(<th key='serviceTable-empty'></th>);
 
     // Rows
-    props.state.nodes.forEach(node => {
-        let dataCols = props.state.services.map(service => {
-            let tasks = props.state.tasks.filter((task) => {
+    props.nodes.forEach(node => {
+        let dataCols = props.services.map(service => {
+            let tasks = props.tasks.filter((task) => {
                 return task['ServiceID'] === service['ID']
                     && task['NodeID'] === node['ID']
                     && task['Status']['State'] !== 'shutdown'
@@ -84,4 +84,4 @@ function ServicesComponent(props) {
     );
 }
 
-export { ServicesComponent };
+export { DashboardComponent };

@@ -3,7 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 
 function PortsComponent(props) {
-    let services = props.state.services;
+    if (!props || !props.isInitialized) {
+        return (<div></div>);
+    }
+    let services = props.services;
     let ports = [];
     services.filter(s => s.Spec && s.Spec.Name && s.Endpoint && s.Endpoint.Ports)
         .forEach(s => {
