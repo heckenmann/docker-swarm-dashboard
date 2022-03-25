@@ -3,7 +3,7 @@ module heckenmann.de/docker-swarm-dashboard/v2
 go 1.17
 
 require (
-	github.com/docker/docker v20.10.13+incompatible
+	github.com/docker/docker v20.10.14+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
