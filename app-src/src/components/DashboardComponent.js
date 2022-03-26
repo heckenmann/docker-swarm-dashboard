@@ -2,6 +2,7 @@ import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
+import { DashboardSettingsComponent } from './DashboardSettingsComponent';
 
 function DashboardComponent(props) {
     if (!props || !props.isInitialized) {
@@ -13,10 +14,10 @@ function DashboardComponent(props) {
     // Columns
     props.services.forEach(service => {
         theads.push(
-            <th key={'serviceTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
+            <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
         );
     });
-    theads.push(<th key='serviceTable-empty'></th>);
+    theads.push(<th key='dashboardTable-empty'></th>);
 
     // Rows
     props.nodes.forEach(node => {
@@ -66,21 +67,24 @@ function DashboardComponent(props) {
     });
 
     return (
-        <Table key="serviceTable" id="serviceTable" striped hover>
-            <thead>
-                <tr>
-                    <th className="nodeAttribute">Node</th>
-                    <th className="nodeAttributeSmall">Role</th>
-                    <th className="nodeAttributeSmall">State</th>
-                    <th className="nodeAttributeSmall">Availability</th>
-                    <th className="nodeAttributeSmall">IP</th>
-                    {theads}
-                </tr>
-            </thead>
-            <tbody>
-                {trows}
-            </tbody>
-        </Table>
+        <>
+            <DashboardSettingsComponent />
+            <Table key="dashboardTable" id="dashboardTable" striped hover>
+                <thead>
+                    <tr>
+                        <th className="nodeAttribute">Node</th>
+                        <th className="nodeAttributeSmall">Role</th>
+                        <th className="nodeAttributeSmall">State</th>
+                        <th className="nodeAttributeSmall">Availability</th>
+                        <th className="nodeAttributeSmall">IP</th>
+                        {theads}
+                    </tr>
+                </thead>
+                <tbody>
+                    {trows}
+                </tbody>
+            </Table>
+        </>
     );
 }
 
