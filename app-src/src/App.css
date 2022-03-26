@@ -17,15 +17,15 @@ body {
     float: left !important;*/
 }
 
-#serviceTable .dataCol {
+#dashboardTable .dataCol {
     width: 60px;
 }
 
-#serviceTable thead th {
-    height: 250px;
+#dashboardTable thead th {
+    height: 200px;
 }
 
-#serviceTable .rotated {
+#dashboardTable .rotated {
     position: relative;
     margin-left: 15px;
     transform: translate(0px, -70%) rotate(-25deg);
@@ -35,16 +35,16 @@ body {
     overflow: visible;
 }
 
-#serviceTable {
+#dashboardTable {
     table-layout: inherit !important;
 }
 
-#serviceTable .nodeAttribute {
+#dashboardTable .nodeAttribute {
     width: 200px;
     white-space: nowrap;
 }
 
-#serviceTable .nodeAttributeSmall {
+#dashboardTable .nodeAttributeSmall {
     width: 100px;
     white-space: nowrap;
 }

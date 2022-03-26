@@ -21,6 +21,9 @@ function DashboardNavbar(props) {
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-left">
                     <Nav className="mr-auto" variant="dark">
+                        <LinkContainer to="/dashboard">
+                            <Nav.Link><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
+                        </LinkContainer>
                         <LinkContainer to="/stacks">
                             <Nav.Link><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
                         </LinkContainer>

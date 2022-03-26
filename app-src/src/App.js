@@ -13,7 +13,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import '../node_modules/bootswatch/darkly/bootstrap.min.css';
+//import 'bootswatch/dist/cosmo/bootstrap.min.css';
 //import '../node_modules/@fortawesome/fontawesome/styles.css';
 
 import bg from './docker.png';
@@ -25,6 +25,7 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
 import { DetailsNodeComponent } from './components/DetailsNodeComponent';
 import { NodesComponent } from './components/NodesComponent';
+import { DashboardVerticalComponent } from './components/DashboardVerticalComponent';
 
 
 library.add(fab, fas, far)
@@ -73,6 +74,7 @@ function App() {
             <Container fluid className="overflow-auto">
               <Routes>
                 <Route exact path='/' element={<DashboardComponent isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
+                <Route exact path='/dashboard/*' element={<DashboardRoutes isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
                 <Route exact path='/stacks' element={<StacksComponent isInitialized={isInitialized} services={services} />} />
                 <Route exact path='/services/*' element={<ServiceRoutes isInitialized={isInitialized} services={services} />} />
                 <Route exact path='/tasks' element={<TasksComponent isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
@@ -102,6 +104,16 @@ function NodeRoutes(props) {
     <Routes>
       <Route path="/" element={<NodesComponent isInitialized={props.isInitialized} nodes={props.nodes} />} />
       <Route path=":id" element={<DetailsNodeComponent isInitialized={props.isInitialized} nodes={props.nodes} />} />
+    </Routes>
+  );
+}
+
+function DashboardRoutes(props) {
+  return (
+    <Routes>
+      <Route path="/" element={<DashboardComponent isInitialized={props.isInitialized} services={props.services} nodes={props.nodes} tasks={props.tasks} />} />
+      <Route path="/horizontal" element={<DashboardComponent isInitialized={props.isInitialized} services={props.services} nodes={props.nodes} tasks={props.tasks} />} />
+      <Route path="/vertical" element={<DashboardVerticalComponent isInitialized={props.isInitialized} services={props.services} nodes={props.nodes} tasks={props.tasks} />} />
     </Routes>
   );
 }
