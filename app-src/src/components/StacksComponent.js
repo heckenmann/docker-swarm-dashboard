@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 
 function findServicesForStack(props, stackName) {
-    return props.state.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
+    return props.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
         <tr key={service.ID}>
             <td className='text-nowrap'><Link to={'/services/' + service.ID} >{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</Link></td>
             <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
@@ -16,12 +16,11 @@ function findServicesForStack(props, stackName) {
 }
 
 function StacksComponent(props) {
-
-    if (!props.state || !props.state.initialized) {
+    if (!props || !props.isInitialized) {
         return (<></>);
     }
 
-    let stacks = props.state.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
+    let stacks = props.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
         <Card bg='light' className='mb-3' key={'card_' + stack}>
             <Card.Header>
                 <h5><FontAwesomeIcon icon="cubes" />{' '}{stack ? stack : '(without stack)'}</h5>

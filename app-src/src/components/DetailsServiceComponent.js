@@ -7,9 +7,9 @@ import { JsonToTable } from 'react-json-to-table';
 import cleanDeep from 'clean-deep';
 
 function DetailsServiceComponent(props) {
-    if (!props?.state?.initialized) return <div></div>;
+    if (!props?.isInitialized) return <div></div>;
     let { id } = useParams();
-    let currentService = props.state.services.find(s => s.ID == id);
+    let currentService = props.services.find(s => s.ID == id);
     if (!currentService) return <div>Service doesn't exist</div>;
 
     return (
