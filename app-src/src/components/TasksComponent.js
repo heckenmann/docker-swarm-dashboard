@@ -4,9 +4,12 @@ import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
 import { getStyleClassForState } from '../Helper';
 
 function TasksComponent(props) {
-    let rows = props.state.tasks.map(task => {
-        let currentNode = props.state.nodes.find(node => node['ID'] === task['NodeID']);
-        let currentService = props.state.services.find(service => service['ID'] === task['ServiceID']);
+    if (!props || !props.isInitialized) {
+        return (<div></div>);
+    }
+    let rows = props.tasks.map(task => {
+        let currentNode = props.nodes.find(node => node['ID'] === task['NodeID']);
+        let currentService = props.services.find(service => service['ID'] === task['ServiceID']);
 
         let currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
         let currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];

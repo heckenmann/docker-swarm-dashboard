@@ -2,26 +2,27 @@ import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
+import { DashboardSettingsComponent } from './DashboardSettingsComponent';
 
-function ServicesComponent(props) {
-    if (!props.state || !props.state.initialized) {
+function DashboardComponent(props) {
+    if (!props || !props.isInitialized) {
         return (<div></div>);
     }
     let theads = [];
     let trows = [];
 
     // Columns
-    props.state.services.forEach(service => {
+    props.services.forEach(service => {
         theads.push(
-            <th key={'serviceTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
+            <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
         );
     });
-    theads.push(<th key='serviceTable-empty'></th>);
+    theads.push(<th key='dashboardTable-empty'></th>);
 
     // Rows
-    props.state.nodes.forEach(node => {
-        let dataCols = props.state.services.map(service => {
-            let tasks = props.state.tasks.filter((task) => {
+    props.nodes.forEach(node => {
+        let dataCols = props.services.map(service => {
+            let tasks = props.tasks.filter((task) => {
                 return task['ServiceID'] === service['ID']
                     && task['NodeID'] === node['ID']
                     && task['Status']['State'] !== 'shutdown'
@@ -66,22 +67,25 @@ function ServicesComponent(props) {
     });
 
     return (
-        <Table key="serviceTable" id="serviceTable" striped hover>
-            <thead>
-                <tr>
-                    <th className="nodeAttribute">Node</th>
-                    <th className="nodeAttributeSmall">Role</th>
-                    <th className="nodeAttributeSmall">State</th>
-                    <th className="nodeAttributeSmall">Availability</th>
-                    <th className="nodeAttributeSmall">IP</th>
-                    {theads}
-                </tr>
-            </thead>
-            <tbody>
-                {trows}
-            </tbody>
-        </Table>
+        <>
+            <DashboardSettingsComponent />
+            <Table key="dashboardTable" id="dashboardTable" striped hover>
+                <thead>
+                    <tr>
+                        <th className="nodeAttribute">Node</th>
+                        <th className="nodeAttributeSmall">Role</th>
+                        <th className="nodeAttributeSmall">State</th>
+                        <th className="nodeAttributeSmall">Availability</th>
+                        <th className="nodeAttributeSmall">IP</th>
+                        {theads}
+                    </tr>
+                </thead>
+                <tbody>
+                    {trows}
+                </tbody>
+            </Table>
+        </>
     );
 }
 
-export { ServicesComponent };
+export { DashboardComponent };

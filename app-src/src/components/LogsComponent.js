@@ -15,9 +15,6 @@ class LogsComponent extends Component {
         }
     }
 
-    componentDidMount() {
-    }
-
     toggleLogs = () => {
         console.log("submit")
         this.setState({ showLogs: !this.state.showLogs });
@@ -33,7 +30,7 @@ class LogsComponent extends Component {
             logs: [],
             numberOfLines: this.inputTail.value > this.state.numberOfLines ? this.inputTail.value : this.state.numberOfLines,
             serviceId: this.inputServiceId.value,
-            serviceName: (this.props.state.services.find(s => s['ID'] === this.inputServiceId.value))?.Spec.Name,
+            serviceName: (this.props.services.find(s => s['ID'] === this.inputServiceId.value))?.Spec.Name,
             tail: this.inputTail.value,
             since: this.inputSince.value,
             follow: this.inputFollow.checked,
@@ -57,13 +54,13 @@ class LogsComponent extends Component {
     }
 
     render() {
-        if (!this.props.state || !this.props.state.initialized) {
+        if (!this.props || !this.props.isInitialized) {
             return (<div></div>);
         }
         let serviceOptions = [];
 
         // Service Options
-        this.props.state.services.forEach(service => {
+        this.props.services.forEach(service => {
             serviceOptions.push(
                 <option key={'serviceDropdown-' + service['ID']} value={service['ID']}>{service['Spec']['Name']}</option>
             );
@@ -189,7 +186,7 @@ class LogsComponent extends Component {
 
                         <Form.Group as={Row}>
                             <Col sm={{ span: 10, offset: 2 }}>
-                                <Button type="submit" disabled={!this.props.state.services || this.props.state.services.length === 0}><FontAwesomeIcon icon="desktop" /> Show logs</Button>
+                                <Button type="submit" disabled={!this.props.services || this.props.services.length === 0}><FontAwesomeIcon icon="desktop" /> Show logs</Button>
                             </Col>
                         </Form.Group>
                     </Form>}
