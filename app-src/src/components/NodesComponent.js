@@ -1,18 +1,18 @@
-import { Table, Badge, Button, Card } from 'react-bootstrap';
+import { Table, Badge, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { nodesAtom } from '../common/store/atoms';
 
-function NodesComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let theads = [];
-    let trows = [];
+function NodesComponent() {
+    const nodes = useAtomValue(nodesAtom);
+    const theads = [];
+    const trows = [];
 
     theads.push(<th key='serviceTable-empty'></th>);
 
     // Rows
-    props.nodes.forEach(node => {
+    nodes.forEach(node => {
         trows.push(
             <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
                 <td className='align-middle text-nowrap'>

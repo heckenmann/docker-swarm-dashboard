@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { ReactInterval } from 'react-interval';
+import React, { Suspense } from 'react';
 import './App.css';
 import { DashboardNavbar } from './components/DashboardNavbar';
 import { HashRouter, Routes, Route } from 'react-router-dom';
@@ -15,6 +14,7 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 //import 'bootswatch/dist/cosmo/bootstrap.min.css';
 //import '../node_modules/@fortawesome/fontawesome/styles.css';
+import { Provider } from 'jotai';
 
 import bg from './docker.png';
 import { Container } from 'react-bootstrap';
@@ -26,96 +26,67 @@ import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
 import { DetailsNodeComponent } from './components/DetailsNodeComponent';
 import { NodesComponent } from './components/NodesComponent';
 import { DashboardVerticalComponent } from './components/DashboardVerticalComponent';
-
+import LoadingComponent from './components/LoadingComponent';
 
 library.add(fab, fas, far)
 
 SyntaxHighlighter.registerLanguage('javascript', js);
 
-function App() {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [refreshInterval, setRefreshInterval] = useState(null);
-  const [nodes, setNodes] = useState(null);
-  const [services, setServices] = useState(null);
-  const [tasks, setTasks] = useState(null);
-
-  const baseUrl = "/";
-
-  useEffect(() => {
-    loadData();
-  }, [])
-
-  const loadData = async () => {
-    setIsInitialized(false);
-    setNodes((await (await fetch(baseUrl + "docker/nodes")).json()).sort((a, b) => { return a['Description']['Hostname'] > b['Description']['Hostname'] ? 1 : -1; }));
-    setServices((await (await fetch(baseUrl + "docker/services")).json()).sort((a, b) => { return a['Spec']['Name'] > b['Spec']['Name'] ? 1 : -1; }));
-    setTasks((await (await fetch(baseUrl + "docker/tasks")).json()).sort((a, b) => { return a['Status']['Timestamp'] < b['Status']['Timestamp'] ? 1 : -1; }));
-    setIsInitialized(true);
-  }
-
-  const toggleRefresh = () => {
-    if (refreshInterval) {
-      setRefreshInterval(null);
-    } else {
-      setRefreshInterval(1000);
-    }
-  }
-
-
+const App = () => {
   return (
-    <>
-      <ReactInterval enabled={refreshInterval !== null} timeout={refreshInterval} callback={loadData} />
+    <Provider>
       <HashRouter>
         <div className="App">
           <img alt="background" id="background-image" src={bg} />
-          <DashboardNavbar refreshInterval={refreshInterval} forceUpdate={loadData} toggleRefresh={toggleRefresh} />
-
+          <DashboardNavbar />
           <main role='main'>
             <Container fluid className="overflow-auto">
-              <Routes>
-                <Route exact path='/' element={<DashboardComponent isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
-                <Route exact path='/dashboard/*' element={<DashboardRoutes isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
-                <Route exact path='/stacks' element={<StacksComponent isInitialized={isInitialized} services={services} />} />
-                <Route exact path='/services/*' element={<ServiceRoutes isInitialized={isInitialized} services={services} />} />
-                <Route exact path='/tasks' element={<TasksComponent isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
-                <Route exact path='/nodes/*' element={<NodeRoutes isInitialized={isInitialized} nodes={nodes} />} />
-                <Route exact path='/ports' element={<PortsComponent isInitialized={isInitialized} services={services} />} />
-                <Route exact path='/logs' element={<LogsComponent isInitialized={isInitialized} services={services} nodes={nodes} tasks={tasks} />} />
-                <Route exact path='/about' element={<AboutComponent />} />
-              </Routes>
+              <Suspense fallback={<LoadingComponent />}>
+                <Routes>
+                  <Route exact path='/' element={<DashboardComponent />} />
+                  <Route exact path='/dashboard/*' element={<DashboardRoutes />} />
+                  <Route exact path='/stacks' element={<StacksComponent />} />
+                  <Route exact path='/services/*' element={<ServiceRoutes />} />
+                  <Route exact path='/tasks' element={<TasksComponent />} />
+                  <Route exact path='/nodes/*' element={<NodeRoutes />} />
+                  <Route exact path='/ports' element={<PortsComponent />} />
+                  <Route exact path='/logs' element={<LogsComponent />} />
+                  <Route exact path='/about' element={<AboutComponent />} />
+                </Routes>
+              </Suspense>
             </Container>
           </main>
         </div>
       </HashRouter >
-    </>
-  );
-}
-
-function ServiceRoutes(props) {
-  return (
-    <Routes>
-      <Route path=":id" element={<DetailsServiceComponent isInitialized={props.isInitialized} services={props.services} />} />
-    </Routes>
-  );
-}
-
-function NodeRoutes(props) {
-  return (
-    <Routes>
-      <Route path="/" element={<NodesComponent isInitialized={props.isInitialized} nodes={props.nodes} />} />
-      <Route path=":id" element={<DetailsNodeComponent isInitialized={props.isInitialized} nodes={props.nodes} />} />
-    </Routes>
-  );
-}
-
-function DashboardRoutes(props) {
-  return (
-    <Routes>
-      <Route path="/" element={<DashboardComponent isInitialized={props.isInitialized} services={props.services} nodes={props.nodes} tasks={props.tasks} />} />
-      <Route path="/horizontal" element={<DashboardComponent isInitialized={props.isInitialized} services={props.services} nodes={props.nodes} tasks={props.tasks} />} />
-      <Route path="/vertical" element={<DashboardVerticalComponent isInitialized={props.isInitialized} services={props.services} nodes={props.nodes} tasks={props.tasks} />} />
-    </Routes>
+    </Provider>
   );
 }
 
 export default App;
+
+function ServiceRoutes() {
+  return (
+    <Routes>
+      <Route path=":id" element={<DetailsServiceComponent />} />
+    </Routes>
+  );
+}
+
+function NodeRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<NodesComponent />} />
+      <Route path=":id" element={<DetailsNodeComponent />} />
+    </Routes>
+  );
+}
+
+function DashboardRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<DashboardComponent />} />
+      <Route path="/horizontal" element={<DashboardComponent />} />
+      <Route path="/vertical" element={<DashboardVerticalComponent />} />
+    </Routes>
+  );
+}

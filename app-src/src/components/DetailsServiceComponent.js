@@ -5,11 +5,14 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import { JsonToTable } from 'react-json-to-table';
 import cleanDeep from 'clean-deep';
+import { useAtom, useAtomValue } from 'jotai';
+import { waitForAll } from 'jotai/utils';
+import { servicesAtom } from '../common/store/atoms';
 
-function DetailsServiceComponent(props) {
-    if (!props?.isInitialized) return <div></div>;
-    let { id } = useParams();
-    let currentService = props.services.find(s => s.ID == id);
+function DetailsServiceComponent() {
+    const services = useAtomValue(servicesAtom);
+    const { id } = useParams();
+    const currentService = services.find(s => s.ID == id);
     if (!currentService) return <div>Service doesn't exist</div>;
 
     return (

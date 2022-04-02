@@ -3,16 +3,18 @@ import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import { DashboardSettingsComponent } from './DashboardSettingsComponent';
+import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { waitForAll } from 'jotai/utils';
 
-function DashboardComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let theads = [];
-    let trows = [];
+function DashboardComponent() {
+    const [[services, nodes, tasks]] = useAtom(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+
+    const theads = [];
+    const trows = [];
 
     // Columns
-    props.services.forEach(service => {
+    services.forEach(service => {
         theads.push(
             <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
         );
@@ -20,9 +22,9 @@ function DashboardComponent(props) {
     theads.push(<th key='dashboardTable-empty'></th>);
 
     // Rows
-    props.nodes.forEach(node => {
-        let dataCols = props.services.map(service => {
-            let tasks = props.tasks.filter((task) => {
+    nodes.forEach(node => {
+        const dataCols = services.map(service => {
+            const filteredTasks = tasks.filter((task) => {
                 return task['ServiceID'] === service['ID']
                     && task['NodeID'] === node['ID']
                     && task['Status']['State'] !== 'shutdown'
@@ -32,7 +34,7 @@ function DashboardComponent(props) {
                     <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge bg={getStyleClassForState(task['Status']['State'])} className='w-100'>{task['Status']['State']}</Badge></li>
                 )
             });
-            return (<td className='align-middle' key={'td' + node['ID'] + service['ID']}><ul>{tasks}</ul></td>);
+            return (<td className='align-middle' key={'td' + node['ID'] + service['ID']}><ul>{filteredTasks}</ul></td>);
 
         });
         trows.push(

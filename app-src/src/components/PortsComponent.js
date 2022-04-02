@@ -1,13 +1,12 @@
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { servicesAtom } from '../common/store/atoms';
 
-function PortsComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let services = props.services;
-    let ports = [];
+function PortsComponent() {
+    const services = useAtomValue(servicesAtom);
+    const ports = [];
     services.filter(s => s.Spec && s.Spec.Name && s.Endpoint && s.Endpoint.Ports)
         .forEach(s => {
             s.Endpoint.Ports.forEach(port => {
@@ -17,7 +16,7 @@ function PortsComponent(props) {
             });
         });
 
-    let renderedServices = ports
+    const renderedServices = ports
         .sort((p1, p2) => p1.PublishedPort - p2.PublishedPort)
         .map(p => {
             return (

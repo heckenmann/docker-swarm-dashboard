@@ -2,10 +2,12 @@ import { Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { Link } from 'react-router-dom';
+import { servicesAtom } from '../common/store/atoms';
+import { useAtomValue } from 'jotai';
 
 
-function findServicesForStack(props, stackName) {
-    return props.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
+function findServicesForStack(services, stackName) {
+    return services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
         <tr key={service.ID}>
             <td className='text-nowrap'><Link to={'/services/' + service.ID} >{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</Link></td>
             <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
@@ -15,12 +17,10 @@ function findServicesForStack(props, stackName) {
     )
 }
 
-function StacksComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<></>);
-    }
+function StacksComponent() {
+    const services = useAtomValue(servicesAtom);
 
-    let stacks = props.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
+    const stacks = services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
         <Card bg='light' className='mb-3' key={'card_' + stack}>
             <Card.Header>
                 <h5><FontAwesomeIcon icon="cubes" />{' '}{stack ? stack : '(without stack)'}</h5>
@@ -36,7 +36,7 @@ function StacksComponent(props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {findServicesForStack(props, stack)}
+                        {findServicesForStack(services, stack)}
                     </tbody>
                 </Table>
             </Card.Body>

@@ -5,11 +5,13 @@ import { JsonToTable } from 'react-json-to-table';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import cleanDeep from 'clean-deep';
+import { useAtomValue } from 'jotai';
+import { nodesAtom } from '../common/store/atoms';
 
-function DetailsNodeComponent(props) {
-    if (!props?.isInitialized) return <div></div>;
-    let { id } = useParams();
-    let currentNode = props.nodes.find(s => s.ID == id);
+function DetailsNodeComponent() {
+    const nodes = useAtomValue(nodesAtom);
+    const { id } = useParams();
+    const currentNode = nodes.find(s => s.ID == id);
     if (!currentNode) return <div>Node doesn't exist</div>;
 
     return (
