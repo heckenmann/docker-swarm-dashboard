@@ -2,7 +2,7 @@ import { Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { Link } from 'react-router-dom';
-import { servicesAtom } from '../common/store/atoms';
+import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { useAtomValue } from 'jotai';
 
 

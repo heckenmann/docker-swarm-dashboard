@@ -91,3 +91,7 @@ table ul li {
     width: 100%;
     min-height: 400px;
 }
+
+.toast-container {
+    z-index: 1000;
+}
