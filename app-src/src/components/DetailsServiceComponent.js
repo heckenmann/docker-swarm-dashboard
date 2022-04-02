@@ -5,8 +5,7 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
 import { JsonToTable } from 'react-json-to-table';
 import cleanDeep from 'clean-deep';
-import { useAtom, useAtomValue } from 'jotai';
-import { waitForAll } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { servicesAtom } from '../common/store/atoms';
 
 function DetailsServiceComponent() {

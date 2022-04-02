@@ -1,5 +1,4 @@
-import { useAtom } from 'jotai';
-import { waitForAll } from 'jotai/utils';
+import { useAtom, useAtomValue } from 'jotai';
 import { Table, Badge, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
@@ -7,7 +6,10 @@ import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
 function TasksComponent() {
-    const [[services, nodes, tasks]] = useAtom(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+    const services = useAtomValue(servicesAtom);
+    const nodes = useAtomValue(nodesAtom);
+    const tasks = useAtomValue(tasksAtom);
+
     const rows = tasks.map(task => {
         const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
         const currentService = services.find(service => service['ID'] === task['ServiceID']);

@@ -3,11 +3,12 @@ import { getStyleClassForState } from '../Helper';
 import { Link } from 'react-router-dom';
 import { DashboardSettingsComponent } from './DashboardSettingsComponent';
 import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
-import { useAtom } from 'jotai';
-import { waitForAll } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 function DashboardVerticalComponent() {
-    const [[services, nodes, tasks]] = useAtom(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+    const services = useAtomValue(servicesAtom);
+    const nodes = useAtomValue(nodesAtom);
+    const tasks = useAtomValue(tasksAtom);
 
     const theads = [];
     const trows = [];

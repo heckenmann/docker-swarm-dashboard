@@ -1,23 +1,35 @@
-import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
-import { refreshIntervalToggleReducer } from '../common/store/reducers';
-import { nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
-import { useReducerAtom, useUpdateAtom } from 'jotai/utils';
+import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
+import { messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { useUpdateAtom } from 'jotai/utils';
 import { Suspense } from 'react';
 import ReactInterval from 'react-interval';
+import { useAtom } from 'jotai';
 
 function DashboardNavbar() {
-    const [refreshInterval, toggleRefresh] = useReducerAtom(refreshIntervalAtom, refreshIntervalToggleReducer);
+    const [refreshInterval, toggleRefresh] = useAtom(refreshIntervalAtom, RefreshIntervalToggleReducer);
+    const [, messageReducer] = useAtom(messagesAtom, MessageReducer);
 
     const updateNodes = useUpdateAtom(nodesAtom);
     const updateServices = useUpdateAtom(servicesAtom);
     const updateTasks = useUpdateAtom(tasksAtom);
     const reloadData = () => {
-        updateNodes({ type: 'refetch' });
+        updateNodes   ({ type: 'refetch' });
         updateServices({ type: 'refetch' });
-        updateTasks({ type: 'refetch' });
+        updateTasks   ({ type: 'refetch' });
+    }
+
+    const refreshAndNotifyUser = () => {
+        messageReducer({ 'type': 'add', 'value': 'Refresh ...' });
+        reloadData();
+    }
+
+    const toggleRefreshAndNotifyUser = () => {
+        toggleRefresh();
+        messageReducer({ 'type': 'add', 'value': refreshInterval ? 'Interval-Refresh disabled' : 'Interval-Refresh enabled' });
     }
 
     return (
@@ -61,17 +73,39 @@ function DashboardNavbar() {
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
-                            <Nav.Link onClick={toggleRefresh}><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /> Refresh-Interval</Nav.Link>
-                            <Nav.Link onClick={reloadData}><FontAwesomeIcon icon="sync" /> Refresh</Nav.Link>
                             <LinkContainer to="/about">
                                 <Nav.Link><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
                             </LinkContainer>
+                            <ButtonGroup>
+                                <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
+                                <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
+                            </ButtonGroup>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
+            <RefreshIntervalToast />
         </Suspense>
     );
+}
+
+function RefreshIntervalToast() {
+    const [messages, messageReducer] = useAtom(messagesAtom, MessageReducer);
+    if (!messages) return <></>;
+    const messageToasts = messages.map(message => (
+        <Toast key={message} delay={2000} onClose={() => messageReducer({ 'type': 'remove', 'value': message })} autohide>
+            <Toast.Header>
+                <strong className="me-auto"><FontAwesomeIcon icon='circle-info' /> Information</strong>
+            </Toast.Header>
+            <Toast.Body>{message}</Toast.Body>
+        </Toast>
+    ))
+
+    return (
+        <ToastContainer className="p-3" position='top-center'>
+            {messageToasts}
+        </ToastContainer>
+    )
 }
 
 export { DashboardNavbar };
