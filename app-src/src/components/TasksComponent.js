@@ -1,19 +1,20 @@
+import { useAtom } from 'jotai';
+import { waitForAll } from 'jotai/utils';
 import { Table, Badge, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
+import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
-function TasksComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let rows = props.tasks.map(task => {
-        let currentNode = props.nodes.find(node => node['ID'] === task['NodeID']);
-        let currentService = props.services.find(service => service['ID'] === task['ServiceID']);
+function TasksComponent() {
+    const [[services, nodes, tasks]] = useAtom(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+    const rows = tasks.map(task => {
+        const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
+        const currentService = services.find(service => service['ID'] === task['ServiceID']);
 
-        let currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
-        let currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
-        let currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
+        const currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
+        const currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
+        const currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
         return (
             <tr key={'tasksTable-' + task['ID']}>
                 <td>{toDefaultDateTimeString(new Date(task['Status']['Timestamp']))}</td>
