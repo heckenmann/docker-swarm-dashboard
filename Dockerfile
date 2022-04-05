@@ -1,5 +1,5 @@
 ##############################################################################
-FROM golang:1.17.6-alpine as go
+FROM golang:1.18.0-alpine as go
 ENV GO111MODULE=off
 RUN apk -U add git libc-dev
 WORKDIR /tmp
@@ -10,6 +10,7 @@ RUN go get "github.com/docker/docker/client"
 RUN go get "github.com/gorilla/mux"
 RUN go get "golang.org/x/net/context"
 RUN go get "github.com/gorilla/websocket"
+RUN go get "github.com/gorilla/handlers"
 RUN go build dockerswarmdashboard.go
 
 ##############################################################################
