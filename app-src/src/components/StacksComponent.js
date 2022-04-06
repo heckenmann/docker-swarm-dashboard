@@ -2,7 +2,7 @@ import { Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { Link } from 'react-router-dom';
-import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { useAtomValue } from 'jotai';
 
 
@@ -19,14 +19,16 @@ function findServicesForStack(services, stackName) {
 
 function StacksComponent() {
     const services = useAtomValue(servicesAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
 
     const stacks = services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
-        <Card bg='light' className='mb-3' key={'card_' + stack}>
+        <Card bg={currentVariant} className={currentVariantClasses + ' mb-3'} key={'card_' + stack}>
             <Card.Header>
                 <h5><FontAwesomeIcon icon="cubes" />{' '}{stack ? stack : '(without stack)'}</h5>
             </Card.Header>
             <Card.Body>
-                <Table size='sm'>
+                <Table variant={currentVariant} size='sm'>
                     <thead>
                         <tr>
                             <th>Service Name</th>

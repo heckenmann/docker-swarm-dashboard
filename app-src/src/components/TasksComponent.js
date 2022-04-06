@@ -2,13 +2,15 @@ import { useAtom, useAtomValue } from 'jotai';
 import { Table, Badge, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
-import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
 function TasksComponent() {
     const services = useAtomValue(servicesAtom);
     const nodes = useAtomValue(nodesAtom);
     const tasks = useAtomValue(tasksAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
 
     const rows = tasks.map(task => {
         const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
@@ -29,9 +31,9 @@ function TasksComponent() {
         );
     });
     return (
-        <Card bg='light'>
+        <Card className={currentVariantClasses}>
             <Card.Body>
-                <Table striped hover id="tasksTable" size="sm">
+                <Table id="tasksTable" variant={currentVariant} striped size="sm">
                     <thead>
                         <tr>
                             <th id="timestampCol">Timestamp</th>
