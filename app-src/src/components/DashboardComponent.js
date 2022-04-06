@@ -3,14 +3,16 @@ import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import { DashboardSettingsComponent } from './DashboardSettingsComponent';
-import { nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { useAtomValue } from 'jotai';
 
 function DashboardComponent() {
     const services = useAtomValue(servicesAtom);
     const nodes = useAtomValue(nodesAtom);
     const tasks = useAtomValue(tasksAtom);
-
+    const isDarkMode = useAtomValue(isDarkModeAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+  
     const theads = [];
     const trows = [];
 
@@ -72,7 +74,7 @@ function DashboardComponent() {
     return (
         <>
             <DashboardSettingsComponent />
-            <Table key="dashboardTable" id="dashboardTable" striped hover>
+            <Table variant={isDarkMode ? currentVariant : null} key="dashboardTable" id="dashboardTable" striped>
                 <thead>
                     <tr>
                         <th className="nodeAttribute">Node</th>

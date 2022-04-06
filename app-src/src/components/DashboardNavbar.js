@@ -3,19 +3,24 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
 import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
-import { messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, isDarkModeAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
 import { useUpdateAtom } from 'jotai/utils';
 import { Suspense } from 'react';
 import ReactInterval from 'react-interval';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 function DashboardNavbar() {
     const [refreshInterval, toggleRefresh] = useAtom(refreshIntervalAtom, RefreshIntervalToggleReducer);
     const [, messageReducer] = useAtom(messagesAtom, MessageReducer);
-
     const updateNodes = useUpdateAtom(nodesAtom);
     const updateServices = useUpdateAtom(servicesAtom);
     const updateTasks = useUpdateAtom(tasksAtom);
+    const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+
+    if(isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
+
     const reloadData = () => {
         updateNodes   ({ type: 'refetch' });
         updateServices({ type: 'refetch' });
@@ -35,7 +40,7 @@ function DashboardNavbar() {
     return (
         <Suspense fallback={<p>Navbar is loading...</p>}>
             <ReactInterval enabled={refreshInterval} timeout={refreshInterval} callback={reloadData} />
-            <Navbar collapseOnSelect expand="xl" bg='light' variant='light' className='mb-3 border-bottom'>
+            <Navbar collapseOnSelect expand="xl" bg={currentVariant} variant={currentVariant} className='mb-3 border-bottom'>
                 <Container fluid>
                     <LinkContainer to="/">
                         <Navbar.Brand>
@@ -79,6 +84,7 @@ function DashboardNavbar() {
                             <ButtonGroup>
                                 <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
                                 <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
+                                <Button variant={isDarkMode ? 'secondary' : 'outline-secondary'} onClick={() => setIsDarkMode(!isDarkMode)}><FontAwesomeIcon icon="lightbulb" /></Button>
                             </ButtonGroup>
                         </Nav>
                     </Navbar.Collapse>

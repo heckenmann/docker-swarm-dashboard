@@ -2,10 +2,12 @@ import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { servicesAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, servicesAtom } from '../common/store/atoms';
 
 function PortsComponent() {
     const services = useAtomValue(servicesAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const ports = [];
     services.filter(s => s.Spec && s.Spec.Name && s.Endpoint && s.Endpoint.Ports)
         .forEach(s => {
@@ -32,9 +34,9 @@ function PortsComponent() {
         });
 
     return (
-        <Card bg='light'>
+        <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
-                <Table id="portsTable" size="sm" striped hover>
+                <Table id="portsTable" variant={currentVariant} size="sm" striped>
                     <thead>
                         <tr>
                             <th id="publishedPort">PublishedPort</th>

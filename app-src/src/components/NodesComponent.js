@@ -2,10 +2,12 @@ import { Table, Badge, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { nodesAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom } from '../common/store/atoms';
 
 function NodesComponent() {
     const nodes = useAtomValue(nodesAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const theads = [];
     const trows = [];
 
@@ -43,9 +45,9 @@ function NodesComponent() {
     });
 
     return (
-        <Card bg='light'>
+        <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
-                <Table key="nodesTable" id="nodesTable" size='sm' striped hover>
+                <Table variant={currentVariant} key="nodesTable" id="nodesTable" size='sm' striped>
                     <thead>
                         <tr>
                             <th className="nodeAttribute">Node</th>
