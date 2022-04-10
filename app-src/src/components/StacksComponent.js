@@ -1,7 +1,7 @@
 import { Button, Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
 import { useAtom, useAtomValue } from 'jotai';
 import { servicesDetailId } from '../common/navigationConstants';
 

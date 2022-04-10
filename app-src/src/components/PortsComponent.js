@@ -1,13 +1,16 @@
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useAtomValue } from 'jotai';
-import { currentVariantAtom, currentVariantClassesAtom, servicesAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
 import { servicesDetailId } from '../common/navigationConstants';
 
 function PortsComponent() {
     const services = useAtomValue(servicesAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+    const [, updateViewId] = useAtom(viewIdAtom);
+    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
+
     const ports = [];
     services.filter(s => s.Spec && s.Spec.Name && s.Endpoint && s.Endpoint.Ports)
         .forEach(s => {
