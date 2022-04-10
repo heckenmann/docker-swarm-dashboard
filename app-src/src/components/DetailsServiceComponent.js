@@ -1,14 +1,13 @@
 import { Card, Tab, Tabs } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useParams } from 'react-router-dom';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { useAtomValue } from 'jotai';
-import { currentSyntaxHighlighterStyleAtom, currentVariantAtom, currentVariantClassesAtom, servicesAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { currentSyntaxHighlighterStyleAtom, currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom } from '../common/store/atoms';
 import { JsonTable } from './JsonTable';
 
 function DetailsServiceComponent() {
     const services = useAtomValue(servicesAtom);
-    const { id } = useParams();
+    const id = useAtomValue(viewDetailIdAtom);
     const currentService = services.find(s => s.ID == id);
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);

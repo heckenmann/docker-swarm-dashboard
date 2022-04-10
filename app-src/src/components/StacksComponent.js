@@ -1,15 +1,18 @@
-import { Card, Table } from 'react-bootstrap';
+import { Button, Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { Link } from 'react-router-dom';
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
-import { useAtomValue } from 'jotai';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { servicesDetailId } from '../common/navigationConstants';
 
 
 function findServicesForStack(services, stackName) {
+    const [, updateViewId] = useAtom(viewIdAtom);
+    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
+
     return services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
         <tr key={service.ID}>
-            <td className='text-nowrap'><Link to={'/services/' + service.ID} >{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</Link></td>
+            <td className='cursorPointer text-nowrap' onClick={() => {updateViewId(servicesDetailId); updateViewDetailId(service.ID);}}>{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</td>
             <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
             <td>{toDefaultDateTimeString(new Date(service['CreatedAt']))}</td>
             <td>{toDefaultDateTimeString(new Date(service['UpdatedAt']))}</td>
@@ -28,7 +31,7 @@ function StacksComponent() {
                 <h5><FontAwesomeIcon icon="cubes" />{' '}{stack ? stack : '(without stack)'}</h5>
             </Card.Header>
             <Card.Body>
-                <Table variant={currentVariant} size='sm'>
+                <Table variant={currentVariant} size='sm' striped hover>
                     <thead>
                         <tr>
                             <th>Service Name</th>

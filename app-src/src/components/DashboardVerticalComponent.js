@@ -1,16 +1,17 @@
-import { Table, Badge } from 'react-bootstrap';
+import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
-import { Link } from 'react-router-dom';
 import { DashboardSettingsComponent } from './DashboardSettingsComponent';
-import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
-import { useAtomValue } from 'jotai';
+import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailId, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
+import { waitForAll } from 'jotai/utils';
 
 function DashboardVerticalComponent() {
-    const services = useAtomValue(servicesAtom);
-    const nodes = useAtomValue(nodesAtom);
-    const tasks = useAtomValue(tasksAtom);
+    const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
     const isDarkMode = useAtomValue(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
+    const [, updateViewId] = useAtom(viewIdAtom);
+    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
 
     const theads = [];
     const trows = [];
@@ -18,7 +19,7 @@ function DashboardVerticalComponent() {
     // Columns
     nodes.forEach(node => {
         theads.push(
-            <th key={'dashboardTable-' + node['ID']} className="dataCol"><div className="rotated"><Link to={'/nodes/' + node.ID}>{node.Description?.Hostname}</Link></div></th>
+            <th key={'dashboardTable-' + node['ID']} className="dataCol"><div className="rotated"><Button variant='link' onClick={() => {updateViewId(nodesDetailId); updateViewDetailId(node.ID)}}>{node.Description?.Hostname}</Button></div></th>
         );
     });
     theads.push(<th key='dashboardTable-empty'></th>);
@@ -40,8 +41,8 @@ function DashboardVerticalComponent() {
 
         });
         trows.push(
-            <tr key={'tr' + service['ID']}>
-                <td><Link to={'/services/' + service.ID}>{service.Spec.Name}</Link></td>
+            <tr key={'tr' + service['ID']} className='cursorPointer' onClick={() => {updateViewId(servicesDetailId); updateViewDetailId(service.ID)}}>
+                <td>{service.Spec.Name}</td>
                 <td>{service.Spec.Labels?.["com.docker.stack.namespace"]}</td>
                 <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
                 {dataCols}
