@@ -53,18 +53,18 @@ function DashboardNavbar() {
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-left">
-                        <Nav className="mr-auto" variant="dark">
-                            <Nav.Link onClick={() => updateViewId(dashboardHId)}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(stacksId)}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(nodesId)}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(tasksId)}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(portsId)}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(logsId)}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
+                        <Nav className="mr-auto">
+                            <Nav.Link onClick={() => updateViewId(dashboardHId)} active={viewId === dashboardHId}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(stacksId)} active={viewId === stacksId}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(nodesId)} active={viewId === nodesId}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(tasksId)} active={viewId === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(portsId)} active={viewId === portsId}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(logsId)} active={viewId === logsId}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
-                            <Nav.Link onClick={() => updateViewId(aboutId)}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(aboutId)} active={viewId === aboutId}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
                             <ButtonGroup>
                                 <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
                                 <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
