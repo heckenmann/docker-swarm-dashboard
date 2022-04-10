@@ -11,6 +11,14 @@ body {
     z-index: -100;
 }
 
+.cursorPointer {
+    cursor: pointer;
+}
+
+td.cursorPointer {
+    text-decoration: underline;
+}
+
 #dockerlogo {
     /*position: relative;
     height: 25px;

@@ -1,14 +1,13 @@
 import { Card, Tab, Table, Tabs } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useParams } from 'react-router-dom';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { useAtomValue } from 'jotai';
-import { currentSyntaxHighlighterStyleAtom, currentVariantAtom, currentVariantClassesAtom, nodesAtom } from '../common/store/atoms';
+import { currentSyntaxHighlighterStyleAtom, currentVariantAtom, currentVariantClassesAtom, nodesAtom, viewDetailIdAtom } from '../common/store/atoms';
 import { JsonTable } from './JsonTable';
 
 function DetailsNodeComponent() {
     const nodes = useAtomValue(nodesAtom);
-    const { id } = useParams();
+    const id = useAtomValue(viewDetailIdAtom);
     const currentNode = nodes.find(s => s.ID == id);
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);

@@ -1,13 +1,15 @@
-import { Table, Badge, Card } from 'react-bootstrap';
+import { Table, Badge, Card, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { nodesDetailId } from '../common/navigationConstants';
 
 function NodesComponent() {
     const nodes = useAtomValue(nodesAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+    const [, updateViewId] = useAtom(viewIdAtom);
+    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
     const theads = [];
     const trows = [];
 
@@ -17,8 +19,8 @@ function NodesComponent() {
     nodes.forEach(node => {
         trows.push(
             <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
-                <td className='align-middle text-nowrap'>
-                    <Link to={'/nodes/' + node['ID']} >{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Link>
+                <td className='cursorPointer align-middle text-nowrap' onClick={() => {updateViewDetailId(node.ID); updateViewId(nodesDetailId)}}>
+                    {node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}
                 </td>
                 <td className='align-middle col-md-1'>{node['Spec']['Role']}</td>
                 <td className='align-middle col-md-1'>

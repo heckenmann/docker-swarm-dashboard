@@ -1,8 +1,8 @@
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { currentVariantAtom, currentVariantClassesAtom, servicesAtom } from '../common/store/atoms';
+import { servicesDetailId } from '../common/navigationConstants';
 
 function PortsComponent() {
     const services = useAtomValue(servicesAtom);
@@ -28,7 +28,7 @@ function PortsComponent() {
                     <td>{p.TargetPort}</td>
                     <td>{p.Protocol}</td>
                     <td>{p.PublishMode}</td>
-                    <td><Link to={'/services/' + p.ServiceID}>{p.ServiceName}</Link></td>
+                    <td className='cursorPointer' onClick={() => { updateViewId(servicesDetailId); updateViewDetailId(p.ServiceID); }}>{p.ServiceName}</td>
                 </tr>
             )
         });

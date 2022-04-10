@@ -1,30 +1,30 @@
 import { Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
 import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
-import { currentVariantAtom, currentVariantClassesAtom, isDarkModeAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
-import { useUpdateAtom } from 'jotai/utils';
-import { Suspense } from 'react';
+import { currentVariantAtom, isDarkModeAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom, viewIdAtom } from '../common/store/atoms';
+import { useResetAtom } from 'jotai/utils';
 import ReactInterval from 'react-interval';
 import { useAtom, useAtomValue } from 'jotai';
+import { aboutId, dashboardHId, logsId, nodesId, portsId, stacksId, tasksId } from '../common/navigationConstants';
+import { useEffect } from 'react';
 
 function DashboardNavbar() {
     const [refreshInterval, toggleRefresh] = useAtom(refreshIntervalAtom, RefreshIntervalToggleReducer);
     const [, messageReducer] = useAtom(messagesAtom, MessageReducer);
-    const updateNodes = useUpdateAtom(nodesAtom);
-    const updateServices = useUpdateAtom(servicesAtom);
-    const updateTasks = useUpdateAtom(tasksAtom);
+    const resetNodes = useResetAtom(nodesAtom);
+    const resetServices = useResetAtom(servicesAtom);
+    const resetTasks = useResetAtom(tasksAtom);
     const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
-    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+    const [viewId, updateViewId] = useAtom(viewIdAtom);
 
-    if(isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
+    if (isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
 
     const reloadData = () => {
-        updateNodes   ({ type: 'refetch' });
-        updateServices({ type: 'refetch' });
-        updateTasks   ({ type: 'refetch' });
+        resetNodes();
+        resetServices();
+        resetTasks();
     }
 
     const refreshAndNotifyUser = () => {
@@ -38,49 +38,33 @@ function DashboardNavbar() {
     }
 
     return (
-        <Suspense fallback={<p>Navbar is loading...</p>}>
+        <>
             <ReactInterval enabled={refreshInterval} timeout={refreshInterval} callback={reloadData} />
             <Navbar collapseOnSelect expand="xl" bg={currentVariant} variant={currentVariant} className='mb-3 border-bottom'>
                 <Container fluid>
-                    <LinkContainer to="/">
-                        <Navbar.Brand>
-                            <img alt="logo"
-                                id="dockerlogo"
-                                src={logo}
-                                className="d-inline-block align-top"
-                                width="30"
-                                height="30" />{' '}
-                            Docker Swarm Dashboard
-                        </Navbar.Brand>
-                    </LinkContainer>
+                    <Navbar.Brand className='cursorPointer' onClick={() => updateViewId(dashboardHId)}>
+                        <img alt="logo"
+                            id="dockerlogo"
+                            src={logo}
+                            className="d-inline-block align-top cursor-pointer"
+                            width="30"
+                            height="30" />{' '}
+                        Docker Swarm Dashboard
+                    </Navbar.Brand>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-left">
                         <Nav className="mr-auto" variant="dark">
-                            <LinkContainer to="/dashboard">
-                                <Nav.Link><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
-                            </LinkContainer>
-                            <LinkContainer to="/stacks">
-                                <Nav.Link><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
-                            </LinkContainer>
-                            <LinkContainer to="/nodes">
-                                <Nav.Link><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
-                            </LinkContainer>
-                            <LinkContainer to="/tasks">
-                                <Nav.Link><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
-                            </LinkContainer>
-                            <LinkContainer to="/ports">
-                                <Nav.Link><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
-                            </LinkContainer>
-                            <LinkContainer to="/logs">
-                                <Nav.Link><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
-                            </LinkContainer>
+                            <Nav.Link onClick={() => updateViewId(dashboardHId)}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(stacksId)}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(nodesId)}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(tasksId)}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(portsId)}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
+                            <Nav.Link onClick={() => updateViewId(logsId)}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
-                            <LinkContainer to="/about">
-                                <Nav.Link><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
-                            </LinkContainer>
+                            <Nav.Link onClick={() => updateViewId(aboutId)}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
                             <ButtonGroup>
                                 <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
                                 <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
@@ -91,7 +75,7 @@ function DashboardNavbar() {
                 </Container>
             </Navbar>
             <RefreshIntervalToast />
-        </Suspense>
+        </>
     );
 }
 

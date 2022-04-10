@@ -1,31 +1,33 @@
 import { useAtom, useAtomValue } from 'jotai';
+import { waitForAll } from 'jotai/utils';
 import { Table, Badge, Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
+import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
 function TasksComponent() {
-    const services = useAtomValue(servicesAtom);
-    const nodes = useAtomValue(nodesAtom);
-    const tasks = useAtomValue(tasksAtom);
+    const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
 
     const rows = tasks.map(task => {
         const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
         const currentService = services.find(service => service['ID'] === task['ServiceID']);
+        const [, updateViewId] = useAtom(viewIdAtom);
+        const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
 
         const currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
         const currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
         const currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
+
         return (
             <tr key={'tasksTable-' + task['ID']}>
                 <td>{toDefaultDateTimeString(new Date(task['Status']['Timestamp']))}</td>
                 <td><Badge className='w-100' bg={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                 <td>{task['DesiredState']}</td>
-                <td><Link to={'/services/' + currentService.ID}>{currentServiceName}</Link></td>
-                <td><Link to={'/nodes/' + currentNode.ID}>{currentNodeName}</Link></td>
+                <td className='cursorPointer' key={currentService.ID} onClick={() => { updateViewId(servicesDetailId); updateViewDetailId(currentService.ID); }}>{currentServiceName}</td>
+                <td className='cursorPointer' key={currentNode.ID} onClick={() => { updateViewId(nodesDetailId); updateViewDetailId(currentNode.ID); }}>{currentNodeName}</td>
                 <td>{currentError}</td>
             </tr>
         );

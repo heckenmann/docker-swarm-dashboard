@@ -1,25 +1,26 @@
 import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
 import { DashboardSettingsComponent } from './DashboardSettingsComponent';
-import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom } from '../common/store/atoms';
-import { useAtomValue } from 'jotai';
+import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
+import { waitForAll } from 'jotai/utils';
 
 function DashboardComponent() {
-    const services = useAtomValue(servicesAtom);
-    const nodes = useAtomValue(nodesAtom);
-    const tasks = useAtomValue(tasksAtom);
+    const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
     const isDarkMode = useAtomValue(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
-  
+    const [, updateViewId] = useAtom(viewIdAtom);
+    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
+
     const theads = [];
     const trows = [];
 
     // Columns
     services.forEach(service => {
         theads.push(
-            <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Link to={'/services/' + service.ID}>{service['Spec']['Name']}</Link></div></th>
+            <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Button variant='link' onClick={() => { updateViewId(servicesDetailId); updateViewDetailId(service.ID); }}>{service['Spec']['Name']}</Button></div></th>
         );
     });
     theads.push(<th key='dashboardTable-empty'></th>);
@@ -43,7 +44,7 @@ function DashboardComponent() {
         trows.push(
             <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
                 <td className='align-middle'>
-                    <Link to={'/nodes/' + node['ID']} ><Button variant="secondary" size="sm" className='w-100 text-nowrap'>{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button></Link>
+                    <Button onClick={() => { updateViewId(nodesDetailId); updateViewDetailId(node.ID); }} variant="secondary" size="sm" className='w-100 text-nowrap'>{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button>
                 </td>
                 <td className='align-middle'>{node['Spec']['Role']}</td>
                 <td className='align-middle'>
