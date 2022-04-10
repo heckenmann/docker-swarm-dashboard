@@ -1,10 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useAtomValue } from "jotai";
 import { Card } from "react-bootstrap";
 import { CSSTransition } from 'react-transition-group';
+import { currentVariantAtom, currentVariantClassesAtom } from "../common/store/atoms";
 
 function LoadingComponent() {
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     return(
-        <Card bg='light' className='mb-3'>
+        <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
                 <h1><FontAwesomeIcon icon='spinner' /> Loading...</h1>
             </Card.Body>
