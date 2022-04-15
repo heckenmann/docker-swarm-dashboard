@@ -18,7 +18,7 @@ function DashboardVerticalComponent() {
     // Columns
     nodes.forEach(node => {
         theads.push(
-            <th key={'dashboardTable-' + node['ID']} className="dataCol"><div className="rotated"><Button variant='link' onClick={() => updateView({ 'id': nodesDetailId, 'detail': node.ID })}>{node.Description?.Hostname}</Button></div></th>
+            <th key={'dashboardTable-' + node['ID']} className="dataCol cursorPointer" onClick={() => updateView({ 'id': nodesDetailId, 'detail': node.ID })}><div className="rotated">{node.Description?.Hostname}</div></th>
         );
     });
     theads.push(<th key='dashboardTable-empty'></th>);
@@ -40,8 +40,8 @@ function DashboardVerticalComponent() {
 
         });
         trows.push(
-            <tr key={'tr' + service['ID']} className='cursorPointer' onClick={() => updateView({ 'id': servicesDetailId, 'detail': service.ID })}>
-                <td>{service.Spec.Name}</td>
+            <tr key={'tr' + service['ID']} >
+                <td className='cursorPointer' onClick={() => updateView({ 'id': servicesDetailId, 'detail': service.ID })}>{service.Spec.Name}</td>
                 <td>{service.Spec.Labels?.["com.docker.stack.namespace"]}</td>
                 <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
                 {dataCols}
