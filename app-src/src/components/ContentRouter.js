@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai"
 import { aboutId, dashboardHId, dashboardVId, logsId, nodesDetailId, nodesId, portsId, servicesDetailId, stacksId, tasksId } from "../common/navigationConstants"
-import { viewIdAtom } from "../common/store/atoms"
+import { viewAtom } from "../common/store/atoms"
 import { AboutComponent } from "./AboutComponent"
 import { DashboardComponent } from "./DashboardComponent"
 import { DashboardVerticalComponent } from "./DashboardVerticalComponent"
@@ -13,10 +13,10 @@ import { StacksComponent } from "./StacksComponent"
 import { TasksComponent } from "./TasksComponent"
 
 export function ContentRouter() {
-    const viewId = useAtomValue(viewIdAtom)
+    const viewId = useAtomValue(viewAtom)
 
     let view = null;
-    switch (viewId) {
+    switch (viewId?.id) {
         case dashboardHId: view = <DashboardComponent />;
             break;
         case dashboardVId: view = <DashboardVerticalComponent />;

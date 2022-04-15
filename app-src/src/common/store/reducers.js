@@ -1,5 +1,3 @@
-import { fetchNodes, fetchServices, fetchTasks } from "../network";
-
 export const RefreshIntervalToggleReducer = (prev) => {
     return prev ? null : 1000;
 }
