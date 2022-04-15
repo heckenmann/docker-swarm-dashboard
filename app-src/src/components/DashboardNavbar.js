@@ -42,7 +42,7 @@ function DashboardNavbar() {
             <ReactInterval enabled={refreshInterval} timeout={refreshInterval} callback={reloadData} />
             <Navbar collapseOnSelect expand="xl" bg={currentVariant} variant={currentVariant} className='mb-3 border-bottom'>
                 <Container fluid>
-                    <Navbar.Brand className='cursorPointer' onClick={() => updateView(dashboardHId)}>
+                    <Navbar.Brand className='cursorPointer' onClick={() => updateView({'id': dashboardHId})}>
                         <img alt="logo"
                             id="dockerlogo"
                             src={logo}
