@@ -1,18 +1,17 @@
 import { Button, Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
 import { useAtom, useAtomValue } from 'jotai';
 import { servicesDetailId } from '../common/navigationConstants';
 
 
 function findServicesForStack(services, stackName) {
-    const [, updateViewId] = useAtom(viewIdAtom);
-    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
+    const [, updateView] = useAtom(viewAtom);
 
     return services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
         <tr key={service.ID}>
-            <td className='cursorPointer text-nowrap' onClick={() => {updateViewId(servicesDetailId); updateViewDetailId(service.ID);}}>{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</td>
+            <td className='cursorPointer text-nowrap' onClick={() => {updateView({'id': servicesDetailId, 'detail': service.ID})}}>{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</td>
             <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
             <td>{toDefaultDateTimeString(new Date(service['CreatedAt']))}</td>
             <td>{toDefaultDateTimeString(new Date(service['UpdatedAt']))}</td>

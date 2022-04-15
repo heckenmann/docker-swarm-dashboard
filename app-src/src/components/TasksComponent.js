@@ -3,7 +3,7 @@ import { waitForAll } from 'jotai/utils';
 import { Table, Badge, Card } from 'react-bootstrap';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
 function TasksComponent() {
@@ -14,8 +14,7 @@ function TasksComponent() {
     const rows = tasks.map(task => {
         const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
         const currentService = services.find(service => service['ID'] === task['ServiceID']);
-        const [, updateViewId] = useAtom(viewIdAtom);
-        const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
+        const [, updateView] = useAtom(viewAtom);
 
         const currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
         const currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
@@ -26,8 +25,8 @@ function TasksComponent() {
                 <td>{toDefaultDateTimeString(new Date(task['Status']['Timestamp']))}</td>
                 <td><Badge className='w-100' bg={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                 <td>{task['DesiredState']}</td>
-                <td className='cursorPointer' key={currentService.ID} onClick={() => { updateViewId(servicesDetailId); updateViewDetailId(currentService.ID); }}>{currentServiceName}</td>
-                <td className='cursorPointer' key={currentNode.ID} onClick={() => { updateViewId(nodesDetailId); updateViewDetailId(currentNode.ID); }}>{currentNodeName}</td>
+                <td className='cursorPointer' key={currentService.ID} onClick={() => updateView({ 'id': servicesDetailId, 'detail': currentService.ID })}>{currentServiceName}</td>
+                <td className='cursorPointer' key={currentNode.ID} onClick={() => updateView({ 'id': nodesDetailId, 'detail': currentNode.ID })}>{currentNodeName}</td>
                 <td>{currentError}</td>
             </tr>
         );

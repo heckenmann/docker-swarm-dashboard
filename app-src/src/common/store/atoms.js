@@ -10,8 +10,7 @@ export const refreshIntervalAtom = atomWithReducer(null, RefreshIntervalToggleRe
 export const nodesAtom = atomWithReducer(fetchNodes(), () => fetchNodes());
 export const servicesAtom = atomWithReducer(fetchServices(), () => fetchServices());
 export const tasksAtom = atomWithReducer(fetchTasks(), () => fetchTasks());
-export const viewIdAtom = atomWithHash('viewId');
-export const viewDetailIdAtom = atomWithHash('detailId');
+export const viewAtom = atomWithHash('view');
 
 // Logs
 export const logsLinesAtom = atomWithReset([]);

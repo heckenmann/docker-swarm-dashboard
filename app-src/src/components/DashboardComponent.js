@@ -2,7 +2,7 @@ import { Table, Badge, Button } from 'react-bootstrap';
 import { getStyleClassForState } from '../Helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DashboardSettingsComponent } from './DashboardSettingsComponent';
-import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewIdAtom } from '../common/store/atoms';
+import { currentVariantAtom, isDarkModeAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
 import { useAtom, useAtomValue } from 'jotai';
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
 import { waitForAll } from 'jotai/utils';
@@ -11,8 +11,7 @@ function DashboardComponent() {
     const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
     const isDarkMode = useAtomValue(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
-    const [, updateViewId] = useAtom(viewIdAtom);
-    const [, updateViewDetailId] = useAtom(viewDetailIdAtom);
+    const [, updateView] = useAtom(viewAtom);
 
     const theads = [];
     const trows = [];
@@ -20,7 +19,7 @@ function DashboardComponent() {
     // Columns
     services.forEach(service => {
         theads.push(
-            <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Button variant='link' onClick={() => { updateViewId(servicesDetailId); updateViewDetailId(service.ID); }}>{service['Spec']['Name']}</Button></div></th>
+            <th key={'dashboardTable-' + service['ID']} className="dataCol"><div className="rotated"><Button variant='link' onClick={() => updateView({'id': servicesDetailId, 'detail': service.ID})}>{service['Spec']['Name']}</Button></div></th>
         );
     });
     theads.push(<th key='dashboardTable-empty'></th>);
@@ -44,7 +43,7 @@ function DashboardComponent() {
         trows.push(
             <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
                 <td className='align-middle'>
-                    <Button onClick={() => { updateViewId(nodesDetailId); updateViewDetailId(node.ID); }} variant="secondary" size="sm" className='w-100 text-nowrap'>{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button>
+                    <Button onClick={() => updateView({'id': nodesDetailId, 'detail': node.ID})} variant="secondary" size="sm" className='w-100 text-nowrap'>{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Button>
                 </td>
                 <td className='align-middle'>{node['Spec']['Role']}</td>
                 <td className='align-middle'>

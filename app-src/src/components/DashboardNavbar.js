@@ -2,7 +2,7 @@ import { Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } fr
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
 import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
-import { currentVariantAtom, isDarkModeAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom, viewIdAtom } from '../common/store/atoms';
+import { currentVariantAtom, isDarkModeAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom, viewAtom } from '../common/store/atoms';
 import { useResetAtom } from 'jotai/utils';
 import ReactInterval from 'react-interval';
 import { useAtom, useAtomValue } from 'jotai';
@@ -17,7 +17,7 @@ function DashboardNavbar() {
     const resetTasks = useResetAtom(tasksAtom);
     const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
-    const [viewId, updateViewId] = useAtom(viewIdAtom);
+    const [viewId, updateView] = useAtom(viewAtom);
 
     if (isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
 
@@ -42,7 +42,7 @@ function DashboardNavbar() {
             <ReactInterval enabled={refreshInterval} timeout={refreshInterval} callback={reloadData} />
             <Navbar collapseOnSelect expand="xl" bg={currentVariant} variant={currentVariant} className='mb-3 border-bottom'>
                 <Container fluid>
-                    <Navbar.Brand className='cursorPointer' onClick={() => updateViewId(dashboardHId)}>
+                    <Navbar.Brand className='cursorPointer' onClick={() => updateView(dashboardHId)}>
                         <img alt="logo"
                             id="dockerlogo"
                             src={logo}
@@ -54,17 +54,17 @@ function DashboardNavbar() {
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-left">
                         <Nav className="mr-auto">
-                            <Nav.Link onClick={() => updateViewId(dashboardHId)} active={viewId === dashboardHId}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(stacksId)} active={viewId === stacksId}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(nodesId)} active={viewId === nodesId}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(tasksId)} active={viewId === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(portsId)} active={viewId === portsId}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
-                            <Nav.Link onClick={() => updateViewId(logsId)} active={viewId === logsId}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
+                            <Nav.Link onClick={() => updateView({'id': dashboardHId})} active={viewId === dashboardHId}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
+                            <Nav.Link onClick={() => updateView({'id': stacksId})} active={viewId === stacksId}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
+                            <Nav.Link onClick={() => updateView({'id': nodesId})} active={viewId === nodesId}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
+                            <Nav.Link onClick={() => updateView({'id': tasksId})} active={viewId === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
+                            <Nav.Link onClick={() => updateView({'id': portsId})} active={viewId === portsId}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
+                            <Nav.Link onClick={() => updateView({'id': logsId})} active={viewId === logsId}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
-                            <Nav.Link onClick={() => updateViewId(aboutId)} active={viewId === aboutId}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
+                            <Nav.Link onClick={() => updateView(aboutId)} active={viewId === aboutId}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
                             <ButtonGroup>
                                 <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
                                 <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
