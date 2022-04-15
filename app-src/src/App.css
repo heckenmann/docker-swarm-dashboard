@@ -15,7 +15,7 @@ body {
     cursor: pointer;
 }
 
-td.cursorPointer {
+td.cursorPointer, th.cursorPointer {
     text-decoration: underline;
 }
 
