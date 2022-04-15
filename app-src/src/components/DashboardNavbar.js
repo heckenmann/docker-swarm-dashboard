@@ -17,7 +17,7 @@ function DashboardNavbar() {
     const resetTasks = useResetAtom(tasksAtom);
     const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
-    const [viewId, updateView] = useAtom(viewAtom);
+    const [view, updateView] = useAtom(viewAtom);
 
     if (isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
 
@@ -54,17 +54,17 @@ function DashboardNavbar() {
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-left">
                         <Nav className="mr-auto">
-                            <Nav.Link onClick={() => updateView({'id': dashboardHId})} active={viewId === dashboardHId}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': stacksId})} active={viewId === stacksId}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': nodesId})} active={viewId === nodesId}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': tasksId})} active={viewId === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': portsId})} active={viewId === portsId}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': logsId})} active={viewId === logsId}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': dashboardHId })} active={view?.id === dashboardHId}><FontAwesomeIcon icon="grip" />{' '}Dashboard</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': stacksId })} active={view?.id === stacksId}><FontAwesomeIcon icon="cubes" />{' '}Stacks</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': nodesId })} active={view?.id === nodesId}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': tasksId })} active={view?.id === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': portsId })} active={view?.id === portsId}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': logsId })} active={view?.id === logsId}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
-                            <Nav.Link onClick={() => updateView(aboutId)} active={viewId === aboutId}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': aboutId })} active={view?.id === aboutId}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
                             <ButtonGroup>
                                 <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
                                 <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
