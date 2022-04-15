@@ -30,7 +30,7 @@ function PortsComponent() {
                     <td>{p.TargetPort}</td>
                     <td>{p.Protocol}</td>
                     <td>{p.PublishMode}</td>
-                    <td className='cursorPointer' onClick={() => updateView({'id': servicesDetailId, 'detail': p.serviceID})}>{p.ServiceName}</td>
+                    <td className='cursorPointer' onClick={() => updateView({'id': servicesDetailId, 'detail': p.ServiceID})}>{p.ServiceName}</td>
                 </tr>
             )
         });
