@@ -6,7 +6,7 @@ Docker-Image Size: < 25 MB
 _Use a stable release in production, not the master-build!
 Don't expose this service to the world! The endpoints offer the configuration of your services._
 
-If you like this projekt, please give a ⭐ on github.
+If you like this project, please give a ⭐ on github.
 Feedback would be nice.
 
 ----
