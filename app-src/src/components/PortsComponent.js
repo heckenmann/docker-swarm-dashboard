@@ -1,13 +1,16 @@
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
+import { useAtom, useAtomValue } from 'jotai';
+import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
+import { servicesDetailId } from '../common/navigationConstants';
 
-function PortsComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let services = props.services;
-    let ports = [];
+function PortsComponent() {
+    const services = useAtomValue(servicesAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+    const [, updateView] = useAtom(viewAtom);
+
+    const ports = [];
     services.filter(s => s.Spec && s.Spec.Name && s.Endpoint && s.Endpoint.Ports)
         .forEach(s => {
             s.Endpoint.Ports.forEach(port => {
@@ -17,7 +20,7 @@ function PortsComponent(props) {
             });
         });
 
-    let renderedServices = ports
+    const renderedServices = ports
         .sort((p1, p2) => p1.PublishedPort - p2.PublishedPort)
         .map(p => {
             return (
@@ -27,15 +30,15 @@ function PortsComponent(props) {
                     <td>{p.TargetPort}</td>
                     <td>{p.Protocol}</td>
                     <td>{p.PublishMode}</td>
-                    <td><Link to={'/services/' + p.ServiceID}>{p.ServiceName}</Link></td>
+                    <td className='cursorPointer' onClick={() => updateView({'id': servicesDetailId, 'detail': p.ServiceID})}>{p.ServiceName}</td>
                 </tr>
             )
         });
 
     return (
-        <Card bg='light'>
+        <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
-                <Table id="portsTable" size="sm" striped hover>
+                <Table id="portsTable" variant={currentVariant} size="sm" striped>
                     <thead>
                         <tr>
                             <th id="publishedPort">PublishedPort</th>

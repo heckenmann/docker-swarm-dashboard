@@ -1,34 +1,40 @@
+import { useAtom, useAtomValue } from 'jotai';
+import { waitForAll } from 'jotai/utils';
 import { Table, Badge, Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
+import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
-function TasksComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let rows = props.tasks.map(task => {
-        let currentNode = props.nodes.find(node => node['ID'] === task['NodeID']);
-        let currentService = props.services.find(service => service['ID'] === task['ServiceID']);
+function TasksComponent() {
+    const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
 
-        let currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
-        let currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
-        let currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
+    const rows = tasks.map(task => {
+        const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
+        const currentService = services.find(service => service['ID'] === task['ServiceID']);
+        const [, updateView] = useAtom(viewAtom);
+
+        const currentNodeName = currentNode == null ? "" : currentNode['Description']['Hostname'];
+        const currentServiceName = currentService == null ? "" : currentService['Spec']['Name'];
+        const currentError = task['Status']['Err'] == null ? "" : task['Status']['Err'];
+
         return (
             <tr key={'tasksTable-' + task['ID']}>
                 <td>{toDefaultDateTimeString(new Date(task['Status']['Timestamp']))}</td>
                 <td><Badge className='w-100' bg={getStyleClassForState(task['Status']['State'])}>{task['Status']['State']} </Badge></td>
                 <td>{task['DesiredState']}</td>
-                <td><Link to={'/services/' + currentService.ID}>{currentServiceName}</Link></td>
-                <td><Link to={'/nodes/' + currentNode.ID}>{currentNodeName}</Link></td>
+                <td className='cursorPointer' key={currentService.ID} onClick={() => updateView({ 'id': servicesDetailId, 'detail': currentService.ID })}>{currentServiceName}</td>
+                <td className='cursorPointer' key={currentNode.ID} onClick={() => updateView({ 'id': nodesDetailId, 'detail': currentNode.ID })}>{currentNodeName}</td>
                 <td>{currentError}</td>
             </tr>
         );
     });
     return (
-        <Card bg='light'>
+        <Card className={currentVariantClasses}>
             <Card.Body>
-                <Table striped hover id="tasksTable" size="sm">
+                <Table id="tasksTable" variant={currentVariant} striped size="sm">
                     <thead>
                         <tr>
                             <th id="timestampCol">Timestamp</th>

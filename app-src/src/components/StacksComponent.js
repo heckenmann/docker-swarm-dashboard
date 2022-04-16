@@ -1,13 +1,17 @@
-import { Card, Table } from 'react-bootstrap';
+import { Button, Card, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { Link } from 'react-router-dom';
+import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { servicesDetailId } from '../common/navigationConstants';
 
 
-function findServicesForStack(props, stackName) {
-    return props.services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
+function findServicesForStack(services, stackName) {
+    const [, updateView] = useAtom(viewAtom);
+
+    return services.filter(service => service['Spec']['Labels']['com.docker.stack.namespace'] === stackName).sort((s0, s1) => s0 - s1).map(service =>
         <tr key={service.ID}>
-            <td className='text-nowrap'><Link to={'/services/' + service.ID} >{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</Link></td>
+            <td className='cursorPointer text-nowrap' onClick={() => {updateView({'id': servicesDetailId, 'detail': service.ID})}}>{stackName ? service['Spec']['Name']?.substring(stackName.length + 1, service['Spec']['Name'].length) : service['Spec']['Name']}</td>
             <td>{service['Spec']['Mode']['Replicated'] ? service['Spec']['Mode']['Replicated']['Replicas'] : Object.keys(service['Spec']['Mode'])}</td>
             <td>{toDefaultDateTimeString(new Date(service['CreatedAt']))}</td>
             <td>{toDefaultDateTimeString(new Date(service['UpdatedAt']))}</td>
@@ -15,18 +19,18 @@ function findServicesForStack(props, stackName) {
     )
 }
 
-function StacksComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<></>);
-    }
+function StacksComponent() {
+    const services = useAtomValue(servicesAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
 
-    let stacks = props.services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
-        <Card bg='light' className='mb-3' key={'card_' + stack}>
+    const stacks = services.map(service => service['Spec']['Labels']['com.docker.stack.namespace']).filter((v, i, a) => a.indexOf(v) === i).sort((s0, s1) => s0 - s1).map(stack =>
+        <Card bg={currentVariant} className={currentVariantClasses + ' mb-3'} key={'card_' + stack}>
             <Card.Header>
                 <h5><FontAwesomeIcon icon="cubes" />{' '}{stack ? stack : '(without stack)'}</h5>
             </Card.Header>
             <Card.Body>
-                <Table size='sm'>
+                <Table variant={currentVariant} size='sm' striped hover>
                     <thead>
                         <tr>
                             <th>Service Name</th>
@@ -36,7 +40,7 @@ function StacksComponent(props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {findServicesForStack(props, stack)}
+                        {findServicesForStack(services, stack)}
                     </tbody>
                 </Table>
             </Card.Body>

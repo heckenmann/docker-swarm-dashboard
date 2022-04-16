@@ -1,22 +1,25 @@
-import { Table, Badge, Button, Card } from 'react-bootstrap';
+import { Table, Badge, Card, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Link } from 'react-router-dom';
+import { useAtom, useAtomValue } from 'jotai';
+import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
+import { nodesDetailId } from '../common/navigationConstants';
 
-function NodesComponent(props) {
-    if (!props || !props.isInitialized) {
-        return (<div></div>);
-    }
-    let theads = [];
-    let trows = [];
+function NodesComponent() {
+    const nodes = useAtomValue(nodesAtom);
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+    const [, updateView] = useAtom(viewAtom);
+    const theads = [];
+    const trows = [];
 
     theads.push(<th key='serviceTable-empty'></th>);
 
     // Rows
-    props.nodes.forEach(node => {
+    nodes.forEach(node => {
         trows.push(
             <tr key={'tr' + node['ID']} className={node['Status']['State'] === 'ready' ? null : 'danger'}>
-                <td className='align-middle text-nowrap'>
-                    <Link to={'/nodes/' + node['ID']} >{node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}</Link>
+                <td className='cursorPointer align-middle text-nowrap' onClick={() => updateView({'id': nodesDetailId, 'detail': node.ID})}>
+                    {node['Description']['Hostname']}  {node['ManagerStatus'] && node['ManagerStatus']['Leader'] && <FontAwesomeIcon icon='star' />}
                 </td>
                 <td className='align-middle col-md-1'>{node['Spec']['Role']}</td>
                 <td className='align-middle col-md-1'>
@@ -43,9 +46,9 @@ function NodesComponent(props) {
     });
 
     return (
-        <Card bg='light'>
+        <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
-                <Table key="nodesTable" id="nodesTable" size='sm' striped hover>
+                <Table variant={currentVariant} key="nodesTable" id="nodesTable" size='sm' striped>
                     <thead>
                         <tr>
                             <th className="nodeAttribute">Node</th>

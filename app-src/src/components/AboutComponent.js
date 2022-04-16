@@ -1,13 +1,18 @@
+import { useAtomValue } from 'jotai';
 import { Table, Card } from 'react-bootstrap';
+import { currentVariantAtom, currentVariantClassesAtom } from '../common/store/atoms';
 
 function AboutComponent() {
+    const currentVariant = useAtomValue(currentVariantAtom);
+    const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+
     return (
-        <Card bg='light'>
+        <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
                 <h1>
                     Docker Swarm Dashboard <small>by heckenmann</small>
                 </h1>
-                <Table>
+                <Table variant={currentVariant}>
                     <tbody>
                         <tr>
                             <td>License:</td>
