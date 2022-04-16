@@ -1,21 +1,27 @@
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
 
-Docker-Image Size: 10 MB
+Docker-Image Size: < 25 MB
 
-Use a stable release in production, not the master-build!
-Don't expose this service to the world! The endpoints offer the configuration of your services.
+_Use a stable release in production, not the master-build!
+Don't expose this service to the world! The endpoints offer the configuration of your services._
 
+If you like this project, please give a ⭐ on github.
+Feedback would be nice.
+
+----
 ## Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
 ```
 
+----
 ## Local Build
 ```
 docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .
 ```
 
+----
 ## docker-compose.yml
 ```
 ---
@@ -37,17 +43,20 @@ services:
       DOCKER_API_VERSION: 1.35
 ```
 
+----
 ## Deploy on docker-swarm
 From the directory with docker-compose.yml run:
 ```
 docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 
+----
 ## logs-generator (for testing)
 ```
 docker service create --name logger chentex/random-logger:latest 50 200
 ```
 
+----
 ## Screenshots (outdated!)
 
 ![Container Dashboard](screenshots/container.png)
