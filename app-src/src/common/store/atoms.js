@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { atomWithHash, atomWithReducer, atomWithReset } from 'jotai/utils';
+import { atomWithHash, atomWithReducer, atomWithReset, selectAtom } from 'jotai/utils';
 import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light';
 import { fetchNodes, fetchServices, fetchTasks } from '../network';
@@ -11,12 +11,26 @@ export const nodesAtom = atomWithReducer(fetchNodes(), () => fetchNodes());
 export const servicesAtom = atomWithReducer(fetchServices(), () => fetchServices());
 export const tasksAtom = atomWithReducer(fetchTasks(), () => fetchTasks());
 export const viewAtom = atomWithHash('view');
+export const messagesAtom = atomWithReducer([], MessageReducer);
 
 // Logs
 export const logsLinesAtom = atomWithReset([]);
-export const logsShowLogs = atom(false);
-export const logsNumberOfLines = atomWithReset(20);
-export const messagesAtom = atomWithReducer([], MessageReducer);
+export const logsShowLogsAtom = atom(false);
+export const logsNumberOfLinesAtom = atomWithReset(20);
+export const logsConfigAtom = atom();
+export const logsWebsocketUrlAtom = selectAtom(logsConfigAtom, (logsConfig) =>
+    logsConfig ?
+        'ws://' + window.location.host + '/docker/logs/'
+        + logsConfig.serviceId
+        + '?tail=' + logsConfig.tail
+        + '&since=' + logsConfig.since
+        + '&follow=' + logsConfig.follow
+        + '&timestamps=' + logsConfig.timestamps
+        + '&stdout=' + logsConfig.stdout
+        + '&stderr=' + logsConfig.stderr
+        + '&details=' + logsConfig.details
+        : null
+        );
 
 // Theme
 export const isDarkModeAtom = atomWithHash('darkMode', false);

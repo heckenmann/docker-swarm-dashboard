@@ -1,8 +1,8 @@
-import { Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap';
+import { Badge, Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
 import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
-import { currentVariantAtom, isDarkModeAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom, viewAtom } from '../common/store/atoms';
+import { currentVariantAtom, isDarkModeAtom, logsConfigAtom, logsShowLogsAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom, viewAtom } from '../common/store/atoms';
 import { useResetAtom } from 'jotai/utils';
 import ReactInterval from 'react-interval';
 import { useAtom, useAtomValue } from 'jotai';
@@ -18,6 +18,8 @@ function DashboardNavbar() {
     const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const [view, updateView] = useAtom(viewAtom);
+    const logsShowLogs = useAtomValue(logsShowLogsAtom);
+    const logsConfig = useAtomValue(logsConfigAtom);
 
     if (isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
 
@@ -36,6 +38,8 @@ function DashboardNavbar() {
         toggleRefresh();
         messageReducer({ 'type': 'add', 'value': refreshInterval ? 'Interval-Refresh disabled' : 'Interval-Refresh enabled' });
     }
+
+    const readingLogsWarning = logsShowLogs && logsConfig?.follow ? <>{' '}<Badge bg="warning" text="dark"><FontAwesomeIcon icon="running" /></Badge></> : <></>
 
     return (
         <>
@@ -59,7 +63,7 @@ function DashboardNavbar() {
                             <Nav.Link onClick={() => updateView({ 'id': nodesId })} active={view?.id === nodesId}><FontAwesomeIcon icon="server" />{' '}Nodes</Nav.Link>
                             <Nav.Link onClick={() => updateView({ 'id': tasksId })} active={view?.id === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
                             <Nav.Link onClick={() => updateView({ 'id': portsId })} active={view?.id === portsId}><FontAwesomeIcon icon="building" />{' '}Ports</Nav.Link>
-                            <Nav.Link onClick={() => updateView({ 'id': logsId })} active={view?.id === logsId}><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': logsId })} active={view?.id === logsId} className="warning"><FontAwesomeIcon icon="file-medical-alt" />{' '}Logs{ readingLogsWarning }</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
