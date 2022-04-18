@@ -5561,10 +5561,10 @@ jest@^27.4.3:
     import-local "^3.0.2"
     jest-cli "^27.5.1"
 
-jotai@^1.6.1:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-1.6.1.tgz#a6379d7dce159474f24963921d55ae8f6e9e8dd6"
-  integrity sha512-iNKHmpKGN31KXDqxGLsplb4HLTroYtiM7oBEQ9leyoXSEGQGUZKK5IOV4kN6fUmkBSJbwb5WnmInYOYzpjIDOw==
+jotai@^1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-1.6.4.tgz#4d9904362c53c4293d32e21fb358d3de34b82912"
+  integrity sha512-XC0ExLhdE6FEBdIjKTe6kMlHaAUV/QiwN7vZond76gNr/WdcdonJOEW79+5t8u38sR41bJXi26B1dRi7cCRz9A==
 
 js-sha3@0.8.0:
   version "0.8.0"
