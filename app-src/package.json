@@ -20,7 +20,7 @@
     "react-query": "^3.39.0",
     "react-scripts": "^5.0.1",
     "react-syntax-highlighter": "^15.5.0",
-    "react-use-websocket": "^4.0.0"
+    "react-use-websocket": "^4.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
