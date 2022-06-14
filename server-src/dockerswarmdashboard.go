@@ -18,24 +18,12 @@ import (
 )
 
 var (
-	//cache              = map[string]cacheElement{}
-	//cacheMaxAgeSeconds = 2
 	upgrader = websocket.Upgrader{
-		//ReadBufferSize:    4096,
-		//WriteBufferSize:   4096,
 		EnableCompression: true,
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		}}
 )
-
-/*
- * Cache Element.
- */
-//type cacheElement struct {
-//	timestamp time.Time
-//	value     []byte
-//}
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
@@ -45,10 +33,12 @@ func main() {
 	router.HandleFunc("/docker/nodes", dockerNodesHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
 	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+	router.HandleFunc("/ui/dashboardh", DashboardHHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Wating for connections...")
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 	log.Fatal(http.ListenAndServe(":8080", handlers.CompressHandler(loggedRouter)))
+
 }
 
 // Creates a client
@@ -60,20 +50,6 @@ func getCli() *client.Client {
 	return cli
 }
 
-// Returns the cache element
-//func getCacheElement(index *string) ([]byte, bool) {
-//	ce, contains := cache[*index]
-//	if !contains || time.Now().UnixNano()-ce.timestamp.UnixNano() > int64(2*1000000000) {
-//		return nil, false
-//	}
-//	return ce.value, true
-//}
-
-// Adds a cacheElement
-//func addCacheElement(index string, json []byte) {
-//	cache[index] = cacheElement{timestamp: time.Now(), value: json}
-//}
-
 func addCorsHeader(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Allow-Origin", "*")
@@ -82,55 +58,37 @@ func addCorsHeader(w http.ResponseWriter) {
 // Serves the services
 func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
 	addCorsHeader(w)
-	//ce, found := getCacheElement(&r.URL.Path)
-	//if found {
-	//	w.Write(ce)
-	//} else {
 	cli := getCli()
 	Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	jsonString, _ := json.Marshal(Services)
-	//	addCacheElement(r.URL.Path, jsonString)
 	w.Write(jsonString)
-	//}
 }
 
 // Serves the nodes
 func dockerNodesHandler(w http.ResponseWriter, r *http.Request) {
 	addCorsHeader(w)
-	//ce, found := getCacheElement(&r.URL.Path)
-	//if found {
-	//	w.Write(ce)
-	//} else {
 	cli := getCli()
 	Nodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	jsonString, _ := json.Marshal(Nodes)
-	//	addCacheElement(r.URL.Path, jsonString)
 	w.Write(jsonString)
-	//}
 }
 
 // Serves the tasks
 func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
 	addCorsHeader(w)
-	//ce, found := getCacheElement(&r.URL.Path)
-	//if found {
-	//	w.Write(ce)
-	//} else {
 	cli := getCli()
 	Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	jsonString, _ := json.Marshal(Tasks)
-	//	addCacheElement(r.URL.Path, jsonString)
 	w.Write(jsonString)
-	//}
 }
 
 // Serves the logs
