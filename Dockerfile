@@ -1,5 +1,5 @@
 ##############################################################################
-FROM golang:1.18.0-alpine as go
+FROM golang:1.18.3-alpine as go
 ENV GO111MODULE=off
 RUN apk -U add git libc-dev
 WORKDIR /tmp
