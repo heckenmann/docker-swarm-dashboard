@@ -10,14 +10,14 @@
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@types/react": "^18.0.18",
+    "@types/react": "^18.0.21",
     "bootstrap": "^5.2.1",
-    "jotai": "^1.8.3",
+    "jotai": "^1.8.4",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
-    "react-dom": "^18.1.0",
-    "react-interval": "^2.1.1",
-    "react-query": "^4.0.0",
+    "react-dom": "^18.2.0",
+    "react-interval": "^2.1.2",
+    "react-query": "^3.39.2",
     "react-scripts": "^5.0.1",
     "react-syntax-highlighter": "^15.5.0",
     "react-use-websocket": "^4.2.0"
@@ -46,6 +46,6 @@
     ]
   },
   "devDependencies": {
-    "cypress": "^9.6.0"
+    "cypress": "^10.9.0"
   }
 }
