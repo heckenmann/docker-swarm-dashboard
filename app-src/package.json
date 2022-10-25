@@ -10,7 +10,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@types/react": "^18.0.22",
+    "@types/react": "^18.0.23",
     "bootstrap": "^5.2.2",
     "jotai": "^1.8.6",
     "react": "^18.2.0",
