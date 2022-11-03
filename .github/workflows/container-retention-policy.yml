@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete old sig-images
-        uses: snok/container-retention-policy@v1
+        uses: snok/container-retention-policy@v1.5.1
         with:
           image-names: "*sig"
           cut-off: One month ago UTC
