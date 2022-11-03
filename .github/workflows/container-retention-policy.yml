@@ -17,4 +17,4 @@ jobs:
           cut-off: One month ago UTC
           keep-at-least: 1
           account-type: personal
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
