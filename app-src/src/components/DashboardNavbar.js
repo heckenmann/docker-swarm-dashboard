@@ -1,13 +1,33 @@
-import { Badge, Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {Badge, Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer} from 'react-bootstrap';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
-import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
-import { currentVariantAtom, isDarkModeAtom, logsConfigAtom, logsShowLogsAtom, messagesAtom, nodesAtom, refreshIntervalAtom, servicesAtom, tasksAtom, viewAtom } from '../common/store/atoms';
-import { useResetAtom } from 'jotai/utils';
+import {MessageReducer, RefreshIntervalToggleReducer} from '../common/store/reducers';
+import {
+    currentVariantAtom,
+    isDarkModeAtom,
+    logsConfigAtom,
+    logsShowLogsAtom,
+    messagesAtom,
+    nodesAtom,
+    refreshIntervalAtom,
+    servicesAtom,
+    tasksAtom,
+    useNewApiToogleAtom,
+    viewAtom
+} from '../common/store/atoms';
+import {useResetAtom} from 'jotai/utils';
 import ReactInterval from 'react-interval';
-import { useAtom, useAtomValue } from 'jotai';
-import { aboutId, dashboardHId, logsId, nodesId, portsId, stacksId, tasksId } from '../common/navigationConstants';
-import { useEffect } from 'react';
+import {useAtom, useAtomValue} from 'jotai';
+import {
+    aboutId,
+    dashboardHId,
+    logsId,
+    nodesId,
+    portsId,
+    settingsId,
+    stacksId,
+    tasksId
+} from '../common/navigationConstants';
 
 function DashboardNavbar() {
     const [refreshInterval, toggleRefresh] = useAtom(refreshIntervalAtom, RefreshIntervalToggleReducer);
@@ -30,13 +50,8 @@ function DashboardNavbar() {
     }
 
     const refreshAndNotifyUser = () => {
-        messageReducer({ 'type': 'add', 'value': 'Refresh ...' });
         reloadData();
-    }
-
-    const toggleRefreshAndNotifyUser = () => {
-        toggleRefresh();
-        messageReducer({ 'type': 'add', 'value': refreshInterval ? 'Interval-Refresh disabled' : 'Interval-Refresh enabled' });
+        messageReducer({ 'type': 'add', 'value': 'Refresh ...' });
     }
 
     const readingLogsWarning = logsShowLogs && logsConfig?.follow ? <>{' '}<Badge bg="warning" text="dark"><FontAwesomeIcon icon="running" /></Badge></> : <></>
@@ -69,12 +84,11 @@ function DashboardNavbar() {
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
                             <Nav.Link onClick={() => updateView({ 'id': aboutId })} active={view?.id === aboutId}><FontAwesomeIcon icon="info-circle" /> About</Nav.Link>
-                            <ButtonGroup>
-                                <Button variant={refreshInterval ? 'secondary' : 'outline-secondary'} onClick={toggleRefreshAndNotifyUser} ><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></Button>
-                                <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
-                                <Button variant={isDarkMode ? 'secondary' : 'outline-secondary'} onClick={() => setIsDarkMode(!isDarkMode)}><FontAwesomeIcon icon="lightbulb" /></Button>
-                            </ButtonGroup>
+                            <Nav.Link onClick={() => updateView({ 'id': settingsId })} active={view?.id === settingsId}><FontAwesomeIcon icon="gear" /> Settings</Nav.Link>
                         </Nav>
+                        <ButtonGroup>
+                            <Button variant='outline-secondary' onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
+                        </ButtonGroup>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>

@@ -8,4 +8,5 @@ export const nodesId = 'nodes';
 export const nodesDetailId = 'nodesDetail';
 export const tasksId = 'tasks';
 export const aboutId = "about";
+export const settingsId = "settings";
 export const logsId = 'logs';

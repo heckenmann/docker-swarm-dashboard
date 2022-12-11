@@ -14,6 +14,7 @@ import './App.css';
 import { ContentRouter } from './components/ContentRouter';
 import { DashboardNavbar } from './components/DashboardNavbar';
 import LoadingComponent from './components/LoadingComponent';
+import { ErrorBoundary } from './common/ErrorBoundary';
 import bg from './docker.png';
 
 
@@ -30,9 +31,11 @@ const App = () => {
         <DashboardNavbar />
         <main role='main'>
           <Container fluid className="overflow-auto">
-            <Suspense fallback={<LoadingComponent />}>
-              <ContentRouter />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingComponent />}>
+                <ContentRouter />
+              </Suspense>
+            </ErrorBoundary>
           </Container>
         </main>
       </div>
