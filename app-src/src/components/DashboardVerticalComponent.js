@@ -47,13 +47,16 @@ function DashboardVerticalComponent() {
                 const dataCols = nodes.map(node =>
                     <td className='align-middle' key={'td' + node['ID'] + service['ID']}>
                         {
-                            service['Tasks'][node['ID']] !== undefined &&
+                            service['Tasks'][node['ID']] &&
                             <ul>
-                                service['Tasks'][node['ID']].map(task =>
-                                <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge
-                                    bg={getStyleClassForState(task['Status']['State'])}
-                                    className='w-100'>{task['Status']['State']}</Badge></li>
-                                )
+                                {
+                                    service['Tasks'][node['ID']].map(task =>
+                                        <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}>
+                                            <Badge
+                                                bg={getStyleClassForState(task['Status']['State'])}
+                                                className='w-100'>{task['Status']['State']}</Badge></li>
+                                    )
+                                }
                             </ul>
                         }
                     < /td>)
