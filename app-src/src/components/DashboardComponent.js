@@ -45,17 +45,19 @@ function DashboardComponent() {
         theads.push(<th key='dashboardTable-empty'></th>);
 
         nodes.forEach(node => {
-                const dataCols = services.filter(service => node['Tasks'][service['ID']]).map(service =>
+                const dataCols = services.map(service =>
                     <td className='align-middle' key={'td' + node['ID'] + service['ID']}>
-                        <ul>
-                            {
+                        {
+                            node['Tasks'][service['ID']] !== undefined &&
+                            <ul>
                                 node['Tasks'][service['ID']].map(task =>
-                                    <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge
+                                <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}>
+                                    <Badge
                                         bg={getStyleClassForState(task['Status']['State'])}
                                         className='w-100'>{task['Status']['State']}</Badge></li>
                                 )
-                            }
-                        </ul>
+                            </ul>
+                        }
                     < /td>
                 )
 
