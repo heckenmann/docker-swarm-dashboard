@@ -1,43 +1,69 @@
-import { useAtomValue } from "jotai"
-import { aboutId, dashboardHId, dashboardVId, logsId, nodesDetailId, nodesId, portsId, servicesDetailId, stacksId, tasksId } from "../common/navigationConstants"
-import { viewAtom } from "../common/store/atoms"
-import { AboutComponent } from "./AboutComponent"
-import { DashboardComponent } from "./DashboardComponent"
-import { DashboardVerticalComponent } from "./DashboardVerticalComponent"
-import { DetailsNodeComponent } from "./DetailsNodeComponent"
-import { DetailsServiceComponent } from "./DetailsServiceComponent"
-import { LogsComponent } from "./LogsComponent"
-import { NodesComponent } from "./NodesComponent"
-import { PortsComponent } from "./PortsComponent"
-import { StacksComponent } from "./StacksComponent"
-import { TasksComponent } from "./TasksComponent"
+import {useAtomValue} from "jotai"
+import {
+    aboutId,
+    dashboardHId,
+    dashboardVId,
+    logsId,
+    nodesDetailId,
+    nodesId,
+    portsId,
+    servicesDetailId, settingsId,
+    stacksId,
+    tasksId
+} from "../common/navigationConstants"
+import {viewAtom} from "../common/store/atoms"
+import {AboutComponent} from "./AboutComponent"
+import {DashboardComponent} from "./DashboardComponent"
+import {DashboardVerticalComponent} from "./DashboardVerticalComponent"
+import {DetailsNodeComponent} from "./DetailsNodeComponent"
+import {DetailsServiceComponent} from "./DetailsServiceComponent"
+import {LogsComponent} from "./LogsComponent"
+import {NodesComponent} from "./NodesComponent"
+import {PortsComponent} from "./PortsComponent"
+import {StacksComponent} from "./StacksComponent"
+import {TasksComponent} from "./TasksComponent"
+import {SettingsComponent} from "./SettingsComponent";
 
 export function ContentRouter() {
     const viewId = useAtomValue(viewAtom)
 
     let view = null;
     switch (viewId?.id) {
-        case dashboardHId: view = <DashboardComponent />;
+        case dashboardHId:
+            view = <DashboardComponent/>;
             break;
-        case dashboardVId: view = <DashboardVerticalComponent />;
+        case dashboardVId:
+            view = <DashboardVerticalComponent/>;
             break;
-        case servicesDetailId: view = <DetailsServiceComponent />;
+        case servicesDetailId:
+            view = <DetailsServiceComponent/>;
             break;
-        case stacksId: view = <StacksComponent />;
+        case stacksId:
+            view = <StacksComponent/>;
             break;
-        case portsId: view = <PortsComponent />;
+        case portsId:
+            view = <PortsComponent/>;
             break;
-        case nodesId: view = <NodesComponent />;
+        case nodesId:
+            view = <NodesComponent/>;
             break;
-        case nodesDetailId: view = <DetailsNodeComponent />;
+        case nodesDetailId:
+            view = <DetailsNodeComponent/>;
             break;
-        case tasksId: view = <TasksComponent />;
+        case tasksId:
+            view = <TasksComponent/>;
             break;
-        case aboutId: view = <AboutComponent />;
+        case aboutId:
+            view = <AboutComponent/>;
             break;
-        case logsId: view = <LogsComponent />;
+        case settingsId:
+            view = <SettingsComponent/>;
             break;
-        default: view = <DashboardComponent />;
+        case logsId:
+            view = <LogsComponent/>;
+            break;
+        default:
+            view = <DashboardComponent/>;
     }
 
     return view;

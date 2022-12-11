@@ -1,7 +1,14 @@
 import { Table, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAtom, useAtomValue } from 'jotai';
-import { currentVariantAtom, currentVariantClassesAtom, servicesAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
+import {
+    currentVariantAtom,
+    currentVariantClassesAtom,
+    servicesAtom,
+    viewDetailIdAtom,
+    viewAtom,
+    tableSizeAtom
+} from '../common/store/atoms';
 import { servicesDetailId } from '../common/navigationConstants';
 
 function PortsComponent() {
@@ -9,6 +16,7 @@ function PortsComponent() {
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const [, updateView] = useAtom(viewAtom);
+    const tableSize = useAtomValue(tableSizeAtom);
 
     const ports = [];
     services.filter(s => s.Spec && s.Spec.Name && s.Endpoint && s.Endpoint.Ports)
@@ -38,7 +46,7 @@ function PortsComponent() {
     return (
         <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
-                <Table id="portsTable" variant={currentVariant} size="sm" striped>
+                <Table id="portsTable" variant={currentVariant} size="sm" striped size={tableSize}>
                     <thead>
                         <tr>
                             <th id="publishedPort">PublishedPort</th>
