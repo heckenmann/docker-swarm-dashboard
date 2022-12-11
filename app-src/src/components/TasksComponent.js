@@ -3,13 +3,23 @@ import { waitForAll } from 'jotai/utils';
 import { Table, Badge, Card } from 'react-bootstrap';
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat';
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants';
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, servicesAtom, tasksAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
+import {
+    currentVariantAtom,
+    currentVariantClassesAtom,
+    nodesAtom,
+    servicesAtom,
+    tasksAtom,
+    viewDetailIdAtom,
+    viewAtom,
+    tableSizeAtom
+} from '../common/store/atoms';
 import { getStyleClassForState } from '../Helper';
 
 function TasksComponent() {
     const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
+    const tableSize = useAtomValue(tableSizeAtom);
 
     const rows = tasks.map(task => {
         const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
@@ -34,7 +44,7 @@ function TasksComponent() {
     return (
         <Card className={currentVariantClasses}>
             <Card.Body>
-                <Table id="tasksTable" variant={currentVariant} striped size="sm">
+                <Table id="tasksTable" variant={currentVariant} striped size={tableSize}>
                     <thead>
                         <tr>
                             <th id="timestampCol">Timestamp</th>

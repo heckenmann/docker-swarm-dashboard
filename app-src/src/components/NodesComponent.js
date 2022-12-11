@@ -1,14 +1,15 @@
-import { Table, Badge, Card, Button } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useAtom, useAtomValue } from 'jotai';
-import { currentVariantAtom, currentVariantClassesAtom, nodesAtom, viewDetailIdAtom, viewAtom } from '../common/store/atoms';
-import { nodesDetailId } from '../common/navigationConstants';
+import {Badge, Card, Table} from 'react-bootstrap';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {useAtom, useAtomValue} from 'jotai';
+import {currentVariantAtom, currentVariantClassesAtom, nodesAtom, tableSizeAtom, viewAtom} from '../common/store/atoms';
+import {nodesDetailId} from '../common/navigationConstants';
 
 function NodesComponent() {
     const nodes = useAtomValue(nodesAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const [, updateView] = useAtom(viewAtom);
+    const tableSize = useAtomValue(tableSizeAtom);
     const theads = [];
     const trows = [];
 
@@ -48,7 +49,7 @@ function NodesComponent() {
     return (
         <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
-                <Table variant={currentVariant} key="nodesTable" id="nodesTable" size='sm' striped>
+                <Table variant={currentVariant} key="nodesTable" id="nodesTable" striped size={tableSize}>
                     <thead>
                         <tr>
                             <th className="nodeAttribute">Node</th>

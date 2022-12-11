@@ -21,3 +21,7 @@ docker.png
 /build
 
 .eslintcache
+
+.idea
+
+*.log
