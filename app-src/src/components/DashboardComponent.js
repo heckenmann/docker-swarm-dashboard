@@ -48,14 +48,16 @@ function DashboardComponent() {
                 const dataCols = services.map(service =>
                     <td className='align-middle' key={'td' + node['ID'] + service['ID']}>
                         {
-                            node['Tasks'][service['ID']] !== undefined &&
+                            node['Tasks'][service['ID']] &&
                             <ul>
-                                node['Tasks'][service['ID']].map(task =>
-                                <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}>
-                                    <Badge
-                                        bg={getStyleClassForState(task['Status']['State'])}
-                                        className='w-100'>{task['Status']['State']}</Badge></li>
-                                )
+                                {
+                                    node['Tasks'][service['ID']].map(task =>
+                                        <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}>
+                                            <Badge
+                                                bg={getStyleClassForState(task['Status']['State'])}
+                                                className='w-100'>{task['Status']['State']}</Badge></li>
+                                    )
+                                }
                             </ul>
                         }
                     < /td>
