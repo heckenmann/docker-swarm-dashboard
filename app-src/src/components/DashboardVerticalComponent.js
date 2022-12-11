@@ -46,18 +46,19 @@ function DashboardVerticalComponent() {
         services.forEach(service => {
                 const dataCols = nodes.map(node =>
                     <td className='align-middle' key={'td' + node['ID'] + service['ID']}>
-                        <ul>
-                            {
+                        {
+                            service['Tasks'][node['ID']] !== undefined &&
+                            <ul>
                                 service['Tasks'][node['ID']].map(task =>
-                                    <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge
-                                        bg={getStyleClassForState(task['Status']['State'])}
-                                        className='w-100'>{task['Status']['State']}</Badge></li>
+                                <li key={'li' + task['NodeID'] + task['ServiceID'] + task['ID'] + task['Status']}><Badge
+                                    bg={getStyleClassForState(task['Status']['State'])}
+                                    className='w-100'>{task['Status']['State']}</Badge></li>
                                 )
-                            }
-                        </ul>
+                            </ul>
+                        }
                     < /td>)
 
-            trows.push(
+                trows.push(
                     <tr key={'tr' + service['ID']}>
                         <td className='cursorPointer' onClick={() => updateView({
                             'id': servicesDetailId,
@@ -122,7 +123,8 @@ function DashboardVerticalComponent() {
     return (
         <>
             <DashboardSettingsComponent/>
-            <Table variant={isDarkMode ? currentVariant : null} key="dashboardTable" id="dashboardTable" striped size={tableSize}>
+            <Table variant={isDarkMode ? currentVariant : null} key="dashboardTable" id="dashboardTable" striped
+                   size={tableSize}>
                 <thead>
                 <tr>
                     <th className='col-md-4'>Service</th>

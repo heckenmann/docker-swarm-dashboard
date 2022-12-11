@@ -56,7 +56,7 @@ func dashboardHHandler(w http.ResponseWriter, r *http.Request) {
 		newNodeLine.Role = string(node.Spec.Role)
 		newNodeLine.StatusMessage = node.Status.Message
 		newNodeLine.StatusState = string(node.Status.State)
-		newNodeLine.Leader = node.ManagerStatus.Leader
+		newNodeLine.Leader = node.ManagerStatus != nil && node.ManagerStatus.Leader
 		newNodeLine.Availability = string(node.Spec.Availability)
 		newNodeLine.IP = node.Status.Addr
 		newNodeLine.Tasks = make(map[string][]swarm.Task)
