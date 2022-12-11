@@ -10,8 +10,9 @@ function AboutComponent() {
         <Card bg={currentVariant} className={currentVariantClasses}>
             <Card.Body>
                 <h1>
-                    Docker Swarm Dashboard <small>by heckenmann</small>
+                    Docker Swarm Dashboard
                 </h1>
+                <h2>by heckenmann</h2>
                 <Table variant={currentVariant}>
                     <tbody>
                         <tr>
