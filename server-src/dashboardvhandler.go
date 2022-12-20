@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	"net/http"
 	"sort"
-	"strconv"
 )
 
 type DashboardV struct {
@@ -50,11 +49,7 @@ func dashboardVHandler(w http.ResponseWriter, r *http.Request) {
 		newServiceLine.ID = service.ID
 		newServiceLine.Name = service.Spec.Name
 		newServiceLine.Stack = service.Spec.Labels["com.docker.stack.namespace"]
-		if service.Spec.Mode.Replicated != nil {
-			newServiceLine.Replication = strconv.FormatUint(*service.Spec.Mode.Replicated.Replicas, 10)
-		} else if service.Spec.Mode.Replicated != nil {
-			newServiceLine.Replication = "global"
-		}
+		newServiceLine.Replication = extractReplicationFromService(service)
 		newServiceLine.Tasks = make(map[string][]swarm.Task)
 		tasksFilters := filters.NewArgs()
 

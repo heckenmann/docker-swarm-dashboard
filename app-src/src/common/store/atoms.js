@@ -28,6 +28,11 @@ export const dashboardVAtom = atom(async (get) => {
     get(viewAtom);
     return await fetch(baseUrl + 'ui/dashboardv').then(data => data.json());
 });
+export const stacksAtom = atom(async (get) => {
+    // Reload when view changed
+    get(viewAtom);
+    return await fetch(baseUrl + 'ui/stacks').then(data => data.json());
+});
 
 // Logs
 export const logsLinesAtom = atomWithReset([]);
