@@ -6172,10 +6172,10 @@ jotai-location@^0.3.1:
   resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.3.1.tgz#758d58ef4a7515c0ad2df2abb3ca2f31090b6c09"
   integrity sha512-C9csHLs6b3W2+OdspCJwthU/T5jHMS2wrFcbOPMx87RfzF+iJH6fRGVFmbfQVMTYD88YlbIDdKfL/Hmndk+rZQ==
 
-jotai@^1.12.0:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-1.12.0.tgz#2e22760289458f636f689ae0aa71cc4a089aa312"
-  integrity sha512-IhyBmjxU1sE2Ni/MUK7gQAb8QvCM6yd1/K5jtQzgQBmmjCjgfXZkkk1rYlQAIRp2KoQk0Y+yzhm1f5cZ7kegnw==
+jotai@^1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-1.12.1.tgz#18808724c96f8c038f6ee8b75f3ac37e1ac35608"
+  integrity sha512-t6gsYM1WkQHMOazaZYLykCA+fh9KPDGrA+tDYzDeV0268QsCqmX6S4lO46uswgt1LGUeG0EDFGuMd9ac8cWNTA==
 
 js-sdsl@^4.1.4:
   version "4.2.0"
