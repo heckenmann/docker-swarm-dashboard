@@ -11,7 +11,7 @@
     "@types/react": "^18.0.26",
     "bootstrap": "^5.2.3",
     "jotai": "^1.12.1",
-    "jotai-location": "^0.3.2",
+    "jotai-location": "^0.3.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.0",
     "react-dom": "^18.2.0",
