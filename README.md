@@ -26,10 +26,16 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 - [React](https://reactjs.org/)
 
 ----
-## Screenshots (outdated!)
+## Screenshots
 
-![Container Dashboard](screenshots/container.png)
-![Tasks Timeline](screenshots/tasks.png)
+![Horizontal Dashboard](screenshots/dashboard_h.jpeg)
+![Vertical Dashboard](screenshots/dashboard_v.jpeg)
+![Stacks](screenshots/stacks.jpeg)
+![Nodes](screenshots/nodes.jpeg)
+![Tasks](screenshots/tasks.jpeg)
+![Ports](screenshots/ports.jpeg)
+![Logs Form](screenshots/logs.jpeg)
+![Logs](screenshots/logs-f.jpeg)
 
 ----
 ## Pull Image from ghcr.io
