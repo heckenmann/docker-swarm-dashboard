@@ -29,6 +29,7 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 ## Screenshots
 
 ![Horizontal Dashboard](screenshots/dashboard_h.jpeg)
+![Horizontal Dashboard Dark](screenshots/darkmode.jpeg)
 ![Vertical Dashboard](screenshots/dashboard_v.jpeg)
 ![Stacks](screenshots/stacks.jpeg)
 ![Nodes](screenshots/nodes.jpeg)
