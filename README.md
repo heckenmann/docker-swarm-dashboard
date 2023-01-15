@@ -10,6 +10,35 @@ If you like this project, please give a ⭐ on github.
 Feedback would be nice.
 
 ----
+## Tools
+Special thanks to JetBrains for supporting this project with <a href="https://www.jetbrains.com/community/opensource/#support" target="_blank">Open Source development licenses</a>.
+
+<a href="https://www.jetbrains.com/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.svg"  height="80px" alt="JetBrains Black Box Logo logo." /></a>
+                <a href="https://www.jetbrains.com/go/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/GoLand_icon.svg" height="80px" alt="GoLand logo." /></a>
+                <a href="https://www.jetbrains.com/webstorm/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.svg" height="80px" alt="WebStorm logo." /></a>
+
+----
+## Frameworks & Libraries
+- [Bootstrap](https://getbootstrap.com/)
+- [Fontawesome](https://fontawesome.com/)
+- [Gorilla](https://www.gorillatoolkit.org/)
+- [Jotai](https://jotai.org/)
+- [React](https://reactjs.org/)
+
+----
+## Screenshots
+
+![Horizontal Dashboard](screenshots/dashboard_h.jpeg)
+![Horizontal Dashboard Dark](screenshots/darkmode.jpeg)
+![Vertical Dashboard](screenshots/dashboard_v.jpeg)
+![Stacks](screenshots/stacks.jpeg)
+![Nodes](screenshots/nodes.jpeg)
+![Tasks](screenshots/tasks.jpeg)
+![Ports](screenshots/ports.jpeg)
+![Logs Form](screenshots/logs.jpeg)
+![Logs](screenshots/logs-f.jpeg)
+
+----
 ## Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
@@ -55,9 +84,3 @@ docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 docker service create --name logger chentex/random-logger:latest 50 200
 ```
-
-----
-## Screenshots (outdated!)
-
-![Container Dashboard](screenshots/container.png)
-![Tasks Timeline](screenshots/tasks.png)
