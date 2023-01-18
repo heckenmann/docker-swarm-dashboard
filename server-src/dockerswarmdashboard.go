@@ -21,9 +21,11 @@ func main() {
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	router.HandleFunc("/docker/services", dockerServicesHandler)
-	// router.HandleFunc("/docker/services/{id}", dockerServiceDetailsHandler)
+	router.HandleFunc("/docker/services/{id}", dockerServicesDetailsHandler)
 	router.HandleFunc("/docker/nodes", dockerNodesHandler)
+	router.HandleFunc("/docker/nodes/{id}", dockerNodesDetailsHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
+	router.HandleFunc("/docker/tasks/{id}", dockerTasksDetailsHandler)
 	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
 	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
