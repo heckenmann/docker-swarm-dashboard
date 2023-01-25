@@ -16,7 +16,7 @@
     "react-bootstrap": "^2.7.0",
     "react-dom": "^18.2.0",
     "react-interval": "^2.1.2",
-    "react-query": "^3.39.2",
+    "react-query": "^3.39.3",
     "react-syntax-highlighter": "^15.5.0",
     "react-use-websocket": "^4.2.0"
   },
