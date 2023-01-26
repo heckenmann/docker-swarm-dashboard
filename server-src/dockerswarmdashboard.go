@@ -30,6 +30,7 @@ func main() {
 	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
 	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
 	router.HandleFunc("/ui/stacks", stacksHandler)
+	router.HandleFunc("/ui/nodes", nodesHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Wating for connections...")
 
