@@ -33,6 +33,11 @@ export const stacksAtom = atom(async (get) => {
     get(viewAtom);
     return await fetch(baseUrl + 'ui/stacks').then(data => data.json());
 });
+export const nodesAtomNew = atom(async (get) => {
+    // Reload when view changed
+    get(viewAtom);
+    return await fetch(baseUrl + 'ui/nodes').then(data => data.json());
+});
 export const nodeDetailAtom = atom(async (get) => {
     let id = get(viewAtom)['detail'];
     return await fetch(baseUrl + 'docker/nodes/' + id).then(data => data.json());
