@@ -33,6 +33,33 @@ export const stacksAtom = atom(async (get) => {
     get(viewAtom);
     return await fetch(baseUrl + 'ui/stacks').then(data => data.json());
 });
+export const portsAtom = atom(async (get) => {
+    // Reload when view changed
+    get(viewAtom);
+    return await fetch(baseUrl + 'ui/ports').then(data => data.json());
+});
+export const nodesAtomNew = atom(async (get) => {
+    // Reload when view changed
+    get(viewAtom);
+    return await fetch(baseUrl + 'ui/nodes').then(data => data.json());
+});
+export const tasksAtomNew = atom(async (get) => {
+    // Reload when view changed
+    get(viewAtom);
+    return await fetch(baseUrl + 'ui/tasks').then(data => data.json());
+});
+export const nodeDetailAtom = atom(async (get) => {
+    let id = get(viewAtom)['detail'];
+    return await fetch(baseUrl + 'docker/nodes/' + id).then(data => data.json());
+});
+export const serviceDetailAtom = atom(async (get) => {
+    let id = get(viewAtom)['detail'];
+    return await fetch(baseUrl + 'docker/services/' + id).then(data => data.json());
+});
+export const taskDetailAtom = atom(async (get) => {
+    let id = get(viewAtom)['detail'];
+    return await fetch(baseUrl + 'docker/tasks/' + id).then(data => data.json());
+});
 
 // Logs
 export const logsLinesAtom = atomWithReset([]);
