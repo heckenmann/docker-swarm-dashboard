@@ -30,16 +30,18 @@ func nodesHandler(w http.ResponseWriter, r *http.Request) {
 	// Find all Nodes
 	for _, node := range nodes {
 		simpleNode := NodesHandlerSimpleNode{
-			ID:                node.ID,
-			Hostname:          node.Description.Hostname,
-			Leader:            node.ManagerStatus.Leader,
-			Role:              string(node.Spec.Role),
-			State:             string(node.Status.State),
-			Availability:      string(node.Spec.Availability),
-			Reachability:      string(node.ManagerStatus.Reachability),
-			StatusAddr:        node.Status.Addr,
-			ManagerStatusAddr: node.ManagerStatus.Addr,
-			Message:           node.Status.Message,
+			ID:           node.ID,
+			Hostname:     node.Description.Hostname,
+			Role:         string(node.Spec.Role),
+			State:        string(node.Status.State),
+			Availability: string(node.Spec.Availability),
+			StatusAddr:   node.Status.Addr,
+			Message:      node.Status.Message,
+		}
+		if node.ManagerStatus != nil {
+			simpleNode.Leader = node.ManagerStatus.Leader
+			simpleNode.Reachability = string(node.ManagerStatus.Reachability)
+			simpleNode.ManagerStatusAddr = node.ManagerStatus.Addr
 		}
 		resultList = append(resultList, simpleNode)
 	}
