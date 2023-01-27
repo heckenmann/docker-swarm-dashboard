@@ -33,6 +33,11 @@ export const stacksAtom = atom(async (get) => {
     get(viewAtom);
     return await fetch(baseUrl + 'ui/stacks').then(data => data.json());
 });
+export const portsAtom = atom(async (get) => {
+    // Reload when view changed
+    get(viewAtom);
+    return await fetch(baseUrl + 'ui/ports').then(data => data.json());
+});
 export const nodesAtomNew = atom(async (get) => {
     // Reload when view changed
     get(viewAtom);
