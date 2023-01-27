@@ -38,8 +38,8 @@ function SettingsComponent() {
                     <tbody>
                     <tr>
                         <td><FontAwesomeIcon icon={refreshInterval ? "stop-circle" : "play-circle"} /></td>
-                        <td>Interval Refresh</td>
-                        <td><FormCheck type="switch" variant={refreshInterval ? 'secondary' : 'outline-secondary'} onChange={toggleRefreshAndNotifyUser} checked={refreshInterval != null} disabled={true} /></td>
+                        <td>Interval Refresh (3000 ms)</td>
+                        <td><FormCheck type="switch" variant={refreshInterval ? 'secondary' : 'outline-secondary'} onChange={toggleRefreshAndNotifyUser} checked={refreshInterval != undefined} /></td>
                     </tr>
                     <tr>
                         <td><FontAwesomeIcon icon="lightbulb" /></td>
@@ -53,7 +53,7 @@ function SettingsComponent() {
                     </tr>
                     <tr>
                         <td><FontAwesomeIcon icon="pizza-slice" /></td>
-                        <td>New REST-API Toggle (Beta)</td>
+                        <td>Use new REST-API (Beta)</td>
                         <td><FormCheck type="switch" variant={useNewApiToogle ? 'secondary' : 'outline-secondary'} onChange={() =>  setUseNewApiToggle(!useNewApiToogle)} checked={useNewApiToogle} /></td>
                     </tr>
                     </tbody>
