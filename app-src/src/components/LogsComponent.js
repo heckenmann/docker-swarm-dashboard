@@ -1,14 +1,26 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useAtom, useAtomValue } from 'jotai';
-import { useResetAtom } from 'jotai/utils';
-import { Card, Form, Row, Col, Button } from 'react-bootstrap';
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { currentSyntaxHighlighterStyleAtom, currentVariantAtom, currentVariantClassesAtom, logsConfigAtom, logsLinesAtom, logsNumberOfLinesAtom, logsShowLogsAtom, logsWebsocketAtom, logsWebsocketUrlAtom, servicesAtom } from '../common/store/atoms';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { useEffect } from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {useAtom, useAtomValue} from 'jotai';
+import {useResetAtom} from 'jotai/utils';
+import {Card, Form, Row, Col, Button} from 'react-bootstrap';
+import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
+import {
+    currentSyntaxHighlighterStyleAtom,
+    currentVariantAtom,
+    currentVariantClassesAtom,
+    logsConfigAtom,
+    logsLinesAtom,
+    logsNumberOfLinesAtom, logsServicesAtom,
+    logsShowLogsAtom,
+    logsWebsocketAtom,
+    logsWebsocketUrlAtom,
+    servicesAtom,
+    useNewApiToogleAtom
+} from '../common/store/atoms';
+import useWebSocket, {ReadyState} from 'react-use-websocket';
+import {useEffect} from 'react';
 
 function LogsComponent() {
-    const services = useAtomValue(servicesAtom);
+    const useNewApi = useAtomValue(useNewApiToogleAtom);
     const [logsLines, setLogsLines] = useAtom(logsLinesAtom);
     const resetLogsLines = useResetAtom(logsLinesAtom);
     const [logsNumberOfLines, setLogsNumberOfLines] = useAtom(logsNumberOfLinesAtom);
@@ -18,7 +30,15 @@ function LogsComponent() {
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const logsWebsocketUrl = useAtomValue(logsWebsocketUrlAtom);
-    const { _, lastMessage, readyState } = useWebSocket(logsWebsocketUrl, {onOpen: () => console.log('logger-websocket connected'), onClose: () => console.log('logger-websocket closed'), shouldReconnect: (closeEvent) => logsShowLogs && logsConfig?.follow}, logsShowLogs);
+    const {
+        _,
+        lastMessage,
+        readyState
+    } = useWebSocket(logsWebsocketUrl, {
+        onOpen: () => console.log('logger-websocket connected'),
+        onClose: () => console.log('logger-websocket closed'),
+        shouldReconnect: (closeEvent) => logsShowLogs && logsConfig?.follow
+    }, logsShowLogs);
     const currentSyntaxHighlighterStyle = useAtomValue(currentSyntaxHighlighterStyleAtom);
 
     // Inputs
@@ -67,12 +87,24 @@ function LogsComponent() {
 
     const serviceOptions = [];
 
-    // Service Options
-    services.forEach(service => {
-        serviceOptions.push(
-            <option key={'serviceDropdown-' + service['ID']} value={service['ID']}>{service['Spec']['Name']}</option>
-        );
-    });
+    if (useNewApi) {
+        const services = useAtomValue(logsServicesAtom);
+        services.forEach(service => {
+            serviceOptions.push(
+                <option key={'serviceDropdown-' + service['ID']}
+                        value={service['ID']}>{service['Name']}</option>
+            );
+        });
+    } else {
+        const services = useAtomValue(servicesAtom);
+        // Service Options
+        services.forEach(service => {
+            serviceOptions.push(
+                <option key={'serviceDropdown-' + service['ID']}
+                        value={service['ID']}>{service['Spec']['Name']}</option>
+            );
+        });
+    }
 
     const logPrinterOptions = <Form>
         <Form.Group as={Row} className='mb-3' controlId="logprinterservicename">
@@ -80,7 +112,7 @@ function LogsComponent() {
                 Service
             </Form.Label>
             <Col sm="10">
-                <Form.Control type="text" defaultValue={logsConfig?.serviceName} disabled={true} />
+                <Form.Control type="text" defaultValue={logsConfig?.serviceName} disabled={true}/>
             </Col>
         </Form.Group>
 
@@ -89,7 +121,8 @@ function LogsComponent() {
                 Number of lines
             </Form.Label>
             <Col sm="10">
-                <Form.Control type="text" value={logsNumberOfLines} onChange={(e) => setLogsNumberOfLines(e.target.value)} />
+                <Form.Control type="text" value={logsNumberOfLines}
+                              onChange={(e) => setLogsNumberOfLines(e.target.value)}/>
             </Col>
         </Form.Group>
 
@@ -98,13 +131,13 @@ function LogsComponent() {
                 Search keyword
             </Form.Label>
             <Col sm="10">
-                <Form.Control type="text" disabled={true} />
+                <Form.Control type="text" disabled={true}/>
             </Col>
         </Form.Group>
 
         <Form.Group as={Row}>
-            <Col sm={{ span: 10, offset: 2 }}>
-                <Button type="button" onClick={hideLogs}><FontAwesomeIcon icon="align-left" /> Hide logs</Button>
+            <Col sm={{span: 10, offset: 2}}>
+                <Button type="button" onClick={hideLogs}><FontAwesomeIcon icon="align-left"/> Hide logs</Button>
             </Col>
         </Form.Group>
     </Form>
@@ -128,7 +161,7 @@ function LogsComponent() {
                             Tail
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Control type="text" defaultValue="20" ref={node => (inputTail = node)} />
+                            <Form.Control type="text" defaultValue="20" ref={node => (inputTail = node)}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformsince">
@@ -136,7 +169,7 @@ function LogsComponent() {
                             Since
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Control type="text" defaultValue="1h" ref={node => (inputSince = node)} />
+                            <Form.Control type="text" defaultValue="1h" ref={node => (inputSince = node)}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformfollow">
@@ -144,7 +177,7 @@ function LogsComponent() {
                             Follow
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check ref={node => (inputFollow = node)} />
+                            <Form.Check ref={node => (inputFollow = node)}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformtimestamps">
@@ -152,7 +185,7 @@ function LogsComponent() {
                             Timestamps
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={false} ref={node => (inputTimestamps = node)} />
+                            <Form.Check defaultChecked={false} ref={node => (inputTimestamps = node)}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformstdout">
@@ -160,7 +193,7 @@ function LogsComponent() {
                             Stdout
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={true} ref={node => (inputStdout = node)} />
+                            <Form.Check defaultChecked={true} ref={node => (inputStdout = node)}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformstderr">
@@ -168,7 +201,7 @@ function LogsComponent() {
                             Stderr
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={true} ref={node => (inputStderr = node)} />
+                            <Form.Check defaultChecked={true} ref={node => (inputStderr = node)}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformdetails">
@@ -176,13 +209,14 @@ function LogsComponent() {
                             Details
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={false} ref={node => (inputDetails = node)} />
+                            <Form.Check defaultChecked={false} ref={node => (inputDetails = node)}/>
                         </Col>
                     </Form.Group>
 
                     <Form.Group as={Row}>
-                        <Col sm={{ span: 10, offset: 2 }}>
-                            <Button type="submit" disabled={!services || services.length === 0}><FontAwesomeIcon icon="desktop" /> Show logs</Button>
+                        <Col sm={{span: 10, offset: 2}}>
+                            <Button type="submit" disabled={!serviceOptions || serviceOptions.length === 0}><FontAwesomeIcon
+                                icon="desktop"/> Show logs</Button>
                         </Col>
                     </Form.Group>
                 </Form>}
@@ -191,10 +225,11 @@ function LogsComponent() {
                 }
             </Card.Body>
             {
-                logsShowLogs && <SyntaxHighlighter style={currentSyntaxHighlighterStyle}>{logsLines?.join('\n')}</SyntaxHighlighter>
+                logsShowLogs &&
+                <SyntaxHighlighter style={currentSyntaxHighlighterStyle}>{logsLines?.join('\n')}</SyntaxHighlighter>
             }
         </Card>
     );
 }
 
-export { LogsComponent };
+export {LogsComponent};
