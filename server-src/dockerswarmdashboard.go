@@ -33,6 +33,7 @@ func main() {
 	router.HandleFunc("/ui/nodes", nodesHandler)
 	router.HandleFunc("/ui/tasks", tasksHandler)
 	router.HandleFunc("/ui/ports", portsHandler)
+	router.HandleFunc("/ui/logs/services", logsServicesHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Wating for connections...")
 
