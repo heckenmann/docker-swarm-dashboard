@@ -1,7 +1,7 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useAtom, useAtomValue} from 'jotai';
 import {useResetAtom} from 'jotai/utils';
-import {Card, Form, Row, Col, Button} from 'react-bootstrap';
+import {Button, Card, Col, Form, Row} from 'react-bootstrap';
 import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {
     currentSyntaxHighlighterStyleAtom,
@@ -9,15 +9,16 @@ import {
     currentVariantClassesAtom,
     logsConfigAtom,
     logsLinesAtom,
-    logsNumberOfLinesAtom, logsServicesAtom,
+    logsNumberOfLinesAtom,
+    logsServicesAtom,
     logsShowLogsAtom,
-    logsWebsocketAtom,
     logsWebsocketUrlAtom,
     servicesAtom,
     useNewApiToogleAtom
 } from '../common/store/atoms';
-import useWebSocket, {ReadyState} from 'react-use-websocket';
+import useWebSocket from 'react-use-websocket';
 import {useEffect} from 'react';
+import {servicesId} from "../common/navigationConstants";
 
 function LogsComponent() {
     const useNewApi = useAtomValue(useNewApiToogleAtom);
@@ -72,7 +73,7 @@ function LogsComponent() {
         if (inputTail?.value > 0) setLogsNumberOfLines(inputTail.value); else resetLogsNumberOfLines();
         const newLogsConfig = {
             serviceId: inputServiceId.value,
-            serviceName: (services.find(s => s['ID'] === inputServiceId.value))?.Spec.Name,
+            serviceName: serviceNames[inputServiceId.value],
             tail: inputTail.value,
             since: inputSince.value,
             follow: inputFollow.checked,
@@ -86,10 +87,12 @@ function LogsComponent() {
     };
 
     const serviceOptions = [];
+    const serviceNames = {};
 
     if (useNewApi) {
         const services = useAtomValue(logsServicesAtom);
         services.forEach(service => {
+            serviceNames[service['ID']] = service['Name'];
             serviceOptions.push(
                 <option key={'serviceDropdown-' + service['ID']}
                         value={service['ID']}>{service['Name']}</option>
@@ -99,6 +102,7 @@ function LogsComponent() {
         const services = useAtomValue(servicesAtom);
         // Service Options
         services.forEach(service => {
+            serviceNames[service['ID']] = service['Spec']['Name'];
             serviceOptions.push(
                 <option key={'serviceDropdown-' + service['ID']}
                         value={service['ID']}>{service['Spec']['Name']}</option>
