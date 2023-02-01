@@ -6167,10 +6167,10 @@ jest@^27.4.3:
     import-local "^3.0.2"
     jest-cli "^27.5.1"
 
-jotai-location@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.3.3.tgz#e571afe3d3a99858e148a8388659ee4faac80795"
-  integrity sha512-UsPoX/wZbdVMARDj5bNTUEiTcRl07tlLtnCAO2DgplpMeD7ZqFRgRe6OynR3ByaQUAPhBKNoKtLvGpE0mIJl3g==
+jotai-location@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.4.0.tgz#5797c14833c7cdbf42540869908f117231e83c74"
+  integrity sha512-UqvK/ysq2a38CXWN5qjYq5+VBTKhL7xjF4sTo9GSKFMumtFfprrO34rSOER1RHgsugZWFlB2OuRzrRKyHVBwrg==
 
 jotai@^2.0.0:
   version "2.0.0"
