@@ -8,7 +8,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@types/react": "^18.0.27",
+    "@types/react": "^18.0.28",
     "bootstrap": "^5.2.3",
     "jotai": "^2.0.1",
     "jotai-location": "^0.4.0",
