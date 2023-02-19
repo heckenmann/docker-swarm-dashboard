@@ -45,7 +45,9 @@ function TasksComponent() {
             </tr>
         );
     } else {
-        const [services, nodes, tasks] = useAtomValue(Promise.all([servicesAtom, nodesAtom, tasksAtom]));
+        const services = useAtomValue(servicesAtom);
+        const nodes = useAtomValue(nodesAtom);
+        const tasks = useAtomValue(tasksAtom);
         rows = tasks.map(task => {
             const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
             const currentService = services.find(service => service['ID'] === task['ServiceID']);

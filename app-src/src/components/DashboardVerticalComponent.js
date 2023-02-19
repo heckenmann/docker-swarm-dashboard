@@ -16,7 +16,7 @@ import {useAtom, useAtomValue} from 'jotai';
 import {nodesDetailId, servicesDetailId} from '../common/navigationConstants';
 
 function DashboardVerticalComponent() {
-    const [services, nodes, tasks] = useAtomValue(Promise.all([servicesAtom, nodesAtom, tasksAtom]));
+
     const isDarkMode = useAtomValue(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const useNewApi = useAtomValue(useNewApiToogleAtom);
@@ -75,6 +75,9 @@ function DashboardVerticalComponent() {
             }
         )
     } else {
+        const services = useAtomValue(servicesAtom);
+        const nodes = useAtomValue(nodesAtom);
+        const tasks = useAtomValue(tasksAtom);
         // Columns
         nodes.forEach(node => {
             theads.push(
