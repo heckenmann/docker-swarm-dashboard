@@ -98,7 +98,9 @@ function DashboardComponent() {
             }
         )
     } else {
-        const [services, nodes, tasks] = useAtomValue(Promise.all([servicesAtom, nodesAtom, tasksAtom]));
+        const services = useAtomValue(servicesAtom);
+        const nodes = useAtomValue(nodesAtom);
+        const tasks = useAtomValue(tasksAtom);
         // Columns
         services.forEach(service => {
             theads.push(
