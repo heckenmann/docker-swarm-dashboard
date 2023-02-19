@@ -14,7 +14,7 @@ export const servicesAtom = atomWithReducer(fetchServices(), () => fetchServices
 export const tasksAtom = atomWithReducer(fetchTasks(), () => fetchTasks());
 export const viewAtom = atomWithHash('view', {'id': dashboardHId});
 export const messagesAtom = atomWithReducer([], MessageReducer);
-export const useNewApiToogleAtom = atomWithHash('newapi', false);
+export const useNewApiToogleAtom = atomWithHash('newapi', true);
 export const tableSizeAtom = atomWithHash('tablesize', 'sm');
 
 // New API

@@ -1,24 +1,22 @@
-import {Table, Badge, Button} from 'react-bootstrap';
+import {Badge, Table} from 'react-bootstrap';
 import {getStyleClassForState} from '../Helper';
 import {DashboardSettingsComponent} from './DashboardSettingsComponent';
 import {
     currentVariantAtom,
+    dashboardVAtom,
     isDarkModeAtom,
     nodesAtom,
     servicesAtom,
+    tableSizeAtom,
     tasksAtom,
-    viewDetailId,
-    viewDetailIdAtom,
-    viewAtom,
-    useNewApiToogleAtom, dashboardHAtom, dashboardVAtom, tableSizeAtom
+    useNewApiToogleAtom,
+    viewAtom
 } from '../common/store/atoms';
 import {useAtom, useAtomValue} from 'jotai';
 import {nodesDetailId, servicesDetailId} from '../common/navigationConstants';
-import {waitForAll} from 'jotai/utils';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function DashboardVerticalComponent() {
-    const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+
     const isDarkMode = useAtomValue(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const useNewApi = useAtomValue(useNewApiToogleAtom);
@@ -77,6 +75,9 @@ function DashboardVerticalComponent() {
             }
         )
     } else {
+        const services = useAtomValue(servicesAtom);
+        const nodes = useAtomValue(nodesAtom);
+        const tasks = useAtomValue(tasksAtom);
         // Columns
         nodes.forEach(node => {
             theads.push(
