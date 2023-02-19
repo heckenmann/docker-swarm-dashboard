@@ -1,6 +1,5 @@
 import {useAtom, useAtomValue} from 'jotai';
-import {waitForAll} from 'jotai/utils';
-import {Table, Badge, Card} from 'react-bootstrap';
+import {Badge, Card, Table} from 'react-bootstrap';
 import {toDefaultDateTimeString} from '../common/DefaultDateTimeFormat';
 import {nodesDetailId, servicesDetailId} from '../common/navigationConstants';
 import {
@@ -8,10 +7,11 @@ import {
     currentVariantClassesAtom,
     nodesAtom,
     servicesAtom,
+    tableSizeAtom,
     tasksAtom,
-    viewDetailIdAtom,
-    viewAtom,
-    tableSizeAtom, useNewApiToogleAtom, tasksAtomNew
+    tasksAtomNew,
+    useNewApiToogleAtom,
+    viewAtom
 } from '../common/store/atoms';
 import {getStyleClassForState} from '../Helper';
 
@@ -45,7 +45,7 @@ function TasksComponent() {
             </tr>
         );
     } else {
-        const [services, nodes, tasks] = useAtomValue(waitForAll([servicesAtom, nodesAtom, tasksAtom]));
+        const [services, nodes, tasks] = useAtomValue(Promise.all([servicesAtom, nodesAtom, tasksAtom]));
         rows = tasks.map(task => {
             const currentNode = nodes.find(node => node['ID'] === task['NodeID']);
             const currentService = services.find(service => service['ID'] === task['ServiceID']);
