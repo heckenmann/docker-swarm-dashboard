@@ -1,0 +1,41 @@
+---
+version: '3.5'
+
+services:
+  docker-swarm-dashboard:
+    image: ghcr.io/heckenmann/docker-swarm-dashboard:master
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.dsd.entrypoints=web"
+        - "traefik.http.routers.dsd.middlewares=basic-auth"
+        - "traefik.http.services.dsd.loadbalancer.server.port=8080"
+        - "traefik.http.routers.dsd.rule=PathPrefix(`/`)"
+        # Login with docker / docker
+        - "traefik.http.middlewares.basic-auth.basicauth.users=docker:$$2y$$10$$81nFbUw842iBd7MlngMR4.1VBI9j6Y.vTiamBAqtVNfs4qehzZB.e"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      DOCKER_API_VERSION: 1.35
+
+  traefik:
+    image: "traefik:v2.9"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    command:
+      #- "--log.level=debug"
+      #- "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
