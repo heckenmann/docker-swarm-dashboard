@@ -1,5 +1,5 @@
 ##############################################################################
-FROM golang:1.19.4-alpine as go
+FROM golang:1.20.2-alpine as go
 # ENV GO111MODULE=off
 RUN apk -U add git libc-dev
 COPY server-src/ /tmp/server-src
