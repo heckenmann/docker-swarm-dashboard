@@ -7,9 +7,6 @@ import {
     currentVariantAtom,
     currentVariantClassesAtom,
     serviceDetailAtom,
-    servicesAtom,
-    useNewApiToogleAtom,
-    viewAtom
 } from '../common/store/atoms';
 import {JsonTable} from './JsonTable';
 
@@ -18,15 +15,8 @@ function DetailsServiceComponent() {
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const currentSyntaxHighlighterStyle = useAtomValue(currentSyntaxHighlighterStyleAtom);
 
-    const useNewApi = useAtomValue(useNewApiToogleAtom);
     let currentService;
-    if (useNewApi) {
-        currentService = useAtomValue(serviceDetailAtom);
-    } else {
-        const services = useAtomValue(servicesAtom);
-        const view = useAtomValue(viewAtom);
-        currentService = services.find(s => s.ID == view?.detail);
-    }
+    currentService = useAtomValue(serviceDetailAtom);
 
     if (!currentService) return <div>Service doesn't exist</div>;
 
