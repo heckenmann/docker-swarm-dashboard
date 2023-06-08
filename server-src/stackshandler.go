@@ -22,7 +22,7 @@ type StacksHandlerSimpleStack struct {
 	Services []StackSimpleService
 }
 
-func stacksHandler(w http.ResponseWriter, r *http.Request) {
+func stacksHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 
