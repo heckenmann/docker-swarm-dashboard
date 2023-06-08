@@ -9,7 +9,7 @@ import (
 )
 
 // Serves the tasks
-func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
+func dockerTasksHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
 	if err != nil {
