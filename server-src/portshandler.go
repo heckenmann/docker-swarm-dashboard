@@ -17,7 +17,7 @@ type PortsHandlerSimplePort struct {
 	ServiceID     string
 }
 
-func portsHandler(w http.ResponseWriter, r *http.Request) {
+func portsHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 
