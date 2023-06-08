@@ -22,7 +22,7 @@ type TasksHandlerSimpleTask struct {
 	Err          string
 }
 
-func tasksHandler(w http.ResponseWriter, r *http.Request) {
+func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	tasks, _ := cli.TaskList(context.Background(), types.TaskListOptions{})
 

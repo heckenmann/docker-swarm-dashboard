@@ -16,7 +16,7 @@ import (
 var (
 	upgrader = websocket.Upgrader{
 		EnableCompression: true,
-		CheckOrigin: func(r *http.Request) bool {
+		CheckOrigin: func(_ *http.Request) bool {
 			return true
 		}}
 )
