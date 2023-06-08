@@ -30,7 +30,7 @@ type ServiceLine struct {
 }
 
 // Serves datamodel for vertical dashboard.
-func dashboardVHandler(w http.ResponseWriter, r *http.Request) {
+func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 	result := DashboardV{}
 	cli := getCli()
 	nodes, _ := cli.NodeList(context.Background(), types.NodeListOptions{})
