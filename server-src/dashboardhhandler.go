@@ -35,7 +35,7 @@ type SimpleService struct {
 }
 
 // Serves datamodel for horizontal dashboard.
-func dashboardHHandler(w http.ResponseWriter, r *http.Request) {
+func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 	result := DashboardH{}
 	cli := getCli()
 	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})

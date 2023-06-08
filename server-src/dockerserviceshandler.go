@@ -9,7 +9,7 @@ import (
 )
 
 // Serves the services
-func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
+func dockerServicesHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 	if err != nil {
