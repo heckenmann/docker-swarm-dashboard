@@ -13,7 +13,7 @@ type LogsHandlerSimpleService struct {
 	Name string
 }
 
-func logsServicesHandler(w http.ResponseWriter, r *http.Request) {
+func logsServicesHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
 

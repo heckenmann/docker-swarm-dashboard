@@ -9,7 +9,7 @@ import (
 )
 
 // Serves the nodes
-func dockerNodesHandler(w http.ResponseWriter, r *http.Request) {
+func dockerNodesHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	Nodes, err := cli.NodeList(context.Background(), types.NodeListOptions{})
 	if err != nil {
