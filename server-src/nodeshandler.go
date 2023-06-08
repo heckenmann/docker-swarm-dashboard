@@ -21,7 +21,7 @@ type NodesHandlerSimpleNode struct {
 	Message           string
 }
 
-func nodesHandler(w http.ResponseWriter, r *http.Request) {
+func nodesHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
 	nodes, _ := cli.NodeList(context.Background(), types.NodeListOptions{})
 
