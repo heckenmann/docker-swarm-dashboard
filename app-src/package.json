@@ -10,7 +10,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@types/react": "^18.0.28",
     "bootstrap": "^5.2.3",
-    "jotai": "^2.0.3",
+    "jotai": "^2.2.1",
     "jotai-location": "^0.5.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",
