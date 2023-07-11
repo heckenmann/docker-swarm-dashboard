@@ -13,6 +13,11 @@ Don't expose this service to the world! The endpoints offer the configuration of
 If you like this project, please give a ⭐ on github.
 Feedback would be nice.
 
+- [Tools](#tools)
+- [Frameworks & Libraries](#frameworks--libraries)
+- [Screenshots](#screenshots)
+- [Getting started](#getting-started)
+
 ----
 ## Tools
 Special thanks to JetBrains for supporting this project with <a href="https://www.jetbrains.com/community/opensource/#support" target="_blank">Open Source development licenses</a>.
@@ -43,19 +48,27 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 ![Logs](screenshots/logs-f.jpeg)
 
 ----
-## Pull Image from ghcr.io
+## Getting started
+### Tags
+|Tag|Description|Image|
+|---|---|---|
+|e.g. 1.4.1|Stable release|ghcr.io/heckenmann/docker-swarm-dashboard:1.4.1|
+|latest|Latest stable release|ghcr.io/heckenmann/docker-swarm-dashboard:latest|
+|master|Current unstable master-build (not well tested)|ghcr.io/heckenmann/docker-swarm-dashboard:master|
+
+### Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
 ```
 
 ----
-## Local Build
+### Local Build
 ```
 docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .
 ```
 
 ----
-## docker-compose.yml
+### docker-compose.yml
 ```
 ---
 version: '3.5'
@@ -76,7 +89,7 @@ services:
       DOCKER_API_VERSION: 1.35
 ```
 ----
-## docker-compose.yml with traefik and basic auth
+### docker-compose.yml with traefik and basic auth
 This configuration sets a password for access. It is importand to configure ssl in traefik for better security.
 
 In this example you can login with "**docker / docker**" on port 8080.
@@ -127,14 +140,14 @@ services:
 ```
 
 ----
-## Deploy on docker-swarm
+### Deploy on docker-swarm
 From the directory with docker-compose.yml run:
 ```
 docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 
 ----
-## logs-generator (for testing)
+### logs-generator (for testing)
 ```
 docker service create --name logger chentex/random-logger:latest 50 200
 ```
