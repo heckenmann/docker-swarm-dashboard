@@ -14,7 +14,7 @@ jobs:
       - name: Delete 'signature' containers
         uses: snok/container-retention-policy@v2
         with:
-          image-names: "ghcr.io/heckenmann/docker-swarm-dashboard@sha256"
+          image-names: "ghcr.io/heckenmann/docker-swarm-dashboard/sha256*"
           cut-off: Two month ago UTC
           account-type: personal
           keep-at-least: 1
