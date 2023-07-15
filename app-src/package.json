@@ -13,7 +13,7 @@
     "jotai": "^2.2.2",
     "jotai-location": "^0.5.1",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.7.2",
+    "react-bootstrap": "^2.9.0-beta.0",
     "react-dom": "^18.2.0",
     "react-interval": "^2.1.2",
     "react-query": "^3.39.3",
@@ -29,7 +29,7 @@
     "cypress:run": "cypress run"
   },
   "engines": {
-    "node": "^19.x"
+    "node": "^20.x"
   },
   "browserslist": {
     "production": [
