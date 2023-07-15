@@ -1,5 +1,5 @@
 ##############################################################################
-FROM golang:1.20.2-alpine as go
+FROM golang:1.20.3-alpine as go
 # ENV GO111MODULE=off
 RUN apk -U add git libc-dev
 COPY server-src/ /tmp/server-src
@@ -7,7 +7,7 @@ WORKDIR /tmp/server-src
 RUN go build
 
 ##############################################################################
-FROM node:16-alpine as node
+FROM node:19-alpine as node
 RUN apk -U add git wget
 COPY app-src /opt/dsd
 RUN wget --quiet http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png -O /opt/dsd/src/docker.png

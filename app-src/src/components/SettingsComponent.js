@@ -1,23 +1,18 @@
 import {useAtom, useAtomValue} from 'jotai';
-import {Table, Card, Button, ButtonGroup, FormCheck} from 'react-bootstrap';
+import {Table, Card, FormCheck} from 'react-bootstrap';
 import {
     currentVariantAtom,
-    currentVariantClassesAtom, isDarkModeAtom, logsConfigAtom, logsShowLogsAtom,
-    messagesAtom,
-    nodesAtom,
-    refreshIntervalAtom, servicesAtom, smallTablesAtom, tableSizeAtom, tasksAtom, useNewApiToogleAtom, viewAtom
+    currentVariantClassesAtom, isDarkModeAtom,
+    refreshIntervalAtom, tableSizeAtom,
 } from '../common/store/atoms';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {MessageReducer, RefreshIntervalToggleReducer} from "../common/store/reducers";
-import {useResetAtom} from "jotai/utils";
+import {RefreshIntervalToggleReducer} from "../common/store/reducers";
 
 function SettingsComponent() {
-    const [, messageReducer] = useAtom(messagesAtom, MessageReducer);
     const currentVariant = useAtomValue(currentVariantAtom);
     const currentVariantClasses = useAtomValue(currentVariantClassesAtom);
     const [refreshInterval, toggleRefresh] = useAtom(refreshIntervalAtom, RefreshIntervalToggleReducer);
     const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
-    const [useNewApiToogle, setUseNewApiToggle] = useAtom(useNewApiToogleAtom);
     const [tableSize, setTableSize] = useAtom(tableSizeAtom);
 
     const toggleRefreshAndNotifyUser = () => {
@@ -50,11 +45,6 @@ function SettingsComponent() {
                         <td><FontAwesomeIcon icon="table-cells" /></td>
                         <td>Small tables</td>
                         <td><FormCheck type="switch" variant={tableSize ? 'secondary' : 'outline-secondary'} onChange={() =>  setTableSize(tableSize == 'sm' ? 'lg' : 'sm')} checked={tableSize == 'sm'} /></td>
-                    </tr>
-                    <tr>
-                        <td><FontAwesomeIcon icon="pizza-slice" /></td>
-                        <td>Use new REST-API (Beta)</td>
-                        <td><FormCheck type="switch" variant={useNewApiToogle ? 'secondary' : 'outline-secondary'} onChange={() =>  setUseNewApiToggle(!useNewApiToogle)} checked={useNewApiToogle} /></td>
                     </tr>
                     </tbody>
                 </Table>
