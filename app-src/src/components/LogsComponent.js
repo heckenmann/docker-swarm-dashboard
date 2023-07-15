@@ -1,8 +1,8 @@
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {useAtom, useAtomValue} from 'jotai';
-import {useResetAtom} from 'jotai/utils';
-import {Button, Card, Col, Form, Row} from 'react-bootstrap';
-import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useAtom, useAtomValue } from 'jotai';
+import { useResetAtom } from 'jotai/utils';
+import { Button, Card, Col, Form, Row } from 'react-bootstrap';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import {
     currentSyntaxHighlighterStyleAtom,
     currentVariantAtom,
@@ -13,15 +13,13 @@ import {
     logsServicesAtom,
     logsShowLogsAtom,
     logsWebsocketUrlAtom,
-    servicesAtom,
-    useNewApiToogleAtom
+    servicesAtom
 } from '../common/store/atoms';
 import useWebSocket from 'react-use-websocket';
-import {useEffect} from 'react';
-import {servicesId} from "../common/navigationConstants";
+import { useEffect } from 'react';
+import { servicesId } from "../common/navigationConstants";
 
 function LogsComponent() {
-    const useNewApi = useAtomValue(useNewApiToogleAtom);
     const [logsLines, setLogsLines] = useAtom(logsLinesAtom);
     const resetLogsLines = useResetAtom(logsLinesAtom);
     const [logsNumberOfLines, setLogsNumberOfLines] = useAtom(logsNumberOfLinesAtom);
@@ -89,26 +87,14 @@ function LogsComponent() {
     const serviceOptions = [];
     const serviceNames = {};
 
-    if (useNewApi) {
-        const services = useAtomValue(logsServicesAtom);
-        services.forEach(service => {
-            serviceNames[service['ID']] = service['Name'];
-            serviceOptions.push(
-                <option key={'serviceDropdown-' + service['ID']}
-                        value={service['ID']}>{service['Name']}</option>
-            );
-        });
-    } else {
-        const services = useAtomValue(servicesAtom);
-        // Service Options
-        services.forEach(service => {
-            serviceNames[service['ID']] = service['Spec']['Name'];
-            serviceOptions.push(
-                <option key={'serviceDropdown-' + service['ID']}
-                        value={service['ID']}>{service['Spec']['Name']}</option>
-            );
-        });
-    }
+    const services = useAtomValue(logsServicesAtom);
+    services.forEach(service => {
+        serviceNames[service['ID']] = service['Name'];
+        serviceOptions.push(
+            <option key={'serviceDropdown-' + service['ID']}
+                value={service['ID']}>{service['Name']}</option>
+        );
+    });
 
     const logPrinterOptions = <Form>
         <Form.Group as={Row} className='mb-3' controlId="logprinterservicename">
@@ -116,7 +102,7 @@ function LogsComponent() {
                 Service
             </Form.Label>
             <Col sm="10">
-                <Form.Control type="text" defaultValue={logsConfig?.serviceName} disabled={true}/>
+                <Form.Control type="text" defaultValue={logsConfig?.serviceName} disabled={true} />
             </Col>
         </Form.Group>
 
@@ -126,7 +112,7 @@ function LogsComponent() {
             </Form.Label>
             <Col sm="10">
                 <Form.Control type="text" value={logsNumberOfLines}
-                              onChange={(e) => setLogsNumberOfLines(e.target.value)}/>
+                    onChange={(e) => setLogsNumberOfLines(e.target.value)} />
             </Col>
         </Form.Group>
 
@@ -135,13 +121,13 @@ function LogsComponent() {
                 Search keyword
             </Form.Label>
             <Col sm="10">
-                <Form.Control type="text" disabled={true}/>
+                <Form.Control type="text" disabled={true} />
             </Col>
         </Form.Group>
 
         <Form.Group as={Row}>
-            <Col sm={{span: 10, offset: 2}}>
-                <Button type="button" onClick={hideLogs}><FontAwesomeIcon icon="align-left"/> Hide logs</Button>
+            <Col sm={{ span: 10, offset: 2 }}>
+                <Button type="button" onClick={hideLogs}><FontAwesomeIcon icon="align-left" /> Hide logs</Button>
             </Col>
         </Form.Group>
     </Form>
@@ -165,7 +151,7 @@ function LogsComponent() {
                             Tail
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Control type="text" defaultValue="20" ref={node => (inputTail = node)}/>
+                            <Form.Control type="text" defaultValue="20" ref={node => (inputTail = node)} />
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformsince">
@@ -173,7 +159,7 @@ function LogsComponent() {
                             Since
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Control type="text" defaultValue="1h" ref={node => (inputSince = node)}/>
+                            <Form.Control type="text" defaultValue="1h" ref={node => (inputSince = node)} />
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformfollow">
@@ -181,7 +167,7 @@ function LogsComponent() {
                             Follow
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check ref={node => (inputFollow = node)}/>
+                            <Form.Check ref={node => (inputFollow = node)} />
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformtimestamps">
@@ -189,7 +175,7 @@ function LogsComponent() {
                             Timestamps
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={false} ref={node => (inputTimestamps = node)}/>
+                            <Form.Check defaultChecked={false} ref={node => (inputTimestamps = node)} />
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformstdout">
@@ -197,7 +183,7 @@ function LogsComponent() {
                             Stdout
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={true} ref={node => (inputStdout = node)}/>
+                            <Form.Check defaultChecked={true} ref={node => (inputStdout = node)} />
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformstderr">
@@ -205,7 +191,7 @@ function LogsComponent() {
                             Stderr
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={true} ref={node => (inputStderr = node)}/>
+                            <Form.Check defaultChecked={true} ref={node => (inputStderr = node)} />
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className='mb-3' controlId="logsformdetails">
@@ -213,14 +199,14 @@ function LogsComponent() {
                             Details
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Check defaultChecked={false} ref={node => (inputDetails = node)}/>
+                            <Form.Check defaultChecked={false} ref={node => (inputDetails = node)} />
                         </Col>
                     </Form.Group>
 
                     <Form.Group as={Row}>
-                        <Col sm={{span: 10, offset: 2}}>
+                        <Col sm={{ span: 10, offset: 2 }}>
                             <Button type="submit" disabled={!serviceOptions || serviceOptions.length === 0}><FontAwesomeIcon
-                                icon="desktop"/> Show logs</Button>
+                                icon="desktop" /> Show logs</Button>
                         </Col>
                     </Form.Group>
                 </Form>}
@@ -236,4 +222,4 @@ function LogsComponent() {
     );
 }
 
-export {LogsComponent};
+export { LogsComponent };

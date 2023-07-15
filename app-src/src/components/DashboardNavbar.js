@@ -1,23 +1,19 @@
-import {Badge, Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer} from 'react-bootstrap';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import { Badge, Button, ButtonGroup, Container, Nav, Navbar, Toast, ToastContainer } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logo from '../docker.png';
-import {MessageReducer, RefreshIntervalToggleReducer} from '../common/store/reducers';
+import { MessageReducer, RefreshIntervalToggleReducer } from '../common/store/reducers';
 import {
     currentVariantAtom,
     isDarkModeAtom,
     logsConfigAtom,
     logsShowLogsAtom,
     messagesAtom,
-    nodesAtom,
     refreshIntervalAtom,
-    servicesAtom,
-    tasksAtom,
-    useNewApiToogleAtom,
     viewAtom
 } from '../common/store/atoms';
-import {useResetAtom} from 'jotai/utils';
+import { useResetAtom } from 'jotai/utils';
 import ReactInterval from 'react-interval';
-import {useAtom, useAtomValue} from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
     aboutId,
     dashboardHId,
@@ -30,12 +26,8 @@ import {
 } from '../common/navigationConstants';
 
 function DashboardNavbar() {
-    const useNewApi = useAtomValue(useNewApiToogleAtom);
     const [refreshInterval, toggleRefresh] = useAtom(refreshIntervalAtom, RefreshIntervalToggleReducer);
     const [, messageReducer] = useAtom(messagesAtom, MessageReducer);
-    const resetNodes = useResetAtom(nodesAtom);
-    const resetServices = useResetAtom(servicesAtom);
-    const resetTasks = useResetAtom(tasksAtom);
     const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom);
     const currentVariant = useAtomValue(currentVariantAtom);
     const [view, updateView] = useAtom(viewAtom);
@@ -45,79 +37,73 @@ function DashboardNavbar() {
     if (isDarkMode) document.body.classList.add('bg-dark'); else document.body.classList.remove('bg-dark');
 
     const reloadData = () => {
-        if (useNewApi) {
-            updateView({...view, 'timestamp': new Date()});
-        } else {
-            resetNodes();
-            resetServices();
-            resetTasks();
-        }
+        updateView({ ...view, 'timestamp': new Date() });
     }
 
     const refreshAndNotifyUser = () => {
         if (refreshInterval != undefined) toggleRefresh();
-        messageReducer({'type': 'add', 'value': 'Refresh ...'});
-        reloadData(useNewApi);
+        messageReducer({ 'type': 'add', 'value': 'Refresh ...' });
+        reloadData();
     }
 
     const readingLogsWarning = logsShowLogs && logsConfig?.follow ? <>{' '}<Badge bg="warning"
-                                                                                  text="dark"><FontAwesomeIcon
-        icon="running"/></Badge></> : <></>
+        text="dark"><FontAwesomeIcon
+            icon="running" /></Badge></> : <></>
 
     return (
         <>
-            <ReactInterval enabled={refreshInterval != null} timeout={refreshInterval} callback={reloadData}/>
+            <ReactInterval enabled={refreshInterval != null} timeout={refreshInterval} callback={reloadData} />
             <Navbar collapseOnSelect expand="xl" bg={currentVariant} variant={currentVariant}
-                    className='mb-3 border-bottom'>
+                className='mb-3 border-bottom'>
                 <Container fluid>
-                    <Navbar.Brand className='cursorPointer' onClick={() => updateView({'id': dashboardHId})}>
+                    <Navbar.Brand className='cursorPointer' onClick={() => updateView({ 'id': dashboardHId })}>
                         <img alt="logo"
-                             id="dockerlogo"
-                             src={logo}
-                             className="d-inline-block align-top cursor-pointer"
-                             width="30"
-                             height="30"/>{' '}
+                            id="dockerlogo"
+                            src={logo}
+                            className="d-inline-block align-top cursor-pointer"
+                            width="30"
+                            height="30" />{' '}
                         Docker Swarm Dashboard
                     </Navbar.Brand>
-                    <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-left">
                         <Nav className="mr-auto">
-                            <Nav.Link onClick={() => updateView({'id': dashboardHId})}
-                                      active={view?.id === dashboardHId}><FontAwesomeIcon
-                                icon="grip"/>{' '}Dashboard</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': stacksId})}
-                                      active={view?.id === stacksId}><FontAwesomeIcon
-                                icon="cubes"/>{' '}Stacks</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': nodesId})}
-                                      active={view?.id === nodesId}><FontAwesomeIcon
-                                icon="server"/>{' '}Nodes</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': tasksId})}
-                                      active={view?.id === tasksId}><FontAwesomeIcon icon="tasks"/>{' '}Tasks</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': portsId})}
-                                      active={view?.id === portsId}><FontAwesomeIcon
-                                icon="building"/>{' '}Ports</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': logsId})} active={view?.id === logsId}
-                                      className="warning"><FontAwesomeIcon
-                                icon="file-medical-alt"/>{' '}Logs{readingLogsWarning}</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': dashboardHId })}
+                                active={view?.id === dashboardHId}><FontAwesomeIcon
+                                    icon="grip" />{' '}Dashboard</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': stacksId })}
+                                active={view?.id === stacksId}><FontAwesomeIcon
+                                    icon="cubes" />{' '}Stacks</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': nodesId })}
+                                active={view?.id === nodesId}><FontAwesomeIcon
+                                    icon="server" />{' '}Nodes</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': tasksId })}
+                                active={view?.id === tasksId}><FontAwesomeIcon icon="tasks" />{' '}Tasks</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': portsId })}
+                                active={view?.id === portsId}><FontAwesomeIcon
+                                    icon="building" />{' '}Ports</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': logsId })} active={view?.id === logsId}
+                                className="warning"><FontAwesomeIcon
+                                    icon="file-medical-alt" />{' '}Logs{readingLogsWarning}</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse id="responsive-navbar-right" className='justify-content-end'>
                         <Nav>
-                            <Nav.Link onClick={() => updateView({'id': aboutId})}
-                                      active={view?.id === aboutId}><FontAwesomeIcon
-                                icon="info-circle"/> About</Nav.Link>
-                            <Nav.Link onClick={() => updateView({'id': settingsId})}
-                                      active={view?.id === settingsId}><FontAwesomeIcon
-                                icon="gear"/> Settings</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': aboutId })}
+                                active={view?.id === aboutId}><FontAwesomeIcon
+                                    icon="info-circle" /> About</Nav.Link>
+                            <Nav.Link onClick={() => updateView({ 'id': settingsId })}
+                                active={view?.id === settingsId}><FontAwesomeIcon
+                                    icon="gear" /> Settings</Nav.Link>
                         </Nav>
                         <ButtonGroup>
                             <Button variant={refreshInterval == undefined ? 'outline-secondary' : 'warning'}
-                                    onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync"/></Button>
+                                onClick={refreshAndNotifyUser}><FontAwesomeIcon icon="sync" /></Button>
                         </ButtonGroup>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <RefreshIntervalToast/>
+            <RefreshIntervalToast />
         </>
     );
 }
@@ -126,9 +112,9 @@ function RefreshIntervalToast() {
     const [messages, messageReducer] = useAtom(messagesAtom, MessageReducer);
     if (!messages) return <></>;
     const messageToasts = messages.map(message => (
-        <Toast key={message} delay={2000} onClose={() => messageReducer({'type': 'remove', 'value': message})} autohide>
+        <Toast key={message} delay={2000} onClose={() => messageReducer({ 'type': 'remove', 'value': message })} autohide>
             <Toast.Header>
-                <strong className="me-auto"><FontAwesomeIcon icon='circle-info'/> Information</strong>
+                <strong className="me-auto"><FontAwesomeIcon icon='circle-info' /> Information</strong>
             </Toast.Header>
             <Toast.Body>{message}</Toast.Body>
         </Toast>
@@ -141,4 +127,4 @@ function RefreshIntervalToast() {
     )
 }
 
-export {DashboardNavbar};
+export { DashboardNavbar };
