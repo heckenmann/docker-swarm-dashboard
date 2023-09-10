@@ -1,6 +1,5 @@
 ![Docker](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/docker-publish.yml/badge.svg?branch=master)
 ![CodeQL](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/codeql.yml/badge.svg?branch=master)
-![qodana](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/qodana-code-quality.yml/badge.svg?branch=master)
 
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
