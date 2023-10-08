@@ -21,7 +21,9 @@
     "react-use-websocket": "^4.3.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start-api-mock": "node mock/api/api-mock.js 3001",
+    "start-dev-server": "react-scripts start",
+    "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\"",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
@@ -45,6 +47,7 @@
   },
   "devDependencies": {
     "cypress": "^12.6.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "json-server": "^0.17.3"
   }
 }
