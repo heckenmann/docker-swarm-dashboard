@@ -4,7 +4,6 @@ import { useAtom, useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
-  nodesAtom,
   nodesAtomNew,
   tableSizeAtom,
   viewAtom,

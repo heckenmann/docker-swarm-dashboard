@@ -5,7 +5,6 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   portsAtom,
-  servicesAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'

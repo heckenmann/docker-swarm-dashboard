@@ -1,7 +1,5 @@
-import { useAtomValue } from 'jotai'
 import React from 'react'
 import { Card } from 'react-bootstrap'
-import { currentVariantAtom, currentVariantClassesAtom } from './store/atoms'
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -9,7 +7,7 @@ export class ErrorBoundary extends React.Component {
     this.state = { hasError: false }
   }
 
-  static getDerivedStateFromError(error, errorInfo) {
+  static getDerivedStateFromError(error) {
     // Update state so the next render will show the fallback UI.
     return { hasError: true, errorMessage: error.toString() }
   }

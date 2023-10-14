@@ -13,11 +13,9 @@ import {
   logsServicesAtom,
   logsShowLogsAtom,
   logsWebsocketUrlAtom,
-  servicesAtom,
 } from '../common/store/atoms'
 import useWebSocket from 'react-use-websocket'
 import { useEffect } from 'react'
-import { servicesId } from '../common/navigationConstants'
 
 function LogsComponent() {
   const [logsLines, setLogsLines] = useAtom(logsLinesAtom)
@@ -31,12 +29,12 @@ function LogsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const logsWebsocketUrl = useAtomValue(logsWebsocketUrlAtom)
-  const { _, lastMessage, readyState } = useWebSocket(
+  const { lastMessage } = useWebSocket(
     logsWebsocketUrl,
     {
       onOpen: () => console.log('logger-websocket connected'),
       onClose: () => console.log('logger-websocket closed'),
-      shouldReconnect: (closeEvent) => logsShowLogs && logsConfig?.follow,
+      shouldReconnect: () => logsShowLogs && logsConfig?.follow,
     },
     logsShowLogs,
   )
