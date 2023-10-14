@@ -30,8 +30,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:spec": "cypress run --spec"
   },
   "engines": {
     "node": "^20.x"
