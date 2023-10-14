@@ -1,4 +1,5 @@
-name: Cypress-Testing
+env:
+  NODE_VERSION: 20
 
 on:
   workflow_dispatch:
@@ -12,6 +13,10 @@ jobs:
         working-directory: ./app-src
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: yarn install
       - name: Cypress run on Chrome
