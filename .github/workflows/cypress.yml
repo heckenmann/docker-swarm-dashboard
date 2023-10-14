@@ -20,14 +20,14 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Cypress run on Chrome
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
           browser: chrome
       - name: Cypress run on Firefox
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
           browser: firefox
       - name: Cypress run on Edge
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
           browser: edge
