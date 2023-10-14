@@ -7,6 +7,9 @@ on:
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app-src
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
