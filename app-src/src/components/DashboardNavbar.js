@@ -43,7 +43,7 @@ function DashboardNavbar() {
     RefreshIntervalToggleReducer,
   )
   const [, messageReducer] = useAtom(messagesAtom, MessageReducer)
-  const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
+  const [isDarkMode] = useAtom(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const [view, updateView] = useAtom(viewAtom)
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
