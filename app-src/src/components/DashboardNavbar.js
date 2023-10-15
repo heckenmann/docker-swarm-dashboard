@@ -9,7 +9,7 @@ import {
   ToastContainer,
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import logo from '../docker.png'
+import logo from '../files/docker.png'
 import {
   MessageReducer,
   RefreshIntervalToggleReducer,

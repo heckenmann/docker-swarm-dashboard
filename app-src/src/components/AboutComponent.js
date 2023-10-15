@@ -4,9 +4,9 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
 } from '../common/store/atoms'
-import jb_square from '../jb_square.svg'
-import goLand_icon from '../GoLand_icon.svg'
-import webStorm_icon from '../WebStorm_icon.svg'
+import jb_square from '../files/jb_square.svg'
+import goLand_icon from '../files/GoLand_icon.svg'
+import webStorm_icon from '../files/WebStorm_icon.svg'
 
 function AboutComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)

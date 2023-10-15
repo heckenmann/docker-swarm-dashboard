@@ -15,7 +15,7 @@ import { ContentRouter } from './components/ContentRouter'
 import { DashboardNavbar } from './components/DashboardNavbar'
 import LoadingComponent from './components/LoadingComponent'
 import { ErrorBoundary } from './common/ErrorBoundary'
-import bg from './docker.png'
+import bg from './files/docker.png'
 
 library.add(fab, fas, far)
 
