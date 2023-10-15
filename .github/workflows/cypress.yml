@@ -1,5 +1,6 @@
 env:
   NODE_VERSION: 20
+  WORKING_DIRECTORY: ./app-src
 
 on:
   workflow_dispatch:
@@ -10,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./app-src
+        working-directory: ${{ env.WORKING_DIRECTORY }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js
@@ -22,6 +23,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}
           start: yarn run start
           install-command: yarn --frozen-lockfile
           command: yarn run cy:run
