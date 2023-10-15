@@ -17,8 +17,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - name: Install global dependencies
+        run: yarn global add concurrently
       - name: Install dependencies
         run: yarn install
+      - name: Start api-mock and dev-server
+        run: yarn run start &
+
       - name: Cypress run on Chrome
         uses: cypress-io/github-action@v6
         with:
