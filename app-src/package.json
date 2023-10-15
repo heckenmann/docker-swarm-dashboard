@@ -2,14 +2,13 @@
   "name": "docker-swarm-dashboard",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "scripts": {
     "start-api-mock": "node mock/api/api-mock.js 3001",
     "start-dev-server": "react-scripts start",
     "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\"",
     "format": "prettier --write src/**/*.js",
+    "postinstall": "node download-files.js",
     "lint": "eslint src",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
@@ -18,6 +17,24 @@
     "cy:run": "cypress run",
     "cy:spec": "cypress run --spec"
   },
+  "files": [
+    {
+      "name": "docker.png",
+      "url": "http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png"
+    },
+    {
+      "name": "jb_square.svg",
+      "url": "https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.svg"
+    },
+    {
+      "name": "GoLand_icon.svg",
+      "url": "https://resources.jetbrains.com/storage/products/company/brand/logos/GoLand_icon.svg"
+    },
+    {
+      "name": "WebStorm_icon.svg",
+      "url": "https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.svg"
+    }
+  ],
   "engines": {
     "node": "^20.x"
   },
@@ -40,23 +57,24 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@types/react": "^18.0.28",
+    "axios": "^1.5.1",
     "bootstrap": "^5.2.3",
+    "cypress": "^13.3.1",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "jotai": "^2.2.2",
     "jotai-location": "^0.5.1",
+    "json-server": "^0.17.3",
+    "prettier": "^3.0.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.0-beta.0",
     "react-dom": "^18.2.0",
     "react-horizontal-timeline": "^1.5.3",
     "react-interval": "^2.1.2",
     "react-query": "^3.39.3",
+    "react-scripts": "^5.0.1",
     "react-syntax-highlighter": "^15.5.0",
-    "react-use-websocket": "^4.3.1",
-    "cypress": "^13.3.1",
-    "eslint": "^8.51.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "json-server": "^0.17.3",
-    "prettier": "^3.0.3",
-    "react-scripts": "^5.0.1"
+    "react-use-websocket": "^4.3.1"
   }
 }
