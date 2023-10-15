@@ -24,15 +24,8 @@ jobs:
       - name: Start api-mock and dev-server
         run: yarn run start &
 
-      - name: Cypress run on Chrome
+      - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome
-      - name: Cypress run on Firefox
-        uses: cypress-io/github-action@v6
-        with:
-          browser: firefox
-      - name: Cypress run on Edge
-        uses: cypress-io/github-action@v6
-        with:
-          browser: edge
+          packageManager: yarn
+          browser: chrome, firefox, edge
