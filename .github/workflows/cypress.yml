@@ -19,13 +19,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install global dependencies
         run: yarn global add concurrently
-      - name: Install dependencies
-        run: yarn install
-      - name: Start api-mock and dev-server
-        run: yarn run start &
-
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          install-command: yarn install
+          start: yarn run start
+          install-command: yarn --frozen-lockfile
+          command: yarn run cy:run
+          wait-on: 'http://localhost:3000'
           browser: chrome, firefox, edge
