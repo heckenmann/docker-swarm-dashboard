@@ -27,5 +27,5 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          packageManager: yarn
+          install-command: yarn install
           browser: chrome, firefox, edge
