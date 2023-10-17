@@ -15,7 +15,7 @@ jobs:
         uses: snok/container-retention-policy@v2
         with:
           image-names: "*"
-          dry-run: true
+          dry-run: false
           untagged-only: true
           cut-off: Two minutes ago UTC
           account-type: personal
