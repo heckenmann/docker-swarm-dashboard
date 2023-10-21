@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { Table, Card, FormCheck } from 'react-bootstrap'
+import { Card, FormCheck, FormControl, Table } from 'react-bootstrap'
 import {
+  baseUrlAtom,
   currentVariantAtom,
   currentVariantClassesAtom,
   isDarkModeAtom,
@@ -19,6 +20,7 @@ function SettingsComponent() {
   )
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
   const [tableSize, setTableSize] = useAtom(tableSizeAtom)
+  const [baseUrl, setBaseUrl] = useAtom(baseUrlAtom)
 
   const toggleRefreshAndNotifyUser = () => {
     toggleRefresh()
@@ -40,6 +42,25 @@ function SettingsComponent() {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td>
+                <FontAwesomeIcon icon="link" />
+              </td>
+              <td>API URL</td>
+              <td>
+                <FormControl
+                  size="sm"
+                  value={baseUrl}
+                  onChange={(event) =>
+                    setBaseUrl(
+                      event.target.value.endsWith('/')
+                        ? event.target.value
+                        : event.target.value + '/',
+                    )
+                  }
+                />
+              </td>
+            </tr>
             <tr>
               <td>
                 <FontAwesomeIcon

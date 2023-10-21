@@ -4,7 +4,7 @@ import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
 import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
-import { dispatcherId } from '../navigationConstants'
+import { dashboardHId } from '../navigationConstants'
 
 // Initiale Werte
 const hash = window.location.hash
@@ -28,7 +28,7 @@ export const refreshIntervalAtom = atomWithReducer(
   null,
   RefreshIntervalToggleReducer,
 )
-export const viewAtom = atomWithHash('view', { id: dispatcherId })
+export const viewAtom = atomWithHash('view', { id: dashboardHId })
 export const messagesAtom = atomWithReducer([], MessageReducer)
 export const tableSizeAtom = atomWithHash('tablesize', 'sm')
 
