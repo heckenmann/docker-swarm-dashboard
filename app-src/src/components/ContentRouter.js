@@ -3,7 +3,6 @@ import {
   aboutId,
   dashboardHId,
   dashboardVId,
-  timelineId,
   logsId,
   nodesDetailId,
   nodesId,
@@ -12,6 +11,7 @@ import {
   settingsId,
   stacksId,
   tasksId,
+  timelineId,
 } from '../common/navigationConstants'
 import { viewAtom } from '../common/store/atoms'
 import { AboutComponent } from './AboutComponent'
@@ -30,7 +30,7 @@ import { SettingsComponent } from './SettingsComponent'
 export function ContentRouter() {
   const viewId = useAtomValue(viewAtom)
 
-  let view = null
+  let view
   switch (viewId?.id) {
     case dashboardHId:
       view = <DashboardComponent />
