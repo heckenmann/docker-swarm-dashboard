@@ -1,7 +1,7 @@
 describe('template spec', () => {
   it('passes', () => {
     cy.viewport(1920, 1080)
-    cy.visit('http://localhost:3000')
+    cy.visit('http://localhost:3000#base="http%3A%2F%2Flocalhost%3A3001%2F"')
     cy.document().its('body').should('not.contain', 'ERROR')
 
     // Timeline
