@@ -3,6 +3,7 @@ import {
   aboutId,
   dashboardHId,
   dashboardVId,
+  debugId,
   logsId,
   nodesDetailId,
   nodesId,
@@ -26,6 +27,7 @@ import { PortsComponent } from './PortsComponent'
 import { StacksComponent } from './StacksComponent'
 import { TasksComponent } from './TasksComponent'
 import { SettingsComponent } from './SettingsComponent'
+import { DebugComponent } from './DebugComponent'
 
 export function ContentRouter() {
   const viewId = useAtomValue(viewAtom)
@@ -67,6 +69,9 @@ export function ContentRouter() {
       break
     case logsId:
       view = <LogsComponent />
+      break
+    case debugId:
+      view = <DebugComponent />
       break
     default:
       view = <DashboardComponent />
