@@ -1,16 +1,21 @@
-import { useAtomValue } from 'jotai'
-import { Table, Card, Button } from 'react-bootstrap'
+import { useAtom, useAtomValue } from 'jotai'
+import { Button, Card, Table } from 'react-bootstrap'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  viewAtom,
 } from '../common/store/atoms'
 import jb_square from '../files/jb_square.svg'
 import goLand_icon from '../files/GoLand_icon.svg'
 import webStorm_icon from '../files/WebStorm_icon.svg'
+import { debugId } from '../common/navigationConstants'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function AboutComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+
+  const [, updateView] = useAtom(viewAtom)
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
@@ -109,6 +114,17 @@ function AboutComponent() {
             </Button>
           </li>
         </ul>
+        <h2>Application</h2>
+        <Button
+          onClick={() =>
+            updateView({
+              id: debugId,
+            })
+          }
+        >
+          <FontAwesomeIcon icon="bug" />
+          Debug
+        </Button>
       </Card.Body>
     </Card>
   )
