@@ -44,7 +44,7 @@
     ]
   },
   "devDependencies": {
-    "cypress": "^12.6.0",
+    "cypress": "^13.3.3",
     "react-scripts": "^5.0.1"
   }
 }
