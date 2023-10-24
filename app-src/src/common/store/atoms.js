@@ -81,6 +81,12 @@ export const taskDetailAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'docker/tasks/' + id)).json()
 })
 
+export const timelineAtom = atom(async (get) => {
+  // Reload when view changed
+  get(viewAtom)
+  return (await fetch(get(baseUrlAtom) + 'ui/timeline')).json()
+})
+
 // Logs
 export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
