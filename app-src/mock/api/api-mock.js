@@ -52,6 +52,11 @@ server.get('/ui/logs/services', (req, res) => {
   res.jsonp(resources)
 })
 
+server.get('/ui/timeline', (req, res) => {
+  const resources = rootRouter.db.get('timeline')
+  res.jsonp(resources)
+})
+
 // Handler für alle anderen Routen
 server.use('/ui', rootRouter)
 server.use('/docker', rootRouter)
