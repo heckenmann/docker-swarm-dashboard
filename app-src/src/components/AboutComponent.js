@@ -80,9 +80,27 @@ function AboutComponent() {
             <Button
               variant="link"
               target="_blank"
+              href="https://apexcharts.com/"
+            >
+              ApexCharts
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="link"
+              target="_blank"
               href="https://getbootstrap.com/"
             >
               Bootstrap
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="link"
+              target="_blank"
+              href="https://www.cypress.io/"
+            >
+              Cypress
             </Button>
           </li>
           <li>
