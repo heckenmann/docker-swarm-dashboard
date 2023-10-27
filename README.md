@@ -28,7 +28,9 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 
 ----
 ## Frameworks & Libraries
+- [ApexCharts](https://apexcharts.com/)
 - [Bootstrap](https://getbootstrap.com/)
+- [Cypress](https://www.cypress.io/)
 - [Fontawesome](https://fontawesome.com/)
 - [Gorilla](https://www.gorillatoolkit.org/)
 - [Jotai](https://jotai.org/)

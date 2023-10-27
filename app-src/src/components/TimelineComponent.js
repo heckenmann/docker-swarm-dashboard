@@ -14,10 +14,11 @@ function TimelineComponent() {
   const isDark = useAtomValue(isDarkModeAtom)
 
   const tasks = useAtomValue(timelineAtom)
+  const grouped = true
 
   const series = tasks.map((task) => {
     return {
-      name: task.ServiceName + '_' + task.Slot,
+      name: task.ServiceName + ' ' + task.Slot + ' (' + task.ID + ')',
       data: [
         {
           x: task.ServiceName + '_' + task.Slot,
@@ -32,7 +33,22 @@ function TimelineComponent() {
     }
   })
 
+  let chartHeight = () => {
+    if (grouped) {
+      const unique = new Set()
+      for (const s of series) {
+        unique.add(s.name)
+      }
+      return 10 + unique.size * 15
+    } else {
+      return 10 + Math.pow(series.length * 2, 2)
+    }
+  }
+
   const options = {
+    area: {
+      fillTo: 'end',
+    },
     theme: {
       mode: isDark ? 'dark' : 'light',
       monochrome: {
@@ -40,14 +56,18 @@ function TimelineComponent() {
       },
     },
     chart: {
-      height: 80,
+      height: 70,
       type: 'rangeBar',
     },
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: '90%',
-        rangeBarGroupRows: true,
+        barHeight: '70%',
+        rangeBarGroupRows: grouped,
+        rangeBarOverlap: true,
+        isDumbbell: grouped,
+        hideZeroBarsWhenGrouped: true,
+        borderRadiusWhenStacked: 'last',
       },
     },
     colors: ['#0db7ed'],
@@ -59,9 +79,10 @@ function TimelineComponent() {
     },
     xaxis: {
       type: 'datetime',
+      min: new Date() - 24 * 60 * 60 * 1000,
     },
     legend: {
-      show: false,
+      show: true,
       position: 'right',
     },
     tooltip: {
@@ -80,7 +101,7 @@ function TimelineComponent() {
           <ReactApexChart
             options={options}
             series={series}
-            height={10 + series.length * 20}
+            height={chartHeight()}
             type="rangeBar"
           />
         </Card.Body>
