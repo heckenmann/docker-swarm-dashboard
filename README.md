@@ -1,5 +1,6 @@
 ![Docker](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/docker-publish.yml/badge.svg?branch=master)
 ![CodeQL](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/codeql.yml/badge.svg?branch=master)
+![Cypress](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/cypress.yml/badge.svg?branch=master)
 
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster
@@ -27,7 +28,9 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 
 ----
 ## Frameworks & Libraries
+- [ApexCharts](https://apexcharts.com/)
 - [Bootstrap](https://getbootstrap.com/)
+- [Cypress](https://www.cypress.io/)
 - [Fontawesome](https://fontawesome.com/)
 - [Gorilla](https://www.gorillatoolkit.org/)
 - [Jotai](https://jotai.org/)

@@ -1,0 +1,31 @@
+env:
+  NODE_VERSION: 20
+  WORKING_DIRECTORY: ./app-src
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install global dependencies
+        run: yarn global add concurrently
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ${{ env.WORKING_DIRECTORY }}
+          start: yarn run start
+          install-command: yarn --frozen-lockfile
+          command: yarn run cy:run
+          wait-on: 'http://localhost:3000'
+          browser: chrome, firefox, edge

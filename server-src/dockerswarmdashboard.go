@@ -29,6 +29,7 @@ func main() {
 	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
 	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
+	router.HandleFunc("/ui/timeline", timelineHandler)
 	router.HandleFunc("/ui/stacks", stacksHandler)
 	router.HandleFunc("/ui/nodes", nodesHandler)
 	router.HandleFunc("/ui/tasks", tasksHandler)
