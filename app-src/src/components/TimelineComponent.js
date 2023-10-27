@@ -39,7 +39,7 @@ function TimelineComponent() {
       for (const s of series) {
         unique.add(s.name)
       }
-      return 10 + unique.size * 15
+      return 80 + unique.size * 15
     } else {
       return 10 + Math.pow(series.length * 2, 2)
     }
