@@ -1,3 +1,5 @@
+name: Cypress
+
 env:
   NODE_VERSION: 20
   WORKING_DIRECTORY: ./app-src
