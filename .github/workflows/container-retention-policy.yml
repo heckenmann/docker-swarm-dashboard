@@ -11,11 +11,11 @@ jobs:
     name: Delete old unused container images
     runs-on: ubuntu-latest
     steps:
-      - name: Delete 'signature' containers
+      - name: Delete old containers
         uses: snok/container-retention-policy@v2
         with:
           image-names: "*"
-          dry-run: false
+          dry-run: true
           untagged-only: true
           cut-off: Two minutes ago UTC
           account-type: personal
