@@ -65,7 +65,7 @@
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "jotai": "^2.5.1",
+    "jotai": "^2.6.4",
     "jotai-location": "^0.5.1",
     "json-server": "^0.17.3",
     "prettier": "^3.0.3",
