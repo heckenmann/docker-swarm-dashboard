@@ -63,7 +63,7 @@
     "cors": "^2.8.5",
     "cypress": "^13.6.6",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "jotai": "^2.7.0",
     "jotai-location": "^0.5.4",
