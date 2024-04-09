@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/docker/docker/client"
 	"github.com/gorilla/handlers"
@@ -12,6 +13,14 @@ import (
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
+
+	handleLogsEnvValue, handleLogsSet := os.LookupEnv("DSD_HANDLE_LOGS")
+	handleLogs := true
+	if handleLogsSet {
+		handleLogs, _ = strconv.ParseBool(handleLogsEnvValue)
+		log.Println("Handle logs:", handleLogs)
+	}
+
 	router := mux.NewRouter().StrictSlash(true)
 
 	// CORS Headers
@@ -26,7 +35,9 @@ func main() {
 	router.HandleFunc("/docker/nodes/{id}", dockerNodesDetailsHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
 	router.HandleFunc("/docker/tasks/{id}", dockerTasksDetailsHandler)
-	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+	if handleLogs {
+		router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+	}
 	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
 	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
 	router.HandleFunc("/ui/timeline", timelineHandler)
