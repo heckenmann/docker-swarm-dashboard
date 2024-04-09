@@ -16,17 +16,21 @@ import { DashboardNavbar } from './components/DashboardNavbar'
 import LoadingComponent from './components/LoadingComponent'
 import { ErrorBoundary } from './common/ErrorBoundary'
 import bg from './files/docker.png'
+import { useAtomValue } from 'jotai/index'
+import { dashboardSettingsAtom } from './common/store/atoms'
 
 library.add(fab, fas, far)
 
 SyntaxHighlighter.registerLanguage('javascript', js)
 
 const App = () => {
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+
   return (
     <Provider>
       <div className="App">
         <img alt="background" id="background-image" src={bg} />
-        <DashboardNavbar />
+        <DashboardNavbar dashboardSettings={dashboardSettings} />
         <main role="main">
           <Container fluid className="overflow-auto">
             <ErrorBoundary>

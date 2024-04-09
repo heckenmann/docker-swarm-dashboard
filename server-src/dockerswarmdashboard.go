@@ -11,14 +11,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	handlingLogs = true
+)
+
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
 
 	handleLogsEnvValue, handleLogsSet := os.LookupEnv("DSD_HANDLE_LOGS")
-	handleLogs := true
 	if handleLogsSet {
-		handleLogs, _ = strconv.ParseBool(handleLogsEnvValue)
-		log.Println("Handle logs:", handleLogs)
+		handlingLogs, _ = strconv.ParseBool(handleLogsEnvValue)
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -35,9 +37,10 @@ func main() {
 	router.HandleFunc("/docker/nodes/{id}", dockerNodesDetailsHandler)
 	router.HandleFunc("/docker/tasks", dockerTasksHandler)
 	router.HandleFunc("/docker/tasks/{id}", dockerTasksDetailsHandler)
-	if handleLogs {
+	if handlingLogs {
 		router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	}
+	router.HandleFunc("/docker/dashboard-settings", dashboardSettingsHandler)
 	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
 	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
 	router.HandleFunc("/ui/timeline", timelineHandler)
