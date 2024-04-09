@@ -128,3 +128,8 @@ export const currentVariantClassesAtom = atom((get) =>
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
   get(isDarkModeAtom) ? a11yDark : a11yLight,
 )
+
+// Dashboard settings
+export const dashboardSettingsAtom = atom(async (get) => {
+  return (await fetch(get(baseUrlAtom) + 'docker/dashboard-settings')).json()
+})
