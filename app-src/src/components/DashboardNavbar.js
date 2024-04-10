@@ -28,6 +28,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import {
   aboutId,
   dashboardHId,
+  dashboardVId,
   timelineId,
   logsId,
   nodesId,
@@ -48,6 +49,9 @@ function DashboardNavbar({ dashboardSettings }) {
   const [view, updateView] = useAtom(viewAtom)
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
+
+  const defaultLayout =
+    dashboardSettings.defaultLayout === 'column' ? dashboardVId : dashboardHId
 
   if (isDarkMode) document.body.classList.add('bg-dark')
   else document.body.classList.remove('bg-dark')
@@ -91,7 +95,7 @@ function DashboardNavbar({ dashboardSettings }) {
         <Container fluid>
           <Navbar.Brand
             className="cursorPointer"
-            onClick={() => updateView({ id: dashboardHId })}
+            onClick={() => updateView({ id: defaultLayout })}
           >
             <img
               alt="logo"
@@ -107,10 +111,15 @@ function DashboardNavbar({ dashboardSettings }) {
           <Navbar.Collapse id="responsive-navbar-left">
             <Nav className="mr-auto">
               <Nav.Link
-                onClick={() => updateView({ id: dashboardHId })}
-                active={view?.id === dashboardHId}
+                onClick={() => updateView({ id: defaultLayout })}
+                active={view?.id === defaultLayout}
               >
-                <FontAwesomeIcon icon="grip" /> Dashboard
+                <FontAwesomeIcon
+                  icon={
+                    defaultLayout === dashboardHId ? 'grip' : 'grip-vertical'
+                  }
+                />
+                &nbsp;Dashboard
               </Nav.Link>
               <Nav.Link
                 onClick={() => updateView({ id: timelineId })}
