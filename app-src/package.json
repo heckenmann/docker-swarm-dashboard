@@ -2,7 +2,9 @@
   "name": "docker-swarm-dashboard",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "prop-types": "^15.8.1"
+  },
   "scripts": {
     "start-api-mock": "node mock/api/api-mock.js 3001",
     "start-dev-server": "react-scripts start",

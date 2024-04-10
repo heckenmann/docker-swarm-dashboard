@@ -29,16 +29,18 @@ import { TasksComponent } from './TasksComponent'
 import { SettingsComponent } from './SettingsComponent'
 import { DebugComponent } from './DebugComponent'
 
-export function ContentRouter() {
+export function ContentRouter({ dashboardSettings }) {
   const viewId = useAtomValue(viewAtom)
 
   let view
   switch (viewId?.id) {
     case dashboardHId:
-      view = <DashboardComponent />
+      view = <DashboardComponent dashboardSettings={dashboardSettings} />
       break
     case dashboardVId:
-      view = <DashboardVerticalComponent />
+      view = (
+        <DashboardVerticalComponent dashboardSettings={dashboardSettings} />
+      )
       break
     case timelineId:
       view = <TimelineComponent />
