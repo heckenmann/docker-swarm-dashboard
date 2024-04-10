@@ -1,5 +1,4 @@
-import { Badge, Table } from 'react-bootstrap'
-import { getStyleClassForState } from '../Helper'
+import { Table } from 'react-bootstrap'
 import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 import {
   currentVariantAtom,
@@ -10,6 +9,7 @@ import {
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
+import ServiceStatusBadge from './ServiceStatusBadge'
 
 function DashboardVerticalComponent() {
   const isDarkMode = useAtomValue(isDarkModeAtom)
@@ -52,12 +52,7 @@ function DashboardVerticalComponent() {
                   task['Status']
                 }
               >
-                <Badge
-                  bg={getStyleClassForState(task['Status']['State'])}
-                  className="w-100"
-                >
-                  {task['Status']['State']}
-                </Badge>
+                <ServiceStatusBadge serviceState={task['Status']['State']} />
               </li>
             ))}
           </ul>
