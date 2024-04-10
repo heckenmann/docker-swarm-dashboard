@@ -17,7 +17,7 @@ type dashboardSettings struct {
 var (
 	handlingLogs        = true
 	dashboardLayout     = "row"
-	hiddenServiceStates []string
+	hiddenServiceStates = make([]string, 0)
 )
 
 func init() {
@@ -36,6 +36,7 @@ func init() {
 			hiddenServiceStates = append(hiddenServiceStates, strings.ToLower(strings.TrimSpace(state)))
 		}
 	}
+
 }
 
 func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
