@@ -11,7 +11,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
 
-function DashboardVerticalComponent() {
+function DashboardVerticalComponent({ dashboardSettings }) {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const [, updateView] = useAtom(viewAtom)
@@ -52,7 +52,10 @@ function DashboardVerticalComponent() {
                   task['Status']
                 }
               >
-                <ServiceStatusBadge serviceState={task['Status']['State']} />
+                <ServiceStatusBadge
+                  serviceState={task['Status']['State']}
+                  hiddenStates={dashboardSettings.hiddenServiceStates}
+                />
               </li>
             ))}
           </ul>

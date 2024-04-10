@@ -35,7 +35,7 @@ const App = () => {
           <Container fluid className="overflow-auto">
             <ErrorBoundary>
               <Suspense fallback={<LoadingComponent />}>
-                <ContentRouter />
+                <ContentRouter dashboardSettings={dashboardSettings} />
               </Suspense>
             </ErrorBoundary>
           </Container>
