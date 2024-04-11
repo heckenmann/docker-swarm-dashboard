@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { Badge, Card, Table } from 'react-bootstrap'
+import { Card, Table } from 'react-bootstrap'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import {
@@ -9,7 +9,7 @@ import {
   tasksAtomNew,
   viewAtom,
 } from '../common/store/atoms'
-import { getStyleClassForState } from '../Helper'
+import ServiceStatusBadge from './ServiceStatusBadge'
 
 function TasksComponent() {
   const [, updateView] = useAtom(viewAtom)
@@ -27,9 +27,7 @@ function TasksComponent() {
     >
       <td>{toDefaultDateTimeString(new Date(task['Timestamp']))}</td>
       <td>
-        <Badge className="w-100" bg={getStyleClassForState(task['State'])}>
-          {task['State']}{' '}
-        </Badge>
+        <ServiceStatusBadge serviceState={task['State']} />
       </td>
       <td>{task['DesiredState']}</td>
       <td
