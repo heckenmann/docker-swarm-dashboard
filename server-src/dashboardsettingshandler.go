@@ -9,13 +9,15 @@ import (
 )
 
 type dashboardSettings struct {
-	ShowLogsButton bool   `json:"showLogsButton"`
-	DefaultLayout  string `json:"defaultLayout"`
+	ShowLogsButton      bool     `json:"showLogsButton"`
+	DefaultLayout       string   `json:"defaultLayout"`
+	HiddenServiceStates []string `json:"hiddenServiceStates"`
 }
 
 var (
-	handlingLogs    = true
-	dashboardLayout = "row"
+	handlingLogs        = true
+	dashboardLayout     = "row"
+	hiddenServiceStates = make([]string, 0)
 )
 
 func init() {
@@ -28,12 +30,21 @@ func init() {
 			dashboardLayout = "column"
 		}
 	}
+
+	if hiddenServiceStatesEnvValue, hiddenServiceStatesSet := os.LookupEnv("DSD_HIDE_SERVICE_STATES"); hiddenServiceStatesSet {
+		for _, state := range strings.Split(hiddenServiceStatesEnvValue, ",") {
+			hiddenServiceStates = append(hiddenServiceStates, strings.ToLower(strings.TrimSpace(state)))
+		}
+	}
+
 }
 
 func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 	jsonString, _ := json.Marshal(dashboardSettings{
 		handlingLogs,
-		dashboardLayout})
+		dashboardLayout,
+		hiddenServiceStates,
+	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonString)
 }
