@@ -153,3 +153,9 @@ docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 docker service create --name logger chentex/random-logger:latest 50 200
 ```
+
+### Configuration
+
+Docker Swarm Dashboard supports environment variables for configuration
+
+* `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs

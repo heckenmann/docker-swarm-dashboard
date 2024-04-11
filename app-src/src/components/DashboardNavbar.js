@@ -37,7 +37,7 @@ import {
   tasksId,
 } from '../common/navigationConstants'
 
-function DashboardNavbar() {
+function DashboardNavbar({ dashboardSettings }) {
   const [refreshInterval, toggleRefresh] = useAtom(
     refreshIntervalAtom,
     RefreshIntervalToggleReducer,
@@ -142,14 +142,16 @@ function DashboardNavbar() {
               >
                 <FontAwesomeIcon icon="building" /> Ports
               </Nav.Link>
-              <Nav.Link
-                onClick={() => updateView({ id: logsId })}
-                active={view?.id === logsId}
-                className="warning"
-              >
-                <FontAwesomeIcon icon="file-medical-alt" /> Logs
-                {readingLogsWarning}
-              </Nav.Link>
+              {dashboardSettings.showLogsButton && (
+                <Nav.Link
+                  onClick={() => updateView({ id: logsId })}
+                  active={view?.id === logsId}
+                  className="warning"
+                >
+                  <FontAwesomeIcon icon="file-medical-alt" /> Logs
+                  {readingLogsWarning}
+                </Nav.Link>
+              )}
             </Nav>
           </Navbar.Collapse>
           <Navbar.Collapse
