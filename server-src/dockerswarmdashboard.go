@@ -1,27 +1,16 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
-	"strconv"
-
 	"github.com/docker/docker/client"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-)
-
-var (
-	handlingLogs = true
+	"log"
+	"net/http"
+	"os"
 )
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
-
-	handleLogsEnvValue, handleLogsSet := os.LookupEnv("DSD_HANDLE_LOGS")
-	if handleLogsSet {
-		handlingLogs, _ = strconv.ParseBool(handleLogsEnvValue)
-	}
 
 	router := mux.NewRouter().StrictSlash(true)
 
