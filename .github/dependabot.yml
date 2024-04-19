@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "gomod"
-    directory: "/"
+    directory: "/server-src"
     open-pull-requests-limit: 25
     labels:
       - "dependencies"
