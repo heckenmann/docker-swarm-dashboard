@@ -1,0 +1,33 @@
+name: Automatic Merge
+
+on:
+  pull_request:
+    types: [opened, labeled]
+    branches: [master]
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if Depandabot and has label
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = github.event.pull_request;
+            const labels = pr.labels.map(label => label.name);
+            if (pr.user.login === 'dependabot[bot]' && labels.includes('automatic-merge')) {
+              console.log('Depandabot pull request with automatic-merge label detected.');
+              process.exit(0);
+            } else {
+              console.log('Not a Depandabot pull request with automatic-merge label. Exiting.');
+              process.exit(1);
+            }
+
+      - name: Merge Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr merge --merge --auto "$PR_URL"
