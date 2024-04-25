@@ -18,7 +18,7 @@ jobs:
         id: check_conditions
         if: github.event_name == 'pull_request' && github.event.pull_request
         run: |
-          pr=$(jq -n "$GITHUB_EVENT_PATH" | jq '.pull_request')
+          pr=$(cat "$GITHUB_EVENT_PATH" | jq -r '.pull_request')
           user=$(echo "$pr" | jq -r '.user.login')
           labels=$(echo "$pr" | jq -r '.labels[].name')
           if [ "$user" = "dependabot[bot]" ] && echo "$labels" | grep -q "automatic-merge"; then
