@@ -16,7 +16,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            if (github.event_name !== 'pull_request') {
+            if (!github.event.pull_request) {
               console.log('This action is triggered by events other than pull requests. Exiting.');
               return;
             }
