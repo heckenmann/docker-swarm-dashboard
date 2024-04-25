@@ -2,7 +2,7 @@ name: Automatic Merge
 
 on:
   pull_request:
-    types: [opened, labeled]
+    types: [opened, labeled, synchronize]
     branches: [master]
 
 jobs:
