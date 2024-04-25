@@ -5,6 +5,10 @@ on:
     types: [opened, labeled, synchronize]
     branches: [master]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -14,16 +18,18 @@ jobs:
         id: check_conditions
         if: github.event_name == 'pull_request' && github.event.pull_request
         run: |
-          const pr = github.event.pull_request;
-          const labels = pr.labels.map(label => label.name);
-          const isDepandabot = pr.user.login === 'dependabot[bot]';
-          const shouldMerge = isDepandabot && labels.includes('automatic-merge');
-
-          echo "${shouldMerge ? 'Depandabot pull request with automatic-merge label detected.' : 'Not a Depandabot pull request with automatic-merge label. Exiting.'}"
-          echo "::set-output name=should_merge::${shouldMerge}"
-          if (shouldMerge) {
-            echo "::set-env name=PR_URL::${pr.html_url}"
-          }
+          pr=$(jq -n "$GITHUB_EVENT_PATH" | jq '.pull_request')
+          user=$(echo "$pr" | jq -r '.user.login')
+          labels=$(echo "$pr" | jq -r '.labels[].name')
+          if [ "$user" = "dependabot[bot]" ] && echo "$labels" | grep -q "automatic-merge"; then
+            echo "Depandabot pull request with automatic-merge label detected."
+            echo "::set-output name=should_merge::true"
+            pr_url=$(echo "$pr" | jq -r '.html_url')
+            echo "::set-env name=PR_URL::$pr_url"
+          else
+            echo "Not a Depandabot pull request with automatic-merge label. Exiting."
+            echo "::set-output name=should_merge::false"
+          fi
 
       - name: Merge Pull Request
         if: steps.check_conditions.outputs.should_merge == 'true'
