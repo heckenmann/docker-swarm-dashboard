@@ -5,6 +5,10 @@ on:
     types: [opened, labeled, synchronize]
     branches: [master]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -12,25 +16,20 @@ jobs:
     steps:
       - name: Check if Depandabot and has label
         id: check_conditions
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            if (!github.event || !github.event.pull_request) {
-              console.log('This action is triggered by events other than pull requests. Exiting.');
-              return;
-            }
-
-            const pr = github.event.pull_request;
-            const labels = pr.labels.map(label => label.name);
-            if (pr.user.login === 'dependabot[bot]' && labels.includes('automatic-merge')) {
-              console.log('Depandabot pull request with automatic-merge label detected.');
-              console.log('::set-output name=should_merge::true');
-              console.log(`::set-env name=PR_URL::${pr.html_url}`);
-            } else {
-              console.log('Not a Depandabot pull request with automatic-merge label. Exiting.');
-              console.log('::set-output name=should_merge::false');
-            }
+        if: github.event_name == 'pull_request' && github.event.pull_request
+        run: |
+          pr=$(cat "$GITHUB_EVENT_PATH" | jq -r '.pull_request')
+          user=$(echo "$pr" | jq -r '.user.login')
+          labels=$(echo "$pr" | jq -r '.labels[].name')
+          if [ "$user" = "dependabot[bot]" ] && echo "$labels" | grep -q "automatic-merge"; then
+            echo "Depandabot pull request with automatic-merge label detected."
+            echo "::set-output name=should_merge::true"
+            pr_url=$(echo "$pr" | jq -r '.html_url')
+            echo "::set-env name=PR_URL::$pr_url"
+          else
+            echo "Not a Depandabot pull request with automatic-merge label. Exiting."
+            echo "::set-output name=should_merge::false"
+          fi
 
       - name: Merge Pull Request
         if: steps.check_conditions.outputs.should_merge == 'true'
