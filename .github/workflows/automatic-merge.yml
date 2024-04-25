@@ -16,11 +16,17 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            if (github.event_name !== 'pull_request') {
+              console.log('This action is triggered by events other than pull requests. Exiting.');
+              return;
+            }
+
             const pr = github.event.pull_request;
             const labels = pr.labels.map(label => label.name);
             if (pr.user.login === 'dependabot[bot]' && labels.includes('automatic-merge')) {
               console.log('Depandabot pull request with automatic-merge label detected.');
               console.log('::set-output name=should_merge::true');
+              console.log(`::set-env name=PR_URL::${pr.html_url}`);
             } else {
               console.log('Not a Depandabot pull request with automatic-merge label. Exiting.');
               console.log('::set-output name=should_merge::false');
@@ -30,6 +36,6 @@ jobs:
         if: steps.check_conditions.outputs.should_merge == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ env.PR_URL }}
         run: |
-          PR_URL="${{ github.event.pull_request.html_url }}"
-          gh pr merge --merge --auto "$PR_URL"
+          gh pr merge --merge --auto "${PR_URL}"
