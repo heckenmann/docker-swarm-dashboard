@@ -12,25 +12,18 @@ jobs:
     steps:
       - name: Check if Depandabot and has label
         id: check_conditions
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            if (!github.event || !github.event.pull_request) {
-              console.log('This action is triggered by events other than pull requests. Exiting.');
-              return;
-            }
+        if: github.event_name == 'pull_request' && github.event.pull_request
+        run: |
+          const pr = github.event.pull_request;
+          const labels = pr.labels.map(label => label.name);
+          const isDepandabot = pr.user.login === 'dependabot[bot]';
+          const shouldMerge = isDepandabot && labels.includes('automatic-merge');
 
-            const pr = github.event.pull_request;
-            const labels = pr.labels.map(label => label.name);
-            if (pr.user.login === 'dependabot[bot]' && labels.includes('automatic-merge')) {
-              console.log('Depandabot pull request with automatic-merge label detected.');
-              console.log('::set-output name=should_merge::true');
-              console.log(`::set-env name=PR_URL::${pr.html_url}`);
-            } else {
-              console.log('Not a Depandabot pull request with automatic-merge label. Exiting.');
-              console.log('::set-output name=should_merge::false');
-            }
+          echo "${shouldMerge ? 'Depandabot pull request with automatic-merge label detected.' : 'Not a Depandabot pull request with automatic-merge label. Exiting.'}"
+          echo "::set-output name=should_merge::${shouldMerge}"
+          if (shouldMerge) {
+            echo "::set-env name=PR_URL::${pr.html_url}"
+          }
 
       - name: Merge Pull Request
         if: steps.check_conditions.outputs.should_merge == 'true'
