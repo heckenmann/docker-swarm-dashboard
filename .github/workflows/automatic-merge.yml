@@ -1,9 +1,5 @@
-name: Automatic Merge
-
-on:
-  pull_request:
-    types: [opened, labeled, synchronize]
-    branches: [master]
+name: Dependabot auto-merge
+on: pull_request
 
 permissions:
   contents: write
@@ -12,29 +8,20 @@ permissions:
 jobs:
   merge:
     runs-on: ubuntu-latest
-
+    if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Check if Depandabot and has label
-        id: check_conditions
-        if: github.event_name == 'pull_request' && github.event.pull_request
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Check if automatic-merge label exists
+        if: contains(github.event.pull_request.labels.*.name, 'automatic-merge')
         run: |
-          pr=$(cat "$GITHUB_EVENT_PATH" | jq -r '.pull_request')
-          user=$(echo "$pr" | jq -r '.user.login')
-          labels=$(echo "$pr" | jq -r '.labels[].name')
-          if [ "$user" = "dependabot[bot]" ] && echo "$labels" | grep -q "automatic-merge"; then
-            echo "Depandabot pull request with automatic-merge label detected."
-            echo "::set-output name=should_merge::true"
-            pr_url=$(echo "$pr" | jq -r '.html_url')
-            echo "::set-env name=PR_URL::$pr_url"
-          else
-            echo "Not a Depandabot pull request with automatic-merge label. Exiting."
-            echo "::set-output name=should_merge::false"
-          fi
-
-      - name: Merge Pull Request
-        if: steps.check_conditions.outputs.should_merge == 'true'
+          echo "Automatic merge label found."
+      - name: Enable auto-merge for Dependabot PRs
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' && contains(github.event.pull_request.labels.*.name, 'automatic-merge')
+        run: gh pr merge --auto --merge "$PR_URL"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_URL: ${{ env.PR_URL }}
-        run: |
-          gh pr merge --merge --auto "${PR_URL}"
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN }}
