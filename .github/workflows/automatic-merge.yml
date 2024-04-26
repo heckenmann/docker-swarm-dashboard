@@ -20,7 +20,7 @@ jobs:
         run: |
           echo "Automatic merge label found."
       - name: Enable auto-merge for Dependabot PRs
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' && contains(github.event.pull_request.labels.*.name, 'automatic-merge')
+        if: contains(github.event.pull_request.labels.*.name, 'automatic-merge')
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
