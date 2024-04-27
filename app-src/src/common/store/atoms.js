@@ -131,5 +131,5 @@ export const currentSyntaxHighlighterStyleAtom = atom((get) =>
 
 // Dashboard settings
 export const dashboardSettingsAtom = atom(async (get) => {
-  return (await fetch(get(baseUrlAtom) + 'docker/dashboard-settings')).json()
+  return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
