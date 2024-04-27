@@ -134,8 +134,8 @@ export const dashboardSettingsAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
 
-export const dashboardSettingsDefaultLayoutViewIdAtom = atom((get) =>
-  get(dashboardSettingsAtom).defaultLayout === 'row'
+export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>
+  (await get(dashboardSettingsAtom)).defaultLayout === 'row'
     ? dashboardHId
     : dashboardVId,
 )
