@@ -4,6 +4,7 @@ import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 import {
   currentVariantAtom,
   dashboardHAtom,
+  dashboardSettingsAtom,
   isDarkModeAtom,
   tableSizeAtom,
   viewAtom,
@@ -12,11 +13,12 @@ import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
 
-function DashboardComponent({ dashboardSettings }) {
+function DashboardComponent() {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const [, updateView] = useAtom(viewAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
   const theads = []
   const trows = []

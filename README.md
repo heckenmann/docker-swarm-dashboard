@@ -17,6 +17,7 @@ Feedback would be nice.
 - [Frameworks & Libraries](#frameworks--libraries)
 - [Screenshots](#screenshots)
 - [Getting started](#getting-started)
+- [Development](#development)
 
 ----
 ## Tools
@@ -58,17 +59,17 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 |latest|Latest stable release|ghcr.io/heckenmann/docker-swarm-dashboard:latest|
 |master|Current unstable master-build (not well tested)|ghcr.io/heckenmann/docker-swarm-dashboard:master|
 
+### Configuration
+Docker Swarm Dashboard supports environment variables for configuration
+
+* `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
+* `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
+* `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
+
 ### Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
 ```
-
-----
-### Local Build
-```
-docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .
-```
-
 ----
 ### docker-compose.yml
 ```
@@ -154,10 +155,27 @@ docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 docker service create --name logger chentex/random-logger:latest 50 200
 ```
 
-----
-### Configuration
-Docker Swarm Dashboard supports environment variables for configuration
+## Development
+### Local Build
+```
+docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .
+```
 
-* `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
-* `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
-* `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
+### Run api-mock-server
+```
+# from app-src
+yarn run start-api-mock
+```
+### Run UI
+```
+# from app-src
+yarn run start-dev-server
+```
+When you run the UI with the api-mock-server, you have to open the ui with "base"-param (API-URL):
+http://localhost:3000#base="http%3A%2F%2Flocalhost%3A3001%2F"
+
+### Run UI-tests
+```
+# from app-src
+yarn run cy:run
+```

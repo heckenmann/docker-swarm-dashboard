@@ -4,7 +4,7 @@ import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
 import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
-import { dashboardHId } from '../navigationConstants'
+import { dashboardHId, dashboardVId } from '../navigationConstants'
 
 // Initiale Werte
 const hash = window.location.hash
@@ -28,7 +28,7 @@ export const refreshIntervalAtom = atomWithReducer(
   null,
   RefreshIntervalToggleReducer,
 )
-export const viewAtom = atomWithHash('view', { id: dashboardHId })
+export const viewAtom = atomWithHash('view', {})
 export const messagesAtom = atomWithReducer([], MessageReducer)
 export const tableSizeAtom = atomWithHash('tablesize', 'sm')
 
@@ -131,5 +131,11 @@ export const currentSyntaxHighlighterStyleAtom = atom((get) =>
 
 // Dashboard settings
 export const dashboardSettingsAtom = atom(async (get) => {
-  return (await fetch(get(baseUrlAtom) + 'docker/dashboard-settings')).json()
+  return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
+
+export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>
+  (await get(dashboardSettingsAtom)).defaultLayout === 'row'
+    ? dashboardHId
+    : dashboardVId,
+)
