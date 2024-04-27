@@ -161,12 +161,12 @@ docker service create --name logger chentex/random-logger:latest 50 200
 docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .
 ```
 
-#### Run api-mock-server
+### Run api-mock-server
 ```
 # from app-src
 yarn run start-api-mock
 ```
-#### Run UI
+### Run UI
 ```
 # from app-src
 yarn run start-dev-server
@@ -174,7 +174,7 @@ yarn run start-dev-server
 When you run the UI with the api-mock-server, you have to open the ui with "base"-param (API-URL):
 http://localhost:3000#base="http%3A%2F%2Flocalhost%3A3001%2F"
 
-#### Run UI-tests
+### Run UI-tests
 ```
 # from app-src
 yarn run cy:run
