@@ -2,11 +2,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
 import { Button, ButtonGroup } from 'react-bootstrap'
 import { dashboardHId, dashboardVId } from '../common/navigationConstants'
-import { viewAtom } from '../common/store/atoms'
+import {
+  dashboardSettingsDefaultLayoutViewIdAtom,
+  viewAtom,
+} from '../common/store/atoms'
+import { useAtomValue } from 'jotai/index'
 
 function DashboardSettingsComponent() {
   const [view, updateViewId] = useAtom(viewAtom)
-  const vertical = view?.id == dashboardVId
+  const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
+  const vertical =
+    view?.id == dashboardVId || (!view.id && defaultLayout == dashboardVId)
   return (
     <>
       <ButtonGroup>

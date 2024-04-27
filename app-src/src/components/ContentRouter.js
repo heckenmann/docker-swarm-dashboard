@@ -14,7 +14,10 @@ import {
   tasksId,
   timelineId,
 } from '../common/navigationConstants'
-import { viewAtom } from '../common/store/atoms'
+import {
+  dashboardSettingsDefaultLayoutViewIdAtom,
+  viewAtom,
+} from '../common/store/atoms'
 import { AboutComponent } from './AboutComponent'
 import { DashboardComponent } from './DashboardComponent'
 import { DashboardVerticalComponent } from './DashboardVerticalComponent'
@@ -29,18 +32,24 @@ import { TasksComponent } from './TasksComponent'
 import { SettingsComponent } from './SettingsComponent'
 import { DebugComponent } from './DebugComponent'
 
-export function ContentRouter({ dashboardSettings }) {
-  const viewId = useAtomValue(viewAtom)
+export function ContentRouter() {
+  const getView = useAtomValue(viewAtom)
+  const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
+
+  let idToRender = getView.id
+
+  // Default Dashboard
+  if (!idToRender) {
+    idToRender = defaultLayout
+  }
 
   let view
-  switch (viewId?.id) {
+  switch (idToRender) {
     case dashboardHId:
-      view = <DashboardComponent dashboardSettings={dashboardSettings} />
+      view = <DashboardComponent />
       break
     case dashboardVId:
-      view = (
-        <DashboardVerticalComponent dashboardSettings={dashboardSettings} />
-      )
+      view = <DashboardVerticalComponent />
       break
     case timelineId:
       view = <TimelineComponent />
