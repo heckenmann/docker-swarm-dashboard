@@ -16,6 +16,8 @@ import {
 } from '../common/store/reducers'
 import {
   currentVariantAtom,
+  dashboardSettingsAtom,
+  dashboardSettingsDefaultLayoutViewIdAtom,
   isDarkModeAtom,
   logsConfigAtom,
   logsShowLogsAtom,
@@ -28,17 +30,16 @@ import { useAtom, useAtomValue } from 'jotai'
 import {
   aboutId,
   dashboardHId,
-  dashboardVId,
-  timelineId,
   logsId,
   nodesId,
   portsId,
   settingsId,
   stacksId,
   tasksId,
+  timelineId,
 } from '../common/navigationConstants'
 
-function DashboardNavbar({ dashboardSettings }) {
+function DashboardNavbar() {
   const [refreshInterval, toggleRefresh] = useAtom(
     refreshIntervalAtom,
     RefreshIntervalToggleReducer,
@@ -49,9 +50,8 @@ function DashboardNavbar({ dashboardSettings }) {
   const [view, updateView] = useAtom(viewAtom)
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
-
-  const defaultLayout =
-    dashboardSettings.defaultLayout === 'column' ? dashboardVId : dashboardHId
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
   if (isDarkMode) document.body.classList.add('bg-dark')
   else document.body.classList.remove('bg-dark')
