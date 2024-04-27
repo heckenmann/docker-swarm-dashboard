@@ -29,7 +29,7 @@ func main() {
 	if handlingLogs {
 		router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	}
-	router.HandleFunc("/docker/dashboard-settings", dashboardSettingsHandler)
+	router.HandleFunc("/ui/dashboard-settings", dashboardSettingsHandler)
 	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
 	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
 	router.HandleFunc("/ui/timeline", timelineHandler)
