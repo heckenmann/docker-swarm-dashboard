@@ -44,7 +44,7 @@ function DashboardVerticalComponent() {
       <td className="align-middle" key={'td' + node['ID'] + service['ID']}>
         {service['Tasks'][node['ID']] && (
           <ul>
-            {service['Tasks'][node['ID']].map((task) => (
+            {service['Tasks'][node['ID']].map((task, id) => (
               <li
                 key={
                   'li' +
@@ -55,7 +55,11 @@ function DashboardVerticalComponent() {
                 }
               >
                 <ServiceStatusBadge
+                  id={id}
                   serviceState={task['Status']['State']}
+                  createdAt={task['CreatedAt']}
+                  updatedAt={task['UpdatedAt']}
+                  serviceError={task['Status']['Err']}
                   hiddenStates={dashboardSettings.hiddenServiceStates}
                 />
               </li>
