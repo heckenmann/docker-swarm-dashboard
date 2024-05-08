@@ -4,6 +4,7 @@ import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  dashboardSettingsAtom,
   stacksAtom,
   viewAtom,
 } from '../common/store/atoms'
@@ -12,6 +13,7 @@ import { servicesDetailId } from '../common/navigationConstants'
 function StacksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
 
   let stacks
   const stacksData = useAtomValue(stacksAtom)
@@ -28,8 +30,20 @@ function StacksComponent() {
           {service['ShortName'] ? service['ShortName'] : service['ServiceName']}
         </td>
         <td>{service['Replication']}</td>
-        <td>{toDefaultDateTimeString(new Date(service['Created']))}</td>
-        <td>{toDefaultDateTimeString(new Date(service['Updated']))}</td>
+        <td>
+          {toDefaultDateTimeString(
+            new Date(service['Created']),
+            dashBoardSettings.locale,
+            dashBoardSettings.timeZone,
+          )}
+        </td>
+        <td>
+          {toDefaultDateTimeString(
+            new Date(service['Updated']),
+            dashBoardSettings.locale,
+            dashBoardSettings.timeZone,
+          )}
+        </td>
       </tr>
     ))
   }
