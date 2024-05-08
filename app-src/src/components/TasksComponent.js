@@ -5,6 +5,7 @@ import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  dashboardSettingsAtom,
   tableSizeAtom,
   tasksAtomNew,
   viewAtom,
@@ -16,6 +17,7 @@ function TasksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+  const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
 
   let rows
 
@@ -25,7 +27,13 @@ function TasksComponent() {
       key={'tasksTable-' + task['ID']}
       className={task['State'] === 'failed' ? 'table-danger' : null}
     >
-      <td>{toDefaultDateTimeString(new Date(task['Timestamp']))}</td>
+      <td>
+        {toDefaultDateTimeString(
+          new Date(task['Timestamp']),
+          dashBoardSettings.locale,
+          dashBoardSettings.timeZone,
+        )}
+      </td>
       <td>
         <ServiceStatusBadge id={id} serviceState={task['State']} />
       </td>

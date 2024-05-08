@@ -65,6 +65,8 @@ Docker Swarm Dashboard supports environment variables for configuration
 * `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
 * `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
 * `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
+* `LOCALE`: Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag.
+* `TZ`: [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in.
 
 ### Pull Image from ghcr.io
 ```
