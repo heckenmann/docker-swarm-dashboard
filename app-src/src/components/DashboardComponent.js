@@ -6,12 +6,15 @@ import {
   dashboardHAtom,
   dashboardSettingsAtom,
   isDarkModeAtom,
+  serviceNameFilterAtom,
+  stackNameFilterAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
+import { serviceFilter } from '../common/utils'
 
 function DashboardComponent() {
   const isDarkMode = useAtomValue(isDarkModeAtom)
@@ -19,6 +22,8 @@ function DashboardComponent() {
   const [, updateView] = useAtom(viewAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
+  const stackNameFilter = useAtomValue(stackNameFilterAtom)
 
   const theads = []
   const trows = []
@@ -28,48 +33,58 @@ function DashboardComponent() {
   const nodes = dashboardhData['Nodes']
 
   // Columns
-  services.forEach((service) => {
-    theads.push(
-      <th
-        key={'dashboardTable-' + service['ID']}
-        className="dataCol cursorPointer"
-        onClick={() => updateView({ id: servicesDetailId, detail: service.ID })}
-      >
-        <div className="rotated">{service['Name']}</div>
-      </th>,
+  services
+    .filter((service) =>
+      serviceFilter(service, serviceNameFilter, stackNameFilter),
     )
-  })
+    .forEach((service) => {
+      theads.push(
+        <th
+          key={'dashboardTable-' + service['ID']}
+          className="dataCol cursorPointer"
+          onClick={() =>
+            updateView({ id: servicesDetailId, detail: service.ID })
+          }
+        >
+          <div className="rotated">{service['Name']}</div>
+        </th>,
+      )
+    })
   theads.push(<th key="dashboardTable-empty"></th>)
 
   nodes.forEach((node) => {
-    const dataCols = services.map((service) => (
-      <td className="align-middle" key={'td' + node['ID'] + service['ID']}>
-        {node['Tasks'][service['ID']] && (
-          <ul>
-            {node['Tasks'][service['ID']].map((task, id) => (
-              <li
-                key={
-                  'li' +
-                  task['NodeID'] +
-                  task['ServiceID'] +
-                  task['ID'] +
-                  task['Status']
-                }
-              >
-                <ServiceStatusBadge
-                  id={id}
-                  serviceState={task['Status']['State']}
-                  createdAt={task['CreatedAt']}
-                  updatedAt={task['UpdatedAt']}
-                  serviceError={task['Status']['Err']}
-                  hiddenStates={dashboardSettings.hiddenServiceStates}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-      </td>
-    ))
+    const dataCols = services
+      .filter((service) =>
+        serviceFilter(service, serviceNameFilter, stackNameFilter),
+      )
+      .map((service) => (
+        <td className="align-middle" key={'td' + node['ID'] + service['ID']}>
+          {node['Tasks'][service['ID']] && (
+            <ul>
+              {node['Tasks'][service['ID']].map((task, id) => (
+                <li
+                  key={
+                    'li' +
+                    task['NodeID'] +
+                    task['ServiceID'] +
+                    task['ID'] +
+                    task['Status']
+                  }
+                >
+                  <ServiceStatusBadge
+                    id={id}
+                    serviceState={task['Status']['State']}
+                    createdAt={task['CreatedAt']}
+                    updatedAt={task['UpdatedAt']}
+                    serviceError={task['Status']['Err']}
+                    hiddenStates={dashboardSettings.hiddenServiceStates}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </td>
+      ))
 
     trows.push(
       <tr

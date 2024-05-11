@@ -31,6 +31,8 @@ export const refreshIntervalAtom = atomWithReducer(
 export const viewAtom = atomWithHash('view', {})
 export const messagesAtom = atomWithReducer([], MessageReducer)
 export const tableSizeAtom = atomWithHash('tablesize', 'sm')
+export const serviceNameFilterAtom = atomWithHash('serviceNameFilter', '')
+export const stackNameFilterAtom = atomWithHash('stackNameFilter', '')
 
 // New API
 export const dashboardHAtom = atom(async (get) => {

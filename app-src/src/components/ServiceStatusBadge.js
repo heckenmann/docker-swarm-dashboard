@@ -2,6 +2,8 @@ import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { getStyleClassForState } from '../Helper'
 import PropTypes from 'prop-types'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
+import { useAtomValue } from 'jotai'
+import { dashboardSettingsAtom } from '../common/store/atoms'
 
 const ServiceStatusBadge = ({
   id,
@@ -14,6 +16,7 @@ const ServiceStatusBadge = ({
   if (hiddenStates.includes(serviceState)) {
     return
   }
+  const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
   if (createdAt || updatedAt || serviceError) {
     return (
       <OverlayTrigger
@@ -23,13 +26,25 @@ const ServiceStatusBadge = ({
           <Tooltip id={`tooltip-task-status-sate-${id}`}>
             {createdAt && (
               <span>
-                Created at: {toDefaultDateTimeString(new Date(createdAt))}
+                Created at:{' '}
+                {toDefaultDateTimeString(
+                  new Date(createdAt),
+                  dashBoardSettings.locale,
+                  dashBoardSettings.timeZone,
+                )}
+                <br />
+                {createdAt}
                 <br />
               </span>
             )}
             {updatedAt && (
               <span>
-                Updated at: {toDefaultDateTimeString(new Date(updatedAt))}
+                Updated at:{' '}
+                {toDefaultDateTimeString(
+                  new Date(updatedAt),
+                  dashBoardSettings.locale,
+                  dashBoardSettings.timeZone,
+                )}
                 <br />
               </span>
             )}
