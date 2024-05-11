@@ -20,14 +20,14 @@ function TasksComponent() {
   let rows
 
   const tasks = useAtomValue(tasksAtomNew)
-  rows = tasks.map((task) => (
+  rows = tasks.map((task, id) => (
     <tr
       key={'tasksTable-' + task['ID']}
       className={task['State'] === 'failed' ? 'table-danger' : null}
     >
       <td>{toDefaultDateTimeString(new Date(task['Timestamp']))}</td>
       <td>
-        <ServiceStatusBadge serviceState={task['State']} />
+        <ServiceStatusBadge id={id} serviceState={task['State']} />
       </td>
       <td>{task['DesiredState']}</td>
       <td
