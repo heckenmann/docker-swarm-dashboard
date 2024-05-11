@@ -46,7 +46,7 @@ function DashboardComponent() {
       <td className="align-middle" key={'td' + node['ID'] + service['ID']}>
         {node['Tasks'][service['ID']] && (
           <ul>
-            {node['Tasks'][service['ID']].map((task) => (
+            {node['Tasks'][service['ID']].map((task, id) => (
               <li
                 key={
                   'li' +
@@ -57,7 +57,11 @@ function DashboardComponent() {
                 }
               >
                 <ServiceStatusBadge
+                  id={id}
                   serviceState={task['Status']['State']}
+                  createdAt={task['CreatedAt']}
+                  updatedAt={task['UpdatedAt']}
+                  serviceError={task['Status']['Err']}
                   hiddenStates={dashboardSettings.hiddenServiceStates}
                 />
               </li>
