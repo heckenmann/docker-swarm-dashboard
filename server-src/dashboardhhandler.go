@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types/swarm"
 	"net/http"
 	"sort"
+
+	"github.com/docker/docker/api/types/swarm"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -30,8 +31,9 @@ type NodeLine struct {
 }
 
 type SimpleService struct {
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	Stack string
 }
 
 // Serves datamodel for horizontal dashboard.
@@ -45,7 +47,7 @@ func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 	// Table Header
 	//result.Headlines = append(result.Headlines, "Services", "Role", "State", "Availability", "IP")
 	for _, service := range services {
-		result.Services = append(result.Services, SimpleService{ID: service.ID, Name: service.Spec.Name})
+		result.Services = append(result.Services, SimpleService{ID: service.ID, Name: service.Spec.Name, Stack: service.Spec.Labels["com.docker.stack.namespace"]})
 	}
 
 	for _, node := range nodes {
