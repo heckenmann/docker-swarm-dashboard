@@ -12,12 +12,16 @@ type dashboardSettings struct {
 	ShowLogsButton      bool     `json:"showLogsButton"`
 	DefaultLayout       string   `json:"defaultLayout"`
 	HiddenServiceStates []string `json:"hiddenServiceStates"`
+	TimeZone            *string  `json:"timeZone"`
+	Locale              *string  `json:"locale"`
 }
 
 var (
 	handlingLogs        = true
 	dashboardLayout     = "row"
 	hiddenServiceStates = make([]string, 0)
+	timeZone            = new(string)
+	locale              = new(string)
 )
 
 func init() {
@@ -37,6 +41,14 @@ func init() {
 		}
 	}
 
+	if timeZoneEnvValue, timeZoneSet := os.LookupEnv("TZ"); timeZoneSet {
+		timeZone = &timeZoneEnvValue
+	}
+
+	if localeEnvValue, localeSet := os.LookupEnv("LOCALE"); localeSet {
+		locale = &localeEnvValue
+	}
+
 }
 
 func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
@@ -44,6 +56,8 @@ func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 		handlingLogs,
 		dashboardLayout,
 		hiddenServiceStates,
+		timeZone,
+		locale,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonString)

@@ -8,6 +8,9 @@ const DEFAULT_DATE_TIME_FORMAT = {
   second: '2-digit',
 }
 
-export const toDefaultDateTimeString = (date) => {
-  return date.toLocaleString(undefined, DEFAULT_DATE_TIME_FORMAT)
+export const toDefaultDateTimeString = (date, locale, timeZone) => {
+  return date.toLocaleString(
+    locale ? locale : undefined,
+    timeZone ? { timeZone: timeZone } : DEFAULT_DATE_TIME_FORMAT,
+  )
 }
