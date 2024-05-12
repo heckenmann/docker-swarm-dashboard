@@ -1,10 +1,7 @@
 describe('UI Tests', () => {})
 
 export function visitBaseUrlAndTest(fn) {
-  const baseUrl =
-    'http://localhost:3000#base="http%3A%2F%2Flocalhost%3A3001%2F"'
-  cy.viewport(1920, 1080)
-  cy.visit(baseUrl)
+  cy.visit('#base="http%3A%2F%2Flocalhost%3A3001%2F"')
 
   fn()
 
