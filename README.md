@@ -19,7 +19,9 @@ Feedback would be nice.
 - [Getting started](#getting-started)
 - [Development](#development)
 
-----
+![whales](screenshots/whales.jpg)
+
+
 ## Tools
 Special thanks to JetBrains for supporting this project with <a href="https://www.jetbrains.com/community/opensource/#support" target="_blank">Open Source development licenses</a>.
 
@@ -27,7 +29,7 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
                 <a href="https://www.jetbrains.com/go/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/GoLand_icon.svg" height="80px" alt="GoLand logo." /></a>
                 <a href="https://www.jetbrains.com/webstorm/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.svg" height="80px" alt="WebStorm logo." /></a>
 
-----
+
 ## Frameworks & Libraries
 - [ApexCharts](https://apexcharts.com/)
 - [Bootstrap](https://getbootstrap.com/)
@@ -37,7 +39,7 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 - [Jotai](https://jotai.org/)
 - [React](https://reactjs.org/)
 
-----
+
 ## Screenshots
 
 ![Horizontal Dashboard](screenshots/dashboard_h.jpeg)
@@ -50,7 +52,7 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 ![Logs Form](screenshots/logs.jpeg)
 ![Logs](screenshots/logs-f.jpeg)
 
-----
+
 ## Getting started
 ### Tags
 |Tag|Description|Image|
@@ -62,6 +64,7 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 ### Configuration
 Docker Swarm Dashboard supports environment variables for configuration
 
+* `DSD_HTTP_PORT`: HTTP port within the container. Usually does not need to be changed. Default is 8080.
 * `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
 * `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
 * `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
@@ -72,7 +75,7 @@ Docker Swarm Dashboard supports environment variables for configuration
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
 ```
-----
+
 ### docker-compose.yml
 ```
 ---
@@ -93,7 +96,7 @@ services:
     environment:
       DOCKER_API_VERSION: 1.35
 ```
-----
+
 ### docker-compose.yml with traefik and basic auth
 This configuration sets a password for access. It is importand to configure ssl in traefik for better security.
 
@@ -144,14 +147,14 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 ```
 
-----
+
 ### Deploy on docker-swarm
 From the directory with docker-compose.yml run:
 ```
 docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 
-----
+
 ### logs-generator (for testing)
 ```
 docker service create --name logger chentex/random-logger:latest 50 200

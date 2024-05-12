@@ -9,6 +9,10 @@ import (
 	"os"
 )
 
+var (
+	httpPort = getHTTPPort()
+)
+
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
 
@@ -39,12 +43,11 @@ func main() {
 	router.HandleFunc("/ui/ports", portsHandler)
 	router.HandleFunc("/ui/logs/services", logsServicesHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
-	log.Println("Ready! Wating for connections...")
+	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
 
 	corsRouter := handlers.CORS(headersOk, originsOk, methodsOk)(router)
 	loggedRouter := handlers.LoggingHandler(os.Stdout, corsRouter)
-	log.Fatal(http.ListenAndServe(":8080", handlers.CompressHandler(loggedRouter)))
-
+	log.Fatal(http.ListenAndServe(":"+httpPort, handlers.CompressHandler(loggedRouter)))
 }
 
 // Creates a client
@@ -54,4 +57,14 @@ func getCli() *client.Client {
 		panic(err)
 	}
 	return cli
+}
+
+// getHTTPPort returns the configured HTTP port from the environment variable DSD_HTTP_PORT,
+// or defaults to 8080 if the variable is not set.
+func getHTTPPort() string {
+	port := os.Getenv("DSD_HTTP_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	return port
 }
