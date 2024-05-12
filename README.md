@@ -64,6 +64,7 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 ### Configuration
 Docker Swarm Dashboard supports environment variables for configuration
 
+* `DSD_HTTP_PORT`: HTTP port within the container. Usually does not need to be changed. Default is 8080.
 * `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
 * `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
 * `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
