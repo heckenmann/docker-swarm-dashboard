@@ -116,3 +116,9 @@ table ul li {
 .rotating {
     animation: rotating 2s linear infinite;
 }
+
+.service-status-tooltip {
+    .tooltip-inner {
+        min-width: 250px;
+    }
+}
