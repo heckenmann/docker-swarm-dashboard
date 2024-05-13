@@ -23,7 +23,10 @@ const ServiceStatusBadge = ({
         placement="top"
         delay={100}
         overlay={
-          <Tooltip id={`tooltip-task-status-sate-${id}`}>
+          <Tooltip
+            id={`tooltip-task-status-sate-${id}`}
+            className="service-status-tooltip"
+          >
             {createdAt && (
               <span>
                 Created at:{' '}
