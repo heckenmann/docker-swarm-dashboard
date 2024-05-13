@@ -33,8 +33,6 @@ const ServiceStatusBadge = ({
                   dashBoardSettings.timeZone,
                 )}
                 <br />
-                {createdAt}
-                <br />
               </span>
             )}
             {updatedAt && (
