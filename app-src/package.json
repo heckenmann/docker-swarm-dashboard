@@ -58,7 +58,7 @@
     "@fortawesome/react-fontawesome": "^0.2.1",
     "@types/react": "^18.3.2",
     "apexcharts": "^3.49.1",
-    "axios": "^1.6.8",
+    "axios": "^1.7.1",
     "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
     "cypress": "^13.9.0",
