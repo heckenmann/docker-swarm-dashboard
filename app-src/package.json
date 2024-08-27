@@ -61,7 +61,7 @@
     "axios": "^1.7.5",
     "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
-    "cypress": "^13.13.3",
+    "cypress": "^13.14.0",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
