@@ -5,47 +5,61 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   portsAtom,
+  serviceNameFilterAtom,
+  stackNameFilterAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
 import { servicesDetailId } from '../common/navigationConstants'
+import { FilterComponent } from './FilterComponent'
 
 function PortsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const [, updateView] = useAtom(viewAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+  const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
+  const stackNameFilter = useAtomValue(stackNameFilterAtom)
 
   let renderedServices
 
   const ports = useAtomValue(portsAtom)
-  renderedServices = ports.map((p) => {
-    return (
-      <tr key={p.PublishedPort}>
-        <td>{p.PublishedPort}</td>
-        <td>
-          <FontAwesomeIcon icon="arrow-right" />
-        </td>
-        <td>{p.TargetPort}</td>
-        <td>{p.Protocol}</td>
-        <td>{p.PublishMode}</td>
-        <td
-          className="cursorPointer"
-          onClick={() =>
-            updateView({
-              id: servicesDetailId,
-              detail: p.ServiceID,
-            })
-          }
-        >
-          {p.ServiceName}
-        </td>
-      </tr>
+  renderedServices = ports
+    .filter((p) =>
+      serviceNameFilter ? p.ServiceName.includes(serviceNameFilter) : true,
     )
-  })
+    .filter((p) => (stackNameFilter ? p.Stack.includes(stackNameFilter) : true))
+    .map((p) => {
+      return (
+        <tr key={p.PublishedPort}>
+          <td>{p.PublishedPort}</td>
+          <td>
+            <FontAwesomeIcon icon="arrow-right" />
+          </td>
+          <td>{p.TargetPort}</td>
+          <td>{p.Protocol}</td>
+          <td>{p.PublishMode}</td>
+          <td
+            className="cursorPointer"
+            onClick={() =>
+              updateView({
+                id: servicesDetailId,
+                detail: p.ServiceID,
+              })
+            }
+          >
+            {p.ServiceName}
+          </td>
+          <td>{p.Stack}</td>
+        </tr>
+      )
+    })
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
+      <Card.Header>
+        <FilterComponent />
+      </Card.Header>
       <Card.Body>
         <Table
           id="portsTable"
@@ -62,6 +76,7 @@ function PortsComponent() {
               <th id="protocol">Protocol</th>
               <th id="publishMode">PublishMode</th>
               <th id="serviceName">ServiceName</th>
+              <th id="stack">Stack</th>
             </tr>
           </thead>
           <tbody>{renderedServices}</tbody>
