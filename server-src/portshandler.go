@@ -15,6 +15,7 @@ type PortsHandlerSimplePort struct {
 	PublishMode   string
 	ServiceName   string
 	ServiceID     string
+	Stack         string
 }
 
 func portsHandler(w http.ResponseWriter, _ *http.Request) {
@@ -33,6 +34,7 @@ func portsHandler(w http.ResponseWriter, _ *http.Request) {
 					PublishMode:   string(port.PublishMode),
 					ServiceName:   service.Spec.Name,
 					ServiceID:     service.ID,
+					Stack:         service.Spec.Labels["com.docker.stack.namespace"],
 				}
 				resultList = append(resultList, simplePort)
 			}
