@@ -20,6 +20,8 @@ type TasksHandlerSimpleTask struct {
 	NodeID       string
 	Message      string
 	Err          string
+	Stack        string
+	Slot         int
 }
 
 func tasksHandler(w http.ResponseWriter, _ *http.Request) {
@@ -40,6 +42,7 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 			NodeID:  task.NodeID,
 			Message: task.Status.Message,
 			Err:     task.Status.Err,
+			Slot:    task.Slot,
 		}
 		// Find Service for Task
 		servicesFilter := filters.NewArgs()
@@ -47,6 +50,7 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 		services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{Filters: servicesFilter})
 		if len(services) > 0 {
 			simpleTask.ServiceName = services[0].Spec.Name
+			simpleTask.Stack = services[0].Spec.Labels["com.docker.stack.namespace"]
 		}
 		// Find Node for Task
 		nodesFilter := filters.NewArgs()
