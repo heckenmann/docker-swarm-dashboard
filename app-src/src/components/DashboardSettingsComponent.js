@@ -19,9 +19,9 @@ function DashboardSettingsComponent() {
     view?.id == dashboardVId || (!view.id && defaultLayout == dashboardVId)
   return (
     <>
-      <Form className="mb-2" data-bs-theme={variant}>
-        <Row className="align-items-start">
-          <Col xs="auto">
+      <Row className="align-items-start">
+        <Col xs="auto">
+          <Form className="mb-2" data-bs-theme={variant}>
             <ButtonGroup>
               <Button
                 variant={`${vertical ? 'outline-' : ''}secondary`}
@@ -36,12 +36,12 @@ function DashboardSettingsComponent() {
                 <FontAwesomeIcon icon="grip-vertical" />
               </Button>
             </ButtonGroup>
-          </Col>
-          <Col xs={7}>
-            <FilterComponent />
-          </Col>
-        </Row>
-      </Form>
+          </Form>
+        </Col>
+        <Col xs={7}>
+          <FilterComponent />
+        </Col>
+      </Row>
     </>
   )
 }
