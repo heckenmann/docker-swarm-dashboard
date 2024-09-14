@@ -19,6 +19,7 @@ type TimelineHandlerSimpleTask struct {
 	Slot             int
 	ServiceName      string
 	ServiceID        string
+	Stack            string
 }
 
 func timelineHandler(w http.ResponseWriter, _ *http.Request) {
@@ -49,6 +50,7 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 		services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{Filters: servicesFilter})
 		if len(services) > 0 {
 			simpleTask.ServiceName = services[0].Spec.Name
+			simpleTask.Stack = services[0].Spec.Labels["com.docker.stack.namespace"]
 		}
 
 		resultList = append(resultList, simpleTask)

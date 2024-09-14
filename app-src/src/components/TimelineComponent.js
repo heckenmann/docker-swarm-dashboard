@@ -5,35 +5,47 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   isDarkModeAtom,
+  serviceNameFilterAtom,
+  stackNameFilterAtom,
   timelineAtom,
 } from '../common/store/atoms'
+import { FilterComponent } from './FilterComponent'
 
 function TimelineComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const isDark = useAtomValue(isDarkModeAtom)
+  const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
+  const stackNameFilter = useAtomValue(stackNameFilterAtom)
 
   const tasks = useAtomValue(timelineAtom)
   const grouped = true
 
-  const series = tasks.map((task) => {
-    return {
-      name: task.ServiceName + ' ' + task.Slot + ' (' + task.ID + ')',
-      data: [
-        {
-          x: task.ServiceName + '_' + task.Slot,
-          y: [
-            new Date(task.CreatedTimestamp).getTime(),
-            task.StoppedTimestamp == ''
-              ? new Date().getTime()
-              : new Date(task.StoppedTimestamp).getTime(),
-          ],
-        },
-      ],
-    }
-  })
+  const series = tasks
+    .filter((task) =>
+      serviceNameFilter ? task.ServiceName.includes(serviceNameFilter) : true,
+    )
+    .filter((task) =>
+      stackNameFilter ? task.Stack.includes(stackNameFilter) : true,
+    )
+    .map((task) => {
+      return {
+        name: task.ServiceName + ' ' + task.Slot + ' (' + task.ID + ')',
+        data: [
+          {
+            x: task.ServiceName + '_' + task.Slot,
+            y: [
+              new Date(task.CreatedTimestamp).getTime(),
+              task.StoppedTimestamp == ''
+                ? new Date().getTime()
+                : new Date(task.StoppedTimestamp).getTime(),
+            ],
+          },
+        ],
+      }
+    })
 
-  let chartHeight = () => {
+  const chartHeight = () => {
     if (grouped) {
       const unique = new Set()
       for (const s of series) {
@@ -97,6 +109,9 @@ function TimelineComponent() {
   return (
     <>
       <Card bg={currentVariant} className={currentVariantClasses}>
+        <Card.Header>
+          <FilterComponent />
+        </Card.Header>
         <Card.Body>
           <ReactApexChart
             options={options}

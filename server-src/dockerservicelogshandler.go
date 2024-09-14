@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"context"
+	"github.com/docker/docker/api/types/container"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/docker/docker/api/types"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
@@ -48,7 +48,7 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	// docker-client context
 	ctx, _ := context.WithCancel(context.Background())
 	cli := getCli()
-	logReader, _ := cli.ServiceLogs(ctx, paramServiceId, types.ContainerLogsOptions{
+	logReader, _ := cli.ServiceLogs(ctx, paramServiceId, container.LogsOptions{
 		Tail:       paramTail,
 		Since:      paramSince,
 		Follow:     paramFollow,
