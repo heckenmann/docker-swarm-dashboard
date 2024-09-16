@@ -20,7 +20,7 @@ function DashboardSettingsComponent() {
   const variant = useAtomValue(currentVariantAtom)
 
   const vertical =
-    view?.id == dashboardVId || (!view.id && defaultLayout == dashboardVId)
+    view?.id === dashboardVId || (!view?.id && defaultLayout === dashboardVId)
   return (
     <>
       <Row className="align-items-start">

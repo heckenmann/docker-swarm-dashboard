@@ -64,8 +64,11 @@ function DashboardNavbar() {
     updateView({ ...view, timestamp: new Date() })
   }
 
+  /**
+   * Toggles the refresh interval and notifies the user with a message.
+   */
   const refreshAndNotifyUser = () => {
-    if (refreshInterval != undefined) toggleRefresh()
+    if (refreshInterval ? true : false) toggleRefresh()
     messageReducer({ type: 'add', value: 'Refresh ...' })
     reloadData()
   }
@@ -187,9 +190,7 @@ function DashboardNavbar() {
             </Nav>
             <ButtonGroup>
               <Button
-                variant={
-                  refreshInterval == undefined ? 'outline-secondary' : 'warning'
-                }
+                variant={!refreshInterval ? 'outline-secondary' : 'warning'}
                 onClick={refreshAndNotifyUser}
               >
                 <FontAwesomeIcon icon="sync" />

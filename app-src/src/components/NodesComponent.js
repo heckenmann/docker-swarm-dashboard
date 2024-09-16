@@ -20,10 +20,7 @@ function NodesComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const [, updateView] = useAtom(viewAtom)
   const tableSize = useAtomValue(tableSizeAtom)
-  const theads = []
   const trows = []
-
-  theads.push(<th key="serviceTable-empty"></th>)
 
   const nodes = useAtomValue(nodesAtomNew)
   nodes.forEach((node) => {

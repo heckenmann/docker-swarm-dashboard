@@ -68,7 +68,6 @@ function PortsComponent() {
         <Table
           id="portsTable"
           variant={currentVariant}
-          size="sm"
           striped
           size={tableSize}
         >

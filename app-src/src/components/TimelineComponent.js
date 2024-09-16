@@ -40,7 +40,7 @@ function TimelineComponent() {
             x: task.ServiceName + '_' + task.Slot,
             y: [
               new Date(task.CreatedTimestamp).getTime(),
-              task.StoppedTimestamp == ''
+              task.StoppedTimestamp === ''
                 ? new Date().getTime()
                 : new Date(task.StoppedTimestamp).getTime(),
             ],
