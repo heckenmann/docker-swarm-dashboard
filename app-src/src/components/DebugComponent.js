@@ -13,6 +13,10 @@ import {
 } from '../common/store/atoms'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 
+/**
+ * DebugComponent is a React functional component that displays debugging information.
+ * It uses various atoms from Jotai to fetch and display the current state of the application.
+ */
 function DebugComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

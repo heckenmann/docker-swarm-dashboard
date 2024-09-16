@@ -11,6 +11,10 @@ import webStorm_icon from '../files/WebStorm_icon.svg'
 import { debugId } from '../common/navigationConstants'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+/**
+ * AboutComponent is a functional component that displays information about the Docker Swarm Dashboard project.
+ * It includes project links, acknowledgments, and tools used in the project.
+ */
 function AboutComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

@@ -10,6 +10,11 @@ import {
 } from '../common/store/atoms'
 import { JsonTable } from './JsonTable'
 
+/**
+ * Component to display details of a node.
+ * It uses various atoms to get the current state and displays the node details
+ * in a card with tabs for table and JSON views.
+ */
 function DetailsNodeComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

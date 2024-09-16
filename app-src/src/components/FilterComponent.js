@@ -8,6 +8,9 @@ import {
   stackNameFilterAtom,
 } from '../common/store/atoms'
 
+/**
+ * FilterComponent is a React functional component that provides a UI for filtering services or stacks.
+ */
 function FilterComponent() {
   const variant = useAtomValue(currentVariantAtom)
   const [serviceFilter, setServiceNameFilter] = useAtom(serviceNameFilterAtom)

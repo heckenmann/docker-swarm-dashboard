@@ -10,6 +10,10 @@ import {
 import { useAtomValue } from 'jotai/index'
 import { FilterComponent } from './FilterComponent'
 
+/**
+ * DashboardSettingsComponent is a React functional component that renders
+ * the settings for the dashboard, including layout options and a filter component.
+ */
 function DashboardSettingsComponent() {
   const [view, updateViewId] = useAtom(viewAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
