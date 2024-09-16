@@ -68,7 +68,7 @@ function DashboardNavbar() {
    * Toggles the refresh interval and notifies the user with a message.
    */
   const refreshAndNotifyUser = () => {
-    if (refreshInterval ? true : false) toggleRefresh()
+    if (refreshInterval) toggleRefresh()
     messageReducer({ type: 'add', value: 'Refresh ...' })
     reloadData()
   }

@@ -78,7 +78,7 @@ function SettingsComponent() {
                   type="switch"
                   variant={refreshInterval ? 'secondary' : 'outline-secondary'}
                   onChange={toggleRefreshAndNotifyUser}
-                  checked={refreshInterval ? true : false}
+                  checked={refreshInterval}
                 />
               </td>
             </tr>
