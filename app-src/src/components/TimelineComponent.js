@@ -11,6 +11,10 @@ import {
 } from '../common/store/atoms'
 import { FilterComponent } from './FilterComponent'
 
+/**
+ * TimelineComponent is a React functional component that renders a timeline chart
+ * using ReactApexChart. It filters and maps tasks data to display them in a range bar chart.
+ */
 function TimelineComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
@@ -45,6 +49,13 @@ function TimelineComponent() {
       }
     })
 
+  /**
+   * Calculates the height of the chart based on whether the tasks are grouped.
+   * If grouped, the height is determined by the number of unique task names.
+   * Otherwise, the height is calculated using a quadratic formula.
+   *
+   * @returns {number} The calculated height of the chart.
+   */
   const chartHeight = () => {
     if (grouped) {
       const unique = new Set()
@@ -57,6 +68,10 @@ function TimelineComponent() {
     }
   }
 
+  /**
+   * Configuration options for the ApexCharts chart.
+   * This includes settings for the chart type, theme, plot options, colors, stroke, fill, x-axis, legend, and tooltip.
+   */
   const options = {
     area: {
       fillTo: 'end',

@@ -6,6 +6,10 @@ import {
   currentVariantClassesAtom,
 } from '../common/store/atoms'
 
+/**
+ * LoadingComponent is a functional component that displays a loading spinner
+ * with a background and classes based on the current variant.
+ */
 function LoadingComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

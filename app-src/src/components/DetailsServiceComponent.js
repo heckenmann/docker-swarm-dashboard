@@ -10,6 +10,11 @@ import {
 } from '../common/store/atoms'
 import { JsonTable } from './JsonTable'
 
+/**
+ * Component to display the details of a service.
+ * It uses various atoms to get the current state and displays the service details
+ * in a card with tabs for table and JSON views.
+ */
 function DetailsServiceComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

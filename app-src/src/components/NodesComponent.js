@@ -10,6 +10,11 @@ import {
 } from '../common/store/atoms'
 import { nodesDetailId } from '../common/navigationConstants'
 
+/**
+ * NodesComponent is a React functional component that renders a table of nodes.
+ * It uses various atoms from Jotai for state management and displays node details
+ * such as hostname, role, state, availability, and IP address.
+ */
 function NodesComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

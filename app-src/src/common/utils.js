@@ -1,5 +1,11 @@
-// Flattens json
-// Source: https://stackoverflow.com/a/49042916
+/**
+ * Flattens a nested JSON object.
+ * Source: https://stackoverflow.com/a/49042916
+ *
+ * @param {Object} obj - The JSON object to flatten.
+ * @param {string} [path=''] - The base path for the keys.
+ * @returns {Object} - The flattened JSON object.
+ */
 export const flatten = (obj, path = '') => {
   if (!(obj instanceof Object)) return { [path.replace(/\.$/g, '')]: obj }
 
@@ -10,6 +16,14 @@ export const flatten = (obj, path = '') => {
   }, {})
 }
 
+/**
+ * Filters a service based on the provided service name and stack name filters.
+ *
+ * @param {Object} service - The service object to filter.
+ * @param {string} [serviceNameFilter] - The service name filter.
+ * @param {string} [stackNameFilter] - The stack name filter.
+ * @returns {boolean} - Returns true if the service matches the filters, otherwise false.
+ */
 export const serviceFilter = (service, serviceNameFilter, stackNameFilter) => {
   if (!serviceNameFilter && !stackNameFilter) {
     return true

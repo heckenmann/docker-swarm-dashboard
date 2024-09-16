@@ -39,6 +39,10 @@ import {
   timelineId,
 } from '../common/navigationConstants'
 
+/**
+ * DashboardNavbar component renders the navigation bar for the dashboard.
+ * It includes various navigation links and a refresh button.
+ */
 function DashboardNavbar() {
   const [refreshInterval, toggleRefresh] = useAtom(
     refreshIntervalAtom,
