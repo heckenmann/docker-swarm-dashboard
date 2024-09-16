@@ -78,7 +78,7 @@ function SettingsComponent() {
                   type="switch"
                   variant={refreshInterval ? 'secondary' : 'outline-secondary'}
                   onChange={toggleRefreshAndNotifyUser}
-                  checked={refreshInterval != undefined}
+                  checked={refreshInterval ? true : false}
                 />
               </td>
             </tr>
@@ -106,8 +106,10 @@ function SettingsComponent() {
                 <FormCheck
                   type="switch"
                   variant={tableSize ? 'secondary' : 'outline-secondary'}
-                  onChange={() => setTableSize(tableSize == 'sm' ? 'lg' : 'sm')}
-                  checked={tableSize == 'sm'}
+                  onChange={() =>
+                    setTableSize(tableSize === 'sm' ? 'lg' : 'sm')
+                  }
+                  checked={tableSize === 'sm'}
                 />
               </td>
             </tr>
