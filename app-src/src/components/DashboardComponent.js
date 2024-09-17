@@ -16,6 +16,11 @@ import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { serviceFilter } from '../common/utils'
 
+/**
+ * DashboardComponent is a React functional component that renders the dashboard
+ * table with nodes and services information. It uses various atoms from Jotai
+ * for state management and applies filters to display the relevant data.
+ */
 function DashboardComponent() {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
