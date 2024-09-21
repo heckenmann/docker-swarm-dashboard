@@ -70,7 +70,7 @@ Docker Swarm Dashboard supports environment variables for configuration
 * `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
 * `LOCALE`: Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag.
 * `TZ`: [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in.
-* `VERSION_CHECK_ENABLED`: When set to `true`, the system will check for updates and notify in the UI if a new version is available. If set to `false`, the version check will be skipped. Default is `false`.
+* `DSD_VERSION_CHECK_ENABLED`: When set to `true`, the system will check for updates and notify in the UI if a new version is available. If set to `false`, the version check will be skipped. Default is `false`.
 
 ### Pull Image from ghcr.io
 ```
