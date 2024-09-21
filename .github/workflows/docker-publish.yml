@@ -65,6 +65,20 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      # Get the current Git tag if available, otherwise use branch name and commit hash
+      - name: Get version
+        id: get-version
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$TAG" ]; then
+            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            COMMIT_HASH=$(git rev-parse --short HEAD)
+            VERSION="${BRANCH}-${COMMIT_HASH}"
+          else
+            VERSION=$TAG
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -75,6 +89,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ env.VERSION }}
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
