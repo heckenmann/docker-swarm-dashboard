@@ -136,6 +136,10 @@ export const dashboardSettingsAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
 
+export const versionAtom = atom(async (get) => {
+  return (await fetch(get(baseUrlAtom) + 'ui/version')).json()
+})
+
 export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>
   (await get(dashboardSettingsAtom)).defaultLayout === 'row'
     ? dashboardHId

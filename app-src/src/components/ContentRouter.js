@@ -13,6 +13,7 @@ import {
   stacksId,
   tasksId,
   timelineId,
+  versionUpdateId,
 } from '../common/navigationConstants'
 import {
   dashboardSettingsDefaultLayoutViewIdAtom,
@@ -31,6 +32,7 @@ import { StacksComponent } from './StacksComponent'
 import { TasksComponent } from './TasksComponent'
 import { SettingsComponent } from './SettingsComponent'
 import { DebugComponent } from './DebugComponent'
+import { VersionUpdateComponent } from './VersionUpdateComponent'
 
 /**
  * ContentRouter component that determines which view to render
@@ -69,7 +71,9 @@ export function ContentRouter() {
     [settingsId]: <SettingsComponent />,
     [logsId]: <LogsComponent />,
     [debugId]: <DebugComponent />,
+    [versionUpdateId]: <VersionUpdateComponent />,
   }
+
   view = componentMap[idToRender] || <DashboardComponent />
   return view
 }
