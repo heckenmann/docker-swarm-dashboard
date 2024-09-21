@@ -112,7 +112,7 @@ function DashboardNavbar() {
               width="30"
               height="30"
             />{' '}
-            Docker Swarm Dashboard
+            Docker Swarm Dashboard <small>{dashboardSettings.version}</small>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-left">

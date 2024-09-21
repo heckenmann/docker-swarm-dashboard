@@ -3,6 +3,7 @@ import { Button, Card, Table } from 'react-bootstrap'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  dashboardSettingsAtom,
   viewAtom,
 } from '../common/store/atoms'
 import jb_square from '../files/jb_square.svg'
@@ -18,13 +19,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 function AboutComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
   const [, updateView] = useAtom(viewAtom)
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Body>
-        <h1>Docker Swarm Dashboard</h1>
+        <h1>Docker Swarm Dashboard '{dashboardSettings.version}'</h1>
         <h2>by heckenmann</h2>
         <Table variant={currentVariant}>
           <tbody>
