@@ -14,6 +14,8 @@ type dashboardSettings struct {
 	HiddenServiceStates []string `json:"hiddenServiceStates"`
 	TimeZone            *string  `json:"timeZone"`
 	Locale              *string  `json:"locale"`
+	Version             *string  `json:"version"`
+	VersionCheckEnabled bool     `json:"versionCheckEnabled"`
 }
 
 var (
@@ -22,6 +24,8 @@ var (
 	hiddenServiceStates = make([]string, 0)
 	timeZone            = new(string)
 	locale              = new(string)
+	version             = new(string)
+	versionCheckEnabled = false
 )
 
 func init() {
@@ -49,15 +53,24 @@ func init() {
 		locale = &localeEnvValue
 	}
 
+	if versionEnvValue, versionSet := os.LookupEnv("VERSION"); versionSet {
+		version = &versionEnvValue
+	}
+
+	if versionCheckEnabledEnvValue, versionCheckEnabledSet := os.LookupEnv("VERSION_CHECK_ENABLED"); versionCheckEnabledSet {
+		versionCheckEnabled, _ = strconv.ParseBool(versionCheckEnabledEnvValue)
+	}
 }
 
 func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 	jsonString, _ := json.Marshal(dashboardSettings{
-		handlingLogs,
-		dashboardLayout,
-		hiddenServiceStates,
-		timeZone,
-		locale,
+		ShowLogsButton:      handlingLogs,
+		DefaultLayout:       dashboardLayout,
+		HiddenServiceStates: hiddenServiceStates,
+		TimeZone:            timeZone,
+		Locale:              locale,
+		Version:             version,
+		VersionCheckEnabled: versionCheckEnabled,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonString)
