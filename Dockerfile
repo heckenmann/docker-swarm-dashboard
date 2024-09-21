@@ -24,9 +24,12 @@ FROM alpine:3.20.3
 EXPOSE 8080
 RUN mkdir -p /opt/dsd
 
-# Set the version as an environment variable with a default value of 'dev'
-ARG VERSION=dev-build
-ENV VERSION=${VERSION}
+# Set the version as an environment variable
+ARG VERSION=0.0.0
+ENV DSD_VERSION=${VERSION}
+LABEL dsd.version=${VERSION}
+ENV DSD_VERSION_RELEASE_URL=https://api.github.com/repos/heckenmann/docker-swarm-dashboard/releases/latest
+ENV DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES=30
 
 WORKDIR /opt/dsd
 COPY --from=go /tmp/server-src/docker-swarm-dashboard .
