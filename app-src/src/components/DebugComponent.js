@@ -5,6 +5,7 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   dashboardHAtom,
+  dashboardSettingsAtom,
   dashboardVAtom,
   nodesAtomNew,
   portsAtom,
@@ -32,6 +33,7 @@ function DebugComponent() {
     tasks: useAtomValue(tasksAtomNew),
     ports: useAtomValue(portsAtom),
     services: null,
+    settings: useAtomValue(dashboardSettingsAtom),
   }
 
   return (
