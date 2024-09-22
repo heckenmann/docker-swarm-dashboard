@@ -23,6 +23,7 @@ import {
   logsShowLogsAtom,
   messagesAtom,
   refreshIntervalAtom,
+  versionAtom,
   viewAtom,
 } from '../common/store/atoms'
 import ReactInterval from 'react-interval'
@@ -37,6 +38,7 @@ import {
   stacksId,
   tasksId,
   timelineId,
+  versionUpdateId,
 } from '../common/navigationConstants'
 
 /**
@@ -55,6 +57,7 @@ function DashboardNavbar() {
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const version = useAtomValue(versionAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
   if (isDarkMode) document.body.classList.add('bg-dark')
@@ -112,7 +115,7 @@ function DashboardNavbar() {
               width="30"
               height="30"
             />{' '}
-            Docker Swarm Dashboard
+            Docker Swarm Dashboard <small>{dashboardSettings.version}</small>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-left">
@@ -194,6 +197,12 @@ function DashboardNavbar() {
                 onClick={refreshAndNotifyUser}
               >
                 <FontAwesomeIcon icon="sync" />
+              </Button>
+              <Button
+                variant={version.updateAvailable ? 'info' : 'secondary'}
+                onClick={() => updateView({ id: versionUpdateId })}
+              >
+                <FontAwesomeIcon icon="cloud-download-alt" />
               </Button>
             </ButtonGroup>
           </Navbar.Collapse>
