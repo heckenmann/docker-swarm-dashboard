@@ -42,6 +42,7 @@ func main() {
 	router.HandleFunc("/ui/tasks", tasksHandler)
 	router.HandleFunc("/ui/ports", portsHandler)
 	router.HandleFunc("/ui/logs/services", logsServicesHandler)
+	router.HandleFunc("/ui/version", versionHandler)
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
 

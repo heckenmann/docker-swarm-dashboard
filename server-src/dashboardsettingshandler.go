@@ -6,22 +6,29 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type dashboardSettings struct {
-	ShowLogsButton      bool     `json:"showLogsButton"`
-	DefaultLayout       string   `json:"defaultLayout"`
-	HiddenServiceStates []string `json:"hiddenServiceStates"`
-	TimeZone            *string  `json:"timeZone"`
-	Locale              *string  `json:"locale"`
+	ShowLogsButton                   bool          `json:"showLogsButton"`
+	DefaultLayout                    string        `json:"defaultLayout"`
+	HiddenServiceStates              []string      `json:"hiddenServiceStates"`
+	TimeZone                         *string       `json:"timeZone"`
+	Locale                           *string       `json:"locale"`
+	Version                          *string       `json:"version"`
+	VersionCheckEnabled              bool          `json:"versionCheckEnabled"`
+	VersionCheckCacheDurationMinutes time.Duration `json:"versionCheckCacheDurationMinutes"`
 }
 
 var (
-	handlingLogs        = true
-	dashboardLayout     = "row"
-	hiddenServiceStates = make([]string, 0)
-	timeZone            = new(string)
-	locale              = new(string)
+	handlingLogs                     = true
+	dashboardLayout                  = "row"
+	hiddenServiceStates              = make([]string, 0)
+	timeZone                         = new(string)
+	locale                           = new(string)
+	version                          = new(string)
+	versionCheckEnabled              = false
+	versionCheckCacheDurationMinutes = 30 * time.Minute
 )
 
 func init() {
@@ -49,15 +56,31 @@ func init() {
 		locale = &localeEnvValue
 	}
 
+	if versionEnvValue, versionSet := os.LookupEnv("DSD_VERSION"); versionSet {
+		version = &versionEnvValue
+	}
+
+	if versionCheckEnabledEnvValue, versionCheckEnabledSet := os.LookupEnv("DSD_VERSION_CHECK_ENABLED"); versionCheckEnabledSet {
+		versionCheckEnabled, _ = strconv.ParseBool(versionCheckEnabledEnvValue)
+	}
+
+	if versionCheckCacheDurationEnvValue, versionCheckCacheDurationSet := os.LookupEnv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES"); versionCheckCacheDurationSet {
+		if minutes, err := strconv.Atoi(versionCheckCacheDurationEnvValue); err == nil {
+			versionCheckCacheDurationMinutes = time.Duration(minutes) * time.Minute
+		}
+	}
 }
 
 func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 	jsonString, _ := json.Marshal(dashboardSettings{
-		handlingLogs,
-		dashboardLayout,
-		hiddenServiceStates,
-		timeZone,
-		locale,
+		ShowLogsButton:                   handlingLogs,
+		DefaultLayout:                    dashboardLayout,
+		HiddenServiceStates:              hiddenServiceStates,
+		TimeZone:                         timeZone,
+		Locale:                           locale,
+		Version:                          version,
+		VersionCheckEnabled:              versionCheckEnabled,
+		VersionCheckCacheDurationMinutes: versionCheckCacheDurationMinutes,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonString)
