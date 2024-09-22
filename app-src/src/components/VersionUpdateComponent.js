@@ -42,6 +42,7 @@ function VersionUpdateComponent() {
           )}
         </h2>
         <h3>How to enable update checks</h3>
+        <p>Note: Version checks are only performed for release versions.</p>
         <p>
           Set the environment variable <code>DSD_VERSION_CHECK_ENABLED</code> to{' '}
           <code>true</code> in the service configuration to enable regular
