@@ -17,6 +17,11 @@ import {
 import useWebSocket from 'react-use-websocket'
 import { useEffect } from 'react'
 
+/**
+ * LogsComponent is a React functional component that handles the display and management
+ * of log data. It uses various atoms from Jotai for state management and connects to a
+ * WebSocket to receive log messages in real-time.
+ */
 function LogsComponent() {
   const [logsLines, setLogsLines] = useAtom(logsLinesAtom)
   const resetLogsLines = useResetAtom(logsLinesAtom)
