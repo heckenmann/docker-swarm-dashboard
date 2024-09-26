@@ -60,28 +60,26 @@ function PortsComponent() {
       <Card.Header>
         <FilterComponent />
       </Card.Header>
-      <Card.Body>
-        <Table
-          id="portsTable"
-          variant={currentVariant}
-          size="sm"
-          striped
-          size={tableSize}
-        >
-          <thead>
-            <tr>
-              <th id="publishedPort">PublishedPort</th>
-              <th id="arrow"></th>
-              <th id="targetPort">TargetPort</th>
-              <th id="protocol">Protocol</th>
-              <th id="publishMode">PublishMode</th>
-              <th id="serviceName">ServiceName</th>
-              <th id="stack">Stack</th>
-            </tr>
-          </thead>
-          <tbody>{renderedServices}</tbody>
-        </Table>
-      </Card.Body>
+      <Table
+        id="portsTable"
+        variant={currentVariant}
+        striped
+        size={tableSize}
+        className="mt-2"
+      >
+        <thead>
+          <tr>
+            <th id="publishedPort">PublishedPort</th>
+            <th id="arrow"></th>
+            <th id="targetPort">TargetPort</th>
+            <th id="protocol">Protocol</th>
+            <th id="publishMode">PublishMode</th>
+            <th id="serviceName">ServiceName</th>
+            <th id="stack">Stack</th>
+          </tr>
+        </thead>
+        <tbody>{renderedServices}</tbody>
+      </Table>
     </Card>
   )
 }

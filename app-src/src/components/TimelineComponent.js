@@ -112,14 +112,12 @@ function TimelineComponent() {
         <Card.Header>
           <FilterComponent />
         </Card.Header>
-        <Card.Body>
-          <ReactApexChart
-            options={options}
-            series={series}
-            height={chartHeight()}
-            type="rangeBar"
-          />
-        </Card.Body>
+        <ReactApexChart
+          options={options}
+          series={series}
+          height={chartHeight()}
+          type="rangeBar"
+        />
       </Card>
     </>
   )
