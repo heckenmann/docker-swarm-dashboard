@@ -85,28 +85,27 @@ function TasksComponent() {
       <Card.Header>
         <FilterComponent />
       </Card.Header>
-      <Card.Body>
-        <Table
-          id="tasksTable"
-          variant={currentVariant}
-          striped
-          size={tableSize}
-        >
-          <thead>
-            <tr>
-              <th id="timestampCol">Timestamp</th>
-              <th id="stateCol">State</th>
-              <th id="desiredstateCol">DesiredState</th>
-              <th id="serviceCol">ServiceName</th>
-              <th id="slotCol">Slot</th>
-              <th id="stackCol">Stack</th>
-              <th id="nodeCol">Node</th>
-              <th>Error</th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </Table>
-      </Card.Body>
+      <Table
+        id="tasksTable"
+        variant={currentVariant}
+        striped
+        size={tableSize}
+        className="mt-2"
+      >
+        <thead>
+          <tr>
+            <th id="timestampCol">Timestamp</th>
+            <th id="stateCol">State</th>
+            <th id="desiredstateCol">DesiredState</th>
+            <th id="serviceCol">ServiceName</th>
+            <th id="slotCol">Slot</th>
+            <th id="stackCol">Stack</th>
+            <th id="nodeCol">Node</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </Table>
     </Card>
   )
 }

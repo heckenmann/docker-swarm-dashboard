@@ -77,19 +77,17 @@ function StacksComponent() {
             <FontAwesomeIcon icon="cubes" /> {stack['Name']}
           </h5>
         </Card.Header>
-        <Card.Body>
-          <Table variant={currentVariant} size="sm" striped hover>
-            <thead>
-              <tr>
-                <th>Service Name</th>
-                <th className="col-md-1">Replication</th>
-                <th className="col-md-2">Created</th>
-                <th className="col-md-2">Updated</th>
-              </tr>
-            </thead>
-            <tbody>{createServicesForStack(stack)}</tbody>
-          </Table>
-        </Card.Body>
+        <Table variant={currentVariant} size="sm" hover>
+          <thead>
+            <tr>
+              <th>Service Name</th>
+              <th className="col-md-1">Replication</th>
+              <th className="col-md-2">Created</th>
+              <th className="col-md-2">Updated</th>
+            </tr>
+          </thead>
+          <tbody>{createServicesForStack(stack)}</tbody>
+        </Table>
       </Card>
     ))
 
