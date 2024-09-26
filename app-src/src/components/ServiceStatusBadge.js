@@ -5,6 +5,17 @@ import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { useAtomValue } from 'jotai'
 import { dashboardSettingsAtom } from '../common/store/atoms'
 
+/**
+ * Component to display a service status badge with optional tooltip information.
+ *
+ * @param {Object} props - The properties object.
+ * @param {number} props.id - The unique identifier for the service.
+ * @param {string} props.serviceState - The current state of the service.
+ * @param {string} [props.createdAt] - The creation timestamp of the service.
+ * @param {string} [props.updatedAt] - The last updated timestamp of the service.
+ * @param {string} [props.serviceError] - Any error message related to the service.
+ * @param {string[]} [props.hiddenStates] - List of states that should not be displayed.
+ */
 const ServiceStatusBadge = ({
   id,
   serviceState,
@@ -66,6 +77,9 @@ const ServiceStatusBadge = ({
   )
 }
 
+/**
+ * PropTypes for the ServiceStatusBadge component.
+ */
 ServiceStatusBadge.propTypes = {
   id: PropTypes.number.isRequired,
   serviceState: PropTypes.string.isRequired,
@@ -75,6 +89,9 @@ ServiceStatusBadge.propTypes = {
   hiddenStates: PropTypes.arrayOf(PropTypes.string),
 }
 
+/**
+ * Default props for the ServiceStatusBadge component.
+ */
 ServiceStatusBadge.defaultProps = {
   hiddenStates: [],
 }

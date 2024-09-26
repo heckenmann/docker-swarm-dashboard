@@ -15,6 +15,10 @@ import {
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { FilterComponent } from './FilterComponent'
 
+/**
+ * TasksComponent is a React functional component that displays a list of tasks
+ * in a table format.
+ */
 function TasksComponent() {
   const [, updateView] = useAtom(viewAtom)
   const currentVariant = useAtomValue(currentVariantAtom)

@@ -5,6 +5,7 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   dashboardHAtom,
+  dashboardSettingsAtom,
   dashboardVAtom,
   nodesAtomNew,
   portsAtom,
@@ -13,6 +14,10 @@ import {
 } from '../common/store/atoms'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 
+/**
+ * DebugComponent is a React functional component that displays debugging information.
+ * It uses various atoms from Jotai to fetch and display the current state of the application.
+ */
 function DebugComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
@@ -28,6 +33,7 @@ function DebugComponent() {
     tasks: useAtomValue(tasksAtomNew),
     ports: useAtomValue(portsAtom),
     services: null,
+    settings: useAtomValue(dashboardSettingsAtom),
   }
 
   return (

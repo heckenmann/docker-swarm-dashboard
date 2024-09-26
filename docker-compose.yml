@@ -3,7 +3,7 @@ version: '3.5'
 
 services:
   docker-swarm-dashboard:
-    image: ghcr.io/heckenmann/docker-swarm-dashboard:master
+    image: ghcr.io/heckenmann/docker-swarm-dashboard:local
     deploy:
       replicas: 1
       placement:
@@ -15,3 +15,4 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       DOCKER_API_VERSION: 1.35
+      DSD_VERSION_CHECK_ENABLED: 'true'

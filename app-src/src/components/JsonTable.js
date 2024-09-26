@@ -3,6 +3,13 @@ import { flatten } from '../common/utils'
 import { useAtomValue } from 'jotai'
 import { tableSizeAtom } from '../common/store/atoms'
 
+/**
+ * Renders a table from a JSON object.
+ *
+ * @param {Object} props - The properties object.
+ * @param {Object} props.json - The JSON object to be displayed in the table.
+ * @param {string} [props.variant] - The variant of the table.
+ */
 export function JsonTable(props) {
   const tableSize = useAtomValue(tableSizeAtom)
   const flattenConfig = flatten(props.json)
