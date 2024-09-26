@@ -29,11 +29,15 @@ function NodesComponent() {
         key={'tr' + node['ID']}
         className={node['State'] === 'ready' ? null : 'table-warning'}
       >
+        <td>
+          <FontAwesomeIcon icon="server" />
+        </td>
         <td
           className="cursorPointer align-middle text-nowrap"
           onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
         >
-          {node['Hostname']} {node['Leader'] && <FontAwesomeIcon icon="star" />}
+          {node['Hostname']}
+          {node['Leader'] && <FontAwesomeIcon icon="star" />}
         </td>
         <td className="align-middle col-md-1">{node['Role']}</td>
         <td className="align-middle col-md-1">
@@ -70,26 +74,27 @@ function NodesComponent() {
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Body>
-        <Table
-          variant={currentVariant}
-          key="nodesTable"
-          id="nodesTable"
-          striped
-          size={tableSize}
-        >
-          <thead>
-            <tr>
-              <th className="nodeAttribute">Node</th>
-              <th className="nodeAttributeSmall">Role</th>
-              <th className="nodeAttributeSmall">State</th>
-              <th className="nodeAttributeSmall">Availability</th>
-              <th className="nodeAttributeSmall">IP</th>
-            </tr>
-          </thead>
-          <tbody>{trows}</tbody>
-        </Table>
-      </Card.Body>
+      <Card.Header></Card.Header>
+      <Table
+        variant={currentVariant}
+        key="nodesTable"
+        id="nodesTable"
+        striped
+        hover
+        size={tableSize}
+      >
+        <thead>
+          <tr>
+            <th style={{ width: '25px' }}></th>
+            <th className="nodeAttribute">Node</th>
+            <th className="nodeAttributeSmall">Role</th>
+            <th className="nodeAttributeSmall">State</th>
+            <th className="nodeAttributeSmall">Availability</th>
+            <th className="nodeAttributeSmall">IP</th>
+          </tr>
+        </thead>
+        <tbody>{trows}</tbody>
+      </Table>
     </Card>
   )
 }
