@@ -11,6 +11,11 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 
+/**
+ * SettingsComponent is a React functional component that renders a settings panel.
+ * It allows users to configure various settings such as API URL, refresh interval,
+ * dark mode, and table size.
+ */
 function SettingsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
@@ -73,7 +78,7 @@ function SettingsComponent() {
                   type="switch"
                   variant={refreshInterval ? 'secondary' : 'outline-secondary'}
                   onChange={toggleRefreshAndNotifyUser}
-                  checked={refreshInterval != undefined}
+                  checked={refreshInterval}
                 />
               </td>
             </tr>
@@ -101,8 +106,10 @@ function SettingsComponent() {
                 <FormCheck
                   type="switch"
                   variant={tableSize ? 'secondary' : 'outline-secondary'}
-                  onChange={() => setTableSize(tableSize == 'sm' ? 'lg' : 'sm')}
-                  checked={tableSize == 'sm'}
+                  onChange={() =>
+                    setTableSize(tableSize === 'sm' ? 'lg' : 'sm')
+                  }
+                  checked={tableSize === 'sm'}
                 />
               </td>
             </tr>

@@ -14,6 +14,11 @@ import { useAtom, useAtomValue } from 'jotai'
 import { servicesDetailId } from '../common/navigationConstants'
 import { FilterComponent } from './FilterComponent'
 
+/**
+ * StacksComponent is a React functional component that renders a list of stacks.
+ * Each stack contains a list of services, which are displayed in a table format.
+ * The component uses various atoms from Jotai for state management and filtering.
+ */
 function StacksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
