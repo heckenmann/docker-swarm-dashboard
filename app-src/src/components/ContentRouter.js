@@ -13,6 +13,7 @@ import {
   stacksId,
   tasksId,
   timelineId,
+  versionUpdateId,
 } from '../common/navigationConstants'
 import {
   dashboardSettingsDefaultLayoutViewIdAtom,
@@ -31,7 +32,14 @@ import { StacksComponent } from './StacksComponent'
 import { TasksComponent } from './TasksComponent'
 import { SettingsComponent } from './SettingsComponent'
 import { DebugComponent } from './DebugComponent'
+import { VersionUpdateComponent } from './VersionUpdateComponent'
 
+/**
+ * ContentRouter component that determines which view to render
+ * based on the current view ID from the state.
+ *
+ * @returns {JSX.Element} The component corresponding to the current view ID.
+ */
 export function ContentRouter() {
   const getView = useAtomValue(viewAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
@@ -44,49 +52,28 @@ export function ContentRouter() {
   }
 
   let view
-  switch (idToRender) {
-    case dashboardHId:
-      view = <DashboardComponent />
-      break
-    case dashboardVId:
-      view = <DashboardVerticalComponent />
-      break
-    case timelineId:
-      view = <TimelineComponent />
-      break
-    case servicesDetailId:
-      view = <DetailsServiceComponent />
-      break
-    case stacksId:
-      view = <StacksComponent />
-      break
-    case portsId:
-      view = <PortsComponent />
-      break
-    case nodesId:
-      view = <NodesComponent />
-      break
-    case nodesDetailId:
-      view = <DetailsNodeComponent />
-      break
-    case tasksId:
-      view = <TasksComponent />
-      break
-    case aboutId:
-      view = <AboutComponent />
-      break
-    case settingsId:
-      view = <SettingsComponent />
-      break
-    case logsId:
-      view = <LogsComponent />
-      break
-    case debugId:
-      view = <DebugComponent />
-      break
-    default:
-      view = <DashboardComponent />
+  /**
+   * A mapping of view IDs to their corresponding React components.
+   * This is used to dynamically render the appropriate component
+   * based on the current view ID.
+   */
+  const componentMap = {
+    [dashboardHId]: <DashboardComponent />,
+    [dashboardVId]: <DashboardVerticalComponent />,
+    [timelineId]: <TimelineComponent />,
+    [servicesDetailId]: <DetailsServiceComponent />,
+    [stacksId]: <StacksComponent />,
+    [portsId]: <PortsComponent />,
+    [nodesId]: <NodesComponent />,
+    [nodesDetailId]: <DetailsNodeComponent />,
+    [tasksId]: <TasksComponent />,
+    [aboutId]: <AboutComponent />,
+    [settingsId]: <SettingsComponent />,
+    [logsId]: <LogsComponent />,
+    [debugId]: <DebugComponent />,
+    [versionUpdateId]: <VersionUpdateComponent />,
   }
 
+  view = componentMap[idToRender] || <DashboardComponent />
   return view
 }

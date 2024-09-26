@@ -15,6 +15,12 @@ import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { serviceFilter } from '../common/utils'
 
+/**
+ * DashboardVerticalComponent is a React functional component that renders
+ * a vertical dashboard table with nodes and services information.
+ * It uses various atoms from Jotai for state management and filters services
+ * based on the provided filters.
+ */
 function DashboardVerticalComponent() {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)

@@ -13,6 +13,10 @@ import {
 import { servicesDetailId } from '../common/navigationConstants'
 import { FilterComponent } from './FilterComponent'
 
+/**
+ * PortsComponent is a React functional component that renders a table of port mappings.
+ * It uses various atoms from Jotai for state management and filtering.
+ */
 function PortsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
@@ -64,7 +68,6 @@ function PortsComponent() {
         <Table
           id="portsTable"
           variant={currentVariant}
-          size="sm"
           striped
           size={tableSize}
         >
