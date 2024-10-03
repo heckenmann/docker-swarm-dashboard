@@ -16,6 +16,7 @@ import { DashboardNavbar } from './components/DashboardNavbar'
 import LoadingComponent from './components/LoadingComponent'
 import { ErrorBoundary } from './common/ErrorBoundary'
 import bg from './files/docker.png'
+import { WelcomeMessageComponent } from './components/WelcomeMessageComponent'
 
 library.add(fab, fas, far)
 
@@ -35,6 +36,7 @@ const App = () => {
           <Container fluid className="overflow-auto">
             <ErrorBoundary>
               <Suspense fallback={<LoadingComponent />}>
+                <WelcomeMessageComponent />
                 <ContentRouter />
               </Suspense>
             </ErrorBoundary>

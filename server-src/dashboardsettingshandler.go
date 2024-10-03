@@ -17,6 +17,7 @@ type dashboardSettings struct {
 	Locale                           *string       `json:"locale"`
 	VersionCheckEnabled              bool          `json:"versionCheckEnabled"`
 	VersionCheckCacheDurationMinutes time.Duration `json:"versionCheckCacheDurationMinutes"`
+	WelcomeMessage                   *string       `json:"welcomeMessage"`
 }
 
 var (
@@ -27,6 +28,7 @@ var (
 	locale                           = new(string)
 	versionCheckEnabled              = false
 	versionCheckCacheDurationMinutes = 30 * time.Minute
+	welcomeMessage                   = new(string)
 )
 
 func init() {
@@ -63,6 +65,10 @@ func init() {
 			versionCheckCacheDurationMinutes = time.Duration(minutes) * time.Minute
 		}
 	}
+
+	if welcomeMessageEnvValue, welcomeMessageSet := os.LookupEnv("DSD_WELCOME_MESSAGE"); welcomeMessageSet {
+		welcomeMessage = &welcomeMessageEnvValue
+	}
 }
 
 func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
@@ -74,6 +80,7 @@ func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 		Locale:                           locale,
 		VersionCheckEnabled:              versionCheckEnabled,
 		VersionCheckCacheDurationMinutes: versionCheckCacheDurationMinutes,
+		WelcomeMessage:                   welcomeMessage,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonString)
