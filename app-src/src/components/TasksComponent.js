@@ -14,6 +14,7 @@ import {
 } from '../common/store/atoms'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { FilterComponent } from './FilterComponent'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks
@@ -43,6 +44,9 @@ function TasksComponent() {
         key={'tasksTable-' + task['ID']}
         className={task['State'] === 'failed' ? 'table-danger' : null}
       >
+        <td>
+          <FontAwesomeIcon icon="tasks" />
+        </td>
         <td>
           {toDefaultDateTimeString(
             new Date(task['Timestamp']),
@@ -98,6 +102,7 @@ function TasksComponent() {
       >
         <thead>
           <tr>
+            <th style={{ width: '25px' }}></th>
             <th id="timestampCol">Timestamp</th>
             <th id="stateCol">State</th>
             <th id="desiredstateCol">DesiredState</th>
