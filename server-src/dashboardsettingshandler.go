@@ -15,9 +15,9 @@ type dashboardSettings struct {
 	HiddenServiceStates              []string      `json:"hiddenServiceStates"`
 	TimeZone                         *string       `json:"timeZone"`
 	Locale                           *string       `json:"locale"`
-	Version                          *string       `json:"version"`
 	VersionCheckEnabled              bool          `json:"versionCheckEnabled"`
 	VersionCheckCacheDurationMinutes time.Duration `json:"versionCheckCacheDurationMinutes"`
+	WelcomeMessage                   *string       `json:"welcomeMessage"`
 }
 
 var (
@@ -26,9 +26,9 @@ var (
 	hiddenServiceStates              = make([]string, 0)
 	timeZone                         = new(string)
 	locale                           = new(string)
-	version                          = new(string)
 	versionCheckEnabled              = false
 	versionCheckCacheDurationMinutes = 30 * time.Minute
+	welcomeMessage                   = new(string)
 )
 
 func init() {
@@ -56,10 +56,6 @@ func init() {
 		locale = &localeEnvValue
 	}
 
-	if versionEnvValue, versionSet := os.LookupEnv("DSD_VERSION"); versionSet {
-		version = &versionEnvValue
-	}
-
 	if versionCheckEnabledEnvValue, versionCheckEnabledSet := os.LookupEnv("DSD_VERSION_CHECK_ENABLED"); versionCheckEnabledSet {
 		versionCheckEnabled, _ = strconv.ParseBool(versionCheckEnabledEnvValue)
 	}
@@ -68,6 +64,10 @@ func init() {
 		if minutes, err := strconv.Atoi(versionCheckCacheDurationEnvValue); err == nil {
 			versionCheckCacheDurationMinutes = time.Duration(minutes) * time.Minute
 		}
+	}
+
+	if welcomeMessageEnvValue, welcomeMessageSet := os.LookupEnv("DSD_WELCOME_MESSAGE"); welcomeMessageSet {
+		welcomeMessage = &welcomeMessageEnvValue
 	}
 }
 
@@ -78,9 +78,9 @@ func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 		HiddenServiceStates:              hiddenServiceStates,
 		TimeZone:                         timeZone,
 		Locale:                           locale,
-		Version:                          version,
 		VersionCheckEnabled:              versionCheckEnabled,
 		VersionCheckCacheDurationMinutes: versionCheckCacheDurationMinutes,
+		WelcomeMessage:                   welcomeMessage,
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonString)

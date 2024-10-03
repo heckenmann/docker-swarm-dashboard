@@ -36,6 +36,9 @@ function PortsComponent() {
     .map((p) => {
       return (
         <tr key={p.PublishedPort}>
+          <td>
+            <FontAwesomeIcon icon="building" />
+          </td>
           <td>{p.PublishedPort}</td>
           <td>
             <FontAwesomeIcon icon="arrow-right" />
@@ -73,6 +76,7 @@ function PortsComponent() {
       >
         <thead>
           <tr>
+            <th style={{ width: '25px' }}></th>
             <th id="publishedPort">PublishedPort</th>
             <th id="arrow"></th>
             <th id="targetPort">TargetPort</th>

@@ -71,6 +71,7 @@ Docker Swarm Dashboard supports environment variables for configuration
 * `LOCALE`: Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag.
 * `TZ`: [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in.
 * `DSD_VERSION_CHECK_ENABLED`: When set to `true`, the system will check for updates and notify in the UI if a new version is available. If set to `false`, the version check will be skipped. Default is `false`.
+* `DSD_WELCOME_MESSAGE`: If set, this message will be displayed to the user in a modal dialog when the web application is opened in the browser.
 
 ### Pull Image from ghcr.io
 ```
