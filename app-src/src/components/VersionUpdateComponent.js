@@ -35,24 +35,32 @@ function VersionUpdateComponent() {
                 <FontAwesomeIcon icon="check" style={{ color: 'green' }} />
               </>
             ) : (
-              <>Your version {dashboardSettings.version} is up to date</>
+              <>Your version {version.version} is up to date</>
             )
           ) : (
-            <>Automatic version checks are disabled</>
+            <>
+              Automatic version checks are disabled{' '}
+              <FontAwesomeIcon icon="times" style={{ color: 'red' }} />
+            </>
           )}
         </h2>
-        <h3>How to enable update checks</h3>
-        <p>Note: Version checks are only performed for release versions.</p>
-        <p>
-          Set the environment variable <code>DSD_VERSION_CHECK_ENABLED</code> to{' '}
-          <code>true</code> in the service configuration to enable regular
-          update checks for the Docker Swarm Dashboard. For example, in your{' '}
-          <code>docker-compose.yml</code>:
-        </p>
+        {!dashboardSettings.versionCheckEnabled && (
+          <>
+            <h3>How to Enable Update Checks</h3>
+            <p>Note: Version checks are only performed for release versions.</p>
+            <p>
+              {' '}
+              <code>DSD_VERSION_CHECK_ENABLED</code> to <code>true</code> in the
+              service configuration to enable regular update checks for the
+              Docker Swarm Dashboard. For example, in your{' '}
+              <code>docker-compose.yml</code>:
+            </p>
 
-        <pre>
-          <code>{dockerComposeExample}</code>
-        </pre>
+            <pre>
+              <code>{dockerComposeExample}</code>
+            </pre>
+          </>
+        )}
       </Card.Body>
     </Card>
   )
