@@ -115,7 +115,7 @@ function DashboardNavbar() {
               width="30"
               height="30"
             />{' '}
-            Docker Swarm Dashboard <small>{dashboardSettings.version}</small>
+            Docker Swarm Dashboard <small>{version.version}</small>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-left">
@@ -199,7 +199,12 @@ function DashboardNavbar() {
                 <FontAwesomeIcon icon="sync" />
               </Button>
               <Button
-                variant={version.updateAvailable ? 'info' : 'secondary'}
+                variant={
+                  dashboardSettings.versionCheckEnabled &&
+                  version.updateAvailable
+                    ? 'info'
+                    : 'secondary'
+                }
                 onClick={() => updateView({ id: versionUpdateId })}
               >
                 <FontAwesomeIcon icon="cloud-download-alt" />

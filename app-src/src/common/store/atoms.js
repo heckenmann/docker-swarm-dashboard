@@ -145,3 +145,5 @@ export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>
     ? dashboardHId
     : dashboardVId,
 )
+
+export const showWelcomeMessageAtom = atom(true)
