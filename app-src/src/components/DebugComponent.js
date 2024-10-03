@@ -11,6 +11,7 @@ import {
   portsAtom,
   stacksAtom,
   tasksAtomNew,
+  versionAtom,
 } from '../common/store/atoms'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 
@@ -34,6 +35,7 @@ function DebugComponent() {
     ports: useAtomValue(portsAtom),
     services: null,
     settings: useAtomValue(dashboardSettingsAtom),
+    version: useAtomValue(versionAtom),
   }
 
   return (
