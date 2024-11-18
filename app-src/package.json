@@ -78,6 +78,6 @@
     "react-query": "^3.39.3",
     "react-scripts": "^5.0.1",
     "react-syntax-highlighter": "^15.6.1",
-    "react-use-websocket": "^4.10.1"
+    "react-use-websocket": "^4.11.1"
   }
 }
