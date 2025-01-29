@@ -27,7 +27,6 @@ updates:
 
   - package-ecosystem: "docker"
     directory: "/"
-    dockerfile: Dockerfile
     labels:
       - "dependencies"
       - "docker"
