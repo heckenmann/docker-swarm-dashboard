@@ -9,8 +9,9 @@ RUN go build -o docker-swarm-dashboard
 
 ##############################################################################
 # Stage 2: Build the Node.js application
-FROM node:23-alpine AS node
-RUN apk -U add --no-cache git wget \
+FROM node:23-bookworm AS node
+RUN apt-get update \
+    && apt-get install -y git wget \
     && mkdir -p /opt/dsd
 COPY app-src /opt/dsd
 WORKDIR /opt/dsd
