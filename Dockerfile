@@ -20,7 +20,7 @@ RUN yarn install --only=production --frozen-lockfile \
 
 ##############################################################################
 # Stage 3: Create the final image
-FROM alpine:3.20.3
+FROM alpine:3.21.2
 EXPOSE 8080
 RUN mkdir -p /opt/dsd
 
