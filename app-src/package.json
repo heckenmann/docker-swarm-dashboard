@@ -5,17 +5,19 @@
   "dependencies": {},
   "scripts": {
     "start-api-mock": "node mock/api/api-mock.js 3001",
-    "start-dev-server": "react-scripts start",
-    "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\"",
+    "start-dev-server": "BROWSER=none react-scripts start",
+    "open-browser": "open http://localhost:3000#base=\"http%3A%2F%2Flocalhost%3A3001%2F\"",
+    "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\" \"sleep 2 && yarn run open-browser\"",
     "format": "prettier --write src/**/*.js",
     "postinstall": "node download-files.js",
     "lint": "eslint src",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run",
-    "cy:spec": "cypress run --spec"
+    "cy:open": "yarn cypress open",
+    "cy:run": "yarn cypress run",
+    "cy:spec": "yarn cypress run --spec",
+    "dev:cy:run": "xvfb-run yarn cypress run"
   },
   "files": [
     {
