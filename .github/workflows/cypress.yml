@@ -13,10 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIRECTORY }}
