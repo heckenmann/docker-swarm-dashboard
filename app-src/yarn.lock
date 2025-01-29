@@ -1268,10 +1268,12 @@
     debug "^4.3.1"
     minimatch "^3.1.2"
 
-"@eslint/core@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@eslint/core/-/core-0.9.0.tgz#168ee076f94b152c01ca416c3e5cf82290ab4fcd"
-  integrity sha512-7ATR9F0e4W85D/0w7cU0SNj7qkAexMG+bAHEZOjo9akvGuhHE2m7umzWzfnpa0XAg5Kxc1BWmtPMV67jJ+9VUg==
+"@eslint/core@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@eslint/core/-/core-0.10.0.tgz#23727063c21b335f752dbb3a16450f6f9cbc9091"
+  integrity sha512-gFHJ+xBOo4G3WRlR1e/3G8A6/KZAH6zcE/hkLRCZTi/B9avAG365QhFA8uOGzTMqgTghpn7/fSnscW++dpMSAw==
+  dependencies:
+    "@types/json-schema" "^7.0.15"
 
 "@eslint/eslintrc@^2.1.4":
   version "2.1.4"
@@ -1308,55 +1310,56 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
-"@eslint/js@9.16.0":
-  version "9.16.0"
-  resolved "https://registry.yarnpkg.com/@eslint/js/-/js-9.16.0.tgz#3df2b2dd3b9163056616886c86e4082f45dbf3f4"
-  integrity sha512-tw2HxzQkrbeuvyj1tG2Yqq+0H9wGoI2IMk4EOsQeX+vmd75FtJAzf+gTA69WF+baUKRYQ3x2kbLE08js5OsTVg==
+"@eslint/js@9.19.0":
+  version "9.19.0"
+  resolved "https://registry.yarnpkg.com/@eslint/js/-/js-9.19.0.tgz#51dbb140ed6b49d05adc0b171c41e1a8713b7789"
+  integrity sha512-rbq9/g38qjfqFLOVPvwjIvFFdNziEC5S65jmjPw5r6A//QH+W91akh9irMwjDN8zKUTak6W9EsAv4m/7Wnw0UQ==
 
 "@eslint/object-schema@^2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@eslint/object-schema/-/object-schema-2.1.4.tgz#9e69f8bb4031e11df79e03db09f9dbbae1740843"
   integrity sha512-BsWiH1yFGjXXS2yvrf5LyuoSIIbPrGUWob917o+BTKuZ7qJdxX8aJLRxs1fS9n6r7vESrq1OUqb68dANcFXuQQ==
 
-"@eslint/plugin-kit@^0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@eslint/plugin-kit/-/plugin-kit-0.2.3.tgz#812980a6a41ecf3a8341719f92a6d1e784a2e0e8"
-  integrity sha512-2b/g5hRmpbb1o4GnTZax9N9m0FXzz9OV42ZzI4rDDMDuHUqigAiQCEWChBWCY4ztAGVRjoWT19v0yMmc5/L5kA==
+"@eslint/plugin-kit@^0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@eslint/plugin-kit/-/plugin-kit-0.2.5.tgz#ee07372035539e7847ef834e3f5e7b79f09e3a81"
+  integrity sha512-lB05FkqEdUg2AA0xEbUz0SnkXT1LcCTa438W4IWTUh4hdOnVbQyOJ81OrDXsJk/LSiJHubgGEFoR5EHq1NsH1A==
   dependencies:
+    "@eslint/core" "^0.10.0"
     levn "^0.4.1"
 
-"@fortawesome/fontawesome-common-types@6.7.1":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.7.1.tgz#6201640f39fdcf8e41cd9d1a92b2da3a96817fa4"
-  integrity sha512-gbDz3TwRrIPT3i0cDfujhshnXO9z03IT1UKRIVi/VEjpNHtSBIP2o5XSm+e816FzzCFEzAxPw09Z13n20PaQJQ==
+"@fortawesome/fontawesome-common-types@6.7.2":
+  version "6.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.7.2.tgz#7123d74b0c1e726794aed1184795dbce12186470"
+  integrity sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==
 
-"@fortawesome/fontawesome-svg-core@^6.7.1":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.7.1.tgz#1f8ebb6f35cf02f89c110198514e848de17ac99e"
-  integrity sha512-8dBIHbfsKlCk2jHQ9PoRBg2Z+4TwyE3vZICSnoDlnsHA6SiMlTwfmW6yX0lHsRmWJugkeb92sA0hZdkXJhuz+g==
+"@fortawesome/fontawesome-svg-core@^6.7.2":
+  version "6.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.7.2.tgz#0ac6013724d5cc327c1eb81335b91300a4fce2f2"
+  integrity sha512-yxtOBWDrdi5DD5o1pmVdq3WMCvnobT0LU6R8RyyVXPvFRd2o79/0NCuQoCjNTeZz9EzA9xS3JxNWfv54RIHFEA==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.7.1"
+    "@fortawesome/fontawesome-common-types" "6.7.2"
 
-"@fortawesome/free-brands-svg-icons@^6.7.1":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-6.7.1.tgz#1c1bbbac3ab897d02322b18fbbdf4d9b67ec1619"
-  integrity sha512-nJR76eqPzCnMyhbiGf6X0aclDirZriTPRcFm1YFvuupyJOGwlNF022w3YBqu+yrHRhnKRpzFX+8wJKqiIjWZkA==
+"@fortawesome/free-brands-svg-icons@^6.7.2":
+  version "6.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-6.7.2.tgz#4ebee8098f31da5446dda81edc344025eb59b27e"
+  integrity sha512-zu0evbcRTgjKfrr77/2XX+bU+kuGfjm0LbajJHVIgBWNIDzrhpRxiCPNT8DW5AdmSsq7Mcf9D1bH0aSeSUSM+Q==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.7.1"
+    "@fortawesome/fontawesome-common-types" "6.7.2"
 
-"@fortawesome/free-regular-svg-icons@^6.7.1":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.7.1.tgz#d7ec06f896ee91116a388a5a234cd26420ccdfe4"
-  integrity sha512-e13cp+bAx716RZOTQ59DhqikAgETA9u1qTBHO3e3jMQQ+4H/N1NC1ZVeFYt1V0m+Th68BrEL1/X6XplISutbXg==
+"@fortawesome/free-regular-svg-icons@^6.7.2":
+  version "6.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.7.2.tgz#f1651e55e6651a15589b0569516208f9c65f96db"
+  integrity sha512-7Z/ur0gvCMW8G93dXIQOkQqHo2M5HLhYrRVC0//fakJXxcF1VmMPsxnG6Ee8qEylA8b8Q3peQXWMNZ62lYF28g==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.7.1"
+    "@fortawesome/fontawesome-common-types" "6.7.2"
 
-"@fortawesome/free-solid-svg-icons@^6.7.1":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.7.1.tgz#c1f9a6c25562a12c283e87e284f9d82a5b0dbcc0"
-  integrity sha512-BTKc0b0mgjWZ2UDKVgmwaE0qt0cZs6ITcDgjrti5f/ki7aF5zs+N91V6hitGo3TItCFtnKg6cUVGdTmBFICFRg==
+"@fortawesome/free-solid-svg-icons@^6.7.2":
+  version "6.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.7.2.tgz#fe25883b5eb8464a82918599950d283c465b57f6"
+  integrity sha512-GsBrnOzU8uj0LECDfD5zomZJIjrPhIlWU82AHwa2s40FKH+kcxQaBvBo3Z4TxyZHIyX8XTDxsyA33/Vx9eFuQA==
   dependencies:
-    "@fortawesome/fontawesome-common-types" "6.7.1"
+    "@fortawesome/fontawesome-common-types" "6.7.2"
 
 "@fortawesome/react-fontawesome@^0.2.2":
   version "0.2.2"
@@ -1767,10 +1770,10 @@
   dependencies:
     dequal "^2.0.3"
 
-"@restart/ui@^1.9.0":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@restart/ui/-/ui-1.9.1.tgz#f0f22d255470e02f6fee6dcc449e56f0f1b8ebc1"
-  integrity sha512-qghR21ynHiUrpcIkKCoKYB+3rJtezY5Y7ikrwradCL+7hZHdQ2Ozc5ffxtpmpahoAGgc31gyXaSx2sXXaThmqA==
+"@restart/ui@^1.9.3":
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/@restart/ui/-/ui-1.9.3.tgz#32771ba81f27aa255f26387c1b9fc1a372f26638"
+  integrity sha512-2QwCC42ISRAu7nafKeO4khG1F65Xfu2n+cwQT30Ck5bxszKDXuT2AZMDIX2auXxHRednG2ynr8ffSA1fRrkOGg==
   dependencies:
     "@babel/runtime" "^7.26.0"
     "@popperjs/core" "^2.11.8"
@@ -2231,10 +2234,10 @@
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.7.3.tgz#3e51a17e291d01d17d3fc61422015a933af7a08f"
   integrity sha512-+68kP9yzs4LMp7VNh8gdzMSPZFL44MLGqiHWvttYJe+6qnuVr4Ek9wSBQoveqY/r+LwjCcU29kNVkidwim+kYA==
 
-"@types/prop-types@*":
-  version "15.7.13"
-  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.13.tgz#2af91918ee12d9d32914feb13f5326658461b451"
-  integrity sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==
+"@types/prop-types@*", "@types/prop-types@^15.7.12":
+  version "15.7.14"
+  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.14.tgz#1433419d73b2a7ebfc6918dcefd2ec0d5cd698f2"
+  integrity sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==
 
 "@types/q@^1.5.1":
   version "1.5.8"
@@ -2786,10 +2789,10 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apexcharts@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-4.2.0.tgz#f8b1658182a421f92049766321069f57bf603b04"
-  integrity sha512-MQ5o8KnwMGcAlo+LhXlAjWGk8wBNBK2O1gFv+JiB6w3oJeuDJUFqa6FLTDlXvdhtObNQ3vIfAtv0AbMSkDv0DQ==
+apexcharts@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-4.4.0.tgz#af1e80c3cbc5720f0362a7c34e09c6e461006e22"
+  integrity sha512-JGsHeQEKDlQh1rob8aBai9/HKvXIpbZ83TnobKZAcdOELf+oQZaxZyAnbbldr6PPBdCgG2zzzLaP1dtEsJxzWw==
   dependencies:
     "@svgdotjs/svg.draggable.js" "^3.0.4"
     "@svgdotjs/svg.filter.js" "^3.0.8"
@@ -3797,7 +3800,7 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3, cross-spawn@^7.0.5:
+cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3, cross-spawn@^7.0.6:
   version "7.0.6"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.6.tgz#8a58fe78f00dcd70c370451759dfbfaf03e8ee9f"
   integrity sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==
@@ -4001,10 +4004,10 @@ csstype@^3.0.2:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.3.tgz#d80ff294d114fb0e6ac500fbf85b60137d7eff81"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
 
-cypress@^13.16.1:
-  version "13.16.1"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-13.16.1.tgz#82e776f6ad2037ccce6b6feabed768615c476258"
-  integrity sha512-17FtCaz0cx7ssWYKXzGB0Vub8xHwpVPr+iPt2fHhLMDhVAPVrplD+rTQsZUsfb19LVBn5iwkEUFjQ1yVVJXsLA==
+cypress@^14.0.0:
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-14.0.0.tgz#a71cb0a243a0bfeb97b6973ab9c5291ca5288e93"
+  integrity sha512-kEGqQr23so5IpKeg/dp6GVi7RlHx1NmW66o2a2Q4wk9gRaAblLZQSiZJuDI8UMC4LlG5OJ7Q6joAiqTrfRNbTw==
   dependencies:
     "@cypress/request" "^3.0.6"
     "@cypress/xvfb" "^1.2.4"
@@ -4653,10 +4656,10 @@ escodegen@^2.0.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-prettier@^9.1.0:
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-9.1.0.tgz#31af3d94578645966c082fcb71a5846d3c94867f"
-  integrity sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==
+eslint-config-prettier@^10.0.1:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.0.1.tgz#fbb03bfc8db0651df9ce4e8b7150d11c5fe3addf"
+  integrity sha512-lZBts941cyJyeaooiKxAtzoPHTN+GbQTJFAIdQbRhA4/8whaAraEh47Whw/ZFfrjNSnlAxqfm9i0XVAEkULjCw==
 
 eslint-config-react-app@^7.0.1:
   version "7.0.1"
@@ -4755,10 +4758,10 @@ eslint-plugin-jsx-a11y@^6.5.1:
     safe-regex-test "^1.0.3"
     string.prototype.includes "^2.0.1"
 
-eslint-plugin-prettier@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-5.2.1.tgz#d1c8f972d8f60e414c25465c163d16f209411f95"
-  integrity sha512-gH3iR3g4JfF+yYPaJYkN7jEl9QbweL/YfkoRlNnuIEHEz1vHVlCmWOS+eGGiRuzHQXdJFCOTxRgvju9b8VUmrw==
+eslint-plugin-prettier@^5.2.3:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-5.2.3.tgz#c4af01691a6fa9905207f0fbba0d7bea0902cce5"
+  integrity sha512-qJ+y0FfCp/mQYQ/vWQ3s7eUlFEL4PyKfAJxsnYTJ4YT73nsJBWqmEpFryxV9OeUiqmsTsYJ5Y+KDNaeP31wrRw==
   dependencies:
     prettier-linter-helpers "^1.0.0"
     synckit "^0.9.1"
@@ -4893,18 +4896,18 @@ eslint@^8.3.0:
     strip-ansi "^6.0.1"
     text-table "^0.2.0"
 
-eslint@^9.15.0:
-  version "9.16.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-9.16.0.tgz#66832e66258922ac0a626f803a9273e37747f2a6"
-  integrity sha512-whp8mSQI4C8VXd+fLgSM0lh3UlmcFtVwUQjyKCFfsp+2ItAIYhlq/hqGahGqHE6cv9unM41VlqKk2VtKYR2TaA==
+eslint@^9.19.0:
+  version "9.19.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-9.19.0.tgz#ffa1d265fc4205e0f8464330d35f09e1d548b1bf"
+  integrity sha512-ug92j0LepKlbbEv6hD911THhoRHmbdXt2gX+VDABAW/Ir7D3nqKdv5Pf5vtlyY6HQMTEP2skXY43ueqTCWssEA==
   dependencies:
     "@eslint-community/eslint-utils" "^4.2.0"
     "@eslint-community/regexpp" "^4.12.1"
     "@eslint/config-array" "^0.19.0"
-    "@eslint/core" "^0.9.0"
+    "@eslint/core" "^0.10.0"
     "@eslint/eslintrc" "^3.2.0"
-    "@eslint/js" "9.16.0"
-    "@eslint/plugin-kit" "^0.2.3"
+    "@eslint/js" "9.19.0"
+    "@eslint/plugin-kit" "^0.2.5"
     "@humanfs/node" "^0.16.6"
     "@humanwhocodes/module-importer" "^1.0.1"
     "@humanwhocodes/retry" "^0.4.1"
@@ -4912,7 +4915,7 @@ eslint@^9.15.0:
     "@types/json-schema" "^7.0.15"
     ajv "^6.12.4"
     chalk "^4.0.0"
-    cross-spawn "^7.0.5"
+    cross-spawn "^7.0.6"
     debug "^4.3.2"
     escape-string-regexp "^4.0.0"
     eslint-scope "^8.2.0"
@@ -6900,10 +6903,10 @@ jotai-location@^0.5.5:
   resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.5.5.tgz#2b2622da6ee49493bc4d69e5610e2e5d382894ed"
   integrity sha512-6QW/7W9IJHjhbn7gRgAw4sC30k0/G6JiC4uPlKi8ZPZGYk7R7r9PyMD2eVhL4XSxxag89JxS1iSyr6BIXsB4Sw==
 
-jotai@^2.10.3:
-  version "2.10.3"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.10.3.tgz#5a9bbefde06fea5e4eed4677c2b0df6ab7c49b4f"
-  integrity sha512-Nnf4IwrLhNfuz2JOQLI0V/AgwcpxvVy8Ec8PidIIDeRi4KCFpwTFIpHAAcU+yCgnw/oASYElq9UY0YdUUegsSA==
+jotai@^2.11.1:
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.11.1.tgz#9fd12aaba8458783482c77c8d7038d6e974fc679"
+  integrity sha512-41Su098mpHIX29hF/XOpDb0SqF6EES7+HXfrhuBqVSzRkxX48hD5i8nGsEewWZNAsBWJCTTmuz8M946Ih2PfcQ==
 
 js-sha3@0.8.0:
   version "0.8.0"
@@ -8832,14 +8835,15 @@ react-app-polyfill@^3.0.0:
     regenerator-runtime "^0.13.9"
     whatwg-fetch "^3.6.2"
 
-react-bootstrap@^2.10.6:
-  version "2.10.6"
-  resolved "https://registry.yarnpkg.com/react-bootstrap/-/react-bootstrap-2.10.6.tgz#cb8b6f3604480b99b1e3cfa09cf53446e760bba7"
-  integrity sha512-fNvKytSp0nHts1WRnRBJeBEt+I9/ZdrnhIjWOucEduRNvFRU1IXjZueDdWnBiqsTSJ7MckQJi9i/hxGolaRq+g==
+react-bootstrap@^2.10.8:
+  version "2.10.8"
+  resolved "https://registry.yarnpkg.com/react-bootstrap/-/react-bootstrap-2.10.8.tgz#65537cba24d1253d2c83aef32de56f06f1b06a6b"
+  integrity sha512-Vw1B2QfGGsrcBge0HQt8rjhnw2syFbtlPQXl/50k/bAnA4Jwi9+Bd4aYYTa68oyBB2KXMtDbGy2oMGl7eSet9A==
   dependencies:
     "@babel/runtime" "^7.24.7"
     "@restart/hooks" "^0.4.9"
-    "@restart/ui" "^1.9.0"
+    "@restart/ui" "^1.9.3"
+    "@types/prop-types" "^15.7.12"
     "@types/react-transition-group" "^4.4.6"
     classnames "^2.3.2"
     dom-helpers "^5.2.1"
