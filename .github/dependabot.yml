@@ -24,3 +24,13 @@ updates:
       - "automatic-merge"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    dockerfile: Dockerfile
+    labels:
+      - "dependencies"
+      - "docker"
+      - "automatic-merge"
+    schedule:
+      interval: "daily"
