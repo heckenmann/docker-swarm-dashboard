@@ -26,3 +26,5 @@ docker.png
 .idea
 
 *.log
+
+.DS_Store
