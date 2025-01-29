@@ -17,10 +17,20 @@ updates:
       
   - package-ecosystem: "npm"
     directory: "/app-src"
+    versioning-strategy: increase
     open-pull-requests-limit: 25
     labels:
       - "dependencies"
       - "javascript"
+      - "automatic-merge"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    labels:
+      - "dependencies"
+      - "docker"
       - "automatic-merge"
     schedule:
       interval: "daily"
