@@ -1,6 +1,6 @@
 ##############################################################################
 # Stage 1: Build the Go server
-FROM golang:1.23.1-alpine AS go
+FROM golang:1.23.5-alpine AS go
 # ENV GO111MODULE=off
 RUN apk -U add git libc-dev
 COPY server-src/ /tmp/server-src
@@ -20,7 +20,7 @@ RUN yarn install --only=production --frozen-lockfile \
 
 ##############################################################################
 # Stage 3: Create the final image
-FROM alpine:3.20.3
+FROM alpine:3.21.2
 EXPOSE 8080
 RUN mkdir -p /opt/dsd
 
