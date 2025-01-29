@@ -14,7 +14,7 @@ RUN apk -U add --no-cache git wget \
     && mkdir -p /opt/dsd
 COPY app-src /opt/dsd
 WORKDIR /opt/dsd
-RUN yarn install --only=production --frozen-lockfile \
+RUN yarn install --only=production --frozen-lockfile --network-timeout 1800000 \
     && yarn run build \
     && rm -r node_modules
 
