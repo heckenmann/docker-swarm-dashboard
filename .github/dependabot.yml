@@ -17,6 +17,7 @@ updates:
       
   - package-ecosystem: "npm"
     directory: "/app-src"
+    versioning-strategy: increase
     open-pull-requests-limit: 25
     labels:
       - "dependencies"
