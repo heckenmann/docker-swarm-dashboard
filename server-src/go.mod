@@ -3,7 +3,8 @@ module heckenmann.de/docker-swarm-dashboard/v2
 go 1.23.1
 
 require (
-	github.com/docker/docker v27.2.1+incompatible
+	github.com/blang/semver v3.5.1+incompatible
+	github.com/docker/docker v27.5.1+incompatible
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
@@ -11,7 +12,6 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
