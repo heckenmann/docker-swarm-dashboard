@@ -1,0 +1,66 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
+{
+    "name": "devcontainer for docker-swarm-dashboard",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.23.1"
+        }
+    },
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    "forwardPorts": [
+        3000,
+        3001
+    ],
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "/bin/bash .devcontainer/init.sh",
+    // Configure tool-specific properties.
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // Go specific extensions:
+                // - Official Go extension for VSCode, supporting IntelliSense, debugging, and code navigation.
+                "golang.go",
+                // - Useful for formatting Go comments, particularly doc comments.
+                "stkb.rewrap",
+                // - Adds support for Go templates, often used in web or CLI development.
+                "formulahendry.go-template",
+                // JavaScript specific extensions:
+                // - Provides JavaScript and TypeScript debugging capabilities for both Node.js and browser environments.
+                "ms-vscode.js-debug",
+                // - Integrates ESLint for JavaScript code linting and ensuring code quality.
+                "dbaeumer.vscode-eslint",
+                // General purpose extensions:
+                // - Highlights TODO comments across your codebase, helpful for task management.
+                "gruntfuggly.todo-tree",
+                // - Manages Docker containers from within VSCode, beneficial for containerized development.
+                "ms-azuretools.vscode-docker",
+                // - Enables development inside containers using VSCode's Remote Development features.
+                "ms-vscode-remote.remote-containers"
+            ]
+        }
+    },
+    // Set environment variables for the container.
+    "containerEnv": {
+    },
+    // Mount volumes to persist data. More info: https://containers.dev/implementors/json_reference/#volume
+    "mounts": [
+        {
+            // - Caches node_modules to speed up installations across container restarts.
+            "source": "node_modules_cache",
+            "target": "${containerWorkspaceFolder}/app-src/node_modules",
+            "type": "volume"
+        },
+        {
+            // - Persists the root user's cache directory to maintain settings and speed up operations.
+            "source": "root_cache",
+            "target": "/root/.cache",
+            "type": "volume"
+        }
+    ],
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    "remoteUser": "root"
+}
