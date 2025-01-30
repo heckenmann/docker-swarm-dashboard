@@ -74,7 +74,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
-    "react-bootstrap": "^2.10.8",
+    "react-bootstrap": "^2.10.9",
     "react-dom": "^18.3.1",
     "react-interval": "^2.1.2",
     "react-query": "^3.39.3",
