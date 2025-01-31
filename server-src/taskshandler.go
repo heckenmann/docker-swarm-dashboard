@@ -7,11 +7,12 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"net/http"
 	"sort"
+	"time"
 )
 
 type TasksHandlerSimpleTask struct {
 	ID           string
-	Timestamp    string
+	Timestamp    time.Time
 	State        string
 	DesiredState string
 	ServiceName  string
@@ -33,7 +34,7 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 	for _, task := range tasks {
 		simpleTask := TasksHandlerSimpleTask{
 			ID:           task.ID,
-			Timestamp:    task.Status.Timestamp.String(),
+			Timestamp:    task.Status.Timestamp,
 			State:        string(task.Status.State),
 			DesiredState: string(task.DesiredState),
 			//ServiceName:
@@ -65,7 +66,7 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 
 	// Sort
 	sort.SliceStable(resultList, func(i, j int) bool {
-		return resultList[i].Timestamp > resultList[j].Timestamp
+		return resultList[i].Timestamp.After(resultList[j].Timestamp)
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
