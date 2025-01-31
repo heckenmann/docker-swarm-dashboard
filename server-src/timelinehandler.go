@@ -8,12 +8,13 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	"net/http"
 	"sort"
+	"time"
 )
 
 type TimelineHandlerSimpleTask struct {
 	ID               string
-	CreatedTimestamp string
-	StoppedTimestamp string
+	CreatedTimestamp time.Time
+	StoppedTimestamp time.Time
 	State            string
 	DesiredState     string
 	Slot             int
@@ -24,6 +25,8 @@ type TimelineHandlerSimpleTask struct {
 
 func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
+	// timestamp for still running tasks
+	var nowTimestamp = time.Now()
 	tasks, _ := cli.TaskList(context.Background(), types.TaskListOptions{})
 
 	resultList := make([]TimelineHandlerSimpleTask, 0)
@@ -31,7 +34,7 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 	for _, task := range tasks {
 		simpleTask := TimelineHandlerSimpleTask{
 			ID:               task.ID,
-			CreatedTimestamp: task.CreatedAt.String(),
+			CreatedTimestamp: task.CreatedAt,
 			State:            string(task.Status.State),
 			DesiredState:     string(task.DesiredState),
 			Slot:             task.Slot,
@@ -41,7 +44,10 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 
 		// If container is stopped, set StoppedTimestamp
 		if task.Status.State != swarm.TaskStateRunning || task.Status.ContainerStatus.PID == 0 {
-			simpleTask.StoppedTimestamp = task.Status.Timestamp.String()
+			simpleTask.StoppedTimestamp = task.Status.Timestamp
+		} else {
+			// Else now
+			simpleTask.StoppedTimestamp = nowTimestamp
 		}
 
 		// Find Service for Task
