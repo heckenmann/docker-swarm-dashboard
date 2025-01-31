@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 )
 
 type StackSimpleService struct {
@@ -14,8 +15,8 @@ type StackSimpleService struct {
 	ServiceName string
 	ShortName   string
 	Replication string
-	Created     string
-	Updated     string
+	Created     time.Time
+	Updated     time.Time
 }
 type StacksHandlerSimpleStack struct {
 	Name     string
@@ -43,8 +44,8 @@ func stacksHandler(w http.ResponseWriter, _ *http.Request) {
 			ID:          service.ID,
 			ServiceName: service.Spec.Name,
 			Replication: extractReplicationFromService(service),
-			Created:     service.CreatedAt.String(),
-			Updated:     service.UpdatedAt.String(),
+			Created:     service.CreatedAt,
+			Updated:     service.UpdatedAt,
 		}
 		if strings.HasPrefix(service.Spec.Name, stackname) {
 			simpleService.ShortName = strings.Replace(service.Spec.Name, stackname+"_", "", 1)
