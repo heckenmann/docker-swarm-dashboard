@@ -61,7 +61,7 @@
     "@types/react": "^18.3.13",
     "apexcharts": "^4.5.0",
     "axios": "^1.8.4",
-    "bootstrap": "^5.3.4",
+    "bootstrap": "^5.3.5",
     "cors": "^2.8.5",
     "cypress": "^14.2.1",
     "eslint": "^9.24.0",
