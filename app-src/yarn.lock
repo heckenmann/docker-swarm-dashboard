@@ -6975,10 +6975,10 @@ jju@^1.1.0:
   resolved "https://registry.yarnpkg.com/jju/-/jju-1.4.0.tgz#a3abe2718af241a2b2904f84a625970f389ae32a"
   integrity sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==
 
-jotai-location@^0.5.5:
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.5.5.tgz#2b2622da6ee49493bc4d69e5610e2e5d382894ed"
-  integrity sha512-6QW/7W9IJHjhbn7gRgAw4sC30k0/G6JiC4uPlKi8ZPZGYk7R7r9PyMD2eVhL4XSxxag89JxS1iSyr6BIXsB4Sw==
+jotai-location@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.6.0.tgz#42f8751500844c869c23b45c399d49763663caea"
+  integrity sha512-BgIRnX7ZUYWv7VFgqCvm1UIjYSNWD2+lOo+TJfHCWdUqfJDSes7ujYgNi0gYo80ax1mOFJ2INdX6wNu/UB2NbQ==
 
 jotai@^2.12.3:
   version "2.12.3"
