@@ -64,7 +64,7 @@
     "bootstrap": "^5.3.5",
     "cors": "^2.8.5",
     "cypress": "^14.3.2",
-    "eslint": "^9.25.1",
+    "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
     "jotai": "^2.12.3",
