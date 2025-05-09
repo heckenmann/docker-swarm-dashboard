@@ -1,56 +1,63 @@
+# Workflow to build and publish Docker images for multiple architectures
 name: Publish Docker Image
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
+# Trigger the workflow on push, pull requests, tags, or manual dispatch
 on:
   workflow_dispatch:
   push:
     branches: [ master ]
-    # Publish semver tags as releases.
+    # Publish semver tags as releases
     tags: [ '*.*.*' ]
   pull_request:
     branches: [ master ]
 
+# Environment variables for the Docker registry and image name
 env:
-  # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
-
 jobs:
+  # Job to build platform-specific Docker images (amd64 and arm64)
   build:
-    runs-on: ubuntu-latest
+    # Use matrix-defined runners (amd64 or arm64)
+    runs-on: ${{ matrix.runner }}
+    # Define matrix for parallel builds across architectures
     strategy:
+      # Continue other jobs if one fails
       fail-fast: false
+      matrix:
+        # Runners for amd64 (ubuntu-24.04) and arm64 (ubuntu-24.04-arm)
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        # Target platforms for Docker images
+        platform: [linux/amd64, linux/arm64]
+        # Prevent mismatching runner and platform combinations
+        exclude:
+          # Don't build amd64 on arm64 runner
+          - runner: ubuntu-24.04-arm
+            platform: linux/amd64
+          # Don't build arm64 on amd64 runner
+          - runner: ubuntu-24.04
+            platform: linux/arm64
+    # Permissions required for accessing repository and registry
     permissions:
       contents: read
       packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
       id-token: write
-
     steps:
+      # Check out the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
+      # Set up Docker Buildx for multi-platform builds
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Install the cosign tool except on PR
-      # https://github.com/sigstore/cosign-installer
+      # Install cosign for signing images, skip on pull requests
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3
 
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
+      # Log into the container registry (ghcr.io), skip on pull requests
       - name: Log into registry ${{ env.REGISTRY }}
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3.3.0
@@ -59,21 +66,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
+      # Sanitize github.ref_name to create a valid Docker tag
+      - name: Sanitize ref name for Docker tag
+        id: sanitize
+        run: |
+          SANITIZED_REF=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "SANITIZED_REF=$SANITIZED_REF" >> $GITHUB_ENV
+
+      # Extract metadata (tags, labels) for Docker images
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # Add platform-specific suffix (e.g., -amd64, -arm64)
+          flavor: |
+            suffix=-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
 
-      # Get the current Git tag if available, otherwise use branch name and commit hash
+      # Determine the version from Git tag or branch/commit
       - name: Get version
         id: get-version
         run: |
           TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$TAG" ]; then
-            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            BRANCH=$(git rev-parse --abbrev-ref HEAD | tr '/' '-')
             COMMIT_HASH=$(git rev-parse --short HEAD)
             VERSION="${BRANCH}-${COMMIT_HASH}"
           else
@@ -81,29 +97,70 @@ jobs:
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Build and push Docker image with Buildx (don't push on PR)
-      # https://github.com/docker/build-push-action
+      # Build and push platform-specific Docker image
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v6
         with:
           context: .
+          # Push only for non-pull-request events
           push: ${{ github.event_name != 'pull_request' }}
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
+          # Build for the specific platform (amd64 or arm64)
+          platforms: ${{ matrix.platform }}
+          # Use sanitized tag to avoid invalid characters
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Pass VERSION build argument if defined
           build-args: |
-            VERSION=${{ env.VERSION }}
+            ${{ env.VERSION && format('VERSION={0}', env.VERSION) }}
+          # Use GitHub Actions cache for faster builds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # Sign the resulting Docker image digest except on PRs.
-      # This will only write to the public Rekor transparency log when the Docker
-      # repository is public to avoid leaking data.  If you would like to publish
-      # transparency data even for private images, pass --force to cosign below.
-      # https://github.com/sigstore/cosign
-      #- name: Sign the published Docker image
-      #  if: ${{ github.event_name != 'pull_request' }}
-      #  env:
-      #    COSIGN_EXPERIMENTAL: "true"
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-      #  run: cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
+  # Job to combine platform-specific images into a multi-arch manifest
+  combine-manifest:
+    # Depends on the build job
+    needs: build
+    # Run on a standard runner
+    runs-on: ubuntu-24.04
+    # Only run for non-pull-request events
+    if: github.event_name != 'pull_request'
+    # Permissions for writing to the container registry
+    permissions:
+      packages: write
+    steps:
+      # Log into the container registry
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Sanitize github.ref_name to create a valid Docker tag
+      - name: Sanitize ref name for Docker tag
+        id: sanitize
+        run: |
+          SANITIZED_REF=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "SANITIZED_REF=$SANITIZED_REF" >> $GITHUB_ENV
+
+      # Extract metadata for the final multi-arch image
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # Verify that both platform-specific images exist
+      - name: Check image existence
+        run: |
+          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-amd64 || exit 1
+          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-arm64 || exit 1
+
+      # Create and push the multi-arch manifest
+      - name: Create and push manifest
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ steps.meta.outputs.tags }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-arm64
