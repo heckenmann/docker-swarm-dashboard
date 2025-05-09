@@ -66,6 +66,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Sanitize github.ref_name to create a valid Docker tag
+      - name: Sanitize ref name for Docker tag
+        id: sanitize
+        run: |
+          SANITIZED_REF=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "SANITIZED_REF=$SANITIZED_REF" >> $GITHUB_ENV
+
       # Extract metadata (tags, labels) for Docker images
       - name: Extract Docker metadata
         id: meta
@@ -82,7 +89,7 @@ jobs:
         run: |
           TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$TAG" ]; then
-            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            BRANCH=$(git rev-parse --abbrev-ref HEAD | tr '/' '-')
             COMMIT_HASH=$(git rev-parse --short HEAD)
             VERSION="${BRANCH}-${COMMIT_HASH}"
           else
@@ -100,7 +107,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           # Build for the specific platform (amd64 or arm64)
           platforms: ${{ matrix.platform }}
-          tags: ${{ steps.meta.outputs.tags }}
+          # Use sanitized tag to avoid invalid characters
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           labels: ${{ steps.meta.outputs.labels }}
           # Pass VERSION build argument if defined
           build-args: |
@@ -129,6 +137,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Sanitize github.ref_name to create a valid Docker tag
+      - name: Sanitize ref name for Docker tag
+        id: sanitize
+        run: |
+          SANITIZED_REF=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "SANITIZED_REF=$SANITIZED_REF" >> $GITHUB_ENV
+
       # Extract metadata for the final multi-arch image
       - name: Extract Docker metadata
         id: meta
@@ -139,13 +154,13 @@ jobs:
       # Verify that both platform-specific images exist
       - name: Check image existence
         run: |
-          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-amd64 || exit 1
-          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-arm64 || exit 1
+          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-amd64 || exit 1
+          docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-arm64 || exit 1
 
       # Create and push the multi-arch manifest
       - name: Create and push manifest
         run: |
           docker buildx imagetools create \
             --tag ${{ steps.meta.outputs.tags }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-arm64
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-arm64
