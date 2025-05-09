@@ -1,29 +1,49 @@
+# Workflow to run Cypress tests on multiple architectures
 name: Cypress
 
+# Environment variables for Node.js version and working directory
 env:
   NODE_VERSION: 20
   WORKING_DIRECTORY: ./app-src
 
+# Trigger the workflow on push or manual dispatch
 on:
   workflow_dispatch:
   push:
 
 jobs:
+  # Job to run Cypress tests on amd64 and arm64
   cypress-run:
-    runs-on: ubuntu-latest
+    # Use matrix-defined runners (amd64 or arm64)
+    runs-on: ${{ matrix.runner }}
+    # Define matrix for parallel execution across architectures
     strategy:
+      # Continue other jobs if one fails
       fail-fast: false
+      matrix:
+        # Runners for amd64 (ubuntu-24.04) and arm64 (ubuntu-24.04-arm)
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    # Set default working directory for all run steps
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIRECTORY }}
     steps:
-      - uses: actions/checkout@v2
+      # Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn' # Enable Yarn cache for faster installs
+
+      # Install global dependencies
       - name: Install global dependencies
         run: yarn global add concurrently
+
+      # Run Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
