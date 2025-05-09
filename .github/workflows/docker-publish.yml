@@ -150,6 +150,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # Add 'latest' tag only for release tags (*.*.*)
+          flavor: |
+            latest=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
 
       # Verify that both platform-specific images exist
       - name: Check image existence
