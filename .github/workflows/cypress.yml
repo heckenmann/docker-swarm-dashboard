@@ -37,7 +37,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn' # Enable Yarn cache for faster installs
 
       # Install global dependencies
       - name: Install global dependencies
