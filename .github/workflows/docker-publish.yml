@@ -164,7 +164,7 @@ jobs:
       - name: Create and push manifest
         run: |
           TAG_ARGS=""
-          IFS=',' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
+          IFS=$'\n' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
           for tag in "${TAGS[@]}"; do
             TAG_ARGS="$TAG_ARGS --tag $tag"
           done
