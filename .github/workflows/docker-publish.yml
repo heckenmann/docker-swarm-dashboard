@@ -163,7 +163,11 @@ jobs:
       # Create and push the multi-arch manifest
       - name: Create and push manifest
         run: |
-          docker buildx imagetools create \
-            --tag ${{ steps.meta.outputs.tags }} \
+          TAG_ARGS=""
+          IFS=',' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
+          for tag in "${TAGS[@]}"; do
+            TAG_ARGS="$TAG_ARGS --tag $tag"
+          done
+          docker buildx imagetools create $TAG_ARGS \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-arm64
