@@ -164,10 +164,11 @@ jobs:
       - name: Create and push manifest
         run: |
           TAG_ARGS=""
-          IFS=$'\n' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
-          for tag in "${TAGS[@]}"; do
+          TAGS=$(echo "${{ steps.meta.outputs.json }}" | jq -r '.tags[]')
+          for tag in $TAGS; do
             TAG_ARGS="$TAG_ARGS --tag $tag"
           done
+          echo "TAG_ARGS=$TAG_ARGS"
           docker buildx imagetools create $TAG_ARGS \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SANITIZED_REF }}-arm64
