@@ -153,6 +153,7 @@ jobs:
           # Add 'latest' tag only for release tags (*.*.*)
           flavor: |
             latest=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+          sep-tags: ","
 
       # Verify that both platform-specific images exist
       - name: Check image existence
@@ -164,8 +165,8 @@ jobs:
       - name: Create and push manifest
         run: |
           TAG_ARGS=""
-          TAGS=$(echo "${{ steps.meta.outputs.json }}" | jq -r '.tags[]')
-          for tag in $TAGS; do
+          IFS=',' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
+          for tag in "${TAGS[@]}"; do
             TAG_ARGS="$TAG_ARGS --tag $tag"
           done
           echo "TAG_ARGS=$TAG_ARGS"
