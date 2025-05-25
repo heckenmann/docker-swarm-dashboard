@@ -80,7 +80,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: ${{ env.WORKING_DIRECTORY }}
-          start: yarn run start-api-mock && yarn run start-dev-server
+          start: yarn run start
           install-command: yarn --frozen-lockfile
           command: yarn run cy:run --browser ${{ matrix.browser }}
           wait-on: 'http://localhost:3000'
