@@ -1,9 +1,8 @@
-# Workflow to run Cypress tests on multiple architectures
+# Workflow to run Cypress tests on multiple architectures, Node.js versions, and browsers
 name: Cypress
 
-# Environment variables for Node.js version and working directory
+# Environment variables for working directory
 env:
-  NODE_VERSION: 20
   WORKING_DIRECTORY: ./app-src
 
 # Trigger the workflow on push or manual dispatch
@@ -12,17 +11,23 @@ on:
   push:
 
 jobs:
-  # Job to run Cypress tests on amd64 and arm64
+  # Job to run Cypress tests
   cypress-run:
-    # Use matrix-defined runners (amd64 or arm64)
+    # Use matrix-defined runners, Node versions, and browsers
     runs-on: ${{ matrix.runner }}
-    # Define matrix for parallel execution across architectures
+    # Define matrix for parallel execution
     strategy:
       # Continue other jobs if one fails
       fail-fast: false
       matrix:
-        # Runners for amd64 (ubuntu-24.04) and arm64 (ubuntu-24.04-arm)
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        node-version: ['22', '24']
+        browser: ['firefox', 'electron']
+        include:
+          - runner: ubuntu-24.04
+            browser: chromium
+          - runner: ubuntu-24.04
+            browser: edge
     # Set default working directory for all run steps
     defaults:
       run:
@@ -36,11 +41,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
 
       # Install global dependencies
       - name: Install global dependencies
         run: yarn global add concurrently
+
+      # Update browserslist database
+      - name: Update browserslist
+        run: npx update-browserslist-db@latest
 
       # Run Cypress tests
       - name: Cypress run
@@ -49,6 +58,11 @@ jobs:
           working-directory: ${{ env.WORKING_DIRECTORY }}
           start: yarn run start
           install-command: yarn --frozen-lockfile
-          command: yarn run cy:run
+          command: yarn run cy:run --browser ${{ matrix.browser }}
           wait-on: 'http://localhost:3000'
-          browser: chrome, firefox, edge
+  
+  cypress-tests-passed:
+    needs: cypress-run
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All cypress-tests jobs completed successfully"
