@@ -20,12 +20,14 @@ jobs:
       # Continue other jobs if one fails
       fail-fast: false
       matrix:
-        # Runners for amd64 (ubuntu-24.04) and arm64 (ubuntu-24.04-arm)
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        # Node.js versions (aligned with package.json: ">=22.0.0")
         node-version: ['22', '24']
-        # Browsers for Cypress testing
-        browser: ['chromium', 'firefox', 'electron']
+        browser: ['firefox', 'electron']
+        include:
+          - runner: ubuntu-24.04
+            browser: chromium
+          - runner: ubuntu-24.04
+            browser: edge
     # Set default working directory for all run steps
     defaults:
       run:
@@ -40,20 +42,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
-      # Install dependencies for browser installation
-      - name: Install APT dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg ca-certificates
-
-      # Install Chromium if browser is chromium
-      - name: Install Chromium
-        if: matrix.browser == 'chromium'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-          sudo ln -s /snap/bin/chromium /usr/bin/chromium
 
       # Install global dependencies
       - name: Install global dependencies
