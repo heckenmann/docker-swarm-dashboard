@@ -53,6 +53,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser
+          sudo ln -s /snap/bin/chromium /usr/bin/chromium
 
       # Install global dependencies
       - name: Install global dependencies
