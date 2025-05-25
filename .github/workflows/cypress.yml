@@ -25,7 +25,7 @@ jobs:
         # Node.js versions (aligned with package.json: ">=22.0.0")
         node-version: ['22', '24']
         # Browsers for Cypress testing
-        browser: ['chrome', 'firefox', 'edge']
+        browser: ['chromium', 'firefox', 'electron']
     # Set default working directory for all run steps
     defaults:
       run:
@@ -46,26 +46,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y wget gnupg ca-certificates
-
-      # Add Google Chrome APT source and install Chrome
-      - name: Install Chrome
-        if: matrix.browser == 'chrome'
-        run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-          google-chrome --version
-
-      # Add Microsoft Edge APT source and install Edge
-      - name: Install Edge
-        if: matrix.browser == 'edge'
-        run: |
-          wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge.list
-          sudo apt-get update
-          sudo apt-get install -y microsoft-edge-stable
-          microsoft-edge --version
 
       # Install global dependencies
       - name: Install global dependencies
