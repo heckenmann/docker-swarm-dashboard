@@ -60,3 +60,9 @@ jobs:
           install-command: yarn --frozen-lockfile
           command: yarn run cy:run --browser ${{ matrix.browser }}
           wait-on: 'http://localhost:3000'
+  
+  cypress-tests-passed:
+    needs: cypress-run
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All cypress-tests jobs completed successfully"
