@@ -52,6 +52,5 @@ jobs:
           working-directory: ${{ env.WORKING_DIRECTORY }}
           start: yarn run start
           install-command: yarn --frozen-lockfile
-          command: yarn run cy:run
+          command: yarn run cy:run --browser ${{ matrix.browser }}
           wait-on: 'http://localhost:3000'
-          browser: ${{ matrix.browser }}
