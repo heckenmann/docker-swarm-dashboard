@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 //import 'bootswatch/dist/cosmo/bootstrap.min.css';
 //import '../node_modules/@fortawesome/fontawesome/styles.css';
 import { Provider } from 'jotai'
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import { Container } from 'react-bootstrap'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript'
