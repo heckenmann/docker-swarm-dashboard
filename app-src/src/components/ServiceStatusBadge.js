@@ -22,7 +22,7 @@ const ServiceStatusBadge = ({
   createdAt,
   updatedAt,
   serviceError,
-  hiddenStates,
+  hiddenStates = [],
 }) => {
   if (hiddenStates.includes(serviceState)) {
     return
