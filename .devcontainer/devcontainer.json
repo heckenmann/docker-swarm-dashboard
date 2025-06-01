@@ -3,11 +3,15 @@
 {
     "name": "devcontainer for docker-swarm-dashboard",
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
     // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {
         "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.23.1"
+            "version": "1.23.2"
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest",
+            "dockerDashComposeVersion": "v2"
         }
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -44,8 +48,7 @@
         }
     },
     // Set environment variables for the container.
-    "containerEnv": {
-    },
+    "containerEnv": {},
     // Mount volumes to persist data. More info: https://containers.dev/implementors/json_reference/#volume
     "mounts": [
         {
