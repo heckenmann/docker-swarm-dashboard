@@ -26,8 +26,16 @@ jobs:
         include:
           - runner: ubuntu-24.04
             browser: chromium
+            node-version: '22'
+          - runner: ubuntu-24.04
+            browser: chromium
+            node-version: '24'
           - runner: ubuntu-24.04
             browser: edge
+            node-version: '22'
+          - runner: ubuntu-24.04
+            browser: edge
+            node-version: '24'
     # Set default working directory for all run steps
     defaults:
       run:

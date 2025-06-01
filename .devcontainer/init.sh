@@ -1,7 +1,10 @@
 set -x
 
+# workaround after rebuilding the container
+git config --global --add safe.directory /workspaces/docker-swarm-dashboard
+
 cd app-src
-yarn global add concurrently react-scripts
+yarn global add concurrently
 yarn install
 
 
