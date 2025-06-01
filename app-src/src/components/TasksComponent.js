@@ -55,7 +55,7 @@ function TasksComponent() {
           )}
         </td>
         <td>
-          <ServiceStatusBadge id={id} serviceState={task['State']} />
+          <ServiceStatusBadge id={id} serviceState={task['State']} createdAt={task['Timestamp']} />
         </td>
         <td>{task['DesiredState']}</td>
         <td
