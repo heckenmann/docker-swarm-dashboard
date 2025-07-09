@@ -63,7 +63,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@popperjs/core": "^2.11.8",
     "@svgr/webpack": "^8.1.0",
-    "apexcharts": "^4.7.0",
+    "apexcharts": "^5.2.0",
     "axios": "^1.10.0",
     "babel-loader": "^10.0.0",
     "bootstrap": "^5.3.7",
