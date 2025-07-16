@@ -20,7 +20,7 @@ RUN yarn install --only=production --frozen-lockfile --network-timeout 1800000 \
 
 ##############################################################################
 # Stage 3: Create the final image
-FROM alpine:3.22.0
+FROM alpine:3.22.1
 EXPOSE 8080
 RUN mkdir -p /opt/dsd
 
