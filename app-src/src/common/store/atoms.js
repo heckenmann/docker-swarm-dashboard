@@ -22,7 +22,9 @@ const parsedHash = hashWithoutHash
 // Jotai-Atoms
 export const baseUrlAtom = atomWithHash(
   'base',
-  parsedHash.base ? parsedHash.base.replaceAll('"', '') : window.location.pathname,
+  parsedHash.base
+    ? parsedHash.base.replaceAll('"', '')
+    : window.location.pathname,
 )
 export const refreshIntervalAtom = atomWithReducer(
   null,
@@ -118,17 +120,23 @@ export const logsWebsocketUrlAtom = atom((get) => {
 
   // Build query string from logsConfig parameters
   wsUrl.search =
-    '?tail=' + logsConfig.tail +
-    '&since=' + logsConfig.since +
-    '&follow=' + logsConfig.follow +
-    '&timestamps=' + logsConfig.timestamps +
-    '&stdout=' + logsConfig.stdout +
-    '&stderr=' + logsConfig.stderr +
-    '&details=' + logsConfig.details
+    '?tail=' +
+    logsConfig.tail +
+    '&since=' +
+    logsConfig.since +
+    '&follow=' +
+    logsConfig.follow +
+    '&timestamps=' +
+    logsConfig.timestamps +
+    '&stdout=' +
+    logsConfig.stdout +
+    '&stderr=' +
+    logsConfig.stderr +
+    '&details=' +
+    logsConfig.details
 
   return wsUrl.toString()
-}
-)
+})
 
 // Theme
 export const isDarkModeAtom = atomWithHash('darkMode', false)
