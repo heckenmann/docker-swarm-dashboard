@@ -59,7 +59,7 @@ func main() {
 	} else {
 		router.PathPrefix(pathPrefix + "/").Handler(http.StripPrefix(pathPrefix+"/", http.FileServer(http.Dir("build/"))))
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, pathPrefix+"/", http.StatusMovedPermanently)
+			http.Redirect(w, r, pathPrefix+"/", http.StatusTemporaryRedirect)
 		})
 	}
 	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
