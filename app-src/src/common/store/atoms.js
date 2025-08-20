@@ -102,40 +102,40 @@ export const logsWebsocketUrlAtom = atom((get) => {
     return null
   }
   const baseUrl = get(baseUrlAtom)
-  let wsUrl
 
-  try {
-    // Try to create an absolute URL from baseUrl
-    wsUrl = new URL(baseUrl)
-  } catch {
-    // If baseUrl is not valid, use window.location.origin and window.location.pathname
-    wsUrl = new URL(window.location.origin + window.location.pathname)
+  // Split baseUrl into components
+  let protocol, host, pathname
+  if (/^https?:\/\//.test(baseUrl)) {
+    // baseUrl is a full URL
+    const urlObj = new URL(baseUrl)
+    protocol = urlObj.protocol.replace(/^http/, 'ws')
+    host = urlObj.host
+    pathname = urlObj.pathname
+  } else {
+    // baseUrl is a relative path
+    protocol = window.location.protocol.replace(/^http/, 'ws')
+    host = window.location.host
+    pathname = baseUrl
   }
 
-  // Change protocol from http/https to ws/wss
-  wsUrl.protocol = wsUrl.protocol.replace(/^http/, 'ws')
-
   // Ensure the path ends with a slash before appending
-  wsUrl.pathname += 'docker/logs/' + logsConfig.serviceId
+  if (!pathname.endsWith('/')) pathname += '/'
+  pathname += 'docker/logs/' + logsConfig.serviceId
 
   // Build query string from logsConfig parameters
-  wsUrl.search =
-    '?tail=' +
-    logsConfig.tail +
-    '&since=' +
-    logsConfig.since +
-    '&follow=' +
-    logsConfig.follow +
-    '&timestamps=' +
-    logsConfig.timestamps +
-    '&stdout=' +
-    logsConfig.stdout +
-    '&stderr=' +
-    logsConfig.stderr +
-    '&details=' +
-    logsConfig.details
+  const params = new URLSearchParams({
+    tail: logsConfig.tail,
+    since: logsConfig.since,
+    follow: logsConfig.follow,
+    timestamps: logsConfig.timestamps,
+    stdout: logsConfig.stdout,
+    stderr: logsConfig.stderr,
+    details: logsConfig.details,
+  })
 
-  return wsUrl.toString()
+  // Construct the full WebSocket URL
+  const wsUrl = `${protocol}//${host}${pathname}?${params.toString()}`
+  return wsUrl
 })
 
 // Theme
