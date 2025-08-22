@@ -3834,10 +3834,10 @@ jju@^1.1.0:
   resolved "https://registry.yarnpkg.com/jju/-/jju-1.4.0.tgz#a3abe2718af241a2b2904f84a625970f389ae32a"
   integrity sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==
 
-jotai-location@^0.6.0:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.6.1.tgz#6fd6122f4ad8f703bc856db5dcb15a9a5be846ef"
-  integrity sha512-qn7mCLcstuKckwpJwi/eCrxjimQZnN3PBjQQIIJ34UZSj/724tdSkFM8Tzd+fRflqo+ITOcB//CWRugoKTejOQ==
+jotai-location@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.6.2.tgz#7f90ec768d9aca62ce7d509baa771848225edb39"
+  integrity sha512-D+fqGNNgPHpehOsGBsYsS7F3kNgml099MJrGYt8YlLumcnoTVrBdcO+Y11KyMlyzwPihEN0HPUgke9Iihz9OXw==
 
 jotai@^2.13.1:
   version "2.13.1"
