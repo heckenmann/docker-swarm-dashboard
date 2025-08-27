@@ -1,22 +1,32 @@
 package main
 
 import (
-	"github.com/docker/docker/client"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/docker/docker/client"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 var (
-	httpPort = getHTTPPort()
+	httpPort   = getHTTPPort()
+	pathPrefix = os.Getenv("DSD_PATH_PREFIX")
 )
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
 
 	router := mux.NewRouter().StrictSlash(true)
+	var apiRouter *mux.Router
+
+	if pathPrefix == "" {
+		apiRouter = router
+	} else {
+		log.Println("Using path prefix:", pathPrefix)
+		apiRouter = router.PathPrefix(pathPrefix).Subrouter()
+	}
 
 	// CORS Headers
 	// https://stackoverflow.com/questions/40985920/making-golang-gorilla-cors-handler-work
@@ -24,26 +34,34 @@ func main() {
 	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-	router.HandleFunc("/docker/services", dockerServicesHandler)
-	router.HandleFunc("/docker/services/{id}", dockerServicesDetailsHandler)
-	router.HandleFunc("/docker/nodes", dockerNodesHandler)
-	router.HandleFunc("/docker/nodes/{id}", dockerNodesDetailsHandler)
-	router.HandleFunc("/docker/tasks", dockerTasksHandler)
-	router.HandleFunc("/docker/tasks/{id}", dockerTasksDetailsHandler)
+	apiRouter.HandleFunc("/docker/services", dockerServicesHandler)
+	apiRouter.HandleFunc("/docker/services/{id}", dockerServicesDetailsHandler)
+	apiRouter.HandleFunc("/docker/nodes", dockerNodesHandler)
+	apiRouter.HandleFunc("/docker/nodes/{id}", dockerNodesDetailsHandler)
+	apiRouter.HandleFunc("/docker/tasks", dockerTasksHandler)
+	apiRouter.HandleFunc("/docker/tasks/{id}", dockerTasksDetailsHandler)
 	if handlingLogs {
-		router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+		apiRouter.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	}
-	router.HandleFunc("/ui/dashboard-settings", dashboardSettingsHandler)
-	router.HandleFunc("/ui/dashboardh", dashboardHHandler)
-	router.HandleFunc("/ui/dashboardv", dashboardVHandler)
-	router.HandleFunc("/ui/timeline", timelineHandler)
-	router.HandleFunc("/ui/stacks", stacksHandler)
-	router.HandleFunc("/ui/nodes", nodesHandler)
-	router.HandleFunc("/ui/tasks", tasksHandler)
-	router.HandleFunc("/ui/ports", portsHandler)
-	router.HandleFunc("/ui/logs/services", logsServicesHandler)
-	router.HandleFunc("/ui/version", versionHandler)
-	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
+	apiRouter.HandleFunc("/ui/dashboard-settings", dashboardSettingsHandler)
+	apiRouter.HandleFunc("/ui/dashboardh", dashboardHHandler)
+	apiRouter.HandleFunc("/ui/dashboardv", dashboardVHandler)
+	apiRouter.HandleFunc("/ui/timeline", timelineHandler)
+	apiRouter.HandleFunc("/ui/stacks", stacksHandler)
+	apiRouter.HandleFunc("/ui/nodes", nodesHandler)
+	apiRouter.HandleFunc("/ui/tasks", tasksHandler)
+	apiRouter.HandleFunc("/ui/ports", portsHandler)
+	apiRouter.HandleFunc("/ui/logs/services", logsServicesHandler)
+	apiRouter.HandleFunc("/ui/version", versionHandler)
+
+	if pathPrefix == "" || pathPrefix == "/" {
+		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
+	} else {
+		router.PathPrefix(pathPrefix + "/").Handler(http.StripPrefix(pathPrefix+"/", http.FileServer(http.Dir("build/"))))
+		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, pathPrefix+"/", http.StatusTemporaryRedirect)
+		})
+	}
 	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
 
 	corsRouter := handlers.CORS(headersOk, originsOk, methodsOk)(router)
