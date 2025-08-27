@@ -59,7 +59,6 @@ function LogsComponent() {
 
   useEffect(() => {
     if (lastMessage !== null) {
-      console.log(lastMessage.data)
       const toRemove = logsLines.length - logsNumberOfLines + 1
       const newLogs = logsLines
       newLogs.splice(0, toRemove)

@@ -68,6 +68,7 @@ Docker Swarm Dashboard supports environment variables for configuration
 * `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
 * `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
 * `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
+* `DSD_PATH_PREFIX`: Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path.
 * `LOCALE`: Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag.
 * `TZ`: [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in.
 * `DSD_VERSION_CHECK_ENABLED`: When set to `true`, the system will check for updates and notify in the UI if a new version is available. If set to `false`, the version check will be skipped. Default is `false`.

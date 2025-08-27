@@ -22,7 +22,9 @@ const parsedHash = hashWithoutHash
 // Jotai-Atoms
 export const baseUrlAtom = atomWithHash(
   'base',
-  parsedHash.base ? parsedHash.base.replaceAll('"', '') : '/',
+  parsedHash.base
+    ? parsedHash.base.replaceAll('"', '')
+    : window.location.pathname,
 )
 export const refreshIntervalAtom = atomWithReducer(
   null,
@@ -94,28 +96,47 @@ export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
 export const logsNumberOfLinesAtom = atomWithReset(20)
 export const logsConfigAtom = atom()
-export const logsWebsocketUrlAtom = selectAtom(logsConfigAtom, (logsConfig) =>
-  logsConfig
-    ? 'ws://' +
-      window.location.host +
-      '/docker/logs/' +
-      logsConfig.serviceId +
-      '?tail=' +
-      logsConfig.tail +
-      '&since=' +
-      logsConfig.since +
-      '&follow=' +
-      logsConfig.follow +
-      '&timestamps=' +
-      logsConfig.timestamps +
-      '&stdout=' +
-      logsConfig.stdout +
-      '&stderr=' +
-      logsConfig.stderr +
-      '&details=' +
-      logsConfig.details
-    : null,
-)
+export const logsWebsocketUrlAtom = atom((get) => {
+  const logsConfig = get(logsConfigAtom)
+  if (!logsConfig) {
+    return null
+  }
+  const baseUrl = get(baseUrlAtom)
+
+  // Split baseUrl into components
+  let protocol, host, pathname
+  if (/^https?:\/\//.test(baseUrl)) {
+    // baseUrl is a full URL
+    const urlObj = new URL(baseUrl)
+    protocol = urlObj.protocol.replace(/^http/, 'ws')
+    host = urlObj.host
+    pathname = urlObj.pathname
+  } else {
+    // baseUrl is a relative path
+    protocol = window.location.protocol.replace(/^http/, 'ws')
+    host = window.location.host
+    pathname = baseUrl
+  }
+
+  // Ensure the path ends with a slash before appending
+  if (!pathname.endsWith('/')) pathname += '/'
+  pathname += 'docker/logs/' + logsConfig.serviceId
+
+  // Build query string from logsConfig parameters
+  const params = new URLSearchParams({
+    tail: logsConfig.tail,
+    since: logsConfig.since,
+    follow: logsConfig.follow,
+    timestamps: logsConfig.timestamps,
+    stdout: logsConfig.stdout,
+    stderr: logsConfig.stderr,
+    details: logsConfig.details,
+  })
+
+  // Construct the full WebSocket URL
+  const wsUrl = `${protocol}//${host}${pathname}?${params.toString()}`
+  return wsUrl
+})
 
 // Theme
 export const isDarkModeAtom = atomWithHash('darkMode', false)

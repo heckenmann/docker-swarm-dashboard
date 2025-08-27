@@ -46,7 +46,7 @@ jobs:
     steps:
       # Check out the repository code
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Set up Docker Buildx for multi-platform builds
       - name: Set up Docker Buildx
