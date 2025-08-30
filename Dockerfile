@@ -27,6 +27,7 @@ RUN mkdir -p /opt/dsd
 ARG VERSION=0.0.0
 ENV DSD_HTTP_PORT=8080
 ENV DSD_VERSION=${VERSION}
+ENV DSD_PATH_PREFIX=/
 LABEL dsd.version=${VERSION}
 ENV DSD_VERSION_RELEASE_URL=https://api.github.com/repos/heckenmann/docker-swarm-dashboard/releases/latest
 ENV DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES=30
