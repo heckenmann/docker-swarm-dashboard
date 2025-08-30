@@ -2,6 +2,11 @@ name: API Build and Healthcheck
 
 env:
   WORKING_DIRECTORY: ./server-src
+  VERSION: 0.0.0
+  ENV DSD_HTTP_PORT: 8080
+  DOCKER_API_VERSION: "1.51"
+  DSD_VERSION_CHECK_ENABLED: "false"
+  DSD_PATH_PREFIX: "/"
 
 on:
   workflow_dispatch:
@@ -32,7 +37,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Test health endpoint
-        run: curl -sSf http://localhost:8080/health | grep -q 'OK'
+        run: curl -sSf http://127.0.0.1:${{ env.DSD_HTTP_PORT }}/health | grep -q 'OK'
 
       - name: Stop application
         run: pkill docker-swarm-dashboard || true
