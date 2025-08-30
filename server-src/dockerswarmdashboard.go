@@ -55,7 +55,7 @@ func main() {
 	apiRouter.HandleFunc("/ui/logs/services", logsServicesHandler)
 	apiRouter.HandleFunc("/ui/version", versionHandler)
 
-	router.HandleFunc("/health", healthHandler)
+	apiRouter.HandleFunc("/health", healthHandler)
 
 	if pathPrefix == "" || pathPrefix == "/" {
 		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
