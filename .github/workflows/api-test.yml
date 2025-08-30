@@ -3,7 +3,7 @@ name: API Build and Healthcheck
 env:
   WORKING_DIRECTORY: ./server-src
   VERSION: 0.0.0
-  ENV DSD_HTTP_PORT: 8080
+  DSD_HTTP_PORT: 8080
   DOCKER_API_VERSION: "1.35"
   DSD_VERSION_CHECK_ENABLED: "false"
   DSD_PATH_PREFIX: "/"
