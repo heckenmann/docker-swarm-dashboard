@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	httpPort   = getHTTPPort()
-	pathPrefix = os.Getenv("DSD_PATH_PREFIX")
+	httpPort                  = getHTTPPort()
+	pathPrefix                = os.Getenv("DSD_PATH_PREFIX")
+	cli        *client.Client = nil
 )
 
 func main() {
@@ -54,6 +55,8 @@ func main() {
 	apiRouter.HandleFunc("/ui/logs/services", logsServicesHandler)
 	apiRouter.HandleFunc("/ui/version", versionHandler)
 
+	apiRouter.HandleFunc("/health", healthHandler)
+
 	if pathPrefix == "" || pathPrefix == "/" {
 		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))
 	} else {
@@ -71,9 +74,12 @@ func main() {
 
 // Creates a client
 func getCli() *client.Client {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
-	if err != nil {
-		panic(err)
+	if cli == nil {
+		var err error
+		cli, err = client.NewClientWithOpts(client.FromEnv)
+		if err != nil {
+			panic(err)
+		}
 	}
 	return cli
 }
