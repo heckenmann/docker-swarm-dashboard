@@ -60,7 +60,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-regular-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@fortawesome/react-fontawesome": "^3.0.1",
+    "@fortawesome/react-fontawesome": "^3.0.2",
     "@popperjs/core": "^2.11.8",
     "@svgr/webpack": "^8.1.0",
     "apexcharts": "^5.3.4",
