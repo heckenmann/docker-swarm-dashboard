@@ -70,7 +70,7 @@
     "cors": "^2.8.5",
     "css-loader": "^7.1.2",
     "cypress": "^15.1.0",
-    "eslint": "^9.34.0",
+    "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "file-loader": "^6.2.0",
