@@ -3825,10 +3825,10 @@ jotai-location@^0.6.2:
   resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.6.2.tgz#7f90ec768d9aca62ce7d509baa771848225edb39"
   integrity sha512-D+fqGNNgPHpehOsGBsYsS7F3kNgml099MJrGYt8YlLumcnoTVrBdcO+Y11KyMlyzwPihEN0HPUgke9Iihz9OXw==
 
-jotai@^2.13.1:
-  version "2.13.1"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.13.1.tgz#9ebac0f815864d3fe0f169f87092163fb386a1fe"
-  integrity sha512-cRsw6kFeGC9Z/D3egVKrTXRweycZ4z/k7i2MrfCzPYsL9SIWcPXTyqv258/+Ay8VUEcihNiE/coBLE6Kic6b8A==
+jotai@^2.14.0:
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.14.0.tgz#1e458e59771644a26eb9d9f4a6fd9ee74397d573"
+  integrity sha512-JQkNkTnqjk1BlSUjHfXi+pGG/573bVN104gp6CymhrWDseZGDReTNniWrLhJ+zXbM6pH+82+UNJ2vwYQUkQMWQ==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
