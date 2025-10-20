@@ -69,7 +69,7 @@
     "bootstrap": "^5.3.8",
     "cors": "^2.8.5",
     "css-loader": "^7.1.2",
-    "cypress": "^15.4.0",
+    "cypress": "^15.5.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
