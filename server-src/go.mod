@@ -4,7 +4,7 @@ go 1.23.1
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/docker/docker v28.5.0+incompatible
+	github.com/docker/docker v28.5.1+incompatible
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
