@@ -80,7 +80,7 @@
     "json-server": "0.17.4",
     "prettier": "^3.7.4",
     "prop-types": "^15.8.1",
-    "react": "^19.2.1",
+    "react": "^19.2.3",
     "react-apexcharts": "^1.9.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.1",
