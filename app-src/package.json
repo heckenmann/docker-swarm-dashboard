@@ -88,7 +88,7 @@
     "react-syntax-highlighter": "^16.1.0",
     "react-use-websocket": "^4.13.0",
     "style-loader": "^4.0.0",
-    "webpack": "5.104.0",
+    "webpack": "5.104.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
   }
