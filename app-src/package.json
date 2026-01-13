@@ -51,7 +51,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
+    "@babel/core": "^7.28.6",
     "@babel/plugin-syntax-flow": "^7.28.6",
     "@babel/plugin-transform-react-jsx": "^7.28.6",
     "@babel/preset-env": "^7.28.5",
