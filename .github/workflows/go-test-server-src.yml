@@ -1,0 +1,35 @@
+name: Go - test server-src
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26rc2'
+
+      - name: Run tests for server-src and enforce 90% coverage
+        working-directory: ./server-src
+        run: |
+          set -euo pipefail
+          # Run tests and write coverage report
+          go test ./... -coverprofile=coverage.out -v
+          echo "Coverage report:"
+          go tool cover -func=coverage.out
+
+          # Extract total coverage percentage (numeric) and enforce threshold
+          coverage=$(go tool cover -func=coverage.out | awk '/^total:/ {print $3}' | sed 's/%//')
+          echo "Total coverage: ${coverage}%"
+
+          # Fail if coverage is less than 90
+          awk -v cov="$coverage" 'BEGIN { if (cov+0 < 90) { print "Coverage threshold not met (" cov "% < 90%)"; exit 1 } else { print "Coverage threshold met (" cov "% >= 90%)"; exit 0 } }'

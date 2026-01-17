@@ -32,6 +32,12 @@ var (
 )
 
 func init() {
+	loadDashboardSettingsFromEnv()
+}
+
+// loadDashboardSettingsFromEnv reads environment variables and updates
+// package-level dashboard settings; exported to be testable.
+func loadDashboardSettingsFromEnv() {
 	if handleLogsEnvValue, handleLogsSet := os.LookupEnv("DSD_HANDLE_LOGS"); handleLogsSet {
 		handlingLogs, _ = strconv.ParseBool(handleLogsEnvValue)
 	}
