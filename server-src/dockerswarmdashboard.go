@@ -18,7 +18,15 @@ var (
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
+	log.Println("Starting server setup")
+	handler := buildHandler()
+	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
+	log.Fatal(http.ListenAndServe(":"+httpPort, handler))
+}
 
+// buildHandler constructs the HTTP handler (router + middleware) without
+// starting the server. Extracted to allow testing of routing and setup.
+func buildHandler() http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	var apiRouter *mux.Router
 
@@ -65,11 +73,10 @@ func main() {
 			http.Redirect(w, r, pathPrefix+"/", http.StatusTemporaryRedirect)
 		})
 	}
-	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
 
 	corsRouter := handlers.CORS(headersOk, originsOk, methodsOk)(router)
 	loggedRouter := handlers.LoggingHandler(os.Stdout, corsRouter)
-	log.Fatal(http.ListenAndServe(":"+httpPort, handlers.CompressHandler(loggedRouter)))
+	return handlers.CompressHandler(loggedRouter)
 }
 
 // Creates a client
@@ -82,6 +89,16 @@ func getCli() *client.Client {
 		}
 	}
 	return cli
+}
+
+// SetCli allows tests to inject a custom Docker client instance.
+func SetCli(c *client.Client) {
+	cli = c
+}
+
+// ResetCli clears the cached client so subsequent calls to getCli recreate it from env.
+func ResetCli() {
+	cli = nil
 }
 
 // getHTTPPort returns the configured HTTP port from the environment variable DSD_HTTP_PORT,
