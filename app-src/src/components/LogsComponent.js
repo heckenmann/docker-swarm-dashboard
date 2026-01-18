@@ -15,7 +15,7 @@ import {
   logsWebsocketUrlAtom,
 } from '../common/store/atoms'
 import useWebSocket from 'react-use-websocket'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 /**
  * LogsComponent is a React functional component that handles the display and management
@@ -57,15 +57,71 @@ function LogsComponent() {
   let inputStderr
   let inputDetails
 
-  useEffect(() => {
-    if (lastMessage !== null) {
-      const toRemove = logsLines.length - logsNumberOfLines + 1
-      const newLogs = logsLines
-      newLogs.splice(0, toRemove)
-      newLogs.push(lastMessage.data)
-      setLogsLines(newLogs)
+  // Ring buffer for incoming log lines to reduce copy/GC churn under high
+  // message throughput. We collect incoming messages into a mutable buffer
+  // and flush to React state in a coalesced tick.
+  const bufferRef = useRef({ arr: [], start: 0, size: 0, capacity: Number(logsNumberOfLines) || 20 })
+  const flushTimerRef = useRef(null)
+
+  // Helper: flush buffer content into the logsLines atom
+  const flushBuffer = () => {
+    const buf = bufferRef.current
+    const out = []
+    for (let i = 0; i < buf.size; i++) {
+      out.push(buf.arr[(buf.start + i) % buf.capacity])
     }
-  }, [lastMessage, setLogsLines])
+    setLogsLines(out)
+    if (flushTimerRef.current) {
+      clearTimeout(flushTimerRef.current)
+      flushTimerRef.current = null
+    }
+  }
+
+  useEffect(() => {
+    if (lastMessage === null) return
+
+    const buf = bufferRef.current
+    const cap = Number(logsNumberOfLines) || 20
+
+    // If capacity changed, reallocate preserving most recent entries
+    if (buf.capacity !== cap) {
+      const newArr = new Array(cap)
+      const take = Math.min(buf.size, cap)
+      // copy last `take` entries
+      for (let i = 0; i < take; i++) {
+        newArr[i] = buf.arr[(buf.start + buf.size - take + i) % buf.capacity]
+      }
+      buf.arr = newArr
+      buf.start = 0
+      buf.size = take
+      buf.capacity = cap
+    }
+
+    // push new message into ring buffer
+    const message = lastMessage.data
+    if (buf.size < buf.capacity) {
+      const idx = (buf.start + buf.size) % buf.capacity
+      buf.arr[idx] = message
+      buf.size += 1
+    } else {
+      // overwrite oldest
+      buf.arr[buf.start] = message
+      buf.start = (buf.start + 1) % buf.capacity
+    }
+
+    // schedule a coalesced flush on next tick if not already scheduled
+    if (!flushTimerRef.current) {
+      flushTimerRef.current = setTimeout(() => flushBuffer(), 0)
+    }
+
+    // cleanup on unmount
+    return () => {
+      if (flushTimerRef.current) {
+        clearTimeout(flushTimerRef.current)
+        flushTimerRef.current = null
+      }
+    }
+  }, [lastMessage, logsNumberOfLines, setLogsLines])
 
   const hideLogs = () => {
     resetLogsLines()
