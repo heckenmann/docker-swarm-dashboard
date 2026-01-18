@@ -14,5 +14,4 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
-      DOCKER_API_VERSION: 1.35
       DSD_VERSION_CHECK_ENABLED: 'true'
