@@ -28,3 +28,30 @@ docker.png
 *.log
 
 .DS_Store
+
+# Coverage and test artifacts
+coverage/
+**/coverage/
+app-src/coverage/
+coverage-final.json
+lcov.info
+*.lcov
+.nyc_output/
+
+# npm/yarn logs
+npm-debug.log*
+yarn-error.log*
+
+# Temp files
+*.tmp
+*.swp
+*.swo
+~*
+.cache/
+
+# Cypress artifacts
+# ignore Cypress screenshots and videos produced during e2e runs
+**/cypress/screenshots/
+**/cypress/videos/
+app-src/cypress/screenshots/
+app-src/cypress/videos/
