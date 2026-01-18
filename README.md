@@ -97,8 +97,6 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    environment:
-      DOCKER_API_VERSION: 1.35
 ```
 
 ### docker-compose.yml with traefik and basic auth
@@ -129,8 +127,6 @@ services:
         - "traefik.http.middlewares.basic-auth.basicauth.users=docker:$$2y$$10$$81nFbUw842iBd7MlngMR4.1VBI9j6Y.vTiamBAqtVNfs4qehzZB.e"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    environment:
-      DOCKER_API_VERSION: 1.35
 
   traefik:
     image: "traefik:v2.9"
