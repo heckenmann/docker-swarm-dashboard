@@ -60,7 +60,11 @@ function LogsComponent() {
   // Ring buffer for incoming log lines to reduce copy/GC churn under high
   // message throughput. We collect incoming messages into a mutable buffer
   // and flush to React state in a coalesced tick.
-  const bufferRef = useRef({ arr: [], start: 0, size: 0, capacity: Number(logsNumberOfLines) || 20 })
+  // Start with a safe default capacity; the effect below will resize the
+  // buffer if `logsNumberOfLines` differs. Avoid coercing `logsNumberOfLines`
+  // during render because test environments may provide non-primitive
+  // placeholders transiently.
+  const bufferRef = useRef({ arr: [], start: 0, size: 0, capacity: 20 })
   const flushTimerRef = useRef(null)
 
   // Helper: flush buffer content into the logsLines atom
@@ -130,8 +134,9 @@ function LogsComponent() {
   }
 
   const showLogs = () => {
-    if (inputTail?.value > 0) setLogsNumberOfLines(inputTail.value)
-    else resetLogsNumberOfLines()
+  const tailVal = inputTail?.value
+  if (tailVal && Number(tailVal) > 0) setLogsNumberOfLines(Number(tailVal))
+  else setLogsNumberOfLines(20)
     const newLogsConfig = {
       serviceId: inputServiceId.value,
       serviceName: serviceNames[inputServiceId.value],
