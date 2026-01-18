@@ -31,10 +31,7 @@ describe('Settings Tests', () => {
   it('Load page and toggle settings', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Settings').click()
-      // dump DOM immediately after navigating to Settings for inspection
-      cy.document().then((d) => {
-        cy.writeFile('cypress/results/settings_dom_after_nav.html', d.documentElement.outerHTML)
-      })
+  // previously dumped DOM to cypress/results for debugging; removed to avoid test artifacts
 
       // Toggle helper that tries labeled input first, then falls back to positional input
       const toggleByLabel = (labelText, fallbackIndex) => {
@@ -52,28 +49,32 @@ describe('Settings Tests', () => {
         })
       }
 
-  // Use stable data-cy attributes on the inputs and re-query after click to avoid stale elements
-  cy.get('input[data-cy="interval-switch"]').check({ force: true })
-  cy.get('input[data-cy="interval-switch"]', { timeout: 5000 }).should('be.checked')
+  // Find the row with the "Interval Refresh" label and toggle the input inside that row
+  cy.contains('tr', 'Interval Refresh').within(() => {
+    cy.get('input[type="checkbox"]').check({ force: true })
+    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
+  })
       // instrument the input to detect if change/click events fire
-  cy.get('input[data-cy="darkmode-switch"]').then(($el) => {
-        cy.window().then((win) => {
-          // reset flags
-          win.__dm_click = false
-          win.__dm_change = false
-          // attach handlers in page context
-          $el.on('click', () => { win.__dm_click = true })
-          $el.on('change', () => { win.__dm_change = true })
-        })
+  // Instrument the dark mode input found via the settings row
+  cy.contains('tr', 'Dark Mode').within(() => {
+    cy.get('input[type="checkbox"]').then(($el) => {
+      cy.window().then((win) => {
+        // reset flags
+        win.__dm_click = false
+        win.__dm_change = false
+        // attach handlers in page context
+        $el.on('click', () => { win.__dm_click = true })
+        $el.on('change', () => { win.__dm_change = true })
       })
+    })
 
-  cy.get('input[data-cy="darkmode-switch"]').check({ force: true })
-      // write DOM after click for inspection
-      cy.document().then((d) => {
-        cy.writeFile('cypress/results/settings_dom_after_click.html', d.documentElement.outerHTML)
-      })
+    cy.get('input[type="checkbox"]').check({ force: true })
+  })
+  // previously dumped DOM to cypress/results for debugging; removed to avoid test artifacts
       // allow either the native input to become checked OR a visible UI change (body attribute/class)
-      cy.get('input[data-cy="darkmode-switch"]', { timeout: 5000 }).then(($el) => {
+      // Check for dark mode effect by re-querying the input inside the row
+      cy.contains('tr', 'Dark Mode').within(() => {
+        cy.get('input[type="checkbox"]', { timeout: 5000 }).then(($el) => {
         const checked = $el.prop('checked')
         const valTrue = $el.attr('value') === 'true'
         const body = Cypress.$('body')
@@ -86,9 +87,13 @@ describe('Settings Tests', () => {
           expect(checked || valTrue || themeAttr === 'dark' || hasDarkClass || eventsFired).to.be.true
         })
       })
+    })
 
-  cy.get('input[data-cy="smalltables-switch"]').check({ force: true })
-  cy.get('input[data-cy="smalltables-switch"]', { timeout: 5000 }).should('be.checked')
+  // Toggle small tables via its row
+  cy.contains('tr', 'Small tables').within(() => {
+    cy.get('input[type="checkbox"]').check({ force: true })
+    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
+  })
     })
   })
 })
