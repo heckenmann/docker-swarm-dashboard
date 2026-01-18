@@ -4,7 +4,7 @@ describe('About Tests', () => {
   it('Load page', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'About').click()
-      cy.document().its('body').should('contain', 'Docker Swarm Dashboard')
+      cy.contains('h1, h2, h3', 'Docker Swarm Dashboard').should('be.visible')
     })
   })
 })
