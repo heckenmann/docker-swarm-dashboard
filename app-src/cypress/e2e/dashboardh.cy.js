@@ -39,7 +39,7 @@ describe('Dashboard horizontal Tests', () => {
   })
   // dump the rendered DOM to help debugging why details may not appear
   cy.document().then((d) => {
-    cy.writeFile('cypress/results/dashboardh_dom_before_buttons.html', d.documentElement.outerHTML)
+    // previously dumped DOM to cypress/results for debugging; removed to avoid test artifacts
   })
   // wait for the details panel buttons to render then assert
   cy.contains('button', 'JSON', { timeout: 3000 }).should('exist')
