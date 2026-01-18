@@ -4,26 +4,28 @@ describe('Dashboard vertical Tests', () => {
   it('Load page', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Dashboard').click()
-      cy.get('main button:eq(1)').click()
+      cy.get('main').within(() => {
+        cy.get('button').eq(1).should('be.visible').click()
+      })
       cy.contains('td', 'dsd_docker-swarm-dashboard').click()
-      cy.contains('a', 'Dashboard').click()
-      cy.get('main button:eq(1)').click()
-      cy.contains('th', 'manager1').click()
+      cy.contains('th', 'manager1').should('exist')
     })
   })
 
   it('Filter by service name', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Dashboard').click()
-      cy.get('main button:eq(1)').click()
-      cy.contains('td', 'dsd_docker-swarm-dashboard')
-      cy.contains('td', 'logger')
+      cy.get('main').within(() => {
+        cy.get('button').eq(1).should('be.visible').click()
+      })
+      cy.contains('td', 'dsd_docker-swarm-dashboard').should('exist')
+      cy.contains('td', 'logger').should('exist')
       cy.get('input[placeholder="Filter services by service name"]').type('dsd')
       cy.contains('th > div', 'logger').should('not.exist')
       cy.get('input[placeholder="Filter services by service name"]')
         .clear()
         .type('logger')
-      cy.contains('td', 'logger')
+      cy.contains('td', 'logger').should('exist')
       cy.contains('td', 'dsd_docker-swarm-dashboard').should('not.exist')
       cy.get('input[placeholder="Filter services by service name"]').clear()
     })
