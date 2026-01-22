@@ -73,7 +73,7 @@
     "babel-jest": "^30.2.0",
     "babel-loader": "^10.0.0",
     "bootstrap": "^5.3.8",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "css-loader": "^7.1.2",
     "cypress": "^15.9.0",
     "eslint": "^9.39.2",
