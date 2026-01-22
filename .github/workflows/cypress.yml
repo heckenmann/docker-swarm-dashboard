@@ -61,7 +61,7 @@ jobs:
 
       # Run Cypress tests
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: ${{ env.WORKING_DIRECTORY }}
           start: yarn run start
