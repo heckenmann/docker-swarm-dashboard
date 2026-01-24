@@ -5,7 +5,7 @@ describe('dump rendered HTML (dark mode)', () => {
     cy.wait(1000);
     cy.document().then((doc) => {
       const html = doc.documentElement.outerHTML;
-      cy.writeFile('cypress/dumped_page_dark.html', html);
+      cy.writeFile('cypress/dumps/dumped_page_dark.html', html);
     });
     // also take a screenshot for quick visual inspection
     cy.screenshot('dashboard-dark-mode', { capture: 'viewport' });

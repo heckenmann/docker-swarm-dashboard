@@ -7,7 +7,7 @@ describe('dump rendered HTML', () => {
     cy.wait(1000);
     cy.document().then((doc) => {
       const html = doc.documentElement.outerHTML;
-      cy.writeFile('cypress/dumped_page.html', html);
+      cy.writeFile('cypress/dumps/dumped_page.html', html);
     });
   });
 });
