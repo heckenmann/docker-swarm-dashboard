@@ -35,6 +35,8 @@ export const messagesAtom = atomWithReducer([], MessageReducer)
 export const tableSizeAtom = atomWithHash('tablesize', 'sm')
 export const serviceNameFilterAtom = atomWithHash('serviceNameFilter', '')
 export const stackNameFilterAtom = atomWithHash('stackNameFilter', '')
+// Which type the filter UI currently uses: 'service' or 'stack'
+export const filterTypeAtom = atomWithHash('filterType', 'service')
 
 // New API
 export const dashboardHAtom = atom(async (get) => {
@@ -68,7 +70,7 @@ export const tasksAtomNew = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/tasks')).json()
 })
 export const nodeDetailAtom = atom(async (get) => {
-  let id = get(viewAtom)['detail']
+  const id = get(viewAtom)['detail']
   return (await fetch(get(baseUrlAtom) + 'docker/nodes/' + id)).json()
 })
 export const logsServicesAtom = atom(async (get) => {
@@ -77,11 +79,11 @@ export const logsServicesAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/logs/services')).json()
 })
 export const serviceDetailAtom = atom(async (get) => {
-  let id = get(viewAtom)['detail']
+  const id = get(viewAtom)['detail']
   return (await fetch(get(baseUrlAtom) + 'docker/services/' + id)).json()
 })
 export const taskDetailAtom = atom(async (get) => {
-  let id = get(viewAtom)['detail']
+  const id = get(viewAtom)['detail']
   return (await fetch(get(baseUrlAtom) + 'docker/tasks/' + id)).json()
 })
 
@@ -148,6 +150,9 @@ export const currentVariantClassesAtom = atom((get) =>
     ? 'bg-dark text-light border-secondary'
     : 'bg-light text-dark',
 )
+
+// Track outstanding network requests (number)
+export const networkRequestsAtom = atom(0)
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
   get(isDarkModeAtom) ? a11yDark : a11yLight,
 )

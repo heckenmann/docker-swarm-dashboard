@@ -1,4 +1,5 @@
-import { Badge, Button, Table } from 'react-bootstrap'
+import React, { useState } from 'react'
+import { Badge, Button, Table, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 import {
@@ -8,6 +9,7 @@ import {
   isDarkModeAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
+  filterTypeAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
@@ -30,6 +32,12 @@ function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
 
+  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
+  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
+  const [, setFilterType] = useAtom(filterTypeAtom)
+
+  const [shifted, setShifted] = useState(new Set())
+
   const theads = []
   const trows = []
 
@@ -38,32 +46,118 @@ function DashboardComponent() {
   const nodes = dashboardhData['Nodes']
 
   // Columns
+  const visibleServices = services.filter((service) =>
+    serviceFilter(service, serviceNameFilter, stackNameFilter),
+  )
+
+  // build a lightweight descriptor for each visible service header
+  const serviceHeaders = visibleServices.map((service, idx) => ({
+    id: service.ID,
+    name: service.Name || service['Name'],
+    style: { width: '120px', minWidth: '120px' },
+    onClick: () => updateView({ id: servicesDetailId, detail: service.ID }),
+    key: `dashboardTable-${service.ID}`,
+    index: idx,
+  }))
+
+  // quick lookup for service index
+  const serviceIndexMap = Object.fromEntries(
+    serviceHeaders.map((h) => [h.id, h.index]),
+  )
+
+  // fixed widths (percent) for important columns; the remainder is distributed to service columns
+  const fixedWidths = {
+    // node will use a fixed pixel width (250px)
+    node: 0,
+    // role and ip use fixed pixel widths (120px)
+    role: 0,
+    // state and availability will use fixed pixel widths (120px) instead of percent
+    state: 0,
+    availability: 0,
+    ip: 0,
+    trailing: 4,
+  }
+  const fixedTotal = Object.values(fixedWidths).reduce((a, b) => a + b, 0)
+  const remaining = Math.max(0, 100 - fixedTotal)
+  const serviceColPercent =
+    visibleServices.length > 0 ? remaining / visibleServices.length : remaining
+  const nodeWidth = fixedWidths.node
+  const roleWidth = fixedWidths.role
+  const stateWidth = fixedWidths.state
+  const availabilityWidth = fixedWidths.availability
+  const ipWidth = fixedWidths.ip
+  const trailingWidth = fixedWidths.trailing
+
   services
     .filter((service) =>
       serviceFilter(service, serviceNameFilter, stackNameFilter),
     )
     .forEach((service) => {
       theads.push(
-        <th
+        <div
           key={'dashboardTable-' + service['ID']}
-          className="dataCol cursorPointer"
-          onClick={() =>
-            updateView({ id: servicesDetailId, detail: service.ID })
-          }
+          className="dataCol"
+          style={{ width: '120px', minWidth: '120px' }}
         >
-          <div className="rotated">{service['Name']}</div>
-        </th>,
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id={`tt-${service.ID}`}>{service['Name']}</Tooltip>
+            }
+          >
+            <div
+              className="text-ellipsis d-inline-block"
+              style={{ verticalAlign: 'middle' }}
+            >
+              {service['Name']}
+            </div>
+          </OverlayTrigger>
+          {service['Name'] && (
+            <>
+              <Button
+                className="service-open-btn ms-1 me-1"
+                size="sm"
+                title={`Open service: ${service['Name']}`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  updateView({ id: servicesDetailId, detail: service.ID })
+                }}
+              >
+                <FontAwesomeIcon icon="search" />
+              </Button>
+              <Button
+                className="stack-filter-btn"
+                size="sm"
+                title={`Filter service: ${service['Name']}`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setServiceFilterName(service['Name'] || '')
+                  setStackFilterName('')
+                  setFilterType('service')
+                }}
+              >
+                <FontAwesomeIcon icon="filter" />
+              </Button>
+            </>
+          )}
+        </div>,
       )
     })
   theads.push(<th key="dashboardTable-empty"></th>)
 
   nodes.forEach((node) => {
-    const dataCols = services
-      .filter((service) =>
-        serviceFilter(service, serviceNameFilter, stackNameFilter),
-      )
-      .map((service) => (
-        <td className="align-middle" key={'td' + node['ID'] + service['ID']}>
+    const dataCols = []
+    for (let s = 0; s < visibleServices.length; s++) {
+      const service = visibleServices[s]
+      const idx = serviceIndexMap[service.ID]
+      const key = 'td' + node['ID'] + service['ID']
+
+      dataCols.push(
+        <td
+          className={`align-middle svc-index-${idx}`}
+          key={key}
+          style={{ width: '120px', minWidth: '120px' }}
+        >
           {node['Tasks'][service['ID']] && (
             <ul>
               {node['Tasks'][service['ID']].map((task, id) => (
@@ -88,27 +182,49 @@ function DashboardComponent() {
               ))}
             </ul>
           )}
-        </td>
-      ))
+        </td>,
+      )
+    }
 
     trows.push(
       <tr
         key={'tr' + node['ID']}
         className={node['StatusState'] === 'ready' ? null : 'danger'}
       >
-        <td className="align-middle">
+        <td
+          className="align-middle"
+          style={{ width: '250px', minWidth: '250px' }}
+        >
+          <span className="me-2 text-ellipsis">{node['Hostname']}</span>
+          {node['Leader'] && (
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id={`leader-tt-${node.ID}`}>Leader</Tooltip>}
+            >
+              <span className="ms-1">
+                <FontAwesomeIcon icon="star" />
+              </span>
+            </OverlayTrigger>
+          )}
           <Button
-            onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
-            variant="secondary"
+            className="service-open-btn ms-2"
             size="sm"
-            className="w-100 text-nowrap"
+            title={`Open node: ${node['Hostname']}`}
+            onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
           >
-            {node['Hostname']}{' '}
-            {node['Leader'] && <FontAwesomeIcon icon="star" />}
+            <FontAwesomeIcon icon="search" />
           </Button>
         </td>
-        <td className="align-middle">{node['Role']}</td>
-        <td className="align-middle">
+        <td
+          className="align-middle"
+          style={{ width: '120px', minWidth: '120px' }}
+        >
+          {node['Role']}
+        </td>
+        <td
+          className="align-middle"
+          style={{ width: '120px', minWidth: '120px' }}
+        >
           {(node['StatusState'] === 'ready' && (
             <Badge bg="success" className="w-100">
               Ready
@@ -124,7 +240,10 @@ function DashboardComponent() {
               </Badge>
             )}
         </td>
-        <td className="align-middle">
+        <td
+          className="align-middle"
+          style={{ width: '120px', minWidth: '120px' }}
+        >
           {(node['Availability'] === 'active' && (
             <Badge bg="success" className="w-100">
               {node['Availability']}
@@ -135,7 +254,12 @@ function DashboardComponent() {
             </Badge>
           )}
         </td>
-        <td className="align-middle">{node['IP']}</td>
+        <td
+          className="align-middle"
+          style={{ width: '120px', minWidth: '120px' }}
+        >
+          {node['IP']}
+        </td>
         {dataCols}
         <td></td>
       </tr>,
@@ -145,25 +269,207 @@ function DashboardComponent() {
   return (
     <>
       <DashboardSettingsComponent />
-      <Table
-        variant={isDarkMode ? currentVariant : null}
-        key="dashboardTable"
-        id="dashboardTable"
-        striped
-        size={tableSize}
-      >
-        <thead>
-          <tr>
-            <th className="nodeAttribute">Node</th>
-            <th className="nodeAttributeSmall">Role</th>
-            <th className="nodeAttributeSmall">State</th>
-            <th className="nodeAttributeSmall">Availability</th>
-            <th className="nodeAttributeSmall">IP</th>
-            {theads}
-          </tr>
-        </thead>
-        <tbody>{trows}</tbody>
-      </Table>
+      <div className="dashboard-table-wrapper">
+        <Table
+          variant={isDarkMode ? currentVariant : null}
+          key="dashboardTable"
+          id="dashboardTable"
+          striped
+          size={tableSize}
+          role="table"
+          aria-label="Docker Swarm Dashboard"
+        >
+          <thead role="rowgroup">
+            {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
+            <tr role="row">
+              <th
+                className="nodeAttribute"
+                rowSpan={3}
+                style={{ width: '250px', minWidth: '250px' }}
+              >
+                Node
+              </th>
+              <th
+                className="nodeAttributeSmall"
+                rowSpan={3}
+                style={{ width: '120px', minWidth: '120px' }}
+              >
+                Role
+              </th>
+              <th
+                className="nodeAttributeSmall"
+                rowSpan={3}
+                style={{ width: '120px', minWidth: '120px' }}
+              >
+                State
+              </th>
+              <th
+                className="nodeAttributeSmall"
+                rowSpan={3}
+                style={{ width: '120px', minWidth: '120px' }}
+              >
+                Availability
+              </th>
+              <th
+                className="nodeAttributeSmall"
+                rowSpan={3}
+                style={{ width: '120px', minWidth: '120px' }}
+              >
+                IP
+              </th>
+              {serviceHeaders.map((h) =>
+                h.index % 3 === 0 ? (
+                  <th
+                    key={h.key}
+                    data-index={h.index}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    style={h.style}
+                  >
+                    <span className="service-name-text" title={h.name}>
+                      {h.name}
+                    </span>
+                    {h.name && (
+                      <>
+                        <Button
+                          className="service-open-btn me-1"
+                          size="sm"
+                          title={`Open service: ${h.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            updateView({ id: servicesDetailId, detail: h.id })
+                          }}
+                        >
+                          <FontAwesomeIcon icon="search" />
+                        </Button>
+                        <Button
+                          className="stack-filter-btn"
+                          size="sm"
+                          title={`Filter service: ${h.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setServiceFilterName(h.name || '')
+                            setStackFilterName('')
+                            setFilterType('service')
+                          }}
+                        >
+                          <FontAwesomeIcon icon="filter" />
+                        </Button>
+                      </>
+                    )}
+                  </th>
+                ) : (
+                  <th
+                    key={`ph-${h.key}`}
+                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                    style={h.style}
+                  />
+                ),
+              )}
+            </tr>
+            <tr role="row">
+              {serviceHeaders.map((h) =>
+                h.index % 3 === 1 ? (
+                  <th
+                    key={h.key}
+                    data-index={h.index}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    style={h.style}
+                  >
+                    <span className="service-name-text" title={h.name}>
+                      {h.name}
+                    </span>
+                    {h.name && (
+                      <>
+                        <Button
+                          className="service-open-btn me-1"
+                          size="sm"
+                          title={`Open service: ${h.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            updateView({ id: servicesDetailId, detail: h.id })
+                          }}
+                        >
+                          <FontAwesomeIcon icon="search" />
+                        </Button>
+                        <Button
+                          className="stack-filter-btn"
+                          size="sm"
+                          title={`Filter service: ${h.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setServiceFilterName(h.name || '')
+                            setStackFilterName('')
+                            setFilterType('service')
+                          }}
+                        >
+                          <FontAwesomeIcon icon="filter" />
+                        </Button>
+                      </>
+                    )}
+                  </th>
+                ) : (
+                  <th
+                    key={`ph2-${h.key}`}
+                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                    style={h.style}
+                  />
+                ),
+              )}
+            </tr>
+            <tr role="row">
+              {serviceHeaders.map((h) =>
+                h.index % 3 === 2 ? (
+                  <th
+                    key={h.key}
+                    data-index={h.index}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    style={h.style}
+                  >
+                    <span className="service-name-text" title={h.name}>
+                      {h.name}
+                    </span>
+                    {h.name && (
+                      <>
+                        <Button
+                          className="service-open-btn me-1"
+                          size="sm"
+                          title={`Open service: ${h.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            updateView({ id: servicesDetailId, detail: h.id })
+                          }}
+                        >
+                          <FontAwesomeIcon icon="search" />
+                        </Button>
+                        <Button
+                          className="stack-filter-btn"
+                          size="sm"
+                          title={`Filter service: ${h.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setServiceFilterName(h.name || '')
+                            setStackFilterName('')
+                            setFilterType('service')
+                          }}
+                        >
+                          <FontAwesomeIcon icon="filter" />
+                        </Button>
+                      </>
+                    )}
+                  </th>
+                ) : (
+                  <th
+                    key={`ph3-${h.key}`}
+                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                    style={h.style}
+                  />
+                ),
+              )}
+            </tr>
+          </thead>
+          <tbody>{trows}</tbody>
+        </Table>
+      </div>
     </>
   )
 }

@@ -134,9 +134,9 @@ function LogsComponent() {
   }
 
   const showLogs = () => {
-  const tailVal = inputTail?.value
-  if (tailVal && Number(tailVal) > 0) setLogsNumberOfLines(Number(tailVal))
-  else setLogsNumberOfLines(20)
+    const tailVal = inputTail?.value
+    if (tailVal && Number(tailVal) > 0) setLogsNumberOfLines(Number(tailVal))
+    else setLogsNumberOfLines(20)
     const newLogsConfig = {
       serviceId: inputServiceId.value,
       serviceName: serviceNames[inputServiceId.value],

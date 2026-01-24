@@ -1,4 +1,4 @@
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import {
@@ -8,6 +8,7 @@ import {
   serviceNameFilterAtom,
   stackNameFilterAtom,
   stacksAtom,
+  filterTypeAtom,
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
@@ -25,28 +26,62 @@ function StacksComponent() {
   const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
+  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
+  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
+  const [, setFilterType] = useAtom(filterTypeAtom)
 
-  let stacks
   const stacksData = useAtomValue(stacksAtom)
   const [, updateView] = useAtom(viewAtom)
-  let createServicesForStack = (stack) => {
+  const createServicesForStack = (stack) => {
+    const normalize = (s) =>
+      (s || '').toString().toLowerCase().replace(/[-_]/g, '')
+    const fname = normalize(serviceNameFilter)
     return stack['Services']
-      .filter((service) =>
-        serviceNameFilter
-          ? service['ShortName'].includes(serviceNameFilter)
-          : true,
-      )
+      .filter((service) => {
+        if (!serviceNameFilter) return true
+        const shortName = normalize(service['ShortName'] || '')
+        const fullName = normalize(service['ServiceName'] || '')
+        return shortName.includes(fname) || fullName.includes(fname)
+      })
       .map((service) => (
         <tr key={service['ID']}>
-          <td
-            className="cursorPointer text-nowrap"
-            onClick={() => {
-              updateView({ id: servicesDetailId, detail: service['ID'] })
-            }}
-          >
-            {service['ShortName']
-              ? service['ShortName']
-              : service['ServiceName']}
+          <td className="text-nowrap">
+            <span className="me-2">
+              {service['ShortName']
+                ? service['ShortName']
+                : service['ServiceName']}
+            </span>
+            {(service['ShortName'] || service['ServiceName']) && (
+              <>
+                <Button
+                  className="service-open-btn me-1"
+                  size="sm"
+                  title={`Open service: ${service['ShortName'] ? service['ShortName'] : service['ServiceName']}`}
+                  onClick={() =>
+                    updateView({ id: servicesDetailId, detail: service['ID'] })
+                  }
+                >
+                  <FontAwesomeIcon icon="search" />
+                </Button>
+                <Button
+                  className="stack-filter-btn"
+                  size="sm"
+                  title={`Filter service: ${service['ShortName'] ? service['ShortName'] : service['ServiceName']}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setServiceFilterName(
+                      (service['ShortName']
+                        ? service['ShortName']
+                        : service['ServiceName']) || '',
+                    )
+                    setStackFilterName('')
+                    setFilterType('service')
+                  }}
+                >
+                  <FontAwesomeIcon icon="filter" />
+                </Button>
+              </>
+            )}
           </td>
           <td>{service['Replication']}</td>
           <td>
@@ -66,7 +101,7 @@ function StacksComponent() {
         </tr>
       ))
   }
-  stacks = stacksData
+  const stacks = stacksData
     .filter((stack) =>
       stackNameFilter ? stack['Name'].includes(stackNameFilter) : true,
     )
@@ -80,6 +115,20 @@ function StacksComponent() {
         <Card.Header>
           <h5>
             <FontAwesomeIcon icon="cubes" /> {stack['Name']}
+            {stack['Name'] && (
+              <Button
+                className="stack-filter-btn"
+                size="sm"
+                title={`Filter stack: ${stack['Name']}`}
+                onClick={() => {
+                  setStackFilterName(stack['Name'] || '')
+                  setServiceFilterName('')
+                  setFilterType('stack')
+                }}
+              >
+                <FontAwesomeIcon icon="filter" />
+              </Button>
+            )}
           </h5>
         </Card.Header>
         <Table variant={currentVariant} size="sm" hover>

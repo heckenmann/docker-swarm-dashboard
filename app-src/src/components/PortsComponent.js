@@ -1,4 +1,4 @@
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom, useAtomValue } from 'jotai'
 import {
@@ -7,6 +7,7 @@ import {
   portsAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
+  filterTypeAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
@@ -24,11 +25,12 @@ function PortsComponent() {
   const tableSize = useAtomValue(tableSizeAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-
-  let renderedServices
+  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
+  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
+  const [, setFilterType] = useAtom(filterTypeAtom)
 
   const ports = useAtomValue(portsAtom)
-  renderedServices = ports
+  const renderedServices = ports
     .filter((p) =>
       serviceNameFilter ? p.ServiceName.includes(serviceNameFilter) : true,
     )
@@ -46,18 +48,54 @@ function PortsComponent() {
           <td>{p.TargetPort}</td>
           <td>{p.Protocol}</td>
           <td>{p.PublishMode}</td>
-          <td
-            className="cursorPointer"
-            onClick={() =>
-              updateView({
-                id: servicesDetailId,
-                detail: p.ServiceID,
-              })
-            }
-          >
-            {p.ServiceName}
+          <td>
+            <span className="me-2">{p.ServiceName}</span>
+            {p.ServiceName && (
+              <>
+                <Button
+                  className="service-open-btn me-1"
+                  size="sm"
+                  title={`Open service: ${p.ServiceName}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    updateView({ id: servicesDetailId, detail: p.ServiceID })
+                  }}
+                >
+                  <FontAwesomeIcon icon="search" />
+                </Button>
+                <Button
+                  className="stack-filter-btn"
+                  size="sm"
+                  title={`Filter service: ${p.ServiceName}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setServiceFilterName(p.ServiceName || '')
+                    setStackFilterName('')
+                    setFilterType('service')
+                  }}
+                >
+                  <FontAwesomeIcon icon="filter" />
+                </Button>
+              </>
+            )}
           </td>
-          <td>{p.Stack}</td>
+          <td>
+            <span className="me-2">{p.Stack}</span>
+            {p.Stack && (
+              <Button
+                className="stack-filter-btn"
+                size="sm"
+                title={`Filter stack: ${p.Stack}`}
+                onClick={() => {
+                  setStackFilterName(p.Stack || '')
+                  setServiceFilterName('')
+                  setFilterType('stack')
+                }}
+              >
+                <FontAwesomeIcon icon="filter" />
+              </Button>
+            )}
+          </td>
         </tr>
       )
     })

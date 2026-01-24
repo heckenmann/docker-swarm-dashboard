@@ -8,11 +8,11 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function WelcomeMessageComponent() {
-  let [showWelcomeMessage, setShowWelcomeMessage] = useAtom(
+  const [showWelcomeMessage, setShowWelcomeMessage] = useAtom(
     showWelcomeMessageAtom,
   )
-  let dashboardSettings = useAtomValue(dashboardSettingsAtom)
-  let currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
 
   return (
     <Modal
