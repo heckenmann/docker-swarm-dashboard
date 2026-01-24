@@ -44,14 +44,11 @@ export function ContentRouter() {
   const getView = useAtomValue(viewAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
-  let idToRender = getView.id
+  const idToRenderInitial = getView.id
 
   // Default Dashboard
-  if (!idToRender) {
-    idToRender = defaultLayout
-  }
-
-  let view
+  const idToRender = idToRenderInitial || defaultLayout
+  const viewMap = {}
   /**
    * A mapping of view IDs to their corresponding React components.
    * This is used to dynamically render the appropriate component
@@ -74,6 +71,5 @@ export function ContentRouter() {
     [versionUpdateId]: <VersionUpdateComponent />,
   }
 
-  view = componentMap[idToRender] || <DashboardComponent />
-  return view
+  return componentMap[idToRender] || <DashboardComponent />
 }
