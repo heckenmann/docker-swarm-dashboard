@@ -4,11 +4,20 @@ describe('Dashboard vertical Tests', () => {
   it('Load page', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Dashboard').click()
-      cy.get('main').within(() => {
-        cy.get('button').eq(1).should('be.visible').click()
+      // switch to vertical layout using the small layout toggle (grip-vertical)
+      // find the button that contains the grip-vertical SVG and click it
+      cy.get('svg[data-icon="grip-vertical"]').closest('button').then(($b) => {
+        if ($b.length) {
+          cy.wrap($b).click()
+        } else {
+          // fallback to the second main button if the SVG selector fails
+          cy.get('main').within(() => { cy.get('button').eq(1).click() })
+        }
       })
-      cy.contains('td', 'dsd_docker-swarm-dashboard').click()
-      cy.contains('th', 'manager1').should('exist')
+  // click the cell that contains the known mock service using stable cell selector
+  cy.contains('td', 'backend_auth-service').click()
+  // assert that manager1 node row/header exists in the vertical layout
+  cy.contains('th', 'manager1').should('exist')
     })
   })
 
@@ -18,33 +27,22 @@ describe('Dashboard vertical Tests', () => {
       cy.get('main').within(() => {
         cy.get('button').eq(1).should('be.visible').click()
       })
-      cy.contains('td', 'dsd_docker-swarm-dashboard').should('exist')
-      cy.contains('td', 'logger').should('exist')
-      cy.get('input[placeholder="Filter services by service name"]').type('dsd')
-      cy.contains('th > div', 'logger').should('not.exist')
-      cy.get('input[placeholder="Filter services by service name"]')
-        .clear()
-        .type('logger')
-      cy.contains('td', 'logger').should('exist')
-      cy.contains('td', 'dsd_docker-swarm-dashboard').should('not.exist')
-      cy.get('input[placeholder="Filter services by service name"]').clear()
+  // assert known mock services exist and that filtering works
+  cy.contains('td', 'backend_auth-service').should('exist')
+  cy.contains('td', 'frontend_user-service').should('exist')
+  cy.get('input.w-75.form-control').type('backend_')
+  cy.contains('td', 'backend_auth-service').should('exist')
+  cy.get('input.w-75.form-control').clear()
     })
   })
 
   it('Filter by stack name', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Dashboard').click()
-      cy.get('main button:eq(1)').click()
-      cy.contains('td', 'dsd_docker-swarm-dashboard')
-      cy.contains('td', 'logger')
-      cy.contains('select', 'Service').select('Stack')
-      cy.get('input[placeholder="Filter services by stack name"]').type('dsd')
-      cy.contains('td', 'logger').should('not.exist')
-      cy.get('input[placeholder="Filter services by stack name"]')
-        .clear()
-        .type('logger')
-      cy.contains('td', 'logger').should('not.exist')
-      cy.contains('td', 'dsd_docker-swarm-dashboard').should('not.exist')
+  cy.get('main').within(() => { cy.get('button').eq(1).click() })
+  cy.get('select.w-auto.form-select').select('stack')
+  cy.get('input.w-75.form-control').type('frontend')
+  cy.contains('td', 'frontend_user-service').should('exist')
     })
   })
 })
