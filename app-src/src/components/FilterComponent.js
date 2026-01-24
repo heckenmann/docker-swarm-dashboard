@@ -1,11 +1,12 @@
+import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, Form, InputGroup } from 'react-bootstrap'
-import { useState } from 'react'
-import { useAtom, useAtomValue } from 'jotai/index'
+import { useAtom, useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
+  filterTypeAtom,
 } from '../common/store/atoms'
 
 /**
@@ -15,12 +16,26 @@ function FilterComponent() {
   const variant = useAtomValue(currentVariantAtom)
   const [serviceFilter, setServiceNameFilter] = useAtom(serviceNameFilterAtom)
   const [stackFilter, setStackNameFilter] = useAtom(stackNameFilterAtom)
-  const [filterType, setFilterType] = useState(
-    serviceFilter ? 'service' : stackFilter ? 'stack' : 'service',
-  )
+  const [filterType, setFilterType] = useAtom(filterTypeAtom)
   const [filterValue, setFilterValue] = useState(
     `${serviceFilter}${stackFilter}`,
   )
+
+  // Keep local UI state in sync when atoms change externally (e.g. clicking the magnifier sets stack filter)
+  useEffect(() => {
+    if (serviceFilter) {
+      setFilterType('service')
+      setFilterValue(serviceFilter)
+    } else if (stackFilter) {
+      setFilterType('stack')
+      setFilterValue(stackFilter)
+    } else {
+      // no filter
+      setFilterValue('')
+      setFilterType('service')
+    }
+    // we only want to run when atoms change
+  }, [serviceFilter, stackFilter])
 
   const changeFilterType = (filterType) => {
     setFilterType(filterType)

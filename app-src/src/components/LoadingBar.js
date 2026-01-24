@@ -67,7 +67,6 @@ function LoadingBar({ force = false }) {
         if (requestsRef.current === 0) stop()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [force])
 
   useEffect(() => {

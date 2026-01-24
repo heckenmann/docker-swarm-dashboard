@@ -6,6 +6,7 @@
   --muted: var(--bs-secondary, #6c757d);
   --overlay: rgba(0,0,0,0.35);
   --overlay-thumb: rgba(0,0,0,0.12);
+  --table-border-color: rgba(0,0,0,0.12);
   --radius: 8px;
   --shadow: 0 6px 18px rgba(13,110,253,0.08);
   --shadow-hover: 0 10px 26px rgba(0,0,0,0.12);
@@ -30,4 +31,5 @@ body {
   --muted: rgba(230,238,248,0.65);
   --overlay-thumb: rgba(255,255,255,0.12);
   --shadow-hover: 0 10px 26px rgba(255,255,255,0.04);
+  --table-border-color: rgba(255,255,255,0.06);
 }
