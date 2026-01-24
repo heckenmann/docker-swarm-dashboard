@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage --runInBand",
-    "start-api-mock": "node mock/api/api-mock.js 3001",
+  "start-api-mock": "node --enable-source-maps mock/api/api-mock.mjs 3001",
     "start-dev-server": "BROWSER=none webpack serve",
     "open-browser": "open http://localhost:3000#base=\"http%3A%2F%2Flocalhost%3A3001%2F\"",
     "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\" \"sleep 2 && yarn run open-browser\"",
@@ -85,7 +85,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "jotai": "^2.16.2",
     "jotai-location": "^0.6.2",
-    "json-server": "0.17.4",
+  "json-server": "1.0.0-beta.5",
     "prettier": "^3.8.1",
     "prop-types": "^15.8.1",
     "react": "^19.2.3",
