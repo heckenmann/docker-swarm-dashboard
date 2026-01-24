@@ -5,7 +5,9 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
 //import 'bootswatch/dist/cosmo/bootstrap.min.css';
 //import '../node_modules/@fortawesome/fontawesome/styles.css';
-import { Provider } from 'jotai'
+// Provider is intentionally omitted here; the app-level Provider with a
+// dedicated store is created in `index.js` so components read from that
+// single store instance.
 import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { isDarkModeAtom } from './common/store/atoms'
@@ -48,10 +50,6 @@ function AppContent() {
   )
 }
 
-const App = () => (
-  <Provider>
-    <AppContent />
-  </Provider>
-)
+const App = () => <AppContent />
 
 export default App
