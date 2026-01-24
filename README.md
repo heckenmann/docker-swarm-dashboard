@@ -66,17 +66,19 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 |master|Current unstable master-build (not well tested)|ghcr.io/heckenmann/docker-swarm-dashboard:master|
 
 ### Configuration
-Docker Swarm Dashboard supports environment variables for configuration
+Docker Swarm Dashboard supports environment variables for configuration.
 
-* `DSD_HTTP_PORT`: HTTP port within the container. Usually does not need to be changed. Default is 8080.
-* `DSD_HANDLE_LOGS`: Set to `false` to prevent fetching and displaying logs.
-* `DSD_DASHBOARD_LAYOUT`: Default dashboard layout. Either `row` (default) or `column`.
-* `DSD_HIDE_SERVICE_STATES`: Comma-separated list of states to not show in the main dashboard.
-* `DSD_PATH_PREFIX`: Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path.
-* `LOCALE`: Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag.
-* `TZ`: [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in.
-* `DSD_VERSION_CHECK_ENABLED`: When set to `true`, the system will check for updates and notify in the UI if a new version is available. If set to `false`, the version check will be skipped. Default is `false`.
-* `DSD_WELCOME_MESSAGE`: If set, this message will be displayed to the user in a modal dialog when the web application is opened in the browser.
+| Environment variable | Description | Default |
+|---|---|---|
+| `DSD_HTTP_PORT` | HTTP port within the container. Usually does not need to be changed. | `8080` |
+| `DSD_HANDLE_LOGS` | Set to `false` to prevent fetching and displaying logs. | `true` |
+| `DSD_DASHBOARD_LAYOUT` | Default dashboard layout. Either `row` (default) or `column`. | `row` |
+| `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |
+| `DSD_PATH_PREFIX` | Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path. | `/` |
+| `LOCALE` | Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag. | (system) |
+| `TZ` | [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in. | (system) |
+| `DSD_VERSION_CHECK_ENABLED` | When `true`, the system will check for updates and notify in the UI if a new version is available. | `false` |
+| `DSD_WELCOME_MESSAGE` | If set, this message will be displayed to the user in a modal dialog when the web application is opened in the browser. | (none) |
 
 ### Pull Image from ghcr.io
 ```
