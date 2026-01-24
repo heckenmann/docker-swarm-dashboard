@@ -1,5 +1,33 @@
+:root {
+  /* Prefer Bootstrap CSS variables when available; fall back to safe defaults */
+  --bg: var(--bs-body-bg, #ffffff);
+  --text: var(--bs-body-color, #212529);
+  --accent: var(--bs-primary, #0d6efd);
+  --muted: var(--bs-secondary, #6c757d);
+  --overlay: rgba(0,0,0,0.35);
+  --overlay-thumb: rgba(0,0,0,0.12);
+  --radius: 8px;
+  --shadow: 0 6px 18px rgba(13,110,253,0.08);
+  --shadow-hover: 0 10px 26px rgba(0,0,0,0.12);
+  --card-bg: var(--bs-body-bg, #ffffff);
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent; /* App container provides the themed background */
+}
+
+.theme-dark {
+  --bg: #0b1220;
+  --text: #e6eef8;
+  --accent: #4da3ff;
+  --card-bg: #0f1720;
+  --overlay: rgba(255,255,255,0.06);
+  --muted: rgba(230,238,248,0.65);
+  --overlay-thumb: rgba(255,255,255,0.12);
+  --shadow-hover: 0 10px 26px rgba(255,255,255,0.04);
 }

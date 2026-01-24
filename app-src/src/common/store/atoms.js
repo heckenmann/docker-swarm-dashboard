@@ -148,6 +148,9 @@ export const currentVariantClassesAtom = atom((get) =>
     ? 'bg-dark text-light border-secondary'
     : 'bg-light text-dark',
 )
+
+// Track outstanding network requests (number)
+export const networkRequestsAtom = atom(0)
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
   get(isDarkModeAtom) ? a11yDark : a11yLight,
 )

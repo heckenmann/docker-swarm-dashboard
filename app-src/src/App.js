@@ -7,6 +7,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 //import '../node_modules/@fortawesome/fontawesome/styles.css';
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
+import { useAtomValue } from 'jotai'
+import { isDarkModeAtom } from './common/store/atoms'
 import { Container } from 'react-bootstrap'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript'
@@ -22,29 +24,34 @@ library.add(fab, fas, far)
 
 SyntaxHighlighter.registerLanguage('javascript', js)
 
-const App = () => {
+function AppContent() {
+  const isDarkMode = useAtomValue(isDarkModeAtom)
+
   return (
-    <Provider>
-      <div className="App">
-        <img alt="background" id="background-image" src={bg} />
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingComponent />}>
-            <DashboardNavbar />
-          </Suspense>
-        </ErrorBoundary>
-        <main role="main">
-          <Container fluid className="overflow-auto">
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingComponent />}>
-                <WelcomeMessageComponent />
-                <ContentRouter />
-              </Suspense>
-            </ErrorBoundary>
-          </Container>
-        </main>
-      </div>
-    </Provider>
+    <div className={`App ${isDarkMode ? 'theme-dark' : 'theme-light'}`}>
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingComponent />}>
+          <DashboardNavbar />
+        </Suspense>
+      </ErrorBoundary>
+      <main role="main">
+        <Container fluid className="overflow-auto">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingComponent />}>
+              <WelcomeMessageComponent />
+              <ContentRouter />
+            </Suspense>
+          </ErrorBoundary>
+        </Container>
+      </main>
+    </div>
   )
 }
+
+const App = () => (
+  <Provider>
+    <AppContent />
+  </Provider>
+)
 
 export default App

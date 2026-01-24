@@ -5,15 +5,10 @@ import {
   Container,
   Nav,
   Navbar,
-  Toast,
-  ToastContainer,
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logo from '../files/docker.png'
-import {
-  MessageReducer,
-  RefreshIntervalToggleReducer,
-} from '../common/store/reducers'
+import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 import {
   currentVariantAtom,
   dashboardSettingsAtom,
@@ -28,6 +23,7 @@ import {
 } from '../common/store/atoms'
 import ReactInterval from 'react-interval'
 import { useAtom, useAtomValue } from 'jotai'
+import LoadingBar from './LoadingBar'
 import {
   aboutId,
   dashboardHId,
@@ -50,7 +46,7 @@ function DashboardNavbar() {
     refreshIntervalAtom,
     RefreshIntervalToggleReducer,
   )
-  const [, messageReducer] = useAtom(messagesAtom, MessageReducer)
+  // messageReducer removed — do not show toast on manual refresh
   const [isDarkMode] = useAtom(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const [view, updateView] = useAtom(viewAtom)
@@ -72,7 +68,6 @@ function DashboardNavbar() {
    */
   const refreshAndNotifyUser = () => {
     if (refreshInterval) toggleRefresh()
-    messageReducer({ type: 'add', value: 'Refresh ...' })
     reloadData()
   }
 
@@ -100,7 +95,7 @@ function DashboardNavbar() {
         expand="xl"
         bg={currentVariant}
         variant={currentVariant}
-        className="mb-3 border-bottom"
+        className="border-bottom"
       >
         <Container fluid>
           <Navbar.Brand
@@ -213,35 +208,10 @@ function DashboardNavbar() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <RefreshIntervalToast />
     </>
   )
 }
 
-function RefreshIntervalToast() {
-  const [messages, messageReducer] = useAtom(messagesAtom, MessageReducer)
-  if (!messages) return <></>
-  const messageToasts = messages.map((message) => (
-    <Toast
-      key={message}
-      delay={2000}
-      onClose={() => messageReducer({ type: 'remove', value: message })}
-      autohide
-    >
-      <Toast.Header>
-        <strong className="me-auto">
-          <FontAwesomeIcon icon="circle-info" /> Information
-        </strong>
-      </Toast.Header>
-      <Toast.Body>{message}</Toast.Body>
-    </Toast>
-  ))
-
-  return (
-    <ToastContainer className="p-3" position="top-center">
-      {messageToasts}
-    </ToastContainer>
-  )
-}
+// Refresh toasts removed per UX: do not show a toast when the manual refresh button is pressed.
 
 export { DashboardNavbar }
