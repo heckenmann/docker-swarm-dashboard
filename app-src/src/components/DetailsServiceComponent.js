@@ -22,8 +22,7 @@ function DetailsServiceComponent() {
     currentSyntaxHighlighterStyleAtom,
   )
 
-  let currentService
-  currentService = useAtomValue(serviceDetailAtom)
+  const currentService = useAtomValue(serviceDetailAtom)
 
   if (!currentService) return <div>Service doesn't exist</div>
 

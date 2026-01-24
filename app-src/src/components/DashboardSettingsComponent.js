@@ -7,7 +7,7 @@ import {
   dashboardSettingsDefaultLayoutViewIdAtom,
   viewAtom,
 } from '../common/store/atoms'
-import { useAtomValue } from 'jotai/index'
+import { useAtomValue } from 'jotai'
 import { FilterComponent } from './FilterComponent'
 
 /**

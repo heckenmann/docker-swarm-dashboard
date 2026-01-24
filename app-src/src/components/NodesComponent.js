@@ -1,4 +1,11 @@
-import { Badge, Card, Table } from 'react-bootstrap'
+import {
+  Badge,
+  Card,
+  Table,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom, useAtomValue } from 'jotai'
 import {
@@ -32,12 +39,26 @@ function NodesComponent() {
         <td>
           <FontAwesomeIcon icon="server" />
         </td>
-        <td
-          className="cursorPointer align-middle text-nowrap"
-          onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
-        >
-          {node['Hostname']}
-          {node['Leader'] && <FontAwesomeIcon icon="star" />}
+        <td className="align-middle text-nowrap">
+          <span className="me-2">{node['Hostname']}</span>
+          {node['Leader'] && (
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id={`leader-tt-${node.ID}`}>Leader</Tooltip>}
+            >
+              <span className="ms-1">
+                <FontAwesomeIcon icon="star" />
+              </span>
+            </OverlayTrigger>
+          )}
+          <Button
+            className="service-open-btn ms-2"
+            size="sm"
+            title={`Open node: ${node['Hostname']}`}
+            onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
+          >
+            <FontAwesomeIcon icon="search" />
+          </Button>
         </td>
         <td className="align-middle col-md-1">{node['Role']}</td>
         <td className="align-middle col-md-1">

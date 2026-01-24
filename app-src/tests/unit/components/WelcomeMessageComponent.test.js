@@ -22,36 +22,13 @@ test('shows welcome message when enabled', () => {
 	expect(screen.getByText('hello')).toBeInTheDocument()
 })
 
-test.skip('renders dark variant class when dark mode (isolated mock)', () => {
-	// isolate module to override atom mocks for this test only
-	jest.isolateModules(() => {
-		jest.doMock('../../../src/common/store/atoms', () => ({
-			showWelcomeMessageAtom: true,
-			dashboardSettingsAtom: { welcomeMessage: 'hi' },
-			currentVariantClassesAtom: 'bg-dark',
-			isDarkModeAtom: true,
-		}))
-		jest.doMock('jotai', () => ({ useAtom: () => [true, () => {}], useAtomValue: (a) => a }))
-		const { WelcomeMessageComponent: W } = require('../../../src/components/WelcomeMessageComponent')
-		const { container } = render(<W />)
-		expect(container).toBeTruthy()
-	})
-})
+// Extra behavioral test merged here: ensure modal renders and Close works
+import { fireEvent } from '@testing-library/react'
 
-test.skip('does not render when welcome message disabled (skipped flaky isolation)', () => {
-	// kept as skipped: complex isolation with Modal caused hook errors in CI; leaving skipped rather than separate file
-	jest.resetModules()
-	jest.isolateModules(() => {
-		jest.doMock('../../../src/common/store/atoms', () => ({
-			showWelcomeMessageAtom: false,
-			dashboardSettingsAtom: { welcomeMessage: 'no' },
-			currentVariantClassesAtom: 'bg-light',
-			isDarkModeAtom: false,
-		}))
-		jest.doMock('jotai', () => ({ useAtom: () => [false, () => {}], useAtomValue: () => ({}) }))
-		const React = require('react')
-		const { WelcomeMessageComponent: W } = require('../../../src/components/WelcomeMessageComponent')
-		const { container } = render(React.createElement(W))
-		expect(container).toBeTruthy()
-	})
+test('WelcomeMessageComponent shows modal when welcome message present and Close does not throw', () => {
+	const { container, getByText } = render(<WelcomeMessageComponent />)
+	expect(container).toBeTruthy()
+	const btn = getByText(/Close/i)
+	expect(btn).toBeTruthy()
+	fireEvent.click(btn)
 })

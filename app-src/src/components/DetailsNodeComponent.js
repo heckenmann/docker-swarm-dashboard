@@ -22,9 +22,7 @@ function DetailsNodeComponent() {
     currentSyntaxHighlighterStyleAtom,
   )
 
-  let currentNode
-
-  currentNode = useAtomValue(nodeDetailAtom)
+  const currentNode = useAtomValue(nodeDetailAtom)
 
   if (!currentNode) return <div>Node doesn't exist</div>
 
