@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import {
@@ -7,6 +7,7 @@ import {
   currentVariantClassesAtom,
   dashboardSettingsAtom,
   serviceNameFilterAtom,
+  filterTypeAtom,
   stackNameFilterAtom,
   tableSizeAtom,
   tasksAtomNew,
@@ -28,11 +29,12 @@ function TasksComponent() {
   const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-
-  let rows
+  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
+  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
+  const [, setFilterType] = useAtom(filterTypeAtom)
 
   const tasks = useAtomValue(tasksAtomNew)
-  rows = tasks
+  const rows = tasks
     .filter((task) =>
       serviceNameFilter ? task.ServiceName.includes(serviceNameFilter) : true,
     )
@@ -62,31 +64,69 @@ function TasksComponent() {
           />
         </td>
         <td>{task['DesiredState']}</td>
-        <td
-          className="cursorPointer"
-          key={task.ServiceID}
-          onClick={() =>
-            updateView({
-              id: servicesDetailId,
-              detail: task.ServiceID,
-            })
-          }
-        >
-          {task.ServiceName}
+        <td>
+          <span className="me-2">{task.ServiceName}</span>
+          {task.ServiceName && (
+            <>
+              <Button
+                className="service-open-btn me-1"
+                size="sm"
+                title={`Open service: ${task.ServiceName}`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  updateView({ id: servicesDetailId, detail: task.ServiceID })
+                }}
+              >
+                <FontAwesomeIcon icon="search" />
+              </Button>
+              <Button
+                className="stack-filter-btn"
+                size="sm"
+                title={`Filter service: ${task.ServiceName}`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // set service filter and clear stack filter
+                  setServiceFilterName(task.ServiceName || '')
+                  setStackFilterName('')
+                  setFilterType('service')
+                }}
+              >
+                <FontAwesomeIcon icon="filter" />
+              </Button>
+            </>
+          )}
         </td>
         <td>{task.Slot}</td>
-        <td>{task.Stack}</td>
-        <td
-          className="cursorPointer"
-          key={task.NodeID}
-          onClick={() =>
-            updateView({
-              id: nodesDetailId,
-              detail: task.NodeID,
-            })
-          }
-        >
-          {task.NodeName}
+        <td>
+          <span className="me-2">{task.Stack}</span>
+          {task.Stack && (
+            <Button
+              className="stack-filter-btn"
+              size="sm"
+              title={`Filter stack: ${task.Stack}`}
+              onClick={() => {
+                // set stack filter and clear service filter
+                setStackFilterName(task.Stack || '')
+                setServiceFilterName('')
+                setFilterType('stack')
+              }}
+            >
+              <FontAwesomeIcon icon="filter" />
+            </Button>
+          )}
+        </td>
+        <td>
+          <span className="me-2">{task.NodeName}</span>
+          <Button
+            className="service-open-btn"
+            size="sm"
+            title={`Open node: ${task.NodeName}`}
+            onClick={() =>
+              updateView({ id: nodesDetailId, detail: task.NodeID })
+            }
+          >
+            <FontAwesomeIcon icon="search" />
+          </Button>
         </td>
         <td>{task.Err}</td>
       </tr>

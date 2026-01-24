@@ -25,29 +25,48 @@ function TimelineComponent() {
   const tasks = useAtomValue(timelineAtom)
   const grouped = true
 
-  const series = tasks
+  const series = (tasks || [])
     .filter((task) =>
-      serviceNameFilter ? task.ServiceName.includes(serviceNameFilter) : true,
+      serviceNameFilter
+        ? (task.ServiceName || '').includes(serviceNameFilter)
+        : true,
     )
     .filter((task) =>
-      stackNameFilter ? task.Stack.includes(stackNameFilter) : true,
+      stackNameFilter ? (task.Stack || '').includes(stackNameFilter) : true,
     )
     .map((task) => {
+      // normalize timestamp fields (mock data sometimes has typos)
+      const createdRaw =
+        task.CreatedTimestamp ||
+        task.createdTimestamp ||
+        task.CreatedAt ||
+        task.Timestamp ||
+        ''
+      const stoppedRaw = task.StoppedTimestamp || task.stoppedTimestamp || ''
+
+      const createdTime = createdRaw ? new Date(createdRaw).getTime() : NaN
+      const stoppedTime =
+        stoppedRaw === ''
+          ? new Date().getTime()
+          : new Date(stoppedRaw).getTime()
+
+      // ensure service name is always a string to avoid downstream toLowerCase errors
+      const svcName = task.ServiceName != null ? String(task.ServiceName) : ''
+
+      // skip invalid/unnamed entries
+      if (isNaN(createdTime) || svcName === '') return null
+
       return {
-        name: task.ServiceName + ' ' + task.Slot + ' (' + task.ID + ')',
+        name: svcName + ' ' + (task.Slot || '') + ' (' + (task.ID || '') + ')',
         data: [
           {
-            x: task.ServiceName + '_' + task.Slot,
-            y: [
-              new Date(task.CreatedTimestamp).getTime(),
-              task.StoppedTimestamp === ''
-                ? new Date().getTime()
-                : new Date(task.StoppedTimestamp).getTime(),
-            ],
+            x: svcName + '_' + (task.Slot || ''),
+            y: [createdTime, stoppedTime],
           },
         ],
       }
     })
+    .filter((s) => s)
 
   /**
    * Calculates the height of the chart based on whether the tasks are grouped.
@@ -121,18 +140,88 @@ function TimelineComponent() {
     },
   }
 
+  // sanitize series: ensure names are strings and data contains numeric timestamps
+  const sanitizeSeries = (rawSeries) => {
+    if (!Array.isArray(rawSeries)) return []
+    const out = []
+    for (const s of rawSeries) {
+      try {
+        if (!s || typeof s !== 'object') continue
+        const name = s.name != null ? String(s.name) : ''
+        if (name.trim() === '') continue
+        if (!Array.isArray(s.data) || s.data.length === 0) continue
+        const item = s.data[0]
+        const x = item && item.x != null ? String(item.x) : ''
+        const y =
+          item && Array.isArray(item.y) ? item.y.map((v) => Number(v)) : null
+        if (!x || !y || y.length !== 2 || y.some((n) => Number.isNaN(n)))
+          continue
+        out.push({ name, data: [{ x, y }] })
+      } catch (err) {
+        // ignore malformed series entries
+         
+        console.error('Malformed timeline series entry skipped', err)
+      }
+    }
+    return out
+  }
+
+  const sanitizedSeries = sanitizeSeries(series)
+
+  // validate options to avoid apexcharts internal errors (like calling toLowerCase on undefined)
+  const validateOptions = (opts) => {
+    try {
+      if (!opts || typeof opts !== 'object')
+        return { ok: false, msg: 'options missing' }
+      // chart.type must be a string
+      if (!opts.chart || typeof opts.chart.type !== 'string')
+        return { ok: false, msg: 'chart.type missing or not string' }
+      // theme.mode should be 'dark'|'light'
+      if (!opts.theme || typeof opts.theme.mode !== 'string')
+        return { ok: false, msg: 'theme.mode missing or not string' }
+      // colors should be array of strings
+      if (
+        opts.colors &&
+        (!Array.isArray(opts.colors) ||
+          opts.colors.some((c) => typeof c !== 'string'))
+      )
+        return { ok: false, msg: 'colors must be array of strings' }
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, msg: String(err) }
+    }
+  }
+
+  const optionsValidation = validateOptions(options)
+
   return (
     <>
       <Card bg={currentVariant} className={currentVariantClasses}>
         <Card.Header>
           <FilterComponent />
         </Card.Header>
-        <ReactApexChart
-          options={options}
-          series={series}
-          height={chartHeight()}
-          type="rangeBar"
-        />
+        {optionsValidation.ok ? (
+          sanitizedSeries.length ? (
+            <ReactApexChart
+              options={options}
+              series={sanitizedSeries}
+              height={chartHeight()}
+              type="rangeBar"
+            />
+          ) : (
+            <div style={{ padding: '1rem' }}>No timeline data available</div>
+          )
+        ) : (
+          <div style={{ padding: '1rem', color: 'var(--muted)' }}>
+            Timeline cannot be rendered: {optionsValidation.msg}
+            {/* log full options for debugging in dev console */}
+            {console.error(
+              'Timeline options validation failed:',
+              options,
+              optionsValidation,
+            )}
+          </div>
+        )}
       </Card>
     </>
   )
