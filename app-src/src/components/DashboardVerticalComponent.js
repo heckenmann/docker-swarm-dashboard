@@ -45,7 +45,12 @@ function DashboardVerticalComponent() {
         className="dataCol cursorPointer"
         onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
       >
-        <div className="rotated">{node['Hostname']}</div>
+        <div
+          className="text-ellipsis"
+          style={{ width: '120px', minWidth: '120px' }}
+        >
+          {node['Hostname']}
+        </div>
       </th>,
     )
   })
@@ -57,7 +62,11 @@ function DashboardVerticalComponent() {
     )
     .forEach((service) => {
       const dataCols = nodes.map((node) => (
-        <td className="align-middle" key={'td' + node['ID'] + service['ID']}>
+        <td
+          className="align-middle"
+          key={'td' + node['ID'] + service['ID']}
+          style={{ width: '120px', minWidth: '120px' }}
+        >
           {service['Tasks'][node['ID']] && (
             <ul>
               {service['Tasks'][node['ID']].map((task, id) => (
@@ -115,9 +124,11 @@ function DashboardVerticalComponent() {
         id="dashboardTable"
         striped
         size={tableSize}
+        role="table"
+        aria-label="Docker Swarm Dashboard (vertical)"
       >
-        <thead>
-          <tr>
+        <thead role="rowgroup">
+          <tr role="row">
             <th className="col-md-4">Service</th>
             <th className="col-md-2">Stack</th>
             <th className="col-md-1">Replication</th>

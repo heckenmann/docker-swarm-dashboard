@@ -5,6 +5,7 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
 } from '../common/store/atoms'
+import LoadingBar from './LoadingBar'
 
 /**
  * LoadingComponent is a functional component that displays a loading spinner
@@ -14,13 +15,28 @@ function LoadingComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Body>
-        <h1>
-          <FontAwesomeIcon icon="spinner" className="rotating" /> Loading ...
-        </h1>
-      </Card.Body>
-    </Card>
+    <div className="loading-overlay" role="status" aria-live="polite">
+      <Card
+        bg={currentVariant}
+        className={`${currentVariantClasses} card-elevated p-4 loading-card`}
+      >
+        <Card.Body className="text-center">
+          <div className="d-flex flex-column align-items-center">
+            <FontAwesomeIcon
+              icon="spinner"
+              className="rotating mb-3"
+              style={{ fontSize: '2.25rem' }}
+              aria-hidden="true"
+            />
+            <h4 className="mb-0 loading-title">Loading</h4>
+            <div className="loading-subtitle">Preparing the dashboard…</div>
+            <div className="w-100 mt-3">
+              <LoadingBar force={true} />
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    </div>
   )
 }
 
