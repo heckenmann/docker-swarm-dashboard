@@ -4,20 +4,29 @@ import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
 import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
-import { dashboardHId, dashboardVId } from '../navigationConstants'
+import { dashboardHId, dashboardVId, servicesDetailId, nodesDetailId, tasksId } from '../navigationConstants'
 
-// Initiale Werte
-const hash = window.location.hash
-const hashWithoutHash = hash.substring(1)
+// Initial values
+export function parseHashToObj(hashString, pathname) {
+  const hash = typeof hashString === 'string' ? hashString : ''
+  const hashWithoutHash = hash.startsWith('#') ? hash.substring(1) : hash
+  if (!hashWithoutHash) return {}
+  return hashWithoutHash
+    .split('&')
+    .map((pair) => pair.split('='))
+    .reduce((acc, [key, value]) => {
+      try {
+  // Decode and remove surrounding or embedded quotes to normalize values
+  acc[key] = decodeURIComponent(value).replaceAll('"', '')
+      } catch (e) {
+  acc[key] = (value || '').replaceAll('"', '')
+      }
+      return acc
+    }, {})
+}
 
-// Den Hash-Teil in eine Objektstruktur parsen
-const parsedHash = hashWithoutHash
-  .split('&')
-  .map((pair) => pair.split('='))
-  .reduce((acc, [key, value]) => {
-    acc[key] = decodeURIComponent(value)
-    return acc
-  }, {})
+// Initial parsed hash (computed from real window during module load)
+const parsedHash = parseHashToObj(window.location.hash, window.location.pathname)
 
 // Jotai-Atoms
 export const baseUrlAtom = atomWithHash(
@@ -70,7 +79,11 @@ export const tasksAtomNew = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/tasks')).json()
 })
 export const nodeDetailAtom = atom(async (get) => {
-  const id = get(viewAtom)['detail']
+  const view = get(viewAtom) || {}
+  // Only fetch node details when the active view is the nodes detail view
+  if (view.id !== nodesDetailId) return null
+  const id = view['detail']
+  if (!id) return null
   return (await fetch(get(baseUrlAtom) + 'docker/nodes/' + id)).json()
 })
 export const logsServicesAtom = atom(async (get) => {
@@ -79,11 +92,19 @@ export const logsServicesAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/logs/services')).json()
 })
 export const serviceDetailAtom = atom(async (get) => {
-  const id = get(viewAtom)['detail']
+  const view = get(viewAtom) || {}
+  // Only fetch service details when the active view is the services detail view
+  if (view.id !== servicesDetailId) return null
+  const id = view['detail']
+  if (!id) return null
   return (await fetch(get(baseUrlAtom) + 'docker/services/' + id)).json()
 })
 export const taskDetailAtom = atom(async (get) => {
-  const id = get(viewAtom)['detail']
+  const view = get(viewAtom) || {}
+  // Only fetch task details when the active view is the tasks view (used as detail)
+  if (view.id !== tasksId) return null
+  const id = view['detail']
+  if (!id) return null
   return (await fetch(get(baseUrlAtom) + 'docker/tasks/' + id)).json()
 })
 
