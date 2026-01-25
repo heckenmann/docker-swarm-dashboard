@@ -40,13 +40,13 @@ export function useEntityActions(entityType = 'service') {
     if (entityType === 'stack') {
       setFilterType('stack')
       setStackFilterName(filterName)
-  // clear service filter when switching to stack filter
-  setServiceFilterName('')
+      // clear service filter when switching to stack filter
+      setServiceFilterName('')
     } else if (entityType === 'service') {
       setFilterType('service')
       setServiceFilterName(filterName)
-  // clear stack filter when switching to service filter
-  setStackFilterName('')
+      // clear stack filter when switching to service filter
+      setStackFilterName('')
     }
   }
 

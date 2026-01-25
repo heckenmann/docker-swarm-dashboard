@@ -52,7 +52,6 @@ function NodesComponent() {
               </span>
             </OverlayTrigger>
           )}
-          
         </td>
         <td className="align-middle col-md-1">{node['Role']}</td>
         <td className="align-middle col-md-1">

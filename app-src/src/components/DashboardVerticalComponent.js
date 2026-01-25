@@ -49,13 +49,18 @@ function DashboardVerticalComponent() {
 
   // Columns
   nodes.forEach((node) => {
-      theads.push(
-        <th
+    theads.push(
+      <th
         key={'dashboardTable-' + node['ID']}
         className="service-header dataCol"
         style={{ width: '120px', minWidth: '120px' }}
       >
-        <EntityName name={node['Hostname']} id={node.ID} showFilter={false} nameClass="service-name-text" />
+        <EntityName
+          name={node['Hostname']}
+          id={node.ID}
+          showFilter={false}
+          nameClass="service-name-text"
+        />
       </th>,
     )
   })
@@ -90,7 +95,11 @@ function DashboardVerticalComponent() {
                     createdAt={task['CreatedAt']}
                     updatedAt={task['UpdatedAt']}
                     serviceError={task['Status']['Err']}
-                    hiddenStates={dashboardSettings ? dashboardSettings.hiddenServiceStates : []}
+                    hiddenStates={
+                      dashboardSettings
+                        ? dashboardSettings.hiddenServiceStates
+                        : []
+                    }
                   />
                 </li>
               ))}
@@ -101,10 +110,10 @@ function DashboardVerticalComponent() {
 
       trows.push(
         <tr key={'tr' + service['ID']}>
-            <td>
+          <td>
             <ServiceName name={service['Name']} id={service.ID} />
           </td>
-            <td className="stack-column">
+          <td className="stack-column">
             <StackName name={service['Stack']} />
           </td>
           <td>{service['Replication']}</td>

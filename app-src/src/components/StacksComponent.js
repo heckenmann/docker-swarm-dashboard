@@ -46,10 +46,14 @@ function StacksComponent() {
         return shortName.includes(fname) || fullName.includes(fname)
       })
       .map((service) => (
-            <tr key={service['ID']}>
+        <tr key={service['ID']}>
           <td className="text-nowrap">
             <EntityName
-              name={service['ShortName'] ? service['ShortName'] : service['ServiceName']}
+              name={
+                service['ShortName']
+                  ? service['ShortName']
+                  : service['ServiceName']
+              }
               id={service['ID']}
             />
           </td>

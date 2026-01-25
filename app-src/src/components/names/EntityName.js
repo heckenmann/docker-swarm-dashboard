@@ -38,20 +38,26 @@ export function EntityName({
   if (!name) return null
 
   const defaultNameNode = (
-    <span className={nameClass ? nameClass : ''} title={tooltipText || undefined}>
+    <span
+      className={nameClass ? nameClass : ''}
+      title={tooltipText || undefined}
+    >
       {name}
     </span>
   )
 
   // Use centralized actions hook to provide defaults when props are omitted.
-  const { onOpen: hookOnOpen, onFilter: hookOnFilter } = useEntityActions(entityType)
+  const { onOpen: hookOnOpen, onFilter: hookOnFilter } =
+    useEntityActions(entityType)
   const finalOnOpen = onOpen || hookOnOpen
   const finalOnFilter = onFilter || hookOnFilter
 
   return (
     <>
       {nameNode || defaultNameNode}
-      <div className={`${(showOpen || showFilter) ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}>
+      <div
+        className={`${showOpen || showFilter ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}
+      >
         <NameActions
           showOpen={showOpen}
           showFilter={showFilter}
