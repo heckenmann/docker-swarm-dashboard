@@ -14,6 +14,8 @@ import {
 import { useAtom, useAtomValue } from 'jotai'
 import { servicesDetailId } from '../common/navigationConstants'
 import { FilterComponent } from './FilterComponent'
+import { EntityName } from './names/EntityName'
+import { StackName } from './names/StackName'
 
 /**
  * StacksComponent is a React functional component that renders a list of stacks.
@@ -44,44 +46,12 @@ function StacksComponent() {
         return shortName.includes(fname) || fullName.includes(fname)
       })
       .map((service) => (
-        <tr key={service['ID']}>
+            <tr key={service['ID']}>
           <td className="text-nowrap">
-            <span className="me-2">
-              {service['ShortName']
-                ? service['ShortName']
-                : service['ServiceName']}
-            </span>
-            {(service['ShortName'] || service['ServiceName']) && (
-              <>
-                <Button
-                  className="service-open-btn me-1"
-                  size="sm"
-                  title={`Open service: ${service['ShortName'] ? service['ShortName'] : service['ServiceName']}`}
-                  onClick={() =>
-                    updateView({ id: servicesDetailId, detail: service['ID'] })
-                  }
-                >
-                  <FontAwesomeIcon icon="search" />
-                </Button>
-                <Button
-                  className="stack-filter-btn"
-                  size="sm"
-                  title={`Filter service: ${service['ShortName'] ? service['ShortName'] : service['ServiceName']}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setServiceFilterName(
-                      (service['ShortName']
-                        ? service['ShortName']
-                        : service['ServiceName']) || '',
-                    )
-                    setStackFilterName('')
-                    setFilterType('service')
-                  }}
-                >
-                  <FontAwesomeIcon icon="filter" />
-                </Button>
-              </>
-            )}
+            <EntityName
+              name={service['ShortName'] ? service['ShortName'] : service['ServiceName']}
+              id={service['ID']}
+            />
           </td>
           <td>{service['Replication']}</td>
           <td>
@@ -114,21 +84,8 @@ function StacksComponent() {
       >
         <Card.Header>
           <h5>
-            <FontAwesomeIcon icon="cubes" /> {stack['Name']}
-            {stack['Name'] && (
-              <Button
-                className="stack-filter-btn"
-                size="sm"
-                title={`Filter stack: ${stack['Name']}`}
-                onClick={() => {
-                  setStackFilterName(stack['Name'] || '')
-                  setServiceFilterName('')
-                  setFilterType('stack')
-                }}
-              >
-                <FontAwesomeIcon icon="filter" />
-              </Button>
-            )}
+            <FontAwesomeIcon icon="cubes" />
+            <StackName name={stack['Name']} />
           </h5>
         </Card.Header>
         <Table variant={currentVariant} size="sm" hover>

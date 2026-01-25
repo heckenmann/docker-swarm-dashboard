@@ -14,6 +14,9 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import ServiceStatusBadge from './ServiceStatusBadge'
+import { EntityName } from './names/EntityName'
+import { StackName } from './names/StackName'
+import { NodeName } from './names/NodeName'
 import { FilterComponent } from './FilterComponent'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -65,68 +68,14 @@ function TasksComponent() {
         </td>
         <td>{task['DesiredState']}</td>
         <td>
-          <span className="me-2">{task.ServiceName}</span>
-          {task.ServiceName && (
-            <>
-              <Button
-                className="service-open-btn me-1"
-                size="sm"
-                title={`Open service: ${task.ServiceName}`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  updateView({ id: servicesDetailId, detail: task.ServiceID })
-                }}
-              >
-                <FontAwesomeIcon icon="search" />
-              </Button>
-              <Button
-                className="stack-filter-btn"
-                size="sm"
-                title={`Filter service: ${task.ServiceName}`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // set service filter and clear stack filter
-                  setServiceFilterName(task.ServiceName || '')
-                  setStackFilterName('')
-                  setFilterType('service')
-                }}
-              >
-                <FontAwesomeIcon icon="filter" />
-              </Button>
-            </>
-          )}
+          <EntityName name={task.ServiceName} id={task.ServiceID} />
         </td>
         <td>{task.Slot}</td>
         <td>
-          <span className="me-2">{task.Stack}</span>
-          {task.Stack && (
-            <Button
-              className="stack-filter-btn"
-              size="sm"
-              title={`Filter stack: ${task.Stack}`}
-              onClick={() => {
-                // set stack filter and clear service filter
-                setStackFilterName(task.Stack || '')
-                setServiceFilterName('')
-                setFilterType('stack')
-              }}
-            >
-              <FontAwesomeIcon icon="filter" />
-            </Button>
-          )}
+          <StackName name={task.Stack} />
         </td>
         <td>
-          <span className="me-2">{task.NodeName}</span>
-          <Button
-            className="service-open-btn"
-            size="sm"
-            title={`Open node: ${task.NodeName}`}
-            onClick={() =>
-              updateView({ id: nodesDetailId, detail: task.NodeID })
-            }
-          >
-            <FontAwesomeIcon icon="search" />
-          </Button>
+          <NodeName name={task.NodeName} id={task.NodeID} />
         </td>
         <td>{task.Err}</td>
       </tr>
