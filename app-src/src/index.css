@@ -33,3 +33,5 @@ body {
   --shadow-hover: 0 10px 26px rgba(255,255,255,0.04);
   --table-border-color: rgba(255,255,255,0.06);
 }
+
+/* If needed, Bootstrap utility classes control spacing for name/actions. */

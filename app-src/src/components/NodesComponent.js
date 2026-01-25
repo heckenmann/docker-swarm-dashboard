@@ -8,6 +8,7 @@ import {
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom, useAtomValue } from 'jotai'
+import { NodeName } from './names/NodeName'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -40,7 +41,7 @@ function NodesComponent() {
           <FontAwesomeIcon icon="server" />
         </td>
         <td className="align-middle text-nowrap">
-          <span className="me-2">{node['Hostname']}</span>
+          <NodeName name={node['Hostname']} id={node.ID} />
           {node['Leader'] && (
             <OverlayTrigger
               placement="top"
@@ -51,14 +52,6 @@ function NodesComponent() {
               </span>
             </OverlayTrigger>
           )}
-          <Button
-            className="service-open-btn ms-2"
-            size="sm"
-            title={`Open node: ${node['Hostname']}`}
-            onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
-          >
-            <FontAwesomeIcon icon="search" />
-          </Button>
         </td>
         <td className="align-middle col-md-1">{node['Role']}</td>
         <td className="align-middle col-md-1">

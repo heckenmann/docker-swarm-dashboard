@@ -395,8 +395,8 @@ table ul li {
 /* Shared inline action button base for small header/body buttons */
 /* Backwards-compatible selectors: apply base inline-action styles to existing classes */
 .inline-action-btn,
-.stack-filter-btn,
-.service-open-btn {
+ .name-filter-btn,
+ .name-open-btn {
     position: static !important;
     border: none !important;
     background: transparent !important;
@@ -409,18 +409,18 @@ table ul li {
 }
 
 .inline-action-btn svg,
-.stack-filter-btn svg,
-.service-open-btn svg {
+ .name-filter-btn svg,
+ .name-open-btn svg {
     width: 14px;
     height: 14px;
 }
 
 .inline-action-btn:hover,
 .inline-action-btn:focus,
-.stack-filter-btn:hover,
-.stack-filter-btn:focus,
-.service-open-btn:hover,
-.service-open-btn:focus {
+ .name-filter-btn:hover,
+ .name-filter-btn:focus,
+ .name-open-btn:hover,
+ .name-open-btn:focus {
     text-decoration: none !important;
     opacity: 1 !important;
     color: var(--accent, #0d6efd) !important;
@@ -428,8 +428,8 @@ table ul li {
 }
 
 /* stack-filter specific small offset */
-.stack-filter-btn { margin-left: 6px !important; }
-.service-open-btn { margin-left: 0 !important; }
+ .name-filter-btn { margin-left: 0px !important; }
+ .name-open-btn { margin-left: 0 !important; }
 
 /* Body-specific offsets if needed may be added here later. Shared rules above
     apply to both header and body buttons for consistent styling. */
