@@ -75,7 +75,10 @@ function DashboardVerticalComponent() {
       const dataCols = nodes.map((node) => (
         <td
           className="align-middle"
-          key={'td' + node['ID'] + service['ID']}
+          key={
+            'td-' + (node && node.ID ? String(node.ID) : 'node-unknown') + '-' +
+            (service && service.ID ? String(service.ID) : 'service-unknown')
+          }
           style={{ width: '120px', minWidth: '120px' }}
         >
           {service['Tasks'][node['ID']] && (
@@ -83,11 +86,14 @@ function DashboardVerticalComponent() {
               {service['Tasks'][node['ID']].map((task, id) => (
                 <li
                   key={
-                    'li' +
-                    task['NodeID'] +
-                    task['ServiceID'] +
-                    task['ID'] +
-                    task['Status']
+                    'li-' +
+                    (task && task.NodeID ? String(task.NodeID) : `node-idx-${id}`) +
+                    '-' +
+                    (task && task.ServiceID ? String(task.ServiceID) : `svc-idx-${id}`) +
+                    '-' +
+                    (task && task.ID ? String(task.ID) + `-${id}` : `task-idx-${id}`) +
+                    '-' +
+                    (task && task.Status ? String(task.Status?.Timestamp ?? task.Status?.State ?? `status-idx-${id}`) : `status-idx-${id}`)
                   }
                 >
                   <ServiceStatusBadge

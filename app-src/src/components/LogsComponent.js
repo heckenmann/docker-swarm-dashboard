@@ -313,10 +313,7 @@ function LogsComponent() {
 
             <Form.Group as={Row}>
               <Col sm={{ span: 10, offset: 2 }}>
-                <Button
-                  type="submit"
-                  disabled={!serviceOptions || serviceOptions.length === 0}
-                >
+                <Button type="submit" disabled={!services || services.length === 0}>
                   <FontAwesomeIcon icon="desktop" /> Show logs
                 </Button>
               </Col>
