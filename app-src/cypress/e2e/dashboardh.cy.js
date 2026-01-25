@@ -21,7 +21,7 @@ describe('Dashboard horizontal Tests', () => {
   // target the header that contains the known service name and click its open button
   cy.contains('th .service-name-text', 'backend_auth-service', { timeout: 5000 })
     .closest('th')
-    .find('button.service-open-btn')
+    .find('button.name-open-btn')
     .click()
   // dump the rendered DOM to help debugging why details may not appear
   cy.document().then((d) => {
