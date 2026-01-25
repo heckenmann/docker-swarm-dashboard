@@ -13,12 +13,29 @@ import { tableSizeAtom } from '../common/store/atoms'
 export function JsonTable(props) {
   const tableSize = useAtomValue(tableSizeAtom)
   const flattenConfig = flatten(props.json)
-  const rows = Object.keys(flattenConfig).map((node) => (
-    <tr key={node}>
-      <td>{node}</td>
-      <td>{flattenConfig[node]}</td>
-    </tr>
-  ))
+  const rows = Object.keys(flattenConfig).map((node) => {
+    const raw = flattenConfig[node]
+    let display
+    if (raw === null || raw === undefined) {
+      display = ''
+    } else if (typeof raw === 'object') {
+      try {
+        display = JSON.stringify(raw)
+      } catch (e) {
+        display = String(raw)
+      }
+    } else {
+      display = String(raw)
+    }
+    // truncate very long values for table readability
+    if (display.length > 1000) display = display.slice(0, 1000) + '...'
+    return (
+      <tr key={node}>
+        <td>{node}</td>
+        <td>{display}</td>
+      </tr>
+    )
+  })
 
   return (
     <Table variant={props.variant} size={tableSize}>

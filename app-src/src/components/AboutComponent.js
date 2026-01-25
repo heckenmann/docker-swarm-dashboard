@@ -141,9 +141,10 @@ function AboutComponent() {
         <h2>Application</h2>
         <Button
           onClick={() =>
-            updateView({
+            updateView(prev => ({
+              ...prev,
               id: debugId,
-            })
+            }))
           }
         >
           <FontAwesomeIcon icon="bug" />

@@ -46,7 +46,7 @@ function TasksComponent() {
     )
     .map((task, id) => (
       <tr
-        key={'tasksTable-' + task['ID']}
+        key={'tasksTable-' + (task && task.ID ? String(task.ID) + `-${id}` : `index-${id}`)}
         className={task['State'] === 'failed' ? 'table-danger' : null}
       >
         <td>
