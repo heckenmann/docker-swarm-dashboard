@@ -159,7 +159,7 @@ function TimelineComponent() {
         out.push({ name, data: [{ x, y }] })
       } catch (err) {
         // ignore malformed series entries
-         
+
         console.error('Malformed timeline series entry skipped', err)
       }
     }

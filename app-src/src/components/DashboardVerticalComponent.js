@@ -14,6 +14,10 @@ import {
 import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
+import { EntityName } from './names/EntityName'
+import { NodeName } from './names/NodeName'
+import { ServiceName } from './names/ServiceName'
+import { StackName } from './names/StackName'
 import { serviceFilter } from '../common/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -52,17 +56,12 @@ function DashboardVerticalComponent() {
         className="service-header dataCol"
         style={{ width: '120px', minWidth: '120px' }}
       >
-        <span className="service-name-text" title={node['Hostname']}>
-          {node['Hostname']}
-        </span>
-        <Button
-          className="service-open-btn ms-1"
-          size="sm"
-          title={`Open node: ${node['Hostname']}`}
-          onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
-        >
-          <FontAwesomeIcon icon="search" />
-        </Button>
+        <NodeName
+          name={node['Hostname']}
+          id={node.ID}
+          showFilter={false}
+          nameClass="service-name-text"
+        />
       </th>,
     )
   })
@@ -97,7 +96,11 @@ function DashboardVerticalComponent() {
                     createdAt={task['CreatedAt']}
                     updatedAt={task['UpdatedAt']}
                     serviceError={task['Status']['Err']}
-                    hiddenStates={dashboardSettings.hiddenServiceStates}
+                    hiddenStates={
+                      dashboardSettings
+                        ? dashboardSettings.hiddenServiceStates
+                        : []
+                    }
                   />
                 </li>
               ))}
@@ -109,55 +112,10 @@ function DashboardVerticalComponent() {
       trows.push(
         <tr key={'tr' + service['ID']}>
           <td>
-            <span className="me-2">{service['Name']}</span>
-            {service['Name'] && (
-              <>
-                <Button
-                  className="service-open-btn me-1"
-                  size="sm"
-                  title={`Open service: ${service['Name']}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    updateView({ id: servicesDetailId, detail: service.ID })
-                  }}
-                >
-                  <FontAwesomeIcon icon="search" />
-                </Button>
-                <Button
-                  className="stack-filter-btn"
-                  size="sm"
-                  title={`Filter service: ${service['Name']}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    // set service filter and clear stack filter
-                    setServiceFilterName(service['Name'] || '')
-                    setStackFilterName('')
-                    setFilterType('service')
-                  }}
-                >
-                  <FontAwesomeIcon icon="filter" />
-                </Button>
-              </>
-            )}
+            <ServiceName name={service['Name']} id={service.ID} />
           </td>
           <td className="stack-column">
-            <span className="me-2">{service['Stack']}</span>
-            {service['Stack'] && (
-              <Button
-                className="stack-filter-btn"
-                size="sm"
-                title={`Filter stack: ${service['Stack']}`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // set stack filter and clear service filter
-                  setStackFilterName(service['Stack'] || '')
-                  setServiceFilterName('')
-                  setFilterType('stack')
-                }}
-              >
-                <FontAwesomeIcon icon="filter" />
-              </Button>
-            )}
+            <StackName name={service['Stack']} />
           </td>
           <td>{service['Replication']}</td>
           {dataCols}

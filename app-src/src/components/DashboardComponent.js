@@ -16,25 +16,33 @@ import {
 import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
+import { EntityName } from './names/EntityName'
+import { NodeName } from './names/NodeName'
+import { ServiceName } from './names/ServiceName'
 import { serviceFilter } from '../common/utils'
 
 /**
- * DashboardComponent is a React functional component that renders the dashboard
- * table with nodes and services information. It uses various atoms from Jotai
- * for state management and applies filters to display the relevant data.
+ * DashboardComponent
+ * Renders the main horizontal dashboard table showing nodes and services.
+ * It reads dashboard data from Jotai atoms and provides filtering and navigation
+ * controls for services and nodes. Intended to be used as the primary landing
+ * view for the application.
+ *
+ * @returns {JSX.Element} The dashboard table element.
  */
 function DashboardComponent() {
-  const isDarkMode = useAtomValue(isDarkModeAtom)
-  const currentVariant = useAtomValue(currentVariantAtom)
-  const [, updateView] = useAtom(viewAtom)
-  const tableSize = useAtomValue(tableSizeAtom)
-  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
 
   const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
   const [, setStackFilterName] = useAtom(stackNameFilterAtom)
   const [, setFilterType] = useAtom(filterTypeAtom)
+
+  const isDarkMode = useAtomValue(isDarkModeAtom)
+  const currentVariant = useAtomValue(currentVariantAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const [, updateView] = useAtom(viewAtom)
 
   const [shifted, setShifted] = useState(new Set())
 
@@ -99,47 +107,13 @@ function DashboardComponent() {
           className="dataCol"
           style={{ width: '120px', minWidth: '120px' }}
         >
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              <Tooltip id={`tt-${service.ID}`}>{service['Name']}</Tooltip>
-            }
-          >
-            <div
-              className="text-ellipsis d-inline-block"
-              style={{ verticalAlign: 'middle' }}
-            >
-              {service['Name']}
-            </div>
-          </OverlayTrigger>
-          {service['Name'] && (
-            <>
-              <Button
-                className="service-open-btn ms-1 me-1"
-                size="sm"
-                title={`Open service: ${service['Name']}`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  updateView({ id: servicesDetailId, detail: service.ID })
-                }}
-              >
-                <FontAwesomeIcon icon="search" />
-              </Button>
-              <Button
-                className="stack-filter-btn"
-                size="sm"
-                title={`Filter service: ${service['Name']}`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setServiceFilterName(service['Name'] || '')
-                  setStackFilterName('')
-                  setFilterType('service')
-                }}
-              >
-                <FontAwesomeIcon icon="filter" />
-              </Button>
-            </>
-          )}
+          <ServiceName
+            name={service['Name']}
+            id={service.ID}
+            useOverlay={true}
+            tooltipText={service['Name']}
+            nameClass="text-ellipsis d-inline-block"
+          />
         </div>,
       )
     })
@@ -195,7 +169,7 @@ function DashboardComponent() {
           className="align-middle"
           style={{ width: '250px', minWidth: '250px' }}
         >
-          <span className="me-2 text-ellipsis">{node['Hostname']}</span>
+          <NodeName name={node['Hostname']} id={node.ID} />
           {node['Leader'] && (
             <OverlayTrigger
               placement="top"
@@ -206,14 +180,6 @@ function DashboardComponent() {
               </span>
             </OverlayTrigger>
           )}
-          <Button
-            className="service-open-btn ms-2"
-            size="sm"
-            title={`Open node: ${node['Hostname']}`}
-            onClick={() => updateView({ id: nodesDetailId, detail: node.ID })}
-          >
-            <FontAwesomeIcon icon="search" />
-          </Button>
         </td>
         <td
           className="align-middle"
@@ -331,7 +297,7 @@ function DashboardComponent() {
                     {h.name && (
                       <>
                         <Button
-                          className="service-open-btn me-1"
+                          className="name-open-btn me-1"
                           size="sm"
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
@@ -342,7 +308,7 @@ function DashboardComponent() {
                           <FontAwesomeIcon icon="search" />
                         </Button>
                         <Button
-                          className="stack-filter-btn"
+                          className="name-filter-btn"
                           size="sm"
                           title={`Filter service: ${h.name}`}
                           onClick={(e) => {
@@ -381,7 +347,7 @@ function DashboardComponent() {
                     {h.name && (
                       <>
                         <Button
-                          className="service-open-btn me-1"
+                          className="name-open-btn me-1"
                           size="sm"
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
@@ -392,7 +358,7 @@ function DashboardComponent() {
                           <FontAwesomeIcon icon="search" />
                         </Button>
                         <Button
-                          className="stack-filter-btn"
+                          className="name-filter-btn"
                           size="sm"
                           title={`Filter service: ${h.name}`}
                           onClick={(e) => {
@@ -431,7 +397,7 @@ function DashboardComponent() {
                     {h.name && (
                       <>
                         <Button
-                          className="service-open-btn me-1"
+                          className="name-open-btn me-1"
                           size="sm"
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
@@ -442,7 +408,7 @@ function DashboardComponent() {
                           <FontAwesomeIcon icon="search" />
                         </Button>
                         <Button
-                          className="stack-filter-btn"
+                          className="name-filter-btn"
                           size="sm"
                           title={`Filter service: ${h.name}`}
                           onClick={(e) => {
