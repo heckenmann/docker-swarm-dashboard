@@ -21,6 +21,15 @@ import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
 import { serviceFilter } from '../common/utils'
 
+/**
+ * DashboardComponent
+ * Renders the main horizontal dashboard table showing nodes and services.
+ * It reads dashboard data from Jotai atoms and provides filtering and navigation
+ * controls for services and nodes. Intended to be used as the primary landing
+ * view for the application.
+ *
+ * @returns {JSX.Element} The dashboard table element.
+ */
 function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
