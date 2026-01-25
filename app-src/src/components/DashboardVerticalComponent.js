@@ -15,6 +15,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { EntityName } from './names/EntityName'
+import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import { serviceFilter } from '../common/utils'
@@ -55,7 +56,7 @@ function DashboardVerticalComponent() {
         className="service-header dataCol"
         style={{ width: '120px', minWidth: '120px' }}
       >
-        <EntityName
+        <NodeName
           name={node['Hostname']}
           id={node.ID}
           showFilter={false}
