@@ -31,8 +31,8 @@ export function NameActions({
   return (
     <>
       {showOpen && (
-            <Button
-              className="name-open-btn"
+        <Button
+          className="name-open-btn"
           size={size}
           title={`Open ${entityType}: ${name}`}
           onClick={(e) => {
@@ -45,7 +45,7 @@ export function NameActions({
       )}
       {showFilter && (
         <Button
-              className="name-filter-btn"
+          className="name-filter-btn"
           size={size}
           title={`Filter ${entityType}: ${name}`}
           onClick={(e) => {

@@ -19,22 +19,38 @@ import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { EntityName } from './EntityName'
 
-function ServiceName({ name, id, nameClass = '', useOverlay = false, tooltipText = null, showOpen = true, showFilter = true, size = 'sm' }) {
+function ServiceName({
+  name,
+  id,
+  nameClass = '',
+  useOverlay = false,
+  tooltipText = null,
+  showOpen = true,
+  showFilter = true,
+  size = 'sm',
+}) {
   if (!name) return null
 
   const nameNode = (
-    <span className={nameClass ? nameClass : ''} title={tooltipText || undefined}>
+    <span
+      className={nameClass ? nameClass : ''}
+      title={tooltipText || undefined}
+    >
       {name}
     </span>
   )
 
-  const wrappedNameNode = useOverlay && tooltipText ? (
-    <OverlayTrigger placement="top" overlay={<Tooltip id={`tt-${id}`}>{tooltipText}</Tooltip>}>
-      {nameNode}
-    </OverlayTrigger>
-  ) : (
-    nameNode
-  )
+  const wrappedNameNode =
+    useOverlay && tooltipText ? (
+      <OverlayTrigger
+        placement="top"
+        overlay={<Tooltip id={`tt-${id}`}>{tooltipText}</Tooltip>}
+      >
+        {nameNode}
+      </OverlayTrigger>
+    ) : (
+      nameNode
+    )
 
   return (
     <EntityName
