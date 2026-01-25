@@ -13,6 +13,8 @@ import {
 } from '../common/store/atoms'
 import { servicesDetailId } from '../common/navigationConstants'
 import { FilterComponent } from './FilterComponent'
+import { EntityName } from './names/EntityName'
+import { StackName } from './names/StackName'
 
 /**
  * PortsComponent is a React functional component that renders a table of port mappings.
@@ -49,52 +51,10 @@ function PortsComponent() {
           <td>{p.Protocol}</td>
           <td>{p.PublishMode}</td>
           <td>
-            <span className="me-2">{p.ServiceName}</span>
-            {p.ServiceName && (
-              <>
-                <Button
-                  className="service-open-btn me-1"
-                  size="sm"
-                  title={`Open service: ${p.ServiceName}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    updateView({ id: servicesDetailId, detail: p.ServiceID })
-                  }}
-                >
-                  <FontAwesomeIcon icon="search" />
-                </Button>
-                <Button
-                  className="stack-filter-btn"
-                  size="sm"
-                  title={`Filter service: ${p.ServiceName}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setServiceFilterName(p.ServiceName || '')
-                    setStackFilterName('')
-                    setFilterType('service')
-                  }}
-                >
-                  <FontAwesomeIcon icon="filter" />
-                </Button>
-              </>
-            )}
+            <EntityName name={p.ServiceName} id={p.ServiceID} />
           </td>
           <td>
-            <span className="me-2">{p.Stack}</span>
-            {p.Stack && (
-              <Button
-                className="stack-filter-btn"
-                size="sm"
-                title={`Filter stack: ${p.Stack}`}
-                onClick={() => {
-                  setStackFilterName(p.Stack || '')
-                  setServiceFilterName('')
-                  setFilterType('stack')
-                }}
-              >
-                <FontAwesomeIcon icon="filter" />
-              </Button>
-            )}
+            <StackName name={p.Stack} />
           </td>
         </tr>
       )
