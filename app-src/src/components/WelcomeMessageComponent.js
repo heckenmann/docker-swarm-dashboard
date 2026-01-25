@@ -7,6 +7,13 @@ import {
 } from '../common/store/atoms'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+/**
+ * WelcomeMessageComponent
+ * Displays a dismissible modal with the configured welcome message from
+ * dashboard settings. Uses Jotai atoms to control visibility and styling.
+ *
+ * @returns {JSX.Element|null} The welcome modal when enabled.
+ */
 function WelcomeMessageComponent() {
   const [showWelcomeMessage, setShowWelcomeMessage] = useAtom(
     showWelcomeMessageAtom,
