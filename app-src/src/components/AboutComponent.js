@@ -70,10 +70,18 @@ function AboutComponent() {
         <a href="https://www.jetbrains.com/" target="_blank" rel="noreferrer">
           <JbSquare height="80px" aria-label="JetBrains logo" />
         </a>
-        <a href="https://www.jetbrains.com/go/" target="_blank" rel="noreferrer">
+        <a
+          href="https://www.jetbrains.com/go/"
+          target="_blank"
+          rel="noreferrer"
+        >
           <GoLandIcon height="80px" aria-label="GoLand logo" />
         </a>
-        <a href="https://www.jetbrains.com/webstorm/" target="_blank" rel="noreferrer">
+        <a
+          href="https://www.jetbrains.com/webstorm/"
+          target="_blank"
+          rel="noreferrer"
+        >
           <WebStormIcon height="80px" aria-label="WebStorm logo" />
         </a>
         <h2>Frameworks & Libraries</h2>
