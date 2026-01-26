@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/blang/semver"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/blang/semver"
 )
 
 // GitHubRelease represents a release in GitHub
@@ -28,7 +29,6 @@ func getLocalVersion() (string, error) {
 func getLatestRemoteVersion() (string, error) {
 	url := os.Getenv("DSD_VERSION_RELEASE_URL")
 	if url == "" {
-		fmt.Println("Warning: DSD_VERSION_RELEASE_URL is not set")
 		return "", fmt.Errorf("release URL not set")
 	}
 
@@ -55,14 +55,11 @@ var (
 func getCacheTimeout() time.Duration {
 	timeoutStr := os.Getenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES")
 	if timeoutStr == "" {
-		// Set default value to 60 minutes if the environment variable is not set
 		return 30 * time.Minute
 	}
 
 	timeoutMinutes, err := strconv.Atoi(timeoutStr)
 	if err != nil {
-		fmt.Println("Error converting DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES:", err)
-		// Set default value to 60 minutes if the conversion fails
 		return 30 * time.Minute
 	}
 
@@ -75,7 +72,6 @@ func checkVersion() (string, string, bool) {
 	// Get local version
 	localVersion, err := getLocalVersion()
 	if err != nil {
-		fmt.Println("Error getting local version:", err)
 		return "", "", false
 	}
 
@@ -88,7 +84,6 @@ func checkVersion() (string, string, bool) {
 	if time.Since(lastCheckTime) < getCacheTimeout() {
 		localSemver, err := semver.Make(localVersion)
 		if err != nil {
-			fmt.Println("Error parsing local version:", err)
 			return "", "", false
 		}
 		return localVersion, cachedRemoteVersion, localSemver.LT(semver.MustParse(cachedRemoteVersion))
@@ -97,7 +92,6 @@ func checkVersion() (string, string, bool) {
 	// Get latest remote version
 	remoteVersion, err := getLatestRemoteVersion()
 	if err != nil {
-		fmt.Println("Error getting remote version:", err)
 		return localVersion, "", false
 	}
 
@@ -105,20 +99,17 @@ func checkVersion() (string, string, bool) {
 	lastCheckTime = time.Now()
 	cachedRemoteVersion = remoteVersion
 	if err != nil {
-		fmt.Println("Error getting remote version:", err)
 		return localVersion, remoteVersion, false
 	}
 
 	// Parse versions
 	localSemver, err := semver.Make(localVersion)
 	if err != nil {
-		fmt.Println("Error parsing local version:", err)
 		return localVersion, remoteVersion, false
 	}
 
 	remoteSemver, err := semver.Make(remoteVersion)
 	if err != nil {
-		fmt.Println("Error parsing remote version:", err)
 		return localVersion, remoteVersion, false
 	}
 
