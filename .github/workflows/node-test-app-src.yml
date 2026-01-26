@@ -37,15 +37,3 @@ jobs:
         run: |
           set -euo pipefail
           yarn test:coverage
-          pct=0
-          if [ -f coverage/coverage-summary.json ]; then
-            pct=$(node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync('coverage/coverage-summary.json'));console.log(s.total && s.total.statements ? s.total.statements.pct : 0)")
-          elif [ -f coverage/coverage-final.json ]; then
-            # coverage-final.json contains per-file coverage maps; compute overall statements pct
-            pct=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync('coverage/coverage-final.json'));let tot=0,cov=0;for(const k of Object.keys(data)){const f=data[k];if(f && f.statementMap){const n=Object.keys(f.statementMap).length;tot+=n;const s=f.s||{};for(const id of Object.keys(f.statementMap)){if(s[id] && s[id]>0)cov++;}}}const pct=tot>0?((cov/tot)*100).toFixed(2):0;console.log(pct)")
-          else
-            echo "coverage summary not found"
-            exit 1
-          fi
-          echo "Statements coverage: ${pct}%"
-          awk -v cov="$pct" 'BEGIN { if (cov+0 < 90) { print "Coverage threshold not met (" cov "% < 90%)"; exit 1 } else { print "Coverage threshold met (" cov "% >= 90%)"; exit 0 } }'

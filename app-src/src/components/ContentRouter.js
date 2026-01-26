@@ -19,18 +19,18 @@ import {
   dashboardSettingsDefaultLayoutViewIdAtom,
   viewAtom,
 } from '../common/store/atoms'
-import { AboutComponent } from './AboutComponent'
 import { DashboardComponent } from './DashboardComponent'
 import { DashboardVerticalComponent } from './DashboardVerticalComponent'
 import { TimelineComponent } from './TimelineComponent'
-import { DetailsNodeComponent } from './DetailsNodeComponent'
 import { DetailsServiceComponent } from './DetailsServiceComponent'
-import { LogsComponent } from './LogsComponent'
-import { NodesComponent } from './NodesComponent'
-import { PortsComponent } from './PortsComponent'
 import { StacksComponent } from './StacksComponent'
+import { PortsComponent } from './PortsComponent'
+import { NodesComponent } from './NodesComponent'
+import { DetailsNodeComponent } from './DetailsNodeComponent'
 import { TasksComponent } from './TasksComponent'
+import { AboutComponent } from './AboutComponent'
 import { SettingsComponent } from './SettingsComponent'
+import { LogsComponent } from './LogsComponent'
 import { DebugComponent } from './DebugComponent'
 import { VersionUpdateComponent } from './VersionUpdateComponent'
 
@@ -48,7 +48,6 @@ export function ContentRouter() {
 
   // Default Dashboard
   const idToRender = idToRenderInitial || defaultLayout
-  const viewMap = {}
   /**
    * A mapping of view IDs to their corresponding React components.
    * This is used to dynamically render the appropriate component

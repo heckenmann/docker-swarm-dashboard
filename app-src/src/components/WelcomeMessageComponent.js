@@ -1,5 +1,5 @@
-import { Button, Modal } from 'react-bootstrap'
 import { useAtom, useAtomValue } from 'jotai'
+import { Modal, Button } from 'react-bootstrap'
 import {
   currentVariantClassesAtom,
   dashboardSettingsAtom,
