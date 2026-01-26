@@ -114,7 +114,7 @@ function LogsComponent() {
     let raw
     try {
       raw = lastMessage.data
-    } catch (e) {
+    } catch {
       // If reading lastMessage.data throws, skip processing this message
       return
     }
@@ -127,7 +127,7 @@ function LogsComponent() {
     } else {
       try {
         message = JSON.stringify(raw)
-      } catch (e) {
+      } catch {
         message = String(raw)
       }
     }
@@ -257,10 +257,7 @@ function LogsComponent() {
                 Service
               </Form.Label>
               <Col sm="10">
-                <Form.Control
-                  as="select"
-                  ref={inputServiceIdRef}
-                >
+                <Form.Control as="select" ref={inputServiceIdRef}>
                   {serviceOptions}
                 </Form.Control>
               </Col>
@@ -306,10 +303,7 @@ function LogsComponent() {
                 Timestamps
               </Form.Label>
               <Col sm="10">
-                <Form.Check
-                  defaultChecked={false}
-                  ref={inputTimestampsRef}
-                />
+                <Form.Check defaultChecked={false} ref={inputTimestampsRef} />
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3" controlId="logsformstdout">
@@ -317,10 +311,7 @@ function LogsComponent() {
                 Stdout
               </Form.Label>
               <Col sm="10">
-                <Form.Check
-                  defaultChecked={true}
-                  ref={inputStdoutRef}
-                />
+                <Form.Check defaultChecked={true} ref={inputStdoutRef} />
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3" controlId="logsformstderr">
@@ -328,10 +319,7 @@ function LogsComponent() {
                 Stderr
               </Form.Label>
               <Col sm="10">
-                <Form.Check
-                  defaultChecked={true}
-                  ref={inputStderrRef}
-                />
+                <Form.Check defaultChecked={true} ref={inputStderrRef} />
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3" controlId="logsformdetails">
@@ -339,10 +327,7 @@ function LogsComponent() {
                 Details
               </Form.Label>
               <Col sm="10">
-                <Form.Check
-                  defaultChecked={false}
-                  ref={inputDetailsRef}
-                />
+                <Form.Check defaultChecked={false} ref={inputDetailsRef} />
               </Col>
             </Form.Group>
 
