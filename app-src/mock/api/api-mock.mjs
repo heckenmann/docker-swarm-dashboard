@@ -4,6 +4,7 @@ import { Low } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
 import cors from 'cors'
 import { App } from '@tinyhttp/app'
+import fs from 'node:fs/promises'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -104,7 +105,7 @@ const ensureGeneratedServices = (count = 6) => {
   }
 }
 
-ensureGeneratedServices(6)
+ensureGeneratedServices(10)
 
 // Create sample tasks for generated services with varied states
 const createSampleTasks = () => {
@@ -286,6 +287,152 @@ const generateTimelineFromTasks = () => {
 // generate timeline now (and could be called again if tasks change)
 generateTimelineFromTasks()
 
+// Ensure that for any service IDs referenced inside dashboardh.Nodes[].Tasks we have
+// a corresponding service entry and task entries in the top-level lists. This makes
+// endpoints like /ui/services/:id and /docker/services/:id reliably return details
+// even when the original mocks omitted explicit service objects.
+async function ensureNodeServiceDetails() {
+  const nodes = (db.data.dashboardh && Array.isArray(db.data.dashboardh.Nodes)) ? db.data.dashboardh.Nodes : []
+  db.data.services = db.data.services || []
+  db.data.tasks = db.data.tasks || []
+  db.data.ui = db.data.ui || { logs: { services: [] } }
+  db.data.dashboardh = db.data.dashboardh || { Services: [] }
+  db.data.dashboardv = db.data.dashboardv || { Services: [] }
+
+  const serviceExists = (id) => db.data.services.some((s) => String(s.ID) === String(id))
+  const taskExists = (id) => db.data.tasks.some((t) => String(t.ID) === String(id))
+
+  for (const node of nodes) {
+    if (!node || !node.Tasks) continue
+    for (const svcId of Object.keys(node.Tasks)) {
+      // ensure service object
+      if (!serviceExists(svcId)) {
+        const svcName = `svc_${svcId}`
+        const minimalSvc = {
+          ID: svcId,
+          Name: svcName,
+          Stack: '',
+          Version: { Index: 1 },
+          Spec: { Name: svcName, Labels: {} },
+          Endpoint: { Ports: [] },
+        }
+        db.data.services.push(minimalSvc)
+        // add UI log entry if not present
+        if (!((db.data.ui && db.data.ui.logs && Array.isArray(db.data.ui.logs.services)) && db.data.ui.logs.services.some((x) => String(x.ID) === String(svcId)))) {
+          db.data.ui.logs.services.push({ ID: svcId, Name: svcName })
+        }
+        // add to dashboardh/services list
+        if (!((db.data.dashboardh && Array.isArray(db.data.dashboardh.Services)) && db.data.dashboardh.Services.some((x) => String(x.ID) === String(svcId)))) {
+          db.data.dashboardh.Services.push({ ID: svcId, Name: svcName, Stack: '' })
+        }
+        // add to dashboardv/services list
+        if (!((db.data.dashboardv && Array.isArray(db.data.dashboardv.Services)) && db.data.dashboardv.Services.some((x) => String(x.ID) === String(svcId)))) {
+          db.data.dashboardv.Services.push({ ID: svcId, Name: svcName, Stack: '', Replication: '1', Tasks: {} })
+        }
+      }
+
+      // ensure referenced tasks exist in top-level tasks array
+      const refs = node.Tasks[svcId] || []
+      for (const ref of refs) {
+        const tid = ref && ref.ID
+        if (!tid) continue
+        if (!taskExists(tid)) {
+          const task = {
+            ID: tid,
+            ServiceID: svcId,
+            ServiceName: ref.ServiceName || `svc_${svcId}`,
+            Stack: ref.Stack || '',
+            NodeID: node.ID,
+            NodeName: node.Hostname || node.Name || '',
+            State: (ref.Status && ref.Status.State) || ref.State || 'running',
+            Err: (ref.Status && ref.Status.Err) || ref.Err || '',
+            CreatedAt: ref.CreatedAt || new Date().toISOString(),
+            UpdatedAt: ref.UpdatedAt || new Date().toISOString(),
+            DesiredState: ref.DesiredState || 'running',
+            Timestamp: new Date().toISOString(),
+            Slot: ref.Slot || 1,
+          }
+          db.data.tasks.push(task)
+        }
+      }
+    }
+  }
+
+  // regenerate timeline if we may have added tasks
+  generateTimelineFromTasks()
+
+  // persist changes back to the JSON file so restarts keep the injected resources
+  // To avoid rewriting the on-disk `mocks.json` (which changes formatting
+  // and can break repo-level formatting expectations), we skip persisting
+  // by default. If you really want to persist the synthesized entries back
+  // into the file, start the mock with MOCK_PERSIST=1 in the environment.
+  if (process.env.MOCK_PERSIST === '1') {
+    // Write file with compact, one-line values for each top-level key.
+    const serializeOneLineTopLevel = (obj) => {
+      let out = '{\n'
+      const keys = Object.keys(obj)
+      for (let i = 0; i < keys.length; i++) {
+        const k = keys[i]
+        out += '  ' + JSON.stringify(k) + ': ' + JSON.stringify(obj[k])
+        out += i < keys.length - 1 ? ',\n' : '\n'
+      }
+      out += '}\n'
+      return out
+    }
+
+    try {
+      const text = serializeOneLineTopLevel(db.data)
+      const tmpFile = dataFile + '.tmp'
+      const bakFile = dataFile + '.bak'
+      try {
+        // create a backup of existing file if present
+        try {
+          const existing = await fs.readFile(dataFile, 'utf8')
+          await fs.writeFile(bakFile, existing, 'utf8')
+        } catch (readErr) {
+          // file might not exist - that's fine
+        }
+
+        // write to a temp file first and then rename — rename is atomic on POSIX
+        await fs.writeFile(tmpFile, text, 'utf8')
+        await fs.rename(tmpFile, dataFile)
+
+        // Post-write sanity-check: read back and parse to ensure valid JSON
+        try {
+          const after = await fs.readFile(dataFile, 'utf8')
+          JSON.parse(after)
+          console.log('Persisted db atomically to', dataFile, 'with one-line top-level values (validated)')
+        } catch (validationErr) {
+          console.log('Error: persisted file failed JSON validation:', validationErr && validationErr.message)
+          // Attempt to restore backup
+          try {
+            if ((await fs.stat(bakFile)).isFile()) {
+              await fs.copyFile(bakFile, dataFile)
+              console.log('Restored backup to', dataFile)
+            }
+          } catch (restoreErr) {
+            console.log('Warning: failed to restore backup after validation failure', restoreErr && restoreErr.message)
+          }
+        }
+      } catch (writeErr) {
+        // best-effort cleanup of temp file
+        try {
+          await fs.unlink(tmpFile)
+        } catch (_) {
+          // ignore
+        }
+        console.log('Warning: failed to persist db atomically', writeErr && writeErr.message)
+      }
+    } catch (e) {
+      console.log('Warning: failed to serialize db for persistence', e && e.message)
+    }
+  } else {
+    console.log('Skipping write to preserve mocks.json formatting (set MOCK_PERSIST=1 to enable compact write)')
+  }
+}
+
+await ensureNodeServiceDetails()
+
 const app = new App()
 app.use(cors())
 
@@ -311,9 +458,13 @@ app.get('/ui/nodes/:id', (req, res) => {
 })
 
 app.get('/docker/nodes/:id', (req, res) => {
-  const resources = db.data?.nodes
-  const resource = findResource(resources, req.params.id)
-  sendResource(res, resource, 'nodes', req.params.id)
+  const node = findResource(db.data?.nodes, req.params.id)
+  if (node) {
+    const tasks = (db.data?.tasks || []).filter(t => t.NodeID === req.params.id)
+    res.json({ node, tasks })
+  } else {
+    res.status(404).json({ error: 'node not found' })
+  }
 })
 
 app.get('/ui/tasks/:id', (req, res) => {
@@ -335,9 +486,39 @@ app.get('/ui/services/:id', (req, res) => {
 })
 
 app.get('/docker/services/:id', (req, res) => {
-  const resources = db.data?.services
-  const resource = findResource(resources, req.params.id)
-  sendResource(res, resource, 'services', req.params.id)
+  const id = req.params.id
+  const service = findResource(db.data?.services, id)
+  if (service) {
+    const tasks = (db.data?.tasks || []).filter(t => t.ServiceID === id)
+    res.json({ service, tasks })
+    return
+  }
+
+  // Fallback: if id matches a node ID, try to find a service that has tasks on that node
+  const tasksOnNode = (db.data?.tasks || []).filter((t) => String(t.NodeID) === String(id))
+  if (tasksOnNode && tasksOnNode.length > 0) {
+    const svcId = tasksOnNode[0].ServiceID
+    const svc = (db.data?.services || []).find((s) => String(s.ID) === String(svcId)) || null
+    const tasks = (db.data?.tasks || []).filter((t) => String(t.ServiceID) === String(svcId))
+    res.json({ service: svc, tasks })
+    return
+  }
+
+  // Fallback: try to find service by name or spec name
+  const svcByName = (db.data?.services || []).find((s) => {
+    try {
+      return s.Name === id || (s.Spec && s.Spec.Name === id)
+    } catch (e) {
+      return false
+    }
+  })
+  if (svcByName) {
+    const tasks = (db.data?.tasks || []).filter((t) => String(t.ServiceID) === String(svcByName.ID))
+    res.json({ service: svcByName, tasks })
+    return
+  }
+
+  res.status(404).json({ error: 'service not found' })
 })
 
 app.get('/ui/logs/services', (req, res) => {

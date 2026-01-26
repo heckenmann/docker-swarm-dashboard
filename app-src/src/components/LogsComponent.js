@@ -1,7 +1,7 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom, useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
-import { Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { Row, Col, Form, Button, Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import {
   currentSyntaxHighlighterStyleAtom,
@@ -28,7 +28,6 @@ function LogsComponent() {
   const [logsNumberOfLines, setLogsNumberOfLines] = useAtom(
     logsNumberOfLinesAtom,
   )
-  const resetLogsNumberOfLines = useResetAtom(logsNumberOfLinesAtom)
   const [logsShowLogs, setLogsShowLogs] = useAtom(logsShowLogsAtom)
   const [logsConfig, setLogsConfig] = useAtom(logsConfigAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
@@ -315,7 +314,7 @@ function LogsComponent() {
               <Col sm={{ span: 10, offset: 2 }}>
                 <Button
                   type="submit"
-                  disabled={!serviceOptions || serviceOptions.length === 0}
+                  disabled={!services || services.length === 0}
                 >
                   <FontAwesomeIcon icon="desktop" /> Show logs
                 </Button>

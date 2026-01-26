@@ -1,3 +1,5 @@
+import { EntityName } from './EntityName'
+
 /**
  * StackName
  * Thin wrapper around `EntityName` for stack entities. It typically exposes
@@ -11,8 +13,6 @@
  * @param {string} [props.size='sm']
  * @param {string} [props.nameClass]
  */
-import React from 'react'
-import { EntityName } from './EntityName'
 
 function StackName({ name, showFilter = true, size = 'sm', nameClass = '' }) {
   if (!name) return null

@@ -1,5 +1,4 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { Card, FormCheck, FormControl, Table } from 'react-bootstrap'
 import {
   baseUrlAtom,
   currentVariantAtom,
@@ -8,8 +7,9 @@ import {
   refreshIntervalAtom,
   tableSizeAtom,
 } from '../common/store/atoms'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
+import { Card, Table, FormControl, FormCheck } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * SettingsComponent is a React functional component that renders a settings panel.

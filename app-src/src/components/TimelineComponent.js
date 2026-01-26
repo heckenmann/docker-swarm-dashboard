@@ -1,6 +1,4 @@
-import { Card } from 'react-bootstrap'
 import { useAtomValue } from 'jotai'
-import ReactApexChart from 'react-apexcharts'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -9,7 +7,9 @@ import {
   stackNameFilterAtom,
   timelineAtom,
 } from '../common/store/atoms'
+import { Card } from 'react-bootstrap'
 import { FilterComponent } from './FilterComponent'
+import ReactApexChart from 'react-apexcharts'
 
 /**
  * TimelineComponent is a React functional component that renders a timeline chart

@@ -20,6 +20,37 @@ describe('atoms module', () => {
     expect(atoms.tableSizeAtom).toBeDefined()
     expect(atoms.logsWebsocketUrlAtom).toBeDefined()
   })
+
+  test('baseUrlAtom default uses parsed hash when present', () => {
+    // set window.location.hash before requiring module so parsedHash picks it up
+    const origHash = window.location.hash
+    window.location.hash = '#base="http%3A%2F%2Fexample.test%2Fapi%2F"'
+    delete require.cache[require.resolve('../../../src/common/store/atoms')]
+    const atoms = require('../../../src/common/store/atoms')
+    // atomWithHash mock returns the default value; expect it to include the host we encoded
+    expect(String(atoms.baseUrlAtom)).toContain('example.test')
+    // restore
+    window.location.hash = origHash
+  })
+
+  test('parseHashToObj handles multiple pairs and quoted values', () => {
+    const parse = require('../../../src/common/store/atoms').parseHashToObj
+    const h = '#a=1&b="two"&c=%7Bjson%7D'
+    const out = parse(h)
+    expect(out.a).toBe('1')
+    expect(out.b).toBe('two')
+    expect(out.c).toContain('{json}')
+  })
+
+  test('module-load parsedHash handles malformed decode gracefully', () => {
+    const origHash = window.location.hash
+    window.location.hash = '#x=%'
+    jest.resetModules()
+    // require module which runs parseHashToObj at module load
+    const atoms = require('../../../src/common/store/atoms')
+    expect(atoms.baseUrlAtom).toBeDefined()
+    window.location.hash = origHash
+  })
 })
 
 describe('atoms hash parsing for baseUrlAtom', () => {

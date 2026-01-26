@@ -1,20 +1,19 @@
-import { Card, Table, Button } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
   portsAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
-  filterTypeAtom,
   tableSizeAtom,
-  viewAtom,
 } from '../common/store/atoms'
-import { servicesDetailId } from '../common/navigationConstants'
-import { FilterComponent } from './FilterComponent'
+
+// UI & internal imports
+import { Card, Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { EntityName } from './names/EntityName'
 import { StackName } from './names/StackName'
+import { FilterComponent } from './FilterComponent'
 
 /**
  * PortsComponent is a React functional component that renders a table of port mappings.
@@ -23,13 +22,9 @@ import { StackName } from './names/StackName'
 function PortsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const [, updateView] = useAtom(viewAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
-  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
-  const [, setFilterType] = useAtom(filterTypeAtom)
 
   const ports = useAtomValue(portsAtom)
   const renderedServices = ports
