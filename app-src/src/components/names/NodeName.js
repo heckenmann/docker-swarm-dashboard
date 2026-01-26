@@ -12,8 +12,6 @@
  * @param {string} [props.size='sm']
  * @param {string} [props.nameClass]
  */
-import React from 'react'
-import { EntityName } from './EntityName'
 
 function NodeName({ name, id, showOpen = true, size = 'sm', nameClass = '' }) {
   if (!name) return null

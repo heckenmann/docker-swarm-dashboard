@@ -1,7 +1,4 @@
-import React, { useState } from 'react'
-import { Badge, Button, Table, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DashboardSettingsComponent } from './DashboardSettingsComponent'
+import { useState } from 'react'
 import {
   currentVariantAtom,
   dashboardHAtom,
@@ -14,11 +11,7 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
-import ServiceStatusBadge from './ServiceStatusBadge'
-import { EntityName } from './names/EntityName'
-import { NodeName } from './names/NodeName'
-import { ServiceName } from './names/ServiceName'
+import { servicesDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
 
 /**

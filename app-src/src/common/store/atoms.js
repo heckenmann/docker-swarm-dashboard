@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomWithReducer, atomWithReset, selectAtom } from 'jotai/utils'
+import { atomWithReducer, atomWithReset } from 'jotai/utils'
 import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
 import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'

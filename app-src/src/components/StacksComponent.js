@@ -1,5 +1,3 @@
-import { Card, Table, Button } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import {
   currentVariantAtom,
@@ -12,10 +10,6 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { servicesDetailId } from '../common/navigationConstants'
-import { FilterComponent } from './FilterComponent'
-import { EntityName } from './names/EntityName'
-import { StackName } from './names/StackName'
 
 /**
  * StacksComponent is a React functional component that renders a list of stacks.

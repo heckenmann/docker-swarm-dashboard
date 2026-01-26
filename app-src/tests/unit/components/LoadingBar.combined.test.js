@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, act, waitFor, screen } from '@testing-library/react'
+import { render, act, waitFor } from '@testing-library/react'
 
 jest.useFakeTimers()
 

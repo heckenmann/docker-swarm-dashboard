@@ -19,7 +19,6 @@
  * @returns {JSX.Element|null}
  */
 import React from 'react'
-import { NameActions } from './NameActions'
 import { useEntityActions } from '../../common/actions/entityActions'
 
 export function EntityName({

@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 
 // mock atoms module
@@ -16,7 +15,6 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-import { FilterComponent } from '../../../src/components/FilterComponent'
 
 describe('FilterComponent (combined)', () => {
   beforeEach(() => {

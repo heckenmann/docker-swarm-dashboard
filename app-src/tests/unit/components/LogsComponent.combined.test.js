@@ -1,6 +1,6 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import { Provider, atom, useAtom } from 'jotai'
+import { useAtom } from 'jotai'
 
 // Mock the async logsServicesAtom and logsNumberOfLinesAtom so component doesn't suspend
 // Default to empty services; tests that need services provide them via Provider initialValues
@@ -15,7 +15,6 @@ jest.mock('../../../src/common/store/atoms', () => {
 })
 
 import * as atoms from '../../../src/common/store/atoms'
-import { LogsComponent } from '../../../src/components/LogsComponent'
 
 const wsMock = { lastMessage: null, shouldReconnect: null, onOpen: null, onClose: null }
 jest.mock('react-use-websocket', () => {

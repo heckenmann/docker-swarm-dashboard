@@ -1,5 +1,3 @@
-import { Table, Button } from 'react-bootstrap'
-import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 import {
   currentVariantAtom,
   dashboardSettingsAtom,
@@ -12,14 +10,7 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
-import ServiceStatusBadge from './ServiceStatusBadge'
-import { EntityName } from './names/EntityName'
-import { NodeName } from './names/NodeName'
-import { ServiceName } from './names/ServiceName'
-import { StackName } from './names/StackName'
 import { serviceFilter } from '../common/utils'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * DashboardVerticalComponent is a React functional component that renders

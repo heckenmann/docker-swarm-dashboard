@@ -19,6 +19,7 @@ module.exports = [
         process: "readonly",
       },
     },
+   plugins: { "unused-imports": require("eslint-plugin-unused-imports") },
     rules: {
       // keep a couple lightweight rules; expand later as needed
   "prefer-const": "error",

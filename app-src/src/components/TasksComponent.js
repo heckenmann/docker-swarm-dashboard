@@ -1,7 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { Card, Table, Button } from 'react-bootstrap'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -13,12 +11,6 @@ import {
   tasksAtomNew,
   viewAtom,
 } from '../common/store/atoms'
-import ServiceStatusBadge from './ServiceStatusBadge'
-import { EntityName } from './names/EntityName'
-import { StackName } from './names/StackName'
-import { NodeName } from './names/NodeName'
-import { FilterComponent } from './FilterComponent'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks

@@ -1,14 +1,6 @@
-import {
-  Badge,
-  Card,
-  Table,
-  Button,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+
 import { useAtom, useAtomValue } from 'jotai'
-import { NodeName } from './names/NodeName'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -16,7 +8,6 @@ import {
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
-import { nodesDetailId } from '../common/navigationConstants'
 
 /**
  * NodesComponent is a React functional component that renders a table of nodes.

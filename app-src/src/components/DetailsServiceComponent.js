@@ -1,6 +1,3 @@
-import { Card, Tab, Tabs, Table } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { useAtomValue } from 'jotai'
 import {
   currentSyntaxHighlighterStyleAtom,
@@ -8,11 +5,7 @@ import {
   currentVariantClassesAtom,
   serviceDetailAtom,
 } from '../common/store/atoms'
-import { JsonTable } from './JsonTable'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { ServiceName } from './names/ServiceName'
-import ServiceStatusBadge from './ServiceStatusBadge'
-import { NodeName } from './names/NodeName'
 
 /**
  * Component to display the details of a service.

@@ -1,5 +1,4 @@
 import React from 'react'
-import { Card } from 'react-bootstrap'
 
 /**
  * ErrorBoundary is a React component that catches JavaScript errors anywhere in its child component tree,

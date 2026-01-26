@@ -1,6 +1,4 @@
-import React from 'react'
 import { render } from '@testing-library/react'
-import LoadingComponent from '../../../src/components/LoadingComponent'
 
 test('LoadingComponent mounts and shows loading bar', () => {
   const { container } = render(<LoadingComponent />)

@@ -1,6 +1,5 @@
 // Combined tests for TasksComponent
 // ...existing code from TasksComponent.test.js
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 
 jest.mock('../../../src/common/store/atoms', () => ({
@@ -19,7 +18,6 @@ const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
 
-import { TasksComponent } from '../../../src/components/TasksComponent'
 
 describe('TasksComponent (combined)', () => {
   beforeEach(() => {

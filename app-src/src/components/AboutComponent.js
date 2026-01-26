@@ -1,5 +1,4 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { Button, Card, Table } from 'react-bootstrap'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -10,7 +9,6 @@ import jb_square from '../files/jb_square.svg'
 import goLand_icon from '../files/GoLand_icon.svg'
 import webStorm_icon from '../files/WebStorm_icon.svg'
 import { debugId } from '../common/navigationConstants'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * AboutComponent is a functional component that displays information about the Docker Swarm Dashboard project.

@@ -1,8 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App'
-import { Provider, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { networkRequestsAtom } from './common/store/atoms'
 
 // Wrap global fetch so we can track active network requests and show the loading bar

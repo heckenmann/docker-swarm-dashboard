@@ -19,20 +19,6 @@ import {
   dashboardSettingsDefaultLayoutViewIdAtom,
   viewAtom,
 } from '../common/store/atoms'
-import { AboutComponent } from './AboutComponent'
-import { DashboardComponent } from './DashboardComponent'
-import { DashboardVerticalComponent } from './DashboardVerticalComponent'
-import { TimelineComponent } from './TimelineComponent'
-import { DetailsNodeComponent } from './DetailsNodeComponent'
-import { DetailsServiceComponent } from './DetailsServiceComponent'
-import { LogsComponent } from './LogsComponent'
-import { NodesComponent } from './NodesComponent'
-import { PortsComponent } from './PortsComponent'
-import { StacksComponent } from './StacksComponent'
-import { TasksComponent } from './TasksComponent'
-import { SettingsComponent } from './SettingsComponent'
-import { DebugComponent } from './DebugComponent'
-import { VersionUpdateComponent } from './VersionUpdateComponent'
 
 /**
  * ContentRouter component that determines which view to render

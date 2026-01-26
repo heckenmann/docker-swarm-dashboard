@@ -1,11 +1,9 @@
-import { Button, Modal } from 'react-bootstrap'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   currentVariantClassesAtom,
   dashboardSettingsAtom,
   showWelcomeMessageAtom,
 } from '../common/store/atoms'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * WelcomeMessageComponent

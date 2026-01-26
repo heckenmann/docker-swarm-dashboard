@@ -1,8 +1,6 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom, useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
-import { Button, Card, Col, Form, Row } from 'react-bootstrap'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { Row } from 'react-bootstrap'
 import {
   currentSyntaxHighlighterStyleAtom,
   currentVariantAtom,

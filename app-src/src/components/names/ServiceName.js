@@ -15,9 +15,6 @@
  * @param {boolean} [props.showFilter=true]
  * @param {string} [props.size='sm']
  */
-import React from 'react'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { EntityName } from './EntityName'
 
 function ServiceName({
   name,

@@ -1,6 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
-import { Button, ButtonGroup, Col, Form, Row } from 'react-bootstrap'
 import { dashboardHId, dashboardVId } from '../common/navigationConstants'
 import {
   currentVariantAtom,
@@ -8,7 +6,6 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtomValue } from 'jotai'
-import { FilterComponent } from './FilterComponent'
 
 /**
  * DashboardSettingsComponent is a React functional component that renders

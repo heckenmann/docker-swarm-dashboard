@@ -1,4 +1,3 @@
-import { Table } from 'react-bootstrap'
 import { flatten } from '../common/utils'
 import { useAtomValue } from 'jotai'
 import { tableSizeAtom } from '../common/store/atoms'
