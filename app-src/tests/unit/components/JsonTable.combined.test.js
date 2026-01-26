@@ -3,7 +3,12 @@ import { render, screen } from '@testing-library/react'
 
 describe('JsonTable combined', () => {
   test('renders with empty data', () => {
-    const { container } = render(React.createElement(require('../../../src/components/JsonTable').JsonTable, { json: {} }))
+    const { container } = render(
+      React.createElement(
+        require('../../../src/components/JsonTable').JsonTable,
+        { json: {} },
+      ),
+    )
     expect(container).toBeTruthy()
   })
 
@@ -32,7 +37,12 @@ describe('JsonTable combined', () => {
       }))
 
       jest.doMock('jotai', () => ({ atom: (v) => v, useAtomValue: () => 'sm' }))
-      jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a, atomWithHash: (k, def) => def }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
       const origStringify = JSON.stringify

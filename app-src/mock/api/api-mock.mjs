@@ -452,9 +452,13 @@ function sendResource(res, resource, resourceName, id) {
 }
 
 app.get('/ui/nodes/:id', (req, res) => {
-  const resources = db.data?.nodes
-  const resource = findResource(resources, req.params.id)
-  sendResource(res, resource, 'nodes', req.params.id)
+  const node = findResource(db.data?.nodes, req.params.id)
+  if (node) {
+    const tasks = (db.data?.tasks || []).filter(t => String(t.NodeID) === String(req.params.id))
+    res.json({ node, tasks })
+  } else {
+    res.status(404).json({ error: 'node not found' })
+  }
 })
 
 app.get('/docker/nodes/:id', (req, res) => {
@@ -480,16 +484,43 @@ app.get('/docker/tasks/:id', (req, res) => {
 })
 
 app.get('/ui/services/:id', (req, res) => {
-  const resources = db.data?.services
-  const resource = findResource(resources, req.params.id)
-  sendResource(res, resource, 'services', req.params.id)
+  const id = req.params.id
+  const service = findResource(db.data?.services, id)
+  if (service) {
+    const tasks = (db.data?.tasks || []).filter(t => String(t.ServiceID) === String(id)).map(t => {
+      // attach node object if available
+      const node = findResource(db.data?.nodes, t.NodeID)
+      return Object.assign({}, t, { Node: node || null })
+    })
+    res.json({ service, tasks })
+    return
+  }
+
+  // Fallback: try to find service by name or spec name
+  const svcByName = (db.data?.services || []).find((s) => {
+    try {
+      return s.Name === id || (s.Spec && s.Spec.Name === id)
+    } catch (e) {
+      return false
+    }
+  })
+  if (svcByName) {
+    const tasks = (db.data?.tasks || []).filter((t) => String(t.ServiceID) === String(svcByName.ID))
+    res.json({ service: svcByName, tasks })
+    return
+  }
+
+  res.status(404).json({ error: 'service not found' })
 })
 
 app.get('/docker/services/:id', (req, res) => {
   const id = req.params.id
   const service = findResource(db.data?.services, id)
   if (service) {
-    const tasks = (db.data?.tasks || []).filter(t => t.ServiceID === id)
+    const tasks = (db.data?.tasks || []).filter(t => t.ServiceID === id).map(t => {
+      const node = findResource(db.data?.nodes, t.NodeID)
+      return Object.assign({}, t, { Node: node || null })
+    })
     res.json({ service, tasks })
     return
   }

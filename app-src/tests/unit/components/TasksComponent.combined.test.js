@@ -16,7 +16,10 @@ jest.mock('../../../src/common/store/atoms', () => ({
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
-jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
+jest.mock('jotai', () => ({
+  useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtom: (...args) => mockUseAtom(...args),
+}))
 
 const modTasks = require('../../../src/components/TasksComponent')
 const TasksComponent = modTasks.TasksComponent || modTasks.default || modTasks
@@ -27,7 +30,20 @@ describe('TasksComponent (combined)', () => {
     mockUseAtom.mockReset()
   })
   test('renders task row with open service and filter buttons and node open', () => {
-    const tasks = [ { ID: 't1', ServiceID: 's1', ServiceName: 'svc1', Stack: '', NodeID: 'n1', NodeName: 'node1', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' } ]
+    const tasks = [
+      {
+        ID: 't1',
+        ServiceID: 's1',
+        ServiceName: 'svc1',
+        Stack: '',
+        NodeID: 'n1',
+        NodeName: 'node1',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -80,7 +96,20 @@ describe('TasksComponent (combined)', () => {
   })
 
   test('stack filter button and open node button work', () => {
-    const tasks = [ { ID: 't2', ServiceID: 's2', ServiceName: 'svc2', Stack: 'stack2', NodeID: 'n2', NodeName: 'node2', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' } ]
+    const tasks = [
+      {
+        ID: 't2',
+        ServiceID: 's2',
+        ServiceName: 'svc2',
+        Stack: 'stack2',
+        NodeID: 'n2',
+        NodeName: 'node2',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -128,7 +157,20 @@ describe('TasksComponent (combined)', () => {
   })
 
   test('task without ServiceName still renders node open button and no service buttons', () => {
-    const tasks = [ { ID: 'tX', ServiceName: '', ServiceID: '', Stack: '', NodeID: 'nX', NodeName: 'nodeX', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' } ]
+    const tasks = [
+      {
+        ID: 'tX',
+        ServiceName: '',
+        ServiceID: '',
+        Stack: '',
+        NodeID: 'nX',
+        NodeName: 'nodeX',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -168,8 +210,28 @@ describe('TasksComponent (combined)', () => {
 
   test('serviceNameFilter excludes non-matching tasks', () => {
     const tasks = [
-      { ID: 't1', ServiceName: 'keep', Stack: '', NodeName: 'n1', NodeID: 'n1', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' },
-      { ID: 't2', ServiceName: 'drop', Stack: '', NodeName: 'n2', NodeID: 'n2', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' },
+      {
+        ID: 't1',
+        ServiceName: 'keep',
+        Stack: '',
+        NodeName: 'n1',
+        NodeID: 'n1',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+      {
+        ID: 't2',
+        ServiceName: 'drop',
+        Stack: '',
+        NodeName: 'n2',
+        NodeID: 'n2',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
     ]
 
     mockUseAtomValue.mockImplementation((atom) => {
@@ -207,8 +269,28 @@ describe('TasksComponent (combined)', () => {
 
   test('stackNameFilter excludes non-matching tasks', () => {
     const tasks = [
-      { ID: 't3', ServiceName: 's1', Stack: 'match', NodeName: 'n1', NodeID: 'n1', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' },
-      { ID: 't4', ServiceName: 's2', Stack: 'other', NodeName: 'n2', NodeID: 'n2', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' },
+      {
+        ID: 't3',
+        ServiceName: 's1',
+        Stack: 'match',
+        NodeName: 'n1',
+        NodeID: 'n1',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+      {
+        ID: 't4',
+        ServiceName: 's2',
+        Stack: 'other',
+        NodeName: 'n2',
+        NodeID: 'n2',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
     ]
 
     mockUseAtomValue.mockImplementation((atom) => {
@@ -245,7 +327,20 @@ describe('TasksComponent (combined)', () => {
   })
 
   test('renders failed task row with table-danger class', () => {
-    const tasks = [ { ID: 't-f', ServiceID: 's1', ServiceName: 'svcF', Stack: '', NodeID: 'n1', NodeName: 'node1', State: 'failed', Timestamp: new Date().toISOString(), Slot: 1, Err: 'boom' } ]
+    const tasks = [
+      {
+        ID: 't-f',
+        ServiceID: 's1',
+        ServiceName: 'svcF',
+        Stack: '',
+        NodeID: 'n1',
+        NodeName: 'node1',
+        State: 'failed',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: 'boom',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -283,7 +378,20 @@ describe('TasksComponent (combined)', () => {
   })
 
   test('clicking service and stack filter buttons calls setters with expected values', () => {
-    const tasks = [ { ID: 'tZ', ServiceName: 'svcZ', ServiceID: 'sZ', Stack: 'stackZ', NodeID: 'nZ', NodeName: 'nodeZ', State: 'running', Timestamp: new Date().toISOString(), Slot: 1, Err: '' } ]
+    const tasks = [
+      {
+        ID: 'tZ',
+        ServiceName: 'svcZ',
+        ServiceID: 'sZ',
+        Stack: 'stackZ',
+        NodeID: 'nZ',
+        NodeName: 'nodeZ',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {

@@ -5,9 +5,9 @@ import {
   versionAtom,
   viewAtom,
 } from '../common/store/atoms'
-import jb_square from '../files/jb_square.svg'
-import goLand_icon from '../files/GoLand_icon.svg'
-import webStorm_icon from '../files/WebStorm_icon.svg'
+import JbSquare from '../files/jb_square.svg'
+import GoLandIcon from '../files/GoLand_icon.svg'
+import WebStormIcon from '../files/WebStorm_icon.svg'
 import { debugId } from '../common/navigationConstants'
 import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -67,18 +67,22 @@ function AboutComponent() {
           </a>
           .
         </p>
-        <a href="https://www.jetbrains.com/" target="_blank">
-          <img
-            src={jb_square}
-            height="80px"
-            alt="JetBrains Black Box Logo logo."
-          />
+        <a href="https://www.jetbrains.com/" target="_blank" rel="noreferrer">
+          <JbSquare height="80px" aria-label="JetBrains logo" />
         </a>
-        <a href="https://www.jetbrains.com/go/" target="_blank">
-          <img src={goLand_icon} height="80px" alt="GoLand logo." />
+        <a
+          href="https://www.jetbrains.com/go/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <GoLandIcon height="80px" aria-label="GoLand logo" />
         </a>
-        <a href="https://www.jetbrains.com/webstorm/" target="_blank">
-          <img src={webStorm_icon} height="80px" alt="WebStorm logo." />
+        <a
+          href="https://www.jetbrains.com/webstorm/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <WebStormIcon height="80px" aria-label="WebStorm logo" />
         </a>
         <h2>Frameworks & Libraries</h2>
         <ul>

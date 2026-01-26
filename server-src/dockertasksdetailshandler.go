@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+
 	"github.com/docker/docker/api/types/filters"
 	"github.com/gorilla/mux"
-	"net/http"
 
 	"github.com/docker/docker/api/types"
 )

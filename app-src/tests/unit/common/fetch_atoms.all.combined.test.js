@@ -1,6 +1,10 @@
 // Combined fetch atom tests (self-contained)
 jest.mock('jotai', () => ({ atom: (v) => v }))
-jest.mock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
+jest.mock('jotai/utils', () => ({
+  atomWithReducer: (v) => v,
+  atomWithReset: (v) => v,
+  selectAtom: (a) => a,
+}))
 jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
 describe('fetch-based atoms (all combined)', () => {
@@ -11,7 +15,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('dashboardHAtom calls fetch with relative base and returns json', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ dh: 1 }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ dh: 1 }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/'
@@ -24,7 +30,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('dashboardVAtom calls fetch with absolute base and returns json', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ dv: 2 }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ dv: 2 }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return 'https://example.com/base/'
@@ -33,11 +41,15 @@ describe('fetch-based atoms (all combined)', () => {
     }
     const res = await atoms.dashboardVAtom(get)
     expect(res).toEqual({ dv: 2 })
-    expect(global.fetch).toHaveBeenCalledWith('https://example.com/base/ui/dashboardv')
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.com/base/ui/dashboardv',
+    )
   })
 
   test('stacksAtom calls fetch and returns json', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ stacks: [] }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ stacks: [] }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/app/'
@@ -50,7 +62,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('portsAtom calls fetch and returns json', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ ports: [] }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ ports: [] }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/api/'
@@ -63,7 +77,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('nodesAtomNew and tasksAtomNew call fetch', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ ok: true }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ ok: true }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/'
@@ -78,7 +94,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('versionAtom and dashboardSettingsDefaultLayoutViewIdAtom', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ v: '1.2.3' }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ v: '1.2.3' }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/'
@@ -103,7 +121,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('nodeDetailAtom/serviceDetailAtom/taskDetailAtom use detail id and fetch', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ item: true }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ item: true }) })
     const atoms = require('../../../src/common/store/atoms')
     let currentView = { id: atoms.nodesDetailId || 'nodesDetail', detail: '42' }
     const get = (req) => {
@@ -115,7 +135,10 @@ describe('fetch-based atoms (all combined)', () => {
     currentView = { id: atoms.nodesDetailId || 'nodesDetail', detail: '42' }
     const node = await atoms.nodeDetailAtom(get)
     // service detail
-    currentView = { id: atoms.servicesDetailId || 'servicesDetail', detail: '42' }
+    currentView = {
+      id: atoms.servicesDetailId || 'servicesDetail',
+      detail: '42',
+    }
     const svc = await atoms.serviceDetailAtom(get)
     // task detail
     currentView = { id: atoms.tasksId || 'tasks', detail: '42' }
@@ -127,7 +150,9 @@ describe('fetch-based atoms (all combined)', () => {
   })
 
   test('logsServicesAtom and timelineAtom call fetch', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ ok: true }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ ok: true }) })
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/app/'
