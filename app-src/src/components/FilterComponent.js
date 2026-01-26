@@ -7,6 +7,10 @@ import {
   filterTypeAtom,
 } from '../common/store/atoms'
 
+// UI imports
+import { Form, InputGroup, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 /**
  * FilterComponent is a React functional component that provides a UI for filtering services or stacks.
  */

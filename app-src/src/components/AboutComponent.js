@@ -139,7 +139,7 @@ function AboutComponent() {
         <h2>Application</h2>
         <Button
           onClick={() =>
-            updateView(prev => ({
+            updateView((prev) => ({
               ...prev,
               id: debugId,
             }))

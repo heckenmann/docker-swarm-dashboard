@@ -8,6 +8,8 @@ jest.mock('../../../src/common/DefaultDateTimeFormat', () => ({
   toDefaultDateTimeString: () => '2026-01-18T00:00:00Z',
 }))
 
+const modSSB = require('../../../src/components/ServiceStatusBadge')
+const ServiceStatusBadge = modSSB.default || modSSB
 
 describe('ServiceStatusBadge (combined)', () => {
   test('renders simple badge when no tooltip data', () => {

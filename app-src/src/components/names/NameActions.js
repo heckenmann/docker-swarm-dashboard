@@ -1,3 +1,6 @@
+import { Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 /**
  * NameActions
  * Stateless component that renders action buttons next to an entity name.

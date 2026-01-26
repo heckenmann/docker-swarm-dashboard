@@ -7,6 +7,9 @@ const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
 
+const modNodes = require('../../../src/components/NodesComponent')
+const NodesComponent = modNodes.NodesComponent || modNodes.default || modNodes
+
 
 describe('NodesComponent (combined)', () => {
   beforeEach(() => {

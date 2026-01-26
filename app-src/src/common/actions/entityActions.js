@@ -18,7 +18,11 @@ import {
   filterTypeAtom,
   viewAtom,
 } from '../store/atoms'
-import { servicesDetailId, nodesDetailId, tasksId } from '../navigationConstants'
+import {
+  servicesDetailId,
+  nodesDetailId,
+  tasksId,
+} from '../navigationConstants'
 
 export function useEntityActions(entityType = 'service') {
   const [, updateView] = useAtom(viewAtom)
@@ -34,11 +38,19 @@ export function useEntityActions(entityType = 'service') {
     if (!detailId) return
     if (entityType === 'node') {
       // set the dedicated node detail id atom and navigate to nodes detail view
-  updateView((prev) => ({ ...(prev || {}), id: nodesDetailId, detail: detailId }))
+      updateView((prev) => ({
+        ...(prev || {}),
+        id: nodesDetailId,
+        detail: detailId,
+      }))
     } else if (entityType === 'service') {
-  updateView((prev) => ({ ...(prev || {}), id: servicesDetailId, detail: detailId }))
+      updateView((prev) => ({
+        ...(prev || {}),
+        id: servicesDetailId,
+        detail: detailId,
+      }))
     } else if (entityType === 'task') {
-  updateView((prev) => ({ ...(prev || {}), id: tasksId, detail: detailId }))
+      updateView((prev) => ({ ...(prev || {}), id: tasksId, detail: detailId }))
     }
   }
 

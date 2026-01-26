@@ -18,8 +18,8 @@
  * @param {string} [props.entityType='service'] - Type of entity (service|stack|node)
  * @returns {JSX.Element|null}
  */
-import React from 'react'
 import { useEntityActions } from '../../common/actions/entityActions'
+import { NameActions } from './NameActions'
 
 export function EntityName({
   name,

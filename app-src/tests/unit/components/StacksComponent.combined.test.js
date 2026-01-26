@@ -1,4 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+const modStacks = require('../../../src/components/StacksComponent')
+const StacksComponent = modStacks.StacksComponent || modStacks.default || modStacks
 
 jest.mock('../../../src/common/store/atoms', () => ({
   currentVariantAtom: 'currentVariantAtom',

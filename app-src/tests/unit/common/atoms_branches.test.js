@@ -92,7 +92,7 @@ describe('detail atoms guards and fetch', () => {
     jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
-    const get = (a) => ({ id: 'other' })
+    const get = () => ({ id: 'other' })
     const res = await atoms.nodeDetailAtom(get)
     expect(res).toBeNull()
   })
@@ -236,27 +236,27 @@ describe('detail atoms guards and fetch', () => {
     }
 
     // nodeDetail: mismatch id -> null
-    let res = await atoms.nodeDetailAtom((a) => ({ id: 'other' }))
+    let res = await atoms.nodeDetailAtom(() => ({ id: 'other' }))
     expect(res).toBeNull()
     // nodeDetail: missing id -> null
-    res = await atoms.nodeDetailAtom((a) => ({ id: nav.nodesDetailId }))
+    res = await atoms.nodeDetailAtom(() => ({ id: nav.nodesDetailId }))
     expect(res).toBeNull()
     // nodeDetail: matching id and fetch
     res = await doFetched(atoms.nodeDetailAtom, { id: nav.nodesDetailId, detail: 'nX' })
     expect(res).toEqual({ ok: true })
 
     // serviceDetail: mismatch and missing
-    res = await atoms.serviceDetailAtom((a) => ({ id: 'other' }))
+    res = await atoms.serviceDetailAtom(() => ({ id: 'other' }))
     expect(res).toBeNull()
-    res = await atoms.serviceDetailAtom((a) => ({ id: nav.servicesDetailId }))
+    res = await atoms.serviceDetailAtom(() => ({ id: nav.servicesDetailId }))
     expect(res).toBeNull()
     res = await doFetched(atoms.serviceDetailAtom, { id: nav.servicesDetailId, detail: 'sY' })
     expect(res).toEqual({ ok: true })
 
     // taskDetail: mismatch and missing
-    res = await atoms.taskDetailAtom((a) => ({ id: 'other' }))
+    res = await atoms.taskDetailAtom(() => ({ id: 'other' }))
     expect(res).toBeNull()
-    res = await atoms.taskDetailAtom((a) => ({ id: nav.tasksId }))
+    res = await atoms.taskDetailAtom(() => ({ id: nav.tasksId }))
     expect(res).toBeNull()
     res = await doFetched(atoms.taskDetailAtom, { id: nav.tasksId, detail: 'tZ' })
     expect(res).toEqual({ ok: true })

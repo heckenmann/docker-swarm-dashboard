@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   currentVariantAtom,
   dashboardHAtom,
@@ -34,8 +33,6 @@ function DashboardComponent() {
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const [, updateView] = useAtom(viewAtom)
 
-  const [shifted, setShifted] = useState(new Set())
-
   const theads = []
   const trows = []
 
@@ -53,7 +50,12 @@ function DashboardComponent() {
     id: service.ID,
     name: service.Name || service['Name'],
     style: { width: '120px', minWidth: '120px' },
-  onClick: () => updateView(prev => ({ ...prev, id: servicesDetailId, detail: service.ID })),
+    onClick: () =>
+      updateView((prev) => ({
+        ...prev,
+        id: servicesDetailId,
+        detail: service.ID,
+      })),
     key: `dashboardTable-${service.ID}`,
     index: idx,
   }))
@@ -63,24 +65,13 @@ function DashboardComponent() {
     serviceHeaders.map((h) => [h.id, h.index]),
   )
 
-  // fixed widths (percent) for important columns; the remainder is distributed to service columns
-  const fixedWidths = {
-    node: 0,
-    role: 0,
-    state: 0,
-    availability: 0,
-    ip: 0,
-    trailing: 4,
-  }
-  const fixedTotal = Object.values(fixedWidths).reduce((a, b) => a + b, 0)
-  const remaining = Math.max(0, 100 - fixedTotal)
-  const serviceColPercent =
-    visibleServices.length > 0 ? remaining / visibleServices.length : remaining
-
   visibleServices.forEach((service) => {
     theads.push(
       <div
-        key={'dashboardTable-' + (service && service.ID ? String(service.ID) : 'svc-unknown')}
+        key={
+          'dashboardTable-' +
+          (service && service.ID ? String(service.ID) : 'svc-unknown')
+        }
         className="dataCol"
         style={{ width: '120px', minWidth: '120px' }}
       >
@@ -103,7 +94,9 @@ function DashboardComponent() {
       const idx = serviceIndexMap[service.ID]
 
       const tdKey =
-        'td-' + (node && node.ID ? String(node.ID) : `node-unknown`) + '-' +
+        'td-' +
+        (node && node.ID ? String(node.ID) : `node-unknown`) +
+        '-' +
         (service && service.ID ? String(service.ID) : `service-unknown`)
 
       dataCols.push(
@@ -116,18 +109,30 @@ function DashboardComponent() {
             <ul>
               {node['Tasks'][service['ID']].map((task, id) => (
                 <li
-                    key={
-                      'li-' +
-                      (task && task.NodeID ? String(task.NodeID) : `node-idx-${id}`) +
-                      '-' +
-                      (task && task.ServiceID ? String(task.ServiceID) : `svc-idx-${id}`) +
-                      '-' +
-                      // include the map index to guarantee uniqueness even if ID repeats
-                      (task && task.ID ? String(task.ID) + `-${id}` : `task-idx-${id}`) +
-                      '-' +
-                      // prefer a primitive status marker; fall back to index
-                      (task && task.Status ? String(task.Status?.Timestamp ?? task.Status?.State ?? `status-idx-${id}`) : `status-idx-${id}`)
-                    }
+                  key={
+                    'li-' +
+                    (task && task.NodeID
+                      ? String(task.NodeID)
+                      : `node-idx-${id}`) +
+                    '-' +
+                    (task && task.ServiceID
+                      ? String(task.ServiceID)
+                      : `svc-idx-${id}`) +
+                    '-' +
+                    // include the map index to guarantee uniqueness even if ID repeats
+                    (task && task.ID
+                      ? String(task.ID) + `-${id}`
+                      : `task-idx-${id}`) +
+                    '-' +
+                    // prefer a primitive status marker; fall back to index
+                    (task && task.Status
+                      ? String(
+                          task.Status?.Timestamp ??
+                            task.Status?.State ??
+                            `status-idx-${id}`,
+                        )
+                      : `status-idx-${id}`)
+                  }
                 >
                   <ServiceStatusBadge
                     id={id}
@@ -273,7 +278,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                     style={h.style}
                   >
                     <span className="service-name-text" title={h.name}>
@@ -287,7 +292,11 @@ function DashboardComponent() {
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            updateView(prev => ({ ...prev, id: servicesDetailId, detail: h.id }))
+                            updateView((prev) => ({
+                              ...prev,
+                              id: servicesDetailId,
+                              detail: h.id,
+                            }))
                           }}
                         >
                           <FontAwesomeIcon icon="search" />
@@ -323,7 +332,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                     style={h.style}
                   >
                     <span className="service-name-text" title={h.name}>
@@ -337,7 +346,11 @@ function DashboardComponent() {
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            updateView(prev => ({ ...prev, id: servicesDetailId, detail: h.id }))
+                            updateView((prev) => ({
+                              ...prev,
+                              id: servicesDetailId,
+                              detail: h.id,
+                            }))
                           }}
                         >
                           <FontAwesomeIcon icon="search" />
@@ -373,7 +386,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                     style={h.style}
                   >
                     <span className="service-name-text" title={h.name}>
@@ -387,7 +400,11 @@ function DashboardComponent() {
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            updateView(prev => ({ ...prev, id: servicesDetailId, detail: h.id }))
+                            updateView((prev) => ({
+                              ...prev,
+                              id: servicesDetailId,
+                              detail: h.id,
+                            }))
                           }}
                         >
                           <FontAwesomeIcon icon="search" />

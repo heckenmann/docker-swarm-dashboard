@@ -18,7 +18,7 @@ library.add(fab, fas, far)
 
 SyntaxHighlighter.registerLanguage('javascript', js)
 
-function AppContent() {
+const App = () => {
   const isDarkMode = useAtomValue(isDarkModeAtom)
 
   return (
@@ -41,7 +41,5 @@ function AppContent() {
     </div>
   )
 }
-
-const App = () => <AppContent />
 
 export default App

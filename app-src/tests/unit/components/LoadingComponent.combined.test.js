@@ -1,4 +1,6 @@
 import { render } from '@testing-library/react'
+const modLoading = require('../../../src/components/LoadingComponent')
+const LoadingComponent = modLoading.default || modLoading
 
 test('LoadingComponent mounts and shows loading bar', () => {
   const { container } = render(<LoadingComponent />)

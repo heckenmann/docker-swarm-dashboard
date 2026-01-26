@@ -1,3 +1,5 @@
+import { EntityName } from './EntityName'
+
 /**
  * StackName
  * Thin wrapper around `EntityName` for stack entities. It typically exposes

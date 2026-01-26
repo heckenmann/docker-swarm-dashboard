@@ -1,8 +1,12 @@
 import { useAtomValue } from 'jotai'
+import { Card } from 'react-bootstrap'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
 } from '../common/store/atoms'
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import LoadingBar from './LoadingBar'
 
 /**
  * LoadingComponent is a functional component that displays a loading spinner

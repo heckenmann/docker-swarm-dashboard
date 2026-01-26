@@ -24,7 +24,9 @@ function DetailsNodeComponent() {
   if (!currentNode) return <div>Node doesn't exist</div>
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
+    <div
+      style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}
+    >
       <Card className={currentVariantClasses}>
         <Card.Header>
           <h5>
@@ -51,7 +53,8 @@ function DetailsNodeComponent() {
       <Card className={currentVariantClasses}>
         <Card.Header>
           <h5>
-            <FontAwesomeIcon icon="tasks" /> Tasks on {currentNode.node?.Description?.Hostname}
+            <FontAwesomeIcon icon="tasks" /> Tasks on{' '}
+            {currentNode.node?.Description?.Hostname}
           </h5>
         </Card.Header>
         <Table striped bordered hover size="sm" variant={currentVariant}>
@@ -65,15 +68,34 @@ function DetailsNodeComponent() {
             </tr>
           </thead>
           <tbody>
-            {currentNode.tasks && currentNode.tasks.map((task, idx) => (
-              <tr key={(task && task.ID ? String(task.ID) : `task-idx-${idx}`) + `-${idx}`}>
-                <td><ServiceName name={task.ServiceName} id={task.ServiceID} /></td>
-                <td><ServiceStatusBadge id={task.ID} serviceState={task.Status?.State || task.State} /></td>
-                <td>{task.DesiredState}</td>
-                <td>{toDefaultDateTimeString(task.CreatedAt || task.Timestamp)}</td>
-                <td>{toDefaultDateTimeString(task.UpdatedAt || task.CreatedAt || task.Timestamp)}</td>
-              </tr>
-            ))}
+            {currentNode.tasks &&
+              currentNode.tasks.map((task, idx) => (
+                <tr
+                  key={
+                    (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
+                    `-${idx}`
+                  }
+                >
+                  <td>
+                    <ServiceName name={task.ServiceName} id={task.ServiceID} />
+                  </td>
+                  <td>
+                    <ServiceStatusBadge
+                      id={task.ID}
+                      serviceState={task.Status?.State || task.State}
+                    />
+                  </td>
+                  <td>{task.DesiredState}</td>
+                  <td>
+                    {toDefaultDateTimeString(task.CreatedAt || task.Timestamp)}
+                  </td>
+                  <td>
+                    {toDefaultDateTimeString(
+                      task.UpdatedAt || task.CreatedAt || task.Timestamp,
+                    )}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </Table>
       </Card>

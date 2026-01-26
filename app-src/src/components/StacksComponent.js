@@ -2,14 +2,19 @@ import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  stacksAtom,
   dashboardSettingsAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
-  stacksAtom,
-  filterTypeAtom,
-  viewAtom,
 } from '../common/store/atoms'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
+
+// UI & internal imports
+import { Card, Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { StackName } from './names/StackName'
+import { EntityName } from './names/EntityName'
+import { FilterComponent } from './FilterComponent'
 
 /**
  * StacksComponent is a React functional component that renders a list of stacks.
@@ -22,12 +27,8 @@ function StacksComponent() {
   const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
-  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
-  const [, setFilterType] = useAtom(filterTypeAtom)
-
   const stacksData = useAtomValue(stacksAtom)
-  const [, updateView] = useAtom(viewAtom)
+
   const createServicesForStack = (stack) => {
     const normalize = (s) =>
       (s || '').toString().toLowerCase().replace(/[-_]/g, '')

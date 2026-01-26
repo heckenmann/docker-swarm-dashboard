@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
-import { useAtom } from 'jotai'
+import { useAtom, Provider } from 'jotai'
 
 // Mock the async logsServicesAtom and logsNumberOfLinesAtom so component doesn't suspend
 // Default to empty services; tests that need services provide them via Provider initialValues
@@ -34,8 +34,12 @@ jest.mock('react-use-websocket', () => {
   }
 })
 
+// Require the component under test so JSX <LogsComponent /> resolves
+const modLogs = require('../../../src/components/LogsComponent')
+const LogsComponent = modLogs.LogsComponent || modLogs.default || modLogs
+
 function Pusher({ message }) {
-  const [_, setLogs] = useAtom(atoms.logsLinesAtom)
+  const [, setLogs] = useAtom(atoms.logsLinesAtom)
   const [num] = useAtom(atoms.logsNumberOfLinesAtom)
   useEffect(() => {
     if (message) {
@@ -789,7 +793,7 @@ describe('LogsComponent (combined)', () => {
     const ws = require('react-use-websocket')
     if (ws && ws.__mock) ws.__mock.lastMessage = message
 
-    const { container, unmount, rerender } = render(
+    const { container, unmount } = render(
       <Suspense fallback={<div>loading</div>}>
         <Provider initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5]]}>
           <LogsComponent />
