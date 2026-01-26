@@ -22,7 +22,12 @@ export class ErrorBoundary extends React.Component {
    */
   static getDerivedStateFromError(error) {
     // Prefer stack when available so we show useful details; fall back to message/string
-    const msg = error && error.stack ? error.stack : error && error.message ? error.message : String(error)
+    const msg =
+      error && error.stack
+        ? error.stack
+        : error && error.message
+          ? error.message
+          : String(error)
     return { hasError: true, errorMessage: msg }
   }
 
@@ -53,7 +58,7 @@ export class ErrorBoundary extends React.Component {
         // no _retry params present — simply reload the page in place
         window.location.reload()
       }
-    } catch (err) {
+    } catch {
       try {
         window.location.reload()
       } catch {}
@@ -70,7 +75,11 @@ export class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="loading-overlay" role="alert" aria-live="polite">
-          <Card bg="danger" text="light" className="card-elevated p-4 loading-card">
+          <Card
+            bg="danger"
+            text="light"
+            className="card-elevated p-4 loading-card"
+          >
             <Card.Body className="text-center">
               <div className="d-flex flex-column align-items-center">
                 <FontAwesomeIcon
@@ -80,7 +89,9 @@ export class ErrorBoundary extends React.Component {
                   aria-hidden="true"
                 />
                 <h4 className="mb-0 loading-title">Error</h4>
-                <div className="loading-subtitle">An unexpected error occurred — you can retry loading the page.</div>
+                <div className="loading-subtitle">
+                  An unexpected error occurred — you can retry loading the page.
+                </div>
                 <pre
                   className="mt-2 small text-muted text-start"
                   style={{
