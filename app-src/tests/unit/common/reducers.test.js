@@ -1,6 +1,9 @@
 // reducers.test.js
 // Unit tests for reducers used by jotai atoms: toggle reducer and message reducer behavior.
-import { RefreshIntervalToggleReducer, MessageReducer } from '../../../src/common/store/reducers'
+import {
+  RefreshIntervalToggleReducer,
+  MessageReducer,
+} from '../../../src/common/store/reducers'
 
 test('RefreshIntervalToggleReducer toggles between null and 3000', () => {
   expect(RefreshIntervalToggleReducer(null)).toBe(3000)
@@ -21,5 +24,7 @@ test('MessageReducer add/remove and duplicate handling', () => {
 })
 
 test('MessageReducer throws on unknown action', () => {
-  expect(() => MessageReducer([], { type: 'foo', value: 'x' })).toThrow('unknown action type')
+  expect(() => MessageReducer([], { type: 'foo', value: 'x' })).toThrow(
+    'unknown action type',
+  )
 })

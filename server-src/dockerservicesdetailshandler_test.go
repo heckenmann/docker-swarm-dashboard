@@ -37,7 +37,11 @@ func TestDockerServicesDetailsHandler_Success(t *testing.T) {
 	}
 	var out map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&out)
-	if id, ok := out["ID"].(string); !ok || id != "s1" {
-		t.Fatalf("expected ID s1, got %v", out["ID"])
+	svcObj, ok := out["service"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected service object, got %v", out["service"])
+	}
+	if id, ok := svcObj["ID"].(string); !ok || id != "s1" {
+		t.Fatalf("expected ID s1, got %v", svcObj["ID"])
 	}
 }

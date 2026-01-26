@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 const modStacks = require('../../../src/components/StacksComponent')
-const StacksComponent = modStacks.StacksComponent || modStacks.default || modStacks
+const StacksComponent =
+  modStacks.StacksComponent || modStacks.default || modStacks
 
 jest.mock('../../../src/common/store/atoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
@@ -15,8 +16,10 @@ jest.mock('../../../src/common/store/atoms', () => ({
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
-jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
-
+jest.mock('jotai', () => ({
+  useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtom: (...args) => mockUseAtom(...args),
+}))
 
 describe('StacksComponent (combined)', () => {
   beforeEach(() => {
@@ -26,13 +29,28 @@ describe('StacksComponent (combined)', () => {
 
   test('shows service when serviceNameFilter matches (normalized)', () => {
     const stacks = [
-      { Name: 'backend', Services: [ { ID: 's1', ShortName: 'myservice', ServiceName: 'backend_my-service', Replication: '1', Created: new Date().toISOString(), Updated: new Date().toISOString() } ] }
+      {
+        Name: 'backend',
+        Services: [
+          {
+            ID: 's1',
+            ShortName: 'myservice',
+            ServiceName: 'backend_my-service',
+            Replication: '1',
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
+        ],
+      },
     ]
 
     // atoms: currentVariant, currentVariantClasses, dashboardSettings, serviceNameFilter, stackNameFilter, stacksAtom
     mockUseAtomValue.mockImplementationOnce(() => 'light')
     mockUseAtomValue.mockImplementationOnce(() => 'classes')
-    mockUseAtomValue.mockImplementationOnce(() => ({ locale: 'en', timeZone: 'UTC' }))
+    mockUseAtomValue.mockImplementationOnce(() => ({
+      locale: 'en',
+      timeZone: 'UTC',
+    }))
     mockUseAtomValue.mockImplementationOnce(() => 'myservice') // serviceNameFilter
     mockUseAtomValue.mockImplementationOnce(() => '') // stackNameFilter
     mockUseAtomValue.mockImplementationOnce(() => stacks)
@@ -70,14 +88,35 @@ describe('StacksComponent (combined)', () => {
       {
         Name: 'st1',
         Services: [
-          { ID: 's1', ShortName: 'svc-short', ServiceName: 'svc-full-name', Replication: 1, Created: new Date().toISOString(), Updated: new Date().toISOString() },
-          { ID: 's2', ShortName: null, ServiceName: 'another-service', Replication: 1, Created: new Date().toISOString(), Updated: new Date().toISOString() },
+          {
+            ID: 's1',
+            ShortName: 'svc-short',
+            ServiceName: 'svc-full-name',
+            Replication: 1,
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
+          {
+            ID: 's2',
+            ShortName: null,
+            ServiceName: 'another-service',
+            Replication: 1,
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
         ],
       },
     ]
 
     // useAtomValue is called for currentVariant, currentVariantClasses, dashboardSettings, service filters and stacks
-    const values = ['light', 'classes', { locale: 'en', timeZone: 'UTC' }, 'svc-short', '', stacks]
+    const values = [
+      'light',
+      'classes',
+      { locale: 'en', timeZone: 'UTC' },
+      'svc-short',
+      '',
+      stacks,
+    ]
     mockUseAtomValue.mockImplementation(() => values.shift())
 
     const mockSetService = jest.fn()
@@ -107,8 +146,29 @@ describe('StacksComponent (combined)', () => {
   })
 
   test('stack filter button sets stack and clears service filter', () => {
-    const stacks = [ { Name: 'stX', Services: [ { ID: 's1', ServiceName: 'svc1', ShortName: null, Replication: 1, Created: new Date().toISOString(), Updated: new Date().toISOString() } ] } ]
-    const values = ['light', 'classes', { locale: 'en', timeZone: 'UTC' }, '', '', stacks]
+    const stacks = [
+      {
+        Name: 'stX',
+        Services: [
+          {
+            ID: 's1',
+            ServiceName: 'svc1',
+            ShortName: null,
+            Replication: 1,
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
+        ],
+      },
+    ]
+    const values = [
+      'light',
+      'classes',
+      { locale: 'en', timeZone: 'UTC' },
+      '',
+      '',
+      stacks,
+    ]
     mockUseAtomValue.mockImplementation(() => values.shift())
 
     const mockSetService = jest.fn()
@@ -134,7 +194,16 @@ describe('StacksComponent (combined)', () => {
     const stacks = [
       {
         Name: 's1',
-        Services: [ { ID: 'svc1', ShortName: null, ServiceName: 'My-Service_Name', Replication: 1, Created: new Date().toISOString(), Updated: new Date().toISOString() } ],
+        Services: [
+          {
+            ID: 'svc1',
+            ShortName: null,
+            ServiceName: 'My-Service_Name',
+            Replication: 1,
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
+        ],
       },
     ]
 
@@ -162,7 +231,8 @@ describe('StacksComponent (combined)', () => {
     const mockSetType = jest.fn()
     const mockUpdateView = jest.fn()
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'serviceNameFilterAtom') return ['myservicename', mockSetService]
+      if (atom === 'serviceNameFilterAtom')
+        return ['myservicename', mockSetService]
       if (atom === 'stackNameFilterAtom') return ['', mockSetStack]
       if (atom === 'filterTypeAtom') return ['service', mockSetType]
       if (atom === 'viewAtom') return [null, mockUpdateView]
@@ -178,7 +248,21 @@ describe('StacksComponent (combined)', () => {
   })
 
   test('stack filtered out when no services match serviceNameFilter', () => {
-    const stacks = [ { Name: 'onlystack', Services: [ { ID: 's', ShortName: 'a', ServiceName: 'b', Replication: 1, Created: new Date().toISOString(), Updated: new Date().toISOString() } ] } ]
+    const stacks = [
+      {
+        Name: 'onlystack',
+        Services: [
+          {
+            ID: 's',
+            ShortName: 'a',
+            ServiceName: 'b',
+            Replication: 1,
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
+        ],
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -211,7 +295,21 @@ describe('StacksComponent (combined)', () => {
   })
 
   test('header stack filter sets stack and clears service filter', () => {
-    const stacks = [ { Name: 'stackY', Services: [ { ID: 's1', ShortName: 'sn', ServiceName: 'svcY', Replication: 1, Created: new Date().toISOString(), Updated: new Date().toISOString() } ] } ]
+    const stacks = [
+      {
+        Name: 'stackY',
+        Services: [
+          {
+            ID: 's1',
+            ShortName: 'sn',
+            ServiceName: 'svcY',
+            Replication: 1,
+            Created: new Date().toISOString(),
+            Updated: new Date().toISOString(),
+          },
+        ],
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {

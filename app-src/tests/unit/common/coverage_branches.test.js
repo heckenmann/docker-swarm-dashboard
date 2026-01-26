@@ -31,7 +31,9 @@ describe('coverage boost for parseHashToObj and entityActions', () => {
       return [null, jest.fn()]
     })
 
-    const { useEntityActions } = require('../../../src/common/actions/entityActions')
+    const {
+      useEntityActions,
+    } = require('../../../src/common/actions/entityActions')
     const nav = require('../../../src/common/navigationConstants')
 
     // early return when detailId falsy
@@ -78,14 +80,16 @@ describe('coverage boost for parseHashToObj and entityActions', () => {
       return [null, jest.fn()]
     })
 
-  const { useEntityActions } = require('../../../src/common/actions/entityActions')
-  const { result } = renderHook(() => useEntityActions('service'))
-  // service open should call updateView
-  act(() => result.current.onOpen('svc2'))
-  expect(mockUpdateView).toHaveBeenCalled()
-  // switching to stack should clear service
-  const { result: stackRes } = renderHook(() => useEntityActions('stack'))
-  act(() => stackRes.current.onFilter('stacky'))
-  expect(mockSetStack).toHaveBeenCalledWith('stacky')
+    const {
+      useEntityActions,
+    } = require('../../../src/common/actions/entityActions')
+    const { result } = renderHook(() => useEntityActions('service'))
+    // service open should call updateView
+    act(() => result.current.onOpen('svc2'))
+    expect(mockUpdateView).toHaveBeenCalled()
+    // switching to stack should clear service
+    const { result: stackRes } = renderHook(() => useEntityActions('stack'))
+    act(() => stackRes.current.onFilter('stacky'))
+    expect(mockSetStack).toHaveBeenCalledWith('stacky')
   })
 })

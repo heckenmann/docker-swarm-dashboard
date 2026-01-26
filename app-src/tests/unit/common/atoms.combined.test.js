@@ -8,5 +8,3 @@ require('./atoms_branches.test.js')
 
 // fetch/runtime/module-load
 require('./fetch_atoms.combined.test.js')
-
-

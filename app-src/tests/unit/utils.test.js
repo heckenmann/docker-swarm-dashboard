@@ -6,10 +6,10 @@ describe('flatten', () => {
     const out = flatten(input)
     // keys should include 'a.b' and 'c[0]' etc.
     expect(out['a.b']).toBe(1)
-  // flatten may emit keys like 'c[0]' or 'c.[0]'; assert by values instead
-  const values = Object.values(out)
-  expect(values).toContain(10)
-  expect(values).toContain(20)
+    // flatten may emit keys like 'c[0]' or 'c.[0]'; assert by values instead
+    const values = Object.values(out)
+    expect(values).toContain(10)
+    expect(values).toContain(20)
   })
 
   test('returns primitive value for non-object', () => {

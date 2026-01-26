@@ -3,7 +3,9 @@ import { render, screen } from '@testing-library/react'
 jest.mock('../../../src/common/store/atoms', () => ({
   dashboardSettingsAtom: {},
 }))
-jest.mock('jotai', () => ({ useAtomValue: () => ({ locale: 'en', timeZone: 'UTC' }) }))
+jest.mock('jotai', () => ({
+  useAtomValue: () => ({ locale: 'en', timeZone: 'UTC' }),
+}))
 jest.mock('../../../src/common/DefaultDateTimeFormat', () => ({
   toDefaultDateTimeString: () => '2026-01-18T00:00:00Z',
 }))
@@ -32,7 +34,11 @@ describe('ServiceStatusBadge (combined)', () => {
 
   test('returns nothing when state is hidden', () => {
     const { container } = render(
-      <ServiceStatusBadge id={3} serviceState={'running'} hiddenStates={['running']} />,
+      <ServiceStatusBadge
+        id={3}
+        serviceState={'running'}
+        hiddenStates={['running']}
+      />,
     )
     expect(container).toBeEmptyDOMElement()
   })

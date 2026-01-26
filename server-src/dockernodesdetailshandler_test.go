@@ -74,7 +74,11 @@ func TestDockerNodesDetailsHandler_Success(t *testing.T) {
 	if err := json.Unmarshal(body, &out); err != nil {
 		t.Fatalf("response not valid json: %v", err)
 	}
-	if id, ok := out["ID"].(string); !ok || id != "n1" {
-		t.Fatalf("expected returned node to have ID 'n1', got %v", out["ID"])
+	nodeObj, ok := out["node"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected node object, got %v", out["node"])
+	}
+	if id, ok := nodeObj["ID"].(string); !ok || id != "n1" {
+		t.Fatalf("expected returned node to have ID 'n1', got %v", nodeObj["ID"])
 	}
 }

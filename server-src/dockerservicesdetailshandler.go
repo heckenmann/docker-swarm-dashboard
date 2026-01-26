@@ -39,13 +39,12 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 
-		// For compatibility with tests that expect the service object at top-level,
-		// merge service fields into the top-level response and include tasks.
-		var response map[string]interface{}
-		svcBytes, _ := json.Marshal(Services[0])
-		json.Unmarshal(svcBytes, &response)
-		response["tasks"] = Tasks
-		jsonString, _ := json.Marshal(response)
+		// Return the same shape as the mock server: { service, tasks }
+		resp := map[string]interface{}{
+			"service": Services[0],
+			"tasks":   Tasks,
+		}
+		jsonString, _ := json.Marshal(resp)
 		w.Write(jsonString)
 	} else {
 		w.Write([]byte("{}"))

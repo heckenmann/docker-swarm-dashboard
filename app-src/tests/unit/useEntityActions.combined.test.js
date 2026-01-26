@@ -11,7 +11,7 @@ describe('useEntityActions core', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
     jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
-  const atoms = require('../../src/common/store/atoms')
+    const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
     jotai.useAtom.mockImplementation((atom) => {
       if (atom === atoms.viewAtom) return [null, mockUpdateView]
@@ -20,8 +20,10 @@ describe('useEntityActions core', () => {
       if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
       return [null, jest.fn()]
     })
-  const nav = require('../../src/common/navigationConstants')
-  const { useEntityActions } = require('../../src/common/actions/entityActions')
+    const nav = require('../../src/common/navigationConstants')
+    const {
+      useEntityActions,
+    } = require('../../src/common/actions/entityActions')
     const { result } = renderHook(() => useEntityActions('service'))
     act(() => result.current.onOpen('svc1'))
     expect(mockUpdateView).toHaveBeenCalled()
@@ -35,7 +37,7 @@ describe('useEntityActions core', () => {
     const mockSetFilterType = jest.fn()
     const actualJotai = jest.requireActual('jotai')
     jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
-  const atoms = require('../../src/common/store/atoms')
+    const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
     jotai.useAtom.mockImplementation((atom) => {
       if (atom === atoms.viewAtom) return [null, jest.fn()]
@@ -44,7 +46,9 @@ describe('useEntityActions core', () => {
       if (atom === atoms.filterTypeAtom) return ['service', mockSetFilterType]
       return [null, jest.fn()]
     })
-  const { useEntityActions } = require('../../src/common/actions/entityActions')
+    const {
+      useEntityActions,
+    } = require('../../src/common/actions/entityActions')
     const { result } = renderHook(() => useEntityActions('stack'))
     act(() => result.current.onFilter('mystack'))
     expect(mockSetFilterType).toHaveBeenCalledWith('stack')
@@ -55,11 +59,14 @@ describe('useEntityActions core', () => {
 describe('useEntityActions extra behaviors', () => {
   beforeEach(() => {
     const _useAtom = jest.requireActual('jotai').useAtom
-    jest.doMock('jotai', () => ({ ...jest.requireActual('jotai'), useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({
+      ...jest.requireActual('jotai'),
+      useAtom: jest.fn(),
+    }))
   })
 
   test('onOpen navigates to nodes detail when entityType=node', () => {
-  const entityActions = require('../../src/common/actions/entityActions')
+    const entityActions = require('../../src/common/actions/entityActions')
     const updateView = jest.fn()
     const useAtomMock = require('jotai').useAtom
     useAtomMock
@@ -72,9 +79,9 @@ describe('useEntityActions extra behaviors', () => {
     expect(updateView).toHaveBeenCalled()
     const updater = updateView.mock.calls[0][0]
     expect(typeof updater).toBe('function')
-  // ensure updater returns correct shape
-  const nav = require('../../src/common/navigationConstants')
-  expect(updater({})).toEqual({ id: nav.nodesDetailId, detail: 'nid' })
+    // ensure updater returns correct shape
+    const nav = require('../../src/common/navigationConstants')
+    expect(updater({})).toEqual({ id: nav.nodesDetailId, detail: 'nid' })
   })
 
   test('onOpen navigates to tasks detail when entityType=task', () => {
@@ -85,13 +92,17 @@ describe('useEntityActions extra behaviors', () => {
       .mockReturnValueOnce([null, jest.fn()])
       .mockReturnValueOnce([null, jest.fn()])
       .mockReturnValueOnce([null, jest.fn()])
-    const { result } = renderHook(() => require('../../src/common/actions/entityActions').useEntityActions('task'))
+    const { result } = renderHook(() =>
+      require('../../src/common/actions/entityActions').useEntityActions(
+        'task',
+      ),
+    )
     act(() => result.current.onOpen('tid'))
     expect(updateView).toHaveBeenCalled()
     const updater = updateView.mock.calls[0][0]
     expect(typeof updater).toBe('function')
-  const nav = require('../../src/common/navigationConstants')
-  expect(updater({})).toEqual({ id: nav.tasksId, detail: 'tid' })
+    const nav = require('../../src/common/navigationConstants')
+    expect(updater({})).toEqual({ id: nav.tasksId, detail: 'tid' })
   })
 
   test('onOpen does nothing when no id provided', () => {
@@ -102,7 +113,11 @@ describe('useEntityActions extra behaviors', () => {
       .mockReturnValueOnce([null, jest.fn()])
       .mockReturnValueOnce([null, jest.fn()])
       .mockReturnValueOnce([null, jest.fn()])
-  const { result } = renderHook(() => require('../../src/common/actions/entityActions').useEntityActions('service'))
+    const { result } = renderHook(() =>
+      require('../../src/common/actions/entityActions').useEntityActions(
+        'service',
+      ),
+    )
     act(() => result.current.onOpen(null))
     expect(updateView).not.toHaveBeenCalled()
   })
@@ -117,7 +132,11 @@ describe('useEntityActions extra behaviors', () => {
       .mockReturnValueOnce([null, setServiceFilterName])
       .mockReturnValueOnce([null, setStackFilterName])
       .mockReturnValueOnce([null, setFilterType])
-  const { result } = renderHook(() => require('../../src/common/actions/entityActions').useEntityActions('service'))
+    const { result } = renderHook(() =>
+      require('../../src/common/actions/entityActions').useEntityActions(
+        'service',
+      ),
+    )
     act(() => result.current.onFilter('svcA'))
     expect(setFilterType).toHaveBeenCalledWith('service')
     expect(setServiceFilterName).toHaveBeenCalledWith('svcA')
@@ -134,7 +153,11 @@ describe('useEntityActions extra behaviors', () => {
       .mockReturnValueOnce([null, setServiceFilterName])
       .mockReturnValueOnce([null, setStackFilterName])
       .mockReturnValueOnce([null, setFilterType])
-  const { result } = renderHook(() => require('../../src/common/actions/entityActions').useEntityActions('stack'))
+    const { result } = renderHook(() =>
+      require('../../src/common/actions/entityActions').useEntityActions(
+        'stack',
+      ),
+    )
     act(() => result.current.onFilter('stackA'))
     expect(setFilterType).toHaveBeenCalledWith('stack')
     expect(setStackFilterName).toHaveBeenCalledWith('stackA')
@@ -145,7 +168,7 @@ describe('useEntityActions extra behaviors', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
     jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
-  const atoms = require('../../src/common/store/atoms')
+    const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
     jotai.useAtom.mockImplementation((atom) => {
       if (atom === atoms.viewAtom) return [null, mockUpdateView]
@@ -154,7 +177,9 @@ describe('useEntityActions extra behaviors', () => {
       if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
       return [null, jest.fn()]
     })
-  const { useEntityActions } = require('../../src/common/actions/entityActions')
+    const {
+      useEntityActions,
+    } = require('../../src/common/actions/entityActions')
     const { result } = renderHook(() => useEntityActions('service'))
     act(() => result.current.onOpen(''))
     act(() => result.current.onFilter(''))
@@ -174,7 +199,9 @@ describe('useEntityActions extra behaviors', () => {
       if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
       return [null, jest.fn()]
     })
-    const { useEntityActions } = require('../../src/common/actions/entityActions')
+    const {
+      useEntityActions,
+    } = require('../../src/common/actions/entityActions')
     const { result } = renderHook(() => useEntityActions('unknown'))
     act(() => result.current.onOpen('x'))
     expect(mockUpdateView).not.toHaveBeenCalled()
@@ -194,7 +221,9 @@ describe('useEntityActions extra behaviors', () => {
       return [null, jest.fn()]
     })
     const nav = require('../../src/common/navigationConstants')
-    const { useEntityActions } = require('../../src/common/actions/entityActions')
+    const {
+      useEntityActions,
+    } = require('../../src/common/actions/entityActions')
     const { result } = renderHook(() => useEntityActions('service'))
     act(() => result.current.onOpen('svcX'))
     expect(mockUpdateView).toHaveBeenCalled()

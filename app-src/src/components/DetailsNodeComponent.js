@@ -40,7 +40,7 @@ function DetailsNodeComponent() {
             {currentNode.node?.Description?.Hostname}"
           </h5>
         </Card.Header>
-        <Card.Body>
+        <Card.Body style={{ overflowY: 'auto' }}>
           <Tabs className="mb-3">
             <Tab eventKey="table" title="Table">
               <JsonTable json={currentNode.node} variant={currentVariant} />
