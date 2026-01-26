@@ -7,7 +7,7 @@ module.exports = [
   },
   // Basic rules for JS files in src
   {
-    files: ["src/**/*.js", "src/**/*.jsx"],
+    files: ["src/**/*.js", "src/**/*.jsx", "tests/**/*.js", "tests/**/*.jsx"],
     languageOptions: {
   ecmaVersion: 2021,
   sourceType: "module",
@@ -23,6 +23,9 @@ module.exports = [
       // keep a couple lightweight rules; expand later as needed
   "prefer-const": "error",
   "react-hooks/exhaustive-deps": "off",
+  "no-unused-vars": "error",
+  "unused-imports/no-unused-imports": "error",
+  "unused-imports/no-unused-vars": ["warn", { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }],
     },
   },
 ];
