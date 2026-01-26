@@ -118,7 +118,11 @@ function DetailsServiceComponent() {
                   }
                 >
                   <td>
-                    <NodeName name={task.NodeName} id={task.NodeID} />
+                    {/* Prefer full node object if present, otherwise fall back to NodeName/NodeID */}
+                    <NodeName
+                      name={task.Node && (task.Node.Description?.Hostname || task.Node.Hostname) ? (task.Node.Description?.Hostname || task.Node.Hostname) : task.NodeName}
+                      id={task.Node && task.Node.ID ? task.Node.ID : task.NodeID}
+                    />
                   </td>
                   <td>
                     <ServiceStatusBadge

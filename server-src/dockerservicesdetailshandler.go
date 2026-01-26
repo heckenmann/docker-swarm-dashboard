@@ -39,10 +39,30 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 
+		// Attach Node object to each task when possible to match mock shape
+		enriched := make([]map[string]interface{}, 0, len(Tasks))
+		for _, t := range Tasks {
+			// convert task to a generic map first
+			var tm map[string]interface{}
+			b, _ := json.Marshal(t)
+			json.Unmarshal(b, &tm)
+			// try to fetch node object for this task
+			nodesFilter := filters.NewArgs()
+			nodesFilter.Add("id", t.NodeID)
+			nodeList, _ := cli.NodeList(context.Background(), types.NodeListOptions{Filters: nodesFilter})
+			if len(nodeList) > 0 {
+				// attach full node object
+				tm["Node"] = nodeList[0]
+			} else {
+				tm["Node"] = nil
+			}
+			enriched = append(enriched, tm)
+		}
+
 		// Return the same shape as the mock server: { service, tasks }
 		resp := map[string]interface{}{
 			"service": Services[0],
-			"tasks":   Tasks,
+			"tasks":   enriched,
 		}
 		jsonString, _ := json.Marshal(resp)
 		w.Write(jsonString)
