@@ -8,6 +8,8 @@ import {
   tableSizeAtom,
 } from '../common/store/atoms'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
+import { Card, Table, FormControl, FormCheck } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * SettingsComponent is a React functional component that renders a settings panel.

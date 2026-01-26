@@ -5,6 +5,8 @@ import {
   dashboardSettingsAtom,
   versionAtom,
 } from '../common/store/atoms'
+import { Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function VersionUpdateComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
