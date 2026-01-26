@@ -1,0 +1,9 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "go": true,
+        "npm test": true,
+        "git rev-parse": true,
+        "git checkout": true,
+        "true": true
+    }
+}

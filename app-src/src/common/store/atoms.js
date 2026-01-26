@@ -125,6 +125,7 @@ export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
 export const logsNumberOfLinesAtom = atomWithReset(20)
 export const logsConfigAtom = atom()
+export const logsMessageMaxLenAtom = atomWithReset(10000)
 export const logsWebsocketUrlAtom = atom((get) => {
   const logsConfig = get(logsConfigAtom)
   if (!logsConfig) {

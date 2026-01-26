@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -71,6 +72,7 @@ func TestDockerServiceLogsHandler_StreamsToWebsocket(t *testing.T) {
 	}
 	defer conn.Close()
 
+	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 	_, msg, err := conn.ReadMessage()
 	if err != nil {
 		// signal server to finish before failing so it doesn't leak goroutine

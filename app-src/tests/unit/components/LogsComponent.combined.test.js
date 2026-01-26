@@ -863,6 +863,71 @@ describe('LogsComponent (combined)', () => {
     jest.useRealTimers()
   })
 
+  test('handles very high-throughput websocket messages without dropping recent entries', async () => {
+    jest.useFakeTimers()
+    const ws = require('react-use-websocket')
+    // ensure mock present
+    if (!ws || !ws.__mock) {
+      jest.useRealTimers()
+      return
+    }
+
+    // render component and show logs with capacity 20
+    const { container, rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '20', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /Show logs/i }),
+      ).toBeInTheDocument(),
+    )
+    // submit form to ensure highlighter rendered
+    fireEvent.submit(container.querySelector('form'))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Hide logs/i })).toBeInTheDocument(),
+    )
+
+    // simulate a burst of messages (more than typical buffer)
+    const N = 10000
+    for (let i = 0; i < N; i++) {
+      ws.__mock.lastMessage = { data: `msg-${i}` }
+      rerender(
+        <Suspense fallback={<div>loading</div>}>
+          <Provider
+            initialValues={[
+              [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+              [atoms.logsNumberOfLinesAtom, 20],
+              [atoms.logsShowLogsAtom, true],
+              [atoms.logsConfigAtom, { serviceId: 's1', tail: '20', follow: true }],
+            ]}
+          >
+            <LogsComponent />
+          </Provider>
+        </Suspense>,
+      )
+      // advance timers to flush buffer coalesced tick
+      act(() => jest.runOnlyPendingTimers())
+    }
+
+    // after burst, ensure last message present and some old message dropped
+    await waitFor(() => expect(screen.getByText(new RegExp(`msg-${N - 1}`))).toBeInTheDocument())
+    expect(screen.queryByText(/msg-0/)).toBeNull()
+
+    jest.useRealTimers()
+  })
+
   test('reallocation when capacity increases preserves entries', async () => {
     jest.useFakeTimers()
     const ws = require('react-use-websocket')
@@ -1365,5 +1430,360 @@ describe('LogsComponent (combined)', () => {
         container.querySelector('[data-details]').getAttribute('data-details'),
       ).toBe('true'),
     )
+  })
+
+  test('handles getter throwing on lastMessage.data without crashing', async () => {
+    jest.useFakeTimers()
+    const ws = require('react-use-websocket')
+    if (!ws || !ws.__mock) {
+      jest.useRealTimers()
+      return
+    }
+
+    // prepare a lastMessage whose data getter throws
+    const bad = {}
+    Object.defineProperty(bad, 'data', {
+      get() {
+        throw new Error('boom')
+      },
+    })
+
+    const { container, rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '5', follow: true }],
+            [atoms.logsLinesAtom, []],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).toBeInTheDocument())
+    const form = container.querySelector('form')
+    fireEvent.submit(form)
+    await waitFor(() => expect(screen.getByRole('button', { name: /Hide logs/i })).toBeInTheDocument())
+    // set the throwing lastMessage and rerender; component should not throw
+    ws.__mock.lastMessage = bad
+    rerender(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '5', follow: true }],
+            [atoms.logsLinesAtom, []],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+    act(() => jest.runOnlyPendingTimers())
+
+    const el = container.querySelector('pre, code')
+    expect(el).toBeTruthy()
+    jest.useRealTimers()
+  })
+
+  test('falls back when message.data is non-serializable (circular)', async () => {
+    jest.useFakeTimers()
+    const ws = require('react-use-websocket')
+    if (!ws || !ws.__mock) {
+      jest.useRealTimers()
+      return
+    }
+
+    const circular = {}
+    circular.self = circular
+
+    const { container, rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '5', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    // show logs via form submit before injecting
+    await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).toBeInTheDocument())
+    fireEvent.submit(container.querySelector('form'))
+    await waitFor(() => expect(screen.getByRole('button', { name: /Hide logs/i })).toBeInTheDocument())
+
+    ws.__mock.lastMessage = { data: circular }
+    rerender(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '5', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+    act(() => jest.runOnlyPendingTimers())
+
+    // should render a string fallback like [object Object]
+    await waitFor(() => expect(screen.getByText(/\[object Object\]|object Object/)).toBeInTheDocument())
+    jest.useRealTimers()
+  })
+
+  test('truncates very long incoming messages to MAX_LEN', async () => {
+    jest.useFakeTimers()
+    const ws = require('react-use-websocket')
+    if (!ws || !ws.__mock) {
+      jest.useRealTimers()
+      return
+    }
+
+    const longMsg = 'a'.repeat(15000)
+
+    const { container, rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '5', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).toBeInTheDocument())
+    fireEvent.submit(container.querySelector('form'))
+    await waitFor(() => expect(screen.getByRole('button', { name: /Hide logs/i })).toBeInTheDocument())
+
+    ws.__mock.lastMessage = { data: longMsg }
+    rerender(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '5', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+    act(() => jest.runOnlyPendingTimers())
+
+    const pre = container.querySelector('pre, code')
+    expect(pre).toBeTruthy()
+    // displayed content should be truncated and contain ellipses
+    expect((pre.textContent || '').includes('...')).toBeTruthy()
+    jest.useRealTimers()
+  })
+
+  test('ingests every websocket message when capacity >= messages', async () => {
+    jest.useFakeTimers()
+    const ws = require('react-use-websocket')
+    if (!ws || !ws.__mock) {
+      jest.useRealTimers()
+      return
+    }
+
+    const N = 50
+
+    const { container, rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, N],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: String(N), follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    // show logs via form submit — ensure tail input set to N
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /Show logs/i }),
+      ).toBeInTheDocument(),
+    )
+    const tailInput = screen.getByDisplayValue('20')
+    fireEvent.change(tailInput, { target: { value: String(N) } })
+    const form = container.querySelector('form')
+    fireEvent.submit(form)
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Hide logs/i })).toBeInTheDocument(),
+    )
+
+    // push N messages and flush timers each time
+    for (let i = 0; i < N; i++) {
+      ws.__mock.lastMessage = { data: `msg-${i}` }
+      rerender(
+        <Suspense fallback={<div>loading</div>}>
+          <Provider
+            initialValues={[
+              [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+              [atoms.logsNumberOfLinesAtom, N],
+              [atoms.logsShowLogsAtom, true],
+              [atoms.logsConfigAtom, { serviceId: 's1', tail: String(N), follow: true }],
+            ]}
+          >
+            <LogsComponent />
+          </Provider>
+        </Suspense>,
+      )
+      act(() => jest.runOnlyPendingTimers())
+    }
+
+    // wait for the last message to appear
+    await waitFor(() => expect(screen.getByText(new RegExp(`msg-${N - 1}`))).toBeInTheDocument())
+
+    // assert that every message is present in the rendered output
+    for (let i = 0; i < N; i++) {
+      expect(screen.getByText(new RegExp(`msg-${i}`))).toBeInTheDocument()
+    }
+
+    jest.useRealTimers()
+  })
+
+  test('buffer capacity equals 2x lines and ingests up to 2x messages', async () => {
+    jest.useFakeTimers()
+    const ws = require('react-use-websocket')
+    if (!ws || !ws.__mock) {
+      jest.useRealTimers()
+      return
+    }
+
+    const N = 50
+    const M = 75 // 1.5 * N, less than 2*N capacity
+
+    const { container, rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, N],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: String(N), follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    // show logs
+    await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).toBeInTheDocument())
+    fireEvent.change(screen.getByDisplayValue('20'), { target: { value: String(N) } })
+    fireEvent.submit(container.querySelector('form'))
+    await waitFor(() => expect(screen.getByRole('button', { name: /Hide logs/i })).toBeInTheDocument())
+
+    for (let i = 0; i < M; i++) {
+      ws.__mock.lastMessage = { data: `msg-${i}` }
+      rerender(
+        <Suspense fallback={<div>loading</div>}>
+          <Provider
+            initialValues={[
+              [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+              [atoms.logsNumberOfLinesAtom, N],
+              [atoms.logsShowLogsAtom, true],
+              [atoms.logsConfigAtom, { serviceId: 's1', tail: String(N), follow: true }],
+            ]}
+          >
+            <LogsComponent />
+          </Provider>
+        </Suspense>,
+      )
+      act(() => jest.runOnlyPendingTimers())
+    }
+
+    // wait for last message
+    await waitFor(() => expect(screen.getByText(new RegExp(`msg-${M - 1}`))).toBeInTheDocument())
+
+    // ensure all M messages are present (buffer capacity should allow up to 2*N)
+    for (let i = 0; i < M; i++) {
+      expect(screen.getByText(new RegExp(`msg-${i}`))).toBeInTheDocument()
+    }
+
+    jest.useRealTimers()
+  })
+
+  test('shouldReconnect is memoized across rerenders and updates when deps change', async () => {
+    const ws = require('react-use-websocket')
+    if (!ws || !ws.__mock) return
+
+    const { rerender } = render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '20', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    expect(typeof ws.__mock.shouldReconnect).toBe('function')
+    const fn1 = ws.__mock.shouldReconnect
+
+    // rerender with identical deps -> function should be same (memoized)
+    rerender(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '20', follow: true }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+    expect(ws.__mock.shouldReconnect).toBe(fn1)
+
+    // change a dependency (follow false) -> shouldReconnect result should change
+    rerender(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+            [atoms.logsShowLogsAtom, true],
+            [atoms.logsConfigAtom, { serviceId: 's1', tail: '20', follow: false }],
+          ]}
+        >
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+    expect(ws.__mock.shouldReconnect()).toBeFalsy()
   })
 })
