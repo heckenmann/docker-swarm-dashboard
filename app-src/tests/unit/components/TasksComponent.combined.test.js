@@ -18,6 +18,8 @@ const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
 
+const modTasks = require('../../../src/components/TasksComponent')
+const TasksComponent = modTasks.TasksComponent || modTasks.default || modTasks
 
 describe('TasksComponent (combined)', () => {
   beforeEach(() => {

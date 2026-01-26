@@ -1,4 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+const modFilter = require('../../../src/components/FilterComponent')
+const FilterComponent = modFilter.FilterComponent || modFilter.default || modFilter
 
 // mock atoms module
 jest.mock('../../../src/common/store/atoms', () => ({

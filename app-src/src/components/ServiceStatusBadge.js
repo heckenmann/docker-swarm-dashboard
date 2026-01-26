@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { useAtomValue } from 'jotai'
 import { dashboardSettingsAtom } from '../common/store/atoms'
+import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 /**
  * Component to display a service status badge with optional tooltip information.

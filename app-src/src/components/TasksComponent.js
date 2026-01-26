@@ -1,32 +1,35 @@
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  tasksAtomNew,
+  tableSizeAtom,
   dashboardSettingsAtom,
   serviceNameFilterAtom,
-  filterTypeAtom,
   stackNameFilterAtom,
-  tableSizeAtom,
-  tasksAtomNew,
-  viewAtom,
 } from '../common/store/atoms'
+
+// Add missing UI and internal component imports
+import { Card, Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import ServiceStatusBadge from './ServiceStatusBadge'
+import { EntityName } from './names/EntityName'
+import { StackName } from './names/StackName'
+import { NodeName } from './names/NodeName'
+import { FilterComponent } from './FilterComponent'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks
  * in a table format.
  */
 function TasksComponent() {
-  const [, updateView] = useAtom(viewAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
-  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
-  const [, setFilterType] = useAtom(filterTypeAtom)
 
   const tasks = useAtomValue(tasksAtomNew)
   const rows = tasks
@@ -38,7 +41,10 @@ function TasksComponent() {
     )
     .map((task, id) => (
       <tr
-        key={'tasksTable-' + (task && task.ID ? String(task.ID) + `-${id}` : `index-${id}`)}
+        key={
+          'tasksTable-' +
+          (task && task.ID ? String(task.ID) + `-${id}` : `index-${id}`)
+        }
         className={task['State'] === 'failed' ? 'table-danger' : null}
       >
         <td>

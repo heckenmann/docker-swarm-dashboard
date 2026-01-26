@@ -1,6 +1,9 @@
 // Combined tests for PortsComponent
 import { render, screen, fireEvent } from '@testing-library/react'
 
+const modPorts = require('../../../src/components/PortsComponent')
+const PortsComponent = modPorts.PortsComponent || modPorts.default || modPorts
+
 jest.mock('../../../src/common/store/atoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
   currentVariantClassesAtom: 'currentVariantClassesAtom',
@@ -9,13 +12,11 @@ jest.mock('../../../src/common/store/atoms', () => ({
   stackNameFilterAtom: 'stackNameFilterAtom',
   filterTypeAtom: 'filterTypeAtom',
   portsAtom: 'portsAtom',
-  viewAtom: 'viewAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
-
 
 describe('PortsComponent (combined)', () => {
   beforeEach(() => {

@@ -19,14 +19,17 @@ module.exports = [
         process: "readonly",
       },
     },
-   plugins: { "unused-imports": require("eslint-plugin-unused-imports") },
+   plugins: { "unused-imports": require("eslint-plugin-unused-imports"), "react": require("eslint-plugin-react"), "prettier": require("eslint-plugin-prettier") },
     rules: {
       // keep a couple lightweight rules; expand later as needed
   "prefer-const": "error",
   "react-hooks/exhaustive-deps": "off",
-  "no-unused-vars": "error",
+  "no-unused-vars": ["error", { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }],
   "unused-imports/no-unused-imports": "error",
   "unused-imports/no-unused-vars": ["warn", { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }],
+  "react/jsx-uses-vars": "error",
+  // Enforce Prettier formatting via ESLint
+  "prettier/prettier": "error",
     },
   },
 ];

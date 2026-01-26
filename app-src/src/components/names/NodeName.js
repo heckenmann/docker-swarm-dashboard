@@ -1,3 +1,5 @@
+import { EntityName } from './EntityName'
+
 /**
  * NodeName
  * Thin wrapper around `EntityName` for node entities. By default nodes don't

@@ -45,7 +45,7 @@ describe('logsWebsocketUrlAtom extra branches', () => {
 			jest.doMock('jotai', () => ({ atom: (v) => v, useAtom: () => [] }))
 			jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
 			const { logsWebsocketUrlAtom } = require('../../../src/common/store/atoms')
-			const get = (a) => null
+			const get = () => null
 			const result = logsWebsocketUrlAtom(get)
 			expect(result).toBeNull()
 		})

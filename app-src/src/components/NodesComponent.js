@@ -1,13 +1,15 @@
-
-
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
   nodesAtomNew,
   tableSizeAtom,
-  viewAtom,
 } from '../common/store/atoms'
+
+// UI & internal imports
+import { Card, Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { NodeName } from './names/NodeName'
 
 /**
  * NodesComponent is a React functional component that renders a table of nodes.
@@ -17,7 +19,6 @@ import {
 function NodesComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const [, updateView] = useAtom(viewAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const trows = []
 

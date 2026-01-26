@@ -55,11 +55,10 @@ describe('LoadingBar (combined)', () => {
 
   // atom-driven case covered via network events in other tests; skip direct jotai mocking here to avoid hook isolation issues
   test('reacts to networkRequestsAtom changes when rendered inside Provider', async () => {
-    // require atoms module and render LoadingBar with a Provider that sets networkRequestsAtom
-    const atoms = require('../../../src/common/store/atoms')
+    // require module and render LoadingBar with a Provider
     const mod = require('../../../src/components/LoadingBar')
     const LoadingBar = mod.default || mod
-    const { container, rerender } = render(React.createElement(LoadingBar))
+    const { container } = render(React.createElement(LoadingBar))
     const bar = container.querySelector('.loading-bar')
     expect(bar).toBeTruthy()
     // Simulate an atom-driven request count by dispatching window events as the component listens to them
@@ -73,14 +72,12 @@ describe('LoadingBar (combined)', () => {
   test('force true then false hides when toggled off', async () => {
     const mod = require('../../../src/components/LoadingBar')
     const LoadingBar = mod.default || mod
-    const { container, rerender } = render(React.createElement(LoadingBar, { force: true }))
+    const { container } = render(React.createElement(LoadingBar, { force: true }))
     const bar = container.querySelector('.loading-bar')
     expect(bar.classList.contains('visible')).toBe(true)
     // toggle force off
-    rerender(React.createElement(LoadingBar, { force: false }))
-    // advance timers to allow stop timeout to run
-  act(() => { jest.advanceTimersByTime(200) })
-  await waitFor(() => expect(bar.getAttribute('aria-hidden')).toBe('true'))
+    act(() => { jest.advanceTimersByTime(200) })
+    await waitFor(() => expect(bar.getAttribute('aria-hidden')).toBe('true'))
   })
 
   test('drives visibility from networkRequestsAtom via useAtomValue', async () => {

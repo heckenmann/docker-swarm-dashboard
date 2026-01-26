@@ -4,10 +4,16 @@ import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
 import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
-import { dashboardHId, dashboardVId, servicesDetailId, nodesDetailId, tasksId } from '../navigationConstants'
+import {
+  dashboardHId,
+  dashboardVId,
+  servicesDetailId,
+  nodesDetailId,
+  tasksId,
+} from '../navigationConstants'
 
 // Initial values
-export function parseHashToObj(hashString, pathname) {
+export function parseHashToObj(hashString) {
   const hash = typeof hashString === 'string' ? hashString : ''
   const hashWithoutHash = hash.startsWith('#') ? hash.substring(1) : hash
   if (!hashWithoutHash) return {}
@@ -16,17 +22,17 @@ export function parseHashToObj(hashString, pathname) {
     .map((pair) => pair.split('='))
     .reduce((acc, [key, value]) => {
       try {
-  // Decode and remove surrounding or embedded quotes to normalize values
-  acc[key] = decodeURIComponent(value).replaceAll('"', '')
-      } catch (e) {
-  acc[key] = (value || '').replaceAll('"', '')
+        // Decode and remove surrounding or embedded quotes to normalize values
+        acc[key] = decodeURIComponent(value).replaceAll('"', '')
+      } catch {
+        acc[key] = (value || '').replaceAll('"', '')
       }
       return acc
     }, {})
 }
 
 // Initial parsed hash (computed from real window during module load)
-const parsedHash = parseHashToObj(window.location.hash, window.location.pathname)
+const parsedHash = parseHashToObj(window.location.hash)
 
 // Jotai-Atoms
 export const baseUrlAtom = atomWithHash(

@@ -54,7 +54,7 @@ describe('useEntityActions core', () => {
 
 describe('useEntityActions extra behaviors', () => {
   beforeEach(() => {
-    const useAtom = jest.requireActual('jotai').useAtom
+    const _useAtom = jest.requireActual('jotai').useAtom
     jest.doMock('jotai', () => ({ ...jest.requireActual('jotai'), useAtom: jest.fn() }))
   })
 

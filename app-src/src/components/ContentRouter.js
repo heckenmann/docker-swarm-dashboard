@@ -34,7 +34,6 @@ export function ContentRouter() {
 
   // Default Dashboard
   const idToRender = idToRenderInitial || defaultLayout
-  const viewMap = {}
   /**
    * A mapping of view IDs to their corresponding React components.
    * This is used to dynamically render the appropriate component

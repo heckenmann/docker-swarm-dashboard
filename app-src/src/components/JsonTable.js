@@ -1,6 +1,7 @@
 import { flatten } from '../common/utils'
 import { useAtomValue } from 'jotai'
 import { tableSizeAtom } from '../common/store/atoms'
+import { Table } from 'react-bootstrap'
 
 /**
  * Renders a table from a JSON object.
@@ -20,7 +21,7 @@ export function JsonTable(props) {
     } else if (typeof raw === 'object') {
       try {
         display = JSON.stringify(raw)
-      } catch (e) {
+      } catch {
         display = String(raw)
       }
     } else {

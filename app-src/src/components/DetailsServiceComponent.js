@@ -29,7 +29,9 @@ function DetailsServiceComponent() {
   // copy with coerced values for keys that may map to element attrs.
   const sanitizeAttrs = (obj) => {
     if (!obj || typeof obj !== 'object') return obj
-    const copy = Array.isArray(obj) ? obj.map((v) => sanitizeAttrs(v)) : { ...obj }
+    const copy = Array.isArray(obj)
+      ? obj.map((v) => sanitizeAttrs(v))
+      : { ...obj }
     Object.keys(copy).forEach((k) => {
       const v = copy[k]
       const lk = String(k).toLowerCase()
@@ -38,7 +40,7 @@ function DetailsServiceComponent() {
         else if (typeof v === 'object') {
           try {
             copy[k] = JSON.stringify(v)
-          } catch (e) {
+          } catch {
             copy[k] = String(v)
           }
         } else {
@@ -54,12 +56,14 @@ function DetailsServiceComponent() {
   const sanitizedService = sanitizeAttrs(currentService.service)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
+    <div
+      style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}
+    >
       <Card className={currentVariantClasses}>
         <Card.Header>
           <h5>
-            <FontAwesomeIcon icon="folder" /> Service "{currentService.service?.Spec?.Name}
-            "
+            <FontAwesomeIcon icon="folder" /> Service "
+            {currentService.service?.Spec?.Name}"
           </h5>
         </Card.Header>
         <Card.Body>
@@ -95,15 +99,34 @@ function DetailsServiceComponent() {
             </tr>
           </thead>
           <tbody>
-            {currentService.tasks && currentService.tasks.map((task, idx) => (
-              <tr key={(task && task.ID ? String(task.ID) : `task-idx-${idx}`) + `-${idx}`}>
-                <td><NodeName name={task.NodeName} id={task.NodeID} /></td>
-                <td><ServiceStatusBadge id={task.ID} serviceState={task.Status?.State || task.State} /></td>
-                <td>{task.DesiredState}</td>
-                <td>{toDefaultDateTimeString(task.CreatedAt || task.Timestamp)}</td>
-                <td>{toDefaultDateTimeString(task.UpdatedAt || task.CreatedAt || task.Timestamp)}</td>
-              </tr>
-            ))}
+            {currentService.tasks &&
+              currentService.tasks.map((task, idx) => (
+                <tr
+                  key={
+                    (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
+                    `-${idx}`
+                  }
+                >
+                  <td>
+                    <NodeName name={task.NodeName} id={task.NodeID} />
+                  </td>
+                  <td>
+                    <ServiceStatusBadge
+                      id={task.ID}
+                      serviceState={task.Status?.State || task.State}
+                    />
+                  </td>
+                  <td>{task.DesiredState}</td>
+                  <td>
+                    {toDefaultDateTimeString(task.CreatedAt || task.Timestamp)}
+                  </td>
+                  <td>
+                    {toDefaultDateTimeString(
+                      task.UpdatedAt || task.CreatedAt || task.Timestamp,
+                    )}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </Table>
       </Card>
