@@ -17,8 +17,19 @@ describe('getStyleClassForState', () => {
   })
 
   test('returns warning for transitional states', () => {
-    const transitional = ['new','ready','pending','preparing','starting','assigned','accepted','remove']
-    transitional.forEach((s) => expect(getStyleClassForState(s)).toBe('warning'))
+    const transitional = [
+      'new',
+      'ready',
+      'pending',
+      'preparing',
+      'starting',
+      'assigned',
+      'accepted',
+      'remove',
+    ]
+    transitional.forEach((s) =>
+      expect(getStyleClassForState(s)).toBe('warning'),
+    )
   })
 
   test('returns secondary for unknown states', () => {

@@ -1,4 +1,7 @@
-import { RefreshIntervalToggleReducer, MessageReducer } from '../../../src/common/store/reducers'
+import {
+  RefreshIntervalToggleReducer,
+  MessageReducer,
+} from '../../../src/common/store/reducers'
 
 test('RefreshIntervalToggleReducer toggles between null and 3000', () => {
   expect(RefreshIntervalToggleReducer(null)).toBe(3000)

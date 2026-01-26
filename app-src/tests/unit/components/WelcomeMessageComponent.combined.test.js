@@ -18,19 +18,33 @@ describe('WelcomeMessageComponent (combined)', () => {
         useAtomValue: (a) => a,
       }))
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, children, contentClassName }) => (show ? React.createElement('div', { className: contentClassName || '' }, children) : null)
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, children, contentClassName }) =>
+          show
+            ? React.createElement(
+                'div',
+                { className: contentClassName || '' },
+                children,
+              )
+            : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ onClick, children }) => React.createElement('button', { onClick }, children)
+        const Button = ({ onClick, children }) =>
+          React.createElement('button', { onClick }, children)
         return { Modal, Button }
       })
-      jest.doMock('@fortawesome/react-fontawesome', () => ({ FontAwesomeIcon: () => React.createElement('span', null, 'ICON') }))
+      jest.doMock('@fortawesome/react-fontawesome', () => ({
+        FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
+      }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
@@ -42,22 +56,43 @@ describe('WelcomeMessageComponent (combined)', () => {
   test('modal Close does not throw and respects show flag', () => {
     jest.isolateModules(() => {
       // happy path modal with close
-      jest.doMock('../../../src/common/store/atoms', () => ({ showWelcomeMessageAtom: true, dashboardSettingsAtom: { welcomeMessage: 'hi' }, currentVariantClassesAtom: 'cls' }))
-      jest.doMock('jotai', () => ({ useAtom: (a) => [a, jest.fn()], useAtomValue: (a) => a }))
+      jest.doMock('../../../src/common/store/atoms', () => ({
+        showWelcomeMessageAtom: true,
+        dashboardSettingsAtom: { welcomeMessage: 'hi' },
+        currentVariantClassesAtom: 'cls',
+      }))
+      jest.doMock('jotai', () => ({
+        useAtom: (a) => [a, jest.fn()],
+        useAtomValue: (a) => a,
+      }))
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, children, contentClassName }) => (show ? React.createElement('div', { className: contentClassName || '' }, children) : null)
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, children, contentClassName }) =>
+          show
+            ? React.createElement(
+                'div',
+                { className: contentClassName || '' },
+                children,
+              )
+            : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ onClick, children }) => React.createElement('button', { onClick }, children)
+        const Button = ({ onClick, children }) =>
+          React.createElement('button', { onClick }, children)
         return { Modal, Button }
       })
-      jest.doMock('@fortawesome/react-fontawesome', () => ({ FontAwesomeIcon: () => React.createElement('span', null, 'ICON') }))
+      jest.doMock('@fortawesome/react-fontawesome', () => ({
+        FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
+      }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
@@ -72,22 +107,39 @@ describe('WelcomeMessageComponent (combined)', () => {
   test('onHide prop calls setShowWelcomeMessage(false)', () => {
     jest.isolateModules(() => {
       const mockSet = jest.fn()
-      jest.doMock('../../../src/common/store/atoms', () => ({ showWelcomeMessageAtom: true, dashboardSettingsAtom: { welcomeMessage: 'hide-me' }, currentVariantClassesAtom: 'cls' }))
-      jest.doMock('jotai', () => ({ useAtom: () => [true, mockSet], useAtomValue: (a) => a }))
+      jest.doMock('../../../src/common/store/atoms', () => ({
+        showWelcomeMessageAtom: true,
+        dashboardSettingsAtom: { welcomeMessage: 'hide-me' },
+        currentVariantClassesAtom: 'cls',
+      }))
+      jest.doMock('jotai', () => ({
+        useAtom: () => [true, mockSet],
+        useAtomValue: (a) => a,
+      }))
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, onHide, children }) => (show ? React.createElement('div', { onClick: onHide }, children) : null)
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, onHide, children }) =>
+          show
+            ? React.createElement('div', { onClick: onHide }, children)
+            : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ children }) => React.createElement('button', null, children)
+        const Button = ({ children }) =>
+          React.createElement('button', null, children)
         return { Modal, Button }
       })
-      jest.doMock('@fortawesome/react-fontawesome', () => ({ FontAwesomeIcon: () => React.createElement('span', null, 'ICON') }))
+      jest.doMock('@fortawesome/react-fontawesome', () => ({
+        FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
+      }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
@@ -101,22 +153,37 @@ describe('WelcomeMessageComponent (combined)', () => {
   test('does not render when show is false or welcomeMessage missing', () => {
     jest.isolateModules(() => {
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, children }) => (show ? React.createElement('div', null, children) : null)
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, children }) =>
+          show ? React.createElement('div', null, children) : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ children }) => React.createElement('button', null, children)
+        const Button = ({ children }) =>
+          React.createElement('button', null, children)
         return { Modal, Button }
       })
 
       const mockSet = jest.fn()
-      jest.doMock('jotai', () => ({ atom: (v) => v, useAtom: () => [false, mockSet], useAtomValue: () => ({ welcomeMessage: 'x' }) }))
-      jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a, atomWithHash: (k, def) => def }))
+      jest.doMock('jotai', () => ({
+        atom: (v) => v,
+        useAtom: () => [false, mockSet],
+        useAtomValue: () => ({ welcomeMessage: 'x' }),
+      }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
@@ -127,22 +194,37 @@ describe('WelcomeMessageComponent (combined)', () => {
 
     jest.isolateModules(() => {
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, children }) => (show ? React.createElement('div', null, children) : null)
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, children }) =>
+          show ? React.createElement('div', null, children) : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ children }) => React.createElement('button', null, children)
+        const Button = ({ children }) =>
+          React.createElement('button', null, children)
         return { Modal, Button }
       })
 
       const mockSet = jest.fn()
-      jest.doMock('jotai', () => ({ atom: (v) => v, useAtom: () => [true, mockSet], useAtomValue: () => ({}) }))
-      jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a, atomWithHash: (k, def) => def }))
+      jest.doMock('jotai', () => ({
+        atom: (v) => v,
+        useAtom: () => [true, mockSet],
+        useAtomValue: () => ({}),
+      }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
@@ -155,22 +237,46 @@ describe('WelcomeMessageComponent (combined)', () => {
   test('applies contentClassName from currentVariantClassesAtom', () => {
     jest.isolateModules(() => {
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, contentClassName, children }) => show ? React.createElement('div', { className: contentClassName || '' }, children) : null
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, contentClassName, children }) =>
+          show
+            ? React.createElement(
+                'div',
+                { className: contentClassName || '' },
+                children,
+              )
+            : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ children }) => React.createElement('button', null, children)
+        const Button = ({ children }) =>
+          React.createElement('button', null, children)
         return { Modal, Button }
       })
 
-      jest.doMock('../../../src/common/store/atoms', () => ({ showWelcomeMessageAtom: true, dashboardSettingsAtom: { welcomeMessage: 'hello' }, currentVariantClassesAtom: 'my-variant' }))
-      jest.doMock('jotai', () => ({ useAtom: (a) => [a, jest.fn()], useAtomValue: (a) => a }))
-      jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a, atomWithHash: (k, def) => def }))
+      jest.doMock('../../../src/common/store/atoms', () => ({
+        showWelcomeMessageAtom: true,
+        dashboardSettingsAtom: { welcomeMessage: 'hello' },
+        currentVariantClassesAtom: 'my-variant',
+      }))
+      jest.doMock('jotai', () => ({
+        useAtom: (a) => [a, jest.fn()],
+        useAtomValue: (a) => a,
+      }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
@@ -178,28 +284,48 @@ describe('WelcomeMessageComponent (combined)', () => {
       const { container } = render(React.createElement(Comp))
       expect(container.querySelector('.my-variant')).toBeTruthy()
     })
-
   })
 
   test('Close button calls setShowWelcomeMessage(false)', () => {
     jest.isolateModules(() => {
       const mockSet = jest.fn()
-      jest.doMock('../../../src/common/store/atoms', () => ({ showWelcomeMessageAtom: true, dashboardSettingsAtom: { welcomeMessage: 'bye' }, currentVariantClassesAtom: 'cls' }))
-      jest.doMock('jotai', () => ({ useAtom: () => [true, mockSet], useAtomValue: (a) => a }))
+      jest.doMock('../../../src/common/store/atoms', () => ({
+        showWelcomeMessageAtom: true,
+        dashboardSettingsAtom: { welcomeMessage: 'bye' },
+        currentVariantClassesAtom: 'cls',
+      }))
+      jest.doMock('jotai', () => ({
+        useAtom: () => [true, mockSet],
+        useAtomValue: (a) => a,
+      }))
       jest.doMock('react-bootstrap', () => {
-        const Modal = ({ show, children, contentClassName }) => (show ? React.createElement('div', { className: contentClassName || '' }, children) : null)
-        const Header = ({ children }) => React.createElement('div', null, children)
-        const Title = ({ children }) => React.createElement('div', null, children)
-        const Body = ({ children }) => React.createElement('div', null, children)
-        const Footer = ({ children }) => React.createElement('div', null, children)
+        const Modal = ({ show, children, contentClassName }) =>
+          show
+            ? React.createElement(
+                'div',
+                { className: contentClassName || '' },
+                children,
+              )
+            : null
+        const Header = ({ children }) =>
+          React.createElement('div', null, children)
+        const Title = ({ children }) =>
+          React.createElement('div', null, children)
+        const Body = ({ children }) =>
+          React.createElement('div', null, children)
+        const Footer = ({ children }) =>
+          React.createElement('div', null, children)
         Modal.Header = Header
         Modal.Title = Title
         Modal.Body = Body
         Modal.Footer = Footer
-        const Button = ({ onClick, children }) => React.createElement('button', { onClick }, children)
+        const Button = ({ onClick, children }) =>
+          React.createElement('button', { onClick }, children)
         return { Modal, Button }
       })
-      jest.doMock('@fortawesome/react-fontawesome', () => ({ FontAwesomeIcon: () => React.createElement('span', null, 'ICON') }))
+      jest.doMock('@fortawesome/react-fontawesome', () => ({
+        FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
+      }))
 
       const mod = require('../../../src/components/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
@@ -207,6 +333,6 @@ describe('WelcomeMessageComponent (combined)', () => {
       const btn = screen.getByText(/Close/i)
       fireEvent.click(btn)
       expect(mockSet).toHaveBeenCalledWith(false)
+    })
   })
-})
 })

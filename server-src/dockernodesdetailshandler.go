@@ -36,14 +36,12 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		sort.Slice(Tasks, func(i, j int) bool {
 			return Tasks[i].UpdatedAt.After(Tasks[j].UpdatedAt)
 		})
-		// For compatibility with tests that expect the node object at top-level,
-		// merge node fields into the top-level response and include tasks.
-		var response map[string]interface{}
-		// marshal then unmarshal node to generic map
-		nodeBytes, _ := json.Marshal(Services[0])
-		json.Unmarshal(nodeBytes, &response)
-		response["tasks"] = Tasks
-		jsonString, _ := json.Marshal(response)
+		// Return same shape as mock server: { node, tasks }
+		resp := map[string]interface{}{
+			"node":  Services[0],
+			"tasks": Tasks,
+		}
+		jsonString, _ := json.Marshal(resp)
 		w.Write(jsonString)
 	} else {
 		w.Write([]byte("{}"))
