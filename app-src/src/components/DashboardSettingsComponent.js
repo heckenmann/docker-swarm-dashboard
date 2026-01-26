@@ -1,6 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
-import { Button, ButtonGroup, Col, Form, Row } from 'react-bootstrap'
 import { dashboardHId, dashboardVId } from '../common/navigationConstants'
 import {
   currentVariantAtom,
@@ -8,6 +6,8 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtomValue } from 'jotai'
+import { Row, Col, Form, ButtonGroup, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FilterComponent } from './FilterComponent'
 
 /**

@@ -1,13 +1,5 @@
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  Container,
-  Nav,
-  Navbar,
-} from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logo from '../files/docker.png'
+import ReactInterval from 'react-interval'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 import {
   currentVariantAtom,
@@ -16,14 +8,20 @@ import {
   isDarkModeAtom,
   logsConfigAtom,
   logsShowLogsAtom,
-  messagesAtom,
   refreshIntervalAtom,
   versionAtom,
   viewAtom,
 } from '../common/store/atoms'
-import ReactInterval from 'react-interval'
 import { useAtom, useAtomValue } from 'jotai'
-import LoadingBar from './LoadingBar'
+import {
+  Navbar,
+  Nav,
+  Badge,
+  Container,
+  ButtonGroup,
+  Button,
+} from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   aboutId,
   dashboardHId,
@@ -60,7 +58,7 @@ function DashboardNavbar() {
   else document.body.classList.remove('bg-dark')
 
   const reloadData = () => {
-    updateView({ ...view, timestamp: new Date() })
+    updateView((prev) => ({ ...prev, timestamp: new Date() }))
   }
 
   /**
@@ -100,7 +98,9 @@ function DashboardNavbar() {
         <Container fluid>
           <Navbar.Brand
             className="cursorPointer"
-            onClick={() => updateView({ id: defaultLayout })}
+            onClick={() =>
+              updateView((prev) => ({ ...prev, id: defaultLayout }))
+            }
           >
             <img
               alt="logo"
@@ -116,7 +116,9 @@ function DashboardNavbar() {
           <Navbar.Collapse id="responsive-navbar-left">
             <Nav className="mr-auto">
               <Nav.Link
-                onClick={() => updateView({ id: defaultLayout })}
+                onClick={() =>
+                  updateView((prev) => ({ ...prev, id: defaultLayout }))
+                }
                 active={view?.id === defaultLayout}
               >
                 <FontAwesomeIcon
@@ -127,38 +129,44 @@ function DashboardNavbar() {
                 &nbsp;Dashboard
               </Nav.Link>
               <Nav.Link
-                onClick={() => updateView({ id: timelineId })}
+                onClick={() =>
+                  updateView((prev) => ({ ...prev, id: timelineId }))
+                }
                 active={view?.id === timelineId}
               >
                 <FontAwesomeIcon icon="timeline" /> Timeline
               </Nav.Link>
               <Nav.Link
-                onClick={() => updateView({ id: stacksId })}
+                onClick={() =>
+                  updateView((prev) => ({ ...prev, id: stacksId }))
+                }
                 active={view?.id === stacksId}
               >
                 <FontAwesomeIcon icon="cubes" /> Stacks
               </Nav.Link>
               <Nav.Link
-                onClick={() => updateView({ id: nodesId })}
+                onClick={() => updateView((prev) => ({ ...prev, id: nodesId }))}
                 active={view?.id === nodesId}
               >
                 <FontAwesomeIcon icon="server" /> Nodes
               </Nav.Link>
               <Nav.Link
-                onClick={() => updateView({ id: tasksId })}
+                onClick={() => updateView((prev) => ({ ...prev, id: tasksId }))}
                 active={view?.id === tasksId}
               >
                 <FontAwesomeIcon icon="tasks" /> Tasks
               </Nav.Link>
               <Nav.Link
-                onClick={() => updateView({ id: portsId })}
+                onClick={() => updateView((prev) => ({ ...prev, id: portsId }))}
                 active={view?.id === portsId}
               >
                 <FontAwesomeIcon icon="building" /> Ports
               </Nav.Link>
               {dashboardSettings.showLogsButton && (
                 <Nav.Link
-                  onClick={() => updateView({ id: logsId })}
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: logsId }))
+                  }
                   active={view?.id === logsId}
                   className="warning"
                 >
@@ -174,13 +182,15 @@ function DashboardNavbar() {
           >
             <Nav>
               <Nav.Link
-                onClick={() => updateView({ id: aboutId })}
+                onClick={() => updateView((prev) => ({ ...prev, id: aboutId }))}
                 active={view?.id === aboutId}
               >
                 <FontAwesomeIcon icon="info-circle" /> About
               </Nav.Link>
               <Nav.Link
-                onClick={() => updateView({ id: settingsId })}
+                onClick={() =>
+                  updateView((prev) => ({ ...prev, id: settingsId }))
+                }
                 active={view?.id === settingsId}
               >
                 <FontAwesomeIcon icon="gear" /> Settings
@@ -200,7 +210,9 @@ function DashboardNavbar() {
                     ? 'info'
                     : 'secondary'
                 }
-                onClick={() => updateView({ id: versionUpdateId })}
+                onClick={() =>
+                  updateView((prev) => ({ ...prev, id: versionUpdateId }))
+                }
               >
                 <FontAwesomeIcon icon="cloud-download-alt" />
               </Button>
