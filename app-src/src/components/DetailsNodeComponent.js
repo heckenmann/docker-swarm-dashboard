@@ -32,7 +32,9 @@ function DetailsNodeComponent() {
   // Only use the attached Service object on tasks. No fallback to legacy fields.
   const taskServiceName = (task) => {
     if (!task || !task.Service) return null
-    return task.Service?.Spec?.Name || task.Service?.Spec?.Annotations?.Name || null
+    return (
+      task.Service?.Spec?.Name || task.Service?.Spec?.Annotations?.Name || null
+    )
   }
 
   const taskServiceId = (task) => {
@@ -94,7 +96,10 @@ function DetailsNodeComponent() {
                   }
                 >
                   <td>
-                    <ServiceName name={taskServiceName(task)} id={taskServiceId(task)} />
+                    <ServiceName
+                      name={taskServiceName(task)}
+                      id={taskServiceId(task)}
+                    />
                   </td>
                   <td>
                     <ServiceStatusBadge
