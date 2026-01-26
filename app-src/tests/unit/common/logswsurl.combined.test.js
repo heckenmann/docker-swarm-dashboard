@@ -33,43 +33,58 @@ describe('logsWebsocketUrlAtom', () => {
 	})
 })
 
-// Extra branches
-jest.mock('jotai', () => ({ atom: (v) => v, useAtom: () => [] }))
-jest.mock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
-
-const { logsWebsocketUrlAtom, logsConfigAtom, baseUrlAtom } = require('../../../src/common/store/atoms')
+// Extra branches: these tests need a different mock for 'jotai' so we set that
+// mock at runtime inside each test via jest.doMock and jest.isolateModules to
+// avoid hoisting conflicts with the file-level mocks above.
 
 describe('logsWebsocketUrlAtom extra branches', () => {
+	afterEach(() => jest.resetModules())
+
 	test('returns null when logsConfig is falsy', () => {
-		const get = (a) => null
-		const result = logsWebsocketUrlAtom(get)
-		expect(result).toBeNull()
+		jest.isolateModules(() => {
+			jest.doMock('jotai', () => ({ atom: (v) => v, useAtom: () => [] }))
+			jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
+			const { logsWebsocketUrlAtom } = require('../../../src/common/store/atoms')
+			const get = (a) => null
+			const result = logsWebsocketUrlAtom(get)
+			expect(result).toBeNull()
+		})
 	})
 
 	test('builds ws url for relative base path', () => {
-		const fakeConfig = { serviceId: 'svc1', tail: '10', since: '0', follow: 'true', timestamps: 'true', stdout: '1', stderr: '0', details: '1' }
-		const get = (a) => {
-			if (a === logsConfigAtom) return fakeConfig
-			if (a === baseUrlAtom) return '/my/base'
-			return null
-		}
-		// Provide window globals expected by the atom when relative baseUrl
-		global.window = { location: { protocol: 'http:', host: 'example.com' } }
-		const url = logsWebsocketUrlAtom(get)
-		// host may vary in the test runner environment; assert ws scheme and path
-		expect(url).toContain('ws://')
-		expect(url).toContain('/my/base/docker/logs/svc1')
+		jest.isolateModules(() => {
+			jest.doMock('jotai', () => ({ atom: (v) => v, useAtom: () => [] }))
+			jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
+			const { logsWebsocketUrlAtom, logsConfigAtom, baseUrlAtom } = require('../../../src/common/store/atoms')
+			const fakeConfig = { serviceId: 'svc1', tail: '10', since: '0', follow: 'true', timestamps: 'true', stdout: '1', stderr: '0', details: '1' }
+			const get = (a) => {
+				if (a === logsConfigAtom) return fakeConfig
+				if (a === baseUrlAtom) return '/my/base'
+				return null
+			}
+			// Provide window globals expected by the atom when relative baseUrl
+			global.window = { location: { protocol: 'http:', host: 'example.com' } }
+			const url = logsWebsocketUrlAtom(get)
+			// host may vary in the test runner environment; assert ws scheme and path
+			expect(url).toContain('ws://')
+			expect(url).toContain('/my/base/docker/logs/svc1')
+		})
 	})
 
 	test('builds ws url for absolute base url', () => {
-		const fakeConfig = { serviceId: 'svc2', tail: '5', since: '1', follow: 'false', timestamps: 'false', stdout: '1', stderr: '1', details: '0' }
-		const get = (a) => {
-			if (a === logsConfigAtom) return fakeConfig
-			if (a === baseUrlAtom) return 'http://downstream.example/path'
-			return null
-		}
-		const url = logsWebsocketUrlAtom(get)
-		expect(url).toContain('ws://downstream.example')
-		expect(url).toContain('/path/docker/logs/svc2')
+		jest.isolateModules(() => {
+			jest.doMock('jotai', () => ({ atom: (v) => v, useAtom: () => [] }))
+			jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
+			const { logsWebsocketUrlAtom, logsConfigAtom, baseUrlAtom } = require('../../../src/common/store/atoms')
+			const fakeConfig = { serviceId: 'svc2', tail: '5', since: '1', follow: 'false', timestamps: 'false', stdout: '1', stderr: '1', details: '0' }
+			const get = (a) => {
+				if (a === logsConfigAtom) return fakeConfig
+				if (a === baseUrlAtom) return 'http://downstream.example/path'
+				return null
+			}
+			const url = logsWebsocketUrlAtom(get)
+			expect(url).toContain('ws://downstream.example')
+			expect(url).toContain('/path/docker/logs/svc2')
+		})
 	})
 })
