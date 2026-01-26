@@ -1,5 +1,4 @@
 // Combined tests for PortsComponent
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 
 jest.mock('../../../src/common/store/atoms', () => ({
@@ -17,7 +16,6 @@ const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
 
-import { PortsComponent } from '../../../src/components/PortsComponent'
 
 describe('PortsComponent (combined)', () => {
   beforeEach(() => {

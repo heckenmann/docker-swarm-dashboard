@@ -1,12 +1,5 @@
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  Container,
-  Nav,
-  Navbar,
-} from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+
 import logo from '../files/docker.png'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 import {
@@ -16,14 +9,11 @@ import {
   isDarkModeAtom,
   logsConfigAtom,
   logsShowLogsAtom,
-  messagesAtom,
   refreshIntervalAtom,
   versionAtom,
   viewAtom,
 } from '../common/store/atoms'
-import ReactInterval from 'react-interval'
 import { useAtom, useAtomValue } from 'jotai'
-import LoadingBar from './LoadingBar'
 import {
   aboutId,
   dashboardHId,

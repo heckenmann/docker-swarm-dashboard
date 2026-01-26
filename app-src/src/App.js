@@ -8,19 +8,11 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 // Provider is intentionally omitted here; the app-level Provider with a
 // dedicated store is created in `index.js` so components read from that
 // single store instance.
-import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { isDarkModeAtom } from './common/store/atoms'
-import { Container } from 'react-bootstrap'
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript'
 import './App.css'
-import { ContentRouter } from './components/ContentRouter'
-import { DashboardNavbar } from './components/DashboardNavbar'
-import LoadingComponent from './components/LoadingComponent'
-import { ErrorBoundary } from './common/ErrorBoundary'
-import bg from './files/docker.png'
-import { WelcomeMessageComponent } from './components/WelcomeMessageComponent'
 
 library.add(fab, fas, far)
 

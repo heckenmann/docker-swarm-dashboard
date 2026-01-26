@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, Form, InputGroup } from 'react-bootstrap'
+import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   currentVariantAtom,

@@ -1,5 +1,3 @@
-import { Card, Table, Button } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
@@ -11,10 +9,6 @@ import {
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
-import { servicesDetailId } from '../common/navigationConstants'
-import { FilterComponent } from './FilterComponent'
-import { EntityName } from './names/EntityName'
-import { StackName } from './names/StackName'
 
 /**
  * PortsComponent is a React functional component that renders a table of port mappings.
