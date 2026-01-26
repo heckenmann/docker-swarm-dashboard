@@ -1,5 +1,4 @@
 import { useAtomValue } from 'jotai'
-import { Card } from 'react-bootstrap'
 import {
   currentSyntaxHighlighterStyleAtom,
   currentVariantAtom,
@@ -13,7 +12,6 @@ import {
   tasksAtomNew,
   versionAtom,
 } from '../common/store/atoms'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 
 /**
  * DebugComponent is a React functional component that displays debugging information.

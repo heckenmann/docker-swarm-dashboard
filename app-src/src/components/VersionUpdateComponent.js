@@ -1,11 +1,11 @@
 import { useAtomValue } from 'jotai'
-import { Card } from 'react-bootstrap'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
   dashboardSettingsAtom,
   versionAtom,
 } from '../common/store/atoms'
+import { Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function VersionUpdateComponent() {

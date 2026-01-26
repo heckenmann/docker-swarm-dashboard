@@ -1,7 +1,3 @@
-import React, { useState } from 'react'
-import { Badge, Button, Table, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 import {
   currentVariantAtom,
   dashboardHAtom,
@@ -14,21 +10,20 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { nodesDetailId, servicesDetailId } from '../common/navigationConstants'
-import ServiceStatusBadge from './ServiceStatusBadge'
-import { EntityName } from './names/EntityName'
+import { servicesDetailId } from '../common/navigationConstants'
+import { serviceFilter } from '../common/utils'
+import { Table, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
-import { serviceFilter } from '../common/utils'
+import ServiceStatusBadge from './ServiceStatusBadge'
+import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 
 /**
  * DashboardComponent
  * Renders the main horizontal dashboard table showing nodes and services.
- * It reads dashboard data from Jotai atoms and provides filtering and navigation
- * controls for services and nodes. Intended to be used as the primary landing
- * view for the application.
- *
- * @returns {JSX.Element} The dashboard table element.
+ * Keys are defensive: coerced to string with fallbacks to avoid duplicate or
+ * [object Object] keys when mock data is malformed.
  */
 function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
@@ -44,14 +39,12 @@ function DashboardComponent() {
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const [, updateView] = useAtom(viewAtom)
 
-  const [shifted, setShifted] = useState(new Set())
-
   const theads = []
   const trows = []
 
-  const dashboardhData = useAtomValue(dashboardHAtom)
-  const services = dashboardhData['Services']
-  const nodes = dashboardhData['Nodes']
+  const dashboardhData = useAtomValue(dashboardHAtom) || {}
+  const services = dashboardhData['Services'] || []
+  const nodes = dashboardhData['Nodes'] || []
 
   // Columns
   const visibleServices = services.filter((service) =>
@@ -63,7 +56,12 @@ function DashboardComponent() {
     id: service.ID,
     name: service.Name || service['Name'],
     style: { width: '120px', minWidth: '120px' },
-    onClick: () => updateView({ id: servicesDetailId, detail: service.ID }),
+    onClick: () =>
+      updateView((prev) => ({
+        ...prev,
+        id: servicesDetailId,
+        detail: service.ID,
+      })),
     key: `dashboardTable-${service.ID}`,
     index: idx,
   }))
@@ -73,50 +71,26 @@ function DashboardComponent() {
     serviceHeaders.map((h) => [h.id, h.index]),
   )
 
-  // fixed widths (percent) for important columns; the remainder is distributed to service columns
-  const fixedWidths = {
-    // node will use a fixed pixel width (250px)
-    node: 0,
-    // role and ip use fixed pixel widths (120px)
-    role: 0,
-    // state and availability will use fixed pixel widths (120px) instead of percent
-    state: 0,
-    availability: 0,
-    ip: 0,
-    trailing: 4,
-  }
-  const fixedTotal = Object.values(fixedWidths).reduce((a, b) => a + b, 0)
-  const remaining = Math.max(0, 100 - fixedTotal)
-  const serviceColPercent =
-    visibleServices.length > 0 ? remaining / visibleServices.length : remaining
-  const nodeWidth = fixedWidths.node
-  const roleWidth = fixedWidths.role
-  const stateWidth = fixedWidths.state
-  const availabilityWidth = fixedWidths.availability
-  const ipWidth = fixedWidths.ip
-  const trailingWidth = fixedWidths.trailing
-
-  services
-    .filter((service) =>
-      serviceFilter(service, serviceNameFilter, stackNameFilter),
+  visibleServices.forEach((service) => {
+    theads.push(
+      <div
+        key={
+          'dashboardTable-' +
+          (service && service.ID ? String(service.ID) : 'svc-unknown')
+        }
+        className="dataCol"
+        style={{ width: '120px', minWidth: '120px' }}
+      >
+        <ServiceName
+          name={service['Name']}
+          id={service.ID}
+          useOverlay={true}
+          tooltipText={service['Name']}
+          nameClass="text-ellipsis d-inline-block"
+        />
+      </div>,
     )
-    .forEach((service) => {
-      theads.push(
-        <div
-          key={'dashboardTable-' + service['ID']}
-          className="dataCol"
-          style={{ width: '120px', minWidth: '120px' }}
-        >
-          <ServiceName
-            name={service['Name']}
-            id={service.ID}
-            useOverlay={true}
-            tooltipText={service['Name']}
-            nameClass="text-ellipsis d-inline-block"
-          />
-        </div>,
-      )
-    })
+  })
   theads.push(<th key="dashboardTable-empty"></th>)
 
   nodes.forEach((node) => {
@@ -124,32 +98,54 @@ function DashboardComponent() {
     for (let s = 0; s < visibleServices.length; s++) {
       const service = visibleServices[s]
       const idx = serviceIndexMap[service.ID]
-      const key = 'td' + node['ID'] + service['ID']
+
+      const tdKey =
+        'td-' +
+        (node && node.ID ? String(node.ID) : `node-unknown`) +
+        '-' +
+        (service && service.ID ? String(service.ID) : `service-unknown`)
 
       dataCols.push(
         <td
           className={`align-middle svc-index-${idx}`}
-          key={key}
+          key={tdKey}
           style={{ width: '120px', minWidth: '120px' }}
         >
-          {node['Tasks'][service['ID']] && (
+          {node['Tasks'] && node['Tasks'][service['ID']] && (
             <ul>
               {node['Tasks'][service['ID']].map((task, id) => (
                 <li
                   key={
-                    'li' +
-                    task['NodeID'] +
-                    task['ServiceID'] +
-                    task['ID'] +
-                    task['Status']
+                    'li-' +
+                    (task && task.NodeID
+                      ? String(task.NodeID)
+                      : `node-idx-${id}`) +
+                    '-' +
+                    (task && task.ServiceID
+                      ? String(task.ServiceID)
+                      : `svc-idx-${id}`) +
+                    '-' +
+                    // include the map index to guarantee uniqueness even if ID repeats
+                    (task && task.ID
+                      ? String(task.ID) + `-${id}`
+                      : `task-idx-${id}`) +
+                    '-' +
+                    // prefer a primitive status marker; fall back to index
+                    (task && task.Status
+                      ? String(
+                          task.Status?.Timestamp ??
+                            task.Status?.State ??
+                            `status-idx-${id}`,
+                        )
+                      : `status-idx-${id}`)
                   }
                 >
                   <ServiceStatusBadge
                     id={id}
-                    serviceState={task['Status']['State']}
-                    createdAt={task['CreatedAt']}
-                    updatedAt={task['UpdatedAt']}
-                    serviceError={task['Status']['Err']}
+                    serviceState={task?.Status?.State}
+                    createdAt={task?.CreatedAt}
+                    updatedAt={task?.UpdatedAt}
+                    serviceError={task?.Status?.Err}
                     hiddenStates={dashboardSettings.hiddenServiceStates}
                   />
                 </li>
@@ -162,7 +158,7 @@ function DashboardComponent() {
 
     trows.push(
       <tr
-        key={'tr' + node['ID']}
+        key={'tr-' + (node && node.ID ? String(node.ID) : `node-unknown`)}
         className={node['StatusState'] === 'ready' ? null : 'danger'}
       >
         <td
@@ -288,7 +284,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                     style={h.style}
                   >
                     <span className="service-name-text" title={h.name}>
@@ -302,7 +298,11 @@ function DashboardComponent() {
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            updateView({ id: servicesDetailId, detail: h.id })
+                            updateView((prev) => ({
+                              ...prev,
+                              id: servicesDetailId,
+                              detail: h.id,
+                            }))
                           }}
                         >
                           <FontAwesomeIcon icon="search" />
@@ -338,7 +338,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                     style={h.style}
                   >
                     <span className="service-name-text" title={h.name}>
@@ -352,7 +352,11 @@ function DashboardComponent() {
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            updateView({ id: servicesDetailId, detail: h.id })
+                            updateView((prev) => ({
+                              ...prev,
+                              id: servicesDetailId,
+                              detail: h.id,
+                            }))
                           }}
                         >
                           <FontAwesomeIcon icon="search" />
@@ -388,7 +392,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2 ${shifted.has(h.index) ? 'header-shift' : ''}`}
+                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                     style={h.style}
                   >
                     <span className="service-name-text" title={h.name}>
@@ -402,7 +406,11 @@ function DashboardComponent() {
                           title={`Open service: ${h.name}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            updateView({ id: servicesDetailId, detail: h.id })
+                            updateView((prev) => ({
+                              ...prev,
+                              id: servicesDetailId,
+                              detail: h.id,
+                            }))
                           }}
                         >
                           <FontAwesomeIcon icon="search" />

@@ -1,0 +1,38 @@
+name: Lint - app-src
+
+on:
+  push:
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-app-src:
+    name: Lint frontend (app-src)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Cache node modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.yarn/cache
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies (app-src)
+        working-directory: ./app-src
+        run: yarn install --frozen-lockfile
+
+      - name: Run ESLint (app-src)
+        working-directory: ./app-src
+        run: yarn lint --max-warnings 0

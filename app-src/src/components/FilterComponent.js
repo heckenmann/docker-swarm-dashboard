@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, Form, InputGroup } from 'react-bootstrap'
+import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
@@ -8,6 +6,10 @@ import {
   stackNameFilterAtom,
   filterTypeAtom,
 } from '../common/store/atoms'
+
+// UI imports
+import { Form, InputGroup, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * FilterComponent is a React functional component that provides a UI for filtering services or stacks.
