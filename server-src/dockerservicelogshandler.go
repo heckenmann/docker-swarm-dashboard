@@ -127,8 +127,15 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Copy the line before sending because bufio.Reader may reuse
+		// the underlying buffer across ReadLine calls; sharing that
+		// backing array concurrently causes data races when the writer
+		// reads the slice. Allocate a fresh slice and copy the data.
+		lineCopy := make([]byte, len(line))
+		copy(lineCopy, line)
+
 		select {
-		case channel <- line:
+		case channel <- lineCopy:
 		default:
 			// Slow/unresponsive client: close the channel so the writer
 			// will stop. Then wait briefly for the writer to finish to
