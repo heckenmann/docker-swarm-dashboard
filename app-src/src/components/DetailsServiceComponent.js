@@ -6,6 +6,12 @@ import {
   serviceDetailAtom,
 } from '../common/store/atoms'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
+import { Card, Tabs, Tab, Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { JsonTable } from './JsonTable'
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { NodeName } from './names/NodeName'
+import ServiceStatusBadge from './ServiceStatusBadge'
 
 /**
  * Component to display the details of a service.

@@ -9,6 +9,12 @@ import {
 } from '../common/store/atoms'
 import { useAtomValue } from 'jotai'
 import { serviceFilter } from '../common/utils'
+import { Table } from 'react-bootstrap'
+import { NodeName } from './names/NodeName'
+import { ServiceName } from './names/ServiceName'
+import { StackName } from './names/StackName'
+import ServiceStatusBadge from './ServiceStatusBadge'
+import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 
 /**
  * DashboardVerticalComponent is a React functional component that renders

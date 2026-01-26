@@ -1,4 +1,5 @@
 import logo from '../files/docker.png'
+import ReactInterval from 'react-interval'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 import {
   currentVariantAtom,
@@ -12,6 +13,15 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
+import {
+  Navbar,
+  Nav,
+  Badge,
+  Container,
+  ButtonGroup,
+  Button,
+} from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   aboutId,
   dashboardHId,

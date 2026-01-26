@@ -12,6 +12,12 @@ import {
 import { useAtom, useAtomValue } from 'jotai'
 import { servicesDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
+import { Table, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { NodeName } from './names/NodeName'
+import { ServiceName } from './names/ServiceName'
+import ServiceStatusBadge from './ServiceStatusBadge'
+import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 
 /**
  * DashboardComponent
