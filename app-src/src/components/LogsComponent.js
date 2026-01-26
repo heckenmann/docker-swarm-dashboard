@@ -10,12 +10,13 @@ import {
   logsConfigAtom,
   logsLinesAtom,
   logsNumberOfLinesAtom,
+  logsMessageMaxLenAtom,
   logsServicesAtom,
   logsShowLogsAtom,
   logsWebsocketUrlAtom,
 } from '../common/store/atoms'
 import useWebSocket from 'react-use-websocket'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
 /**
  * LogsComponent is a React functional component that handles the display and management
@@ -28,33 +29,40 @@ function LogsComponent() {
   const [logsNumberOfLines, setLogsNumberOfLines] = useAtom(
     logsNumberOfLinesAtom,
   )
+  const logsMessageMaxLen = useAtomValue(logsMessageMaxLenAtom)
   const [logsShowLogs, setLogsShowLogs] = useAtom(logsShowLogsAtom)
   const [logsConfig, setLogsConfig] = useAtom(logsConfigAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const logsWebsocketUrl = useAtomValue(logsWebsocketUrlAtom)
+  // will define shouldReconnect below and call useWebSocket after
+  const currentSyntaxHighlighterStyle = useAtomValue(
+    currentSyntaxHighlighterStyleAtom,
+  )
+
+  const shouldReconnect = useCallback(() => {
+    return Boolean(logsShowLogs && logsConfig?.follow)
+  }, [logsShowLogs, logsConfig?.follow])
+
   const { lastMessage } = useWebSocket(
     logsWebsocketUrl,
     {
       onOpen: () => console.log('logger-websocket connected'),
       onClose: () => console.log('logger-websocket closed'),
-      shouldReconnect: () => logsShowLogs && logsConfig?.follow,
+      shouldReconnect: shouldReconnect,
     },
     logsShowLogs,
   )
-  const currentSyntaxHighlighterStyle = useAtomValue(
-    currentSyntaxHighlighterStyleAtom,
-  )
 
-  // Inputs
-  let inputServiceId
-  let inputTail
-  let inputSince
-  let inputFollow
-  let inputTimestamps
-  let inputStdout
-  let inputStderr
-  let inputDetails
+  // Inputs refs
+  const inputServiceIdRef = useRef(null)
+  const inputTailRef = useRef(null)
+  const inputSinceRef = useRef(null)
+  const inputFollowRef = useRef(null)
+  const inputTimestampsRef = useRef(null)
+  const inputStdoutRef = useRef(null)
+  const inputStderrRef = useRef(null)
+  const inputDetailsRef = useRef(null)
 
   // Ring buffer for incoming log lines to reduce copy/GC churn under high
   // message throughput. We collect incoming messages into a mutable buffer
@@ -63,7 +71,8 @@ function LogsComponent() {
   // buffer if `logsNumberOfLines` differs. Avoid coercing `logsNumberOfLines`
   // during render because test environments may provide non-primitive
   // placeholders transiently.
-  const bufferRef = useRef({ arr: [], start: 0, size: 0, capacity: 20 })
+  const initialCap = Math.max(2 * Number(logsNumberOfLines) || 20, 20)
+  const bufferRef = useRef({ arr: [], start: 0, size: 0, capacity: initialCap })
   const flushTimerRef = useRef(null)
 
   // Helper: flush buffer content into the logsLines atom
@@ -84,7 +93,7 @@ function LogsComponent() {
     if (lastMessage === null) return
 
     const buf = bufferRef.current
-    const cap = Number(logsNumberOfLines) || 20
+    const cap = Math.max(2 * Number(logsNumberOfLines) || 20, 20)
 
     // If capacity changed, reallocate preserving most recent entries
     if (buf.capacity !== cap) {
@@ -101,7 +110,33 @@ function LogsComponent() {
     }
 
     // push new message into ring buffer
-    const message = lastMessage.data
+    // Safely read message data (getter may throw)
+    let raw
+    try {
+      raw = lastMessage.data
+    } catch (e) {
+      // If reading lastMessage.data throws, skip processing this message
+      return
+    }
+
+    // Normalize to string with JSON fallback for objects, and handle
+    // non-serializable objects by falling back to String()
+    let message
+    if (typeof raw === 'string') {
+      message = raw
+    } else {
+      try {
+        message = JSON.stringify(raw)
+      } catch (e) {
+        message = String(raw)
+      }
+    }
+
+    // Truncate very long messages
+    const maxLen = Number(logsMessageMaxLen) || 10000
+    if (message.length > maxLen) {
+      message = message.slice(0, maxLen) + '...'
+    }
     if (buf.size < buf.capacity) {
       const idx = (buf.start + buf.size) % buf.capacity
       buf.arr[idx] = message
@@ -133,19 +168,20 @@ function LogsComponent() {
   }
 
   const showLogs = () => {
-    const tailVal = inputTail?.value
+    const tailVal = inputTailRef.current?.value
     if (tailVal && Number(tailVal) > 0) setLogsNumberOfLines(Number(tailVal))
     else setLogsNumberOfLines(20)
+    const serviceId = inputServiceIdRef.current?.value
     const newLogsConfig = {
-      serviceId: inputServiceId.value,
-      serviceName: serviceNames[inputServiceId.value],
-      tail: inputTail.value,
-      since: inputSince.value,
-      follow: inputFollow.checked,
-      timestamps: inputTimestamps.checked,
-      stdout: inputStdout.checked,
-      stderr: inputStderr.checked,
-      details: inputDetails.checked,
+      serviceId: serviceId,
+      serviceName: serviceNames[serviceId],
+      tail: inputTailRef.current?.value,
+      since: inputSinceRef.current?.value,
+      follow: inputFollowRef.current?.checked,
+      timestamps: inputTimestampsRef.current?.checked,
+      stdout: inputStdoutRef.current?.checked,
+      stderr: inputStderrRef.current?.checked,
+      details: inputDetailsRef.current?.checked,
     }
     setLogsConfig(newLogsConfig)
     setLogsShowLogs(true)
@@ -187,7 +223,7 @@ function LogsComponent() {
           <Form.Control
             type="text"
             value={logsNumberOfLines}
-            onChange={(e) => setLogsNumberOfLines(e.target.value)}
+            onChange={(e) => setLogsNumberOfLines(Number(e.target.value) || 0)}
           />
         </Col>
       </Form.Group>
@@ -223,7 +259,7 @@ function LogsComponent() {
               <Col sm="10">
                 <Form.Control
                   as="select"
-                  ref={(node) => (inputServiceId = node)}
+                  ref={inputServiceIdRef}
                 >
                   {serviceOptions}
                 </Form.Control>
@@ -237,7 +273,7 @@ function LogsComponent() {
                 <Form.Control
                   type="text"
                   defaultValue="20"
-                  ref={(node) => (inputTail = node)}
+                  ref={inputTailRef}
                 />
               </Col>
             </Form.Group>
@@ -249,7 +285,7 @@ function LogsComponent() {
                 <Form.Control
                   type="text"
                   defaultValue="1h"
-                  ref={(node) => (inputSince = node)}
+                  ref={inputSinceRef}
                 />
               </Col>
             </Form.Group>
@@ -258,7 +294,7 @@ function LogsComponent() {
                 Follow
               </Form.Label>
               <Col sm="10">
-                <Form.Check ref={(node) => (inputFollow = node)} />
+                <Form.Check ref={inputFollowRef} />
               </Col>
             </Form.Group>
             <Form.Group
@@ -272,7 +308,7 @@ function LogsComponent() {
               <Col sm="10">
                 <Form.Check
                   defaultChecked={false}
-                  ref={(node) => (inputTimestamps = node)}
+                  ref={inputTimestampsRef}
                 />
               </Col>
             </Form.Group>
@@ -283,7 +319,7 @@ function LogsComponent() {
               <Col sm="10">
                 <Form.Check
                   defaultChecked={true}
-                  ref={(node) => (inputStdout = node)}
+                  ref={inputStdoutRef}
                 />
               </Col>
             </Form.Group>
@@ -294,7 +330,7 @@ function LogsComponent() {
               <Col sm="10">
                 <Form.Check
                   defaultChecked={true}
-                  ref={(node) => (inputStderr = node)}
+                  ref={inputStderrRef}
                 />
               </Col>
             </Form.Group>
@@ -305,7 +341,7 @@ function LogsComponent() {
               <Col sm="10">
                 <Form.Check
                   defaultChecked={false}
-                  ref={(node) => (inputDetails = node)}
+                  ref={inputDetailsRef}
                 />
               </Col>
             </Form.Group>
