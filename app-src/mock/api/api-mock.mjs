@@ -487,7 +487,11 @@ app.get('/ui/services/:id', (req, res) => {
   const id = req.params.id
   const service = findResource(db.data?.services, id)
   if (service) {
-    const tasks = (db.data?.tasks || []).filter(t => String(t.ServiceID) === String(id))
+    const tasks = (db.data?.tasks || []).filter(t => String(t.ServiceID) === String(id)).map(t => {
+      // attach node object if available
+      const node = findResource(db.data?.nodes, t.NodeID)
+      return Object.assign({}, t, { Node: node || null })
+    })
     res.json({ service, tasks })
     return
   }
@@ -513,7 +517,10 @@ app.get('/docker/services/:id', (req, res) => {
   const id = req.params.id
   const service = findResource(db.data?.services, id)
   if (service) {
-    const tasks = (db.data?.tasks || []).filter(t => t.ServiceID === id)
+    const tasks = (db.data?.tasks || []).filter(t => t.ServiceID === id).map(t => {
+      const node = findResource(db.data?.nodes, t.NodeID)
+      return Object.assign({}, t, { Node: node || null })
+    })
     res.json({ service, tasks })
     return
   }
