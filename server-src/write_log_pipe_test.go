@@ -13,6 +13,11 @@ import (
 
 // TestWriteLogPipeToClient_Success ensures the helper writes the payload (after 8 bytes) to the websocket client.
 func TestWriteLogPipeToClient_Success(t *testing.T) {
+	// restore original pingInterval after test
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	// shorten ping interval to keep test fast even if ticker path exercised
+	pingInterval = 10 * time.Millisecond
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
 
@@ -76,6 +81,9 @@ func TestWriteLogPipeToClient_Success(t *testing.T) {
 func TestWriteLogPipeToClient_ErrorWhenClosed(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	pingInterval = 10 * time.Millisecond
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -123,6 +131,9 @@ func TestWriteLogPipeToClient_ErrorWhenClosed(t *testing.T) {
 func TestWriteLogPipeToClient_MultipleMessages(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	pingInterval = 10 * time.Millisecond
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -180,6 +191,9 @@ func TestWriteLogPipeToClient_MultipleMessages(t *testing.T) {
 func TestWriteLogPipeToClient_EmptyPayload(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	pingInterval = 10 * time.Millisecond
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -238,6 +252,9 @@ func TestWriteLogPipeToClient_LargeVolume(t *testing.T) {
 
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	pingInterval = 10 * time.Millisecond
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -305,6 +322,9 @@ func TestWriteLogPipeToClient_LargeVolume(t *testing.T) {
 func TestWriteLogPipeToClient_WriterFinishesAfterChannelClose(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	pingInterval = 10 * time.Millisecond
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -347,5 +367,58 @@ func TestWriteLogPipeToClient_WriterFinishesAfterChannelClose(t *testing.T) {
 		t.Fatalf("writer did not finish after channel close")
 	}
 
+	close(done)
+}
+
+// TestWriteLogPipeToClient_PingTicker ensures the ping path in the writer
+// is exercised. We shorten the ping interval and verify the writer keeps
+// running while no payloads are sent.
+func TestWriteLogPipeToClient_PingTicker(t *testing.T) {
+	orig := pingInterval
+	defer func() { pingInterval = orig }()
+	pingInterval = 10 * time.Millisecond
+
+	srvConnCh := make(chan *websocket.Conn, 1)
+	done := make(chan struct{})
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			t.Fatalf("upgrade failed: %v", err)
+		}
+		srvConnCh <- conn
+		<-done
+		conn.Close()
+	}))
+	defer server.Close()
+
+	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
+	clientConn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	if err != nil {
+		t.Fatalf("dial failed: %v", err)
+	}
+	defer clientConn.Close()
+
+	serverConn := <-srvConnCh
+
+	// Start writer with an empty channel - ticker should fire.
+	ch := make(chan []byte, 1)
+	doneWriter := make(chan struct{})
+	go func() {
+		writeLogPipeToClient(serverConn, ch)
+		close(doneWriter)
+	}()
+
+	// wait a short while to allow a few pings to be sent
+	time.Sleep(100 * time.Millisecond)
+
+	// close channel and wait for writer to finish
+	close(ch)
+	select {
+	case <-doneWriter:
+		// success
+	case <-time.After(2 * time.Second):
+		t.Fatalf("writer did not finish after ping ticks")
+	}
 	close(done)
 }
