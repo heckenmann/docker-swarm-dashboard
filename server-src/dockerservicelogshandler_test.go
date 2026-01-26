@@ -86,3 +86,26 @@ func TestDockerServiceLogsHandler_StreamsToWebsocket(t *testing.T) {
 	// allow docker fake server handler to complete
 	close(done)
 }
+
+// TestDockerServiceLogsHandler_UpgradeError verifies that when the
+// request is not a websocket upgrade, the handler returns without
+// panicking and writes an appropriate response.
+func TestDockerServiceLogsHandler_UpgradeError(t *testing.T) {
+	r := mux.NewRouter()
+	r.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+	srv := httptest.NewServer(r)
+	defer srv.Close()
+
+	// Build a plain HTTP request (no websocket headers)
+	u, _ := url.Parse(srv.URL + "/docker/logs/svc1?tail=10&since=0&stdout=true&stderr=false&follow=false&timestamps=false&details=false")
+	resp, err := http.Get(u.String())
+	if err != nil {
+		t.Fatalf("http.Get failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Upgrade should fail and the server should respond with 400 or similar
+	if resp.StatusCode == http.StatusOK {
+		t.Fatalf("expected non-200 response for non-upgrade request, got %d", resp.StatusCode)
+	}
+}

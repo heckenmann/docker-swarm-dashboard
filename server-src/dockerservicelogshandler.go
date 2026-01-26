@@ -27,6 +27,11 @@ var (
 	}
 )
 
+// pingInterval controls the interval between ping messages sent by
+// `writeLogPipeToClient`. Tests may shorten this to exercise the ping
+// branch without waiting for the production interval.
+var pingInterval = 54 * time.Second
+
 // dockerServiceLogsHandler handles websocket connections for streaming
 // Docker service logs to a connected client. The handler upgrades the
 // HTTP connection to a websocket, starts a goroutine that writes
@@ -134,22 +139,34 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		lineCopy := make([]byte, len(line))
 		copy(lineCopy, line)
 
+		// Try to enqueue the line; if the channel is full, wait briefly
+		// for the writer to make progress. This avoids flaky failures
+		// where scheduling differences prevent the writer from emptying
+		// the channel immediately. If the channel stays full for the
+		// timeout, treat the client as too slow and close the connection.
 		select {
 		case channel <- lineCopy:
+			// enqueued successfully
 		default:
-			// Slow/unresponsive client: close the channel so the writer
-			// will stop. Then wait briefly for the writer to finish to
-			// avoid WriteMessage racing with connection Close.
-			log.Printf("client too slow, closing websocket for service: %s", paramServiceId)
-			closeChanOnce.Do(func() { close(channel) })
+			// wait briefly for the writer to free up space
 			select {
-			case <-writerDone:
-				// writer finished
-			case <-time.After(2 * time.Second):
-				log.Printf("writer did not finish in time for service: %s", paramServiceId)
+			case channel <- lineCopy:
+				// enqueued on second attempt
+			case <-time.After(50 * time.Millisecond):
+				// Slow/unresponsive client: close the channel so the writer
+				// will stop. Then wait briefly for the writer to finish to
+				// avoid WriteMessage racing with connection Close.
+				log.Printf("client too slow, closing websocket for service: %s", paramServiceId)
+				closeChanOnce.Do(func() { close(channel) })
+				select {
+				case <-writerDone:
+					// writer finished
+				case <-time.After(2 * time.Second):
+					log.Printf("writer did not finish in time for service: %s", paramServiceId)
+				}
+				_ = ce.Close()
+				return
 			}
-			_ = ce.Close()
-			return
 		}
 	}
 
@@ -162,10 +179,11 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 // write deadlines to avoid blocking forever on slow clients.
 func writeLogPipeToClient(websocketConn *websocket.Conn, channel chan []byte) {
 	const writeWait = 10 * time.Second
-
 	// ticker interval chosen slightly less than the read deadline to
-	// ensure the peer's pong keeps the connection alive.
-	ticker := time.NewTicker(54 * time.Second)
+	// ensure the peer's pong keeps the connection alive. Exported as a
+	// variable to allow tests to shorten the interval for coverage of
+	// the ping-path without waiting a long time.
+	ticker := time.NewTicker(pingInterval)
 	defer ticker.Stop()
 
 	for {
