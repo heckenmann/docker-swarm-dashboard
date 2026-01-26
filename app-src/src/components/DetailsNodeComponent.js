@@ -29,6 +29,19 @@ function DetailsNodeComponent() {
 
   if (!currentNode) return <div>Node doesn't exist</div>
 
+  // Only use the attached Service object on tasks. No fallback to legacy fields.
+  const taskServiceName = (task) => {
+    if (!task || !task.Service) return null
+    return (
+      task.Service?.Spec?.Name || task.Service?.Spec?.Annotations?.Name || null
+    )
+  }
+
+  const taskServiceId = (task) => {
+    if (!task || !task.Service) return null
+    return task.Service?.ID || null
+  }
+
   return (
     <div
       style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}
@@ -40,7 +53,7 @@ function DetailsNodeComponent() {
             {currentNode.node?.Description?.Hostname}"
           </h5>
         </Card.Header>
-        <Card.Body>
+        <Card.Body style={{ overflowY: 'auto' }}>
           <Tabs className="mb-3">
             <Tab eventKey="table" title="Table">
               <JsonTable json={currentNode.node} variant={currentVariant} />
@@ -83,7 +96,10 @@ function DetailsNodeComponent() {
                   }
                 >
                   <td>
-                    <ServiceName name={task.ServiceName} id={task.ServiceID} />
+                    <ServiceName
+                      name={taskServiceName(task)}
+                      id={taskServiceId(task)}
+                    />
                   </td>
                   <td>
                     <ServiceStatusBadge

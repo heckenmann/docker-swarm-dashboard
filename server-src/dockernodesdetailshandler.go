@@ -32,18 +32,37 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			// If task list fails in the mock environment, return node without tasks
 			Tasks = nil
 		}
-		// Sort tasks by UpdatedAt descending
-		sort.Slice(Tasks, func(i, j int) bool {
-			return Tasks[i].UpdatedAt.After(Tasks[j].UpdatedAt)
-		})
-		// For compatibility with tests that expect the node object at top-level,
-		// merge node fields into the top-level response and include tasks.
-		var response map[string]interface{}
-		// marshal then unmarshal node to generic map
-		nodeBytes, _ := json.Marshal(Services[0])
-		json.Unmarshal(nodeBytes, &response)
-		response["tasks"] = Tasks
-		jsonString, _ := json.Marshal(response)
+		// Sort tasks by UpdatedAt descending if present
+		if Tasks != nil {
+			sort.Slice(Tasks, func(i, j int) bool {
+				return Tasks[i].UpdatedAt.After(Tasks[j].UpdatedAt)
+			})
+		}
+
+		// Enrich tasks with Service object when possible to match mock shape
+		enriched := make([]map[string]interface{}, 0, len(Tasks))
+		for _, t := range Tasks {
+			var tm map[string]interface{}
+			b, _ := json.Marshal(t)
+			json.Unmarshal(b, &tm)
+			// try to fetch service object for this task
+			servicesFilter := filters.NewArgs()
+			servicesFilter.Add("id", t.ServiceID)
+			svcList, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{Filters: servicesFilter})
+			if len(svcList) > 0 {
+				tm["Service"] = svcList[0]
+			} else {
+				tm["Service"] = nil
+			}
+			enriched = append(enriched, tm)
+		}
+
+		// Return same shape as mock server: { node, tasks }
+		resp := map[string]interface{}{
+			"node":  Services[0],
+			"tasks": enriched,
+		}
+		jsonString, _ := json.Marshal(resp)
 		w.Write(jsonString)
 	} else {
 		w.Write([]byte("{}"))

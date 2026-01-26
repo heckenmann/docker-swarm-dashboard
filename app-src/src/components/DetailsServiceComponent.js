@@ -29,6 +29,10 @@ function DetailsServiceComponent() {
 
   if (!currentService) return <div>Service doesn't exist</div>
 
+  // Strictly assume server returns the concrete shape: { service, tasks }
+  const serviceObj = currentService.service
+  const tasksForService = currentService.tasks || []
+
   // Defensive sanitizer: ensure fields that are used as element attributes
   // (for example `src` or `image`) are primitive strings/numbers so React
   // doesn't warn about non-primitive attribute values. We create a shallow
@@ -59,7 +63,7 @@ function DetailsServiceComponent() {
     return copy
   }
 
-  const sanitizedService = sanitizeAttrs(currentService.service)
+  const sanitizedService = sanitizeAttrs(serviceObj || {})
 
   return (
     <div
@@ -69,10 +73,10 @@ function DetailsServiceComponent() {
         <Card.Header>
           <h5>
             <FontAwesomeIcon icon="folder" /> Service "
-            {currentService.service?.Spec?.Name}"
+            {serviceObj?.Spec?.Name || serviceObj?.Name || 'unknown'}"
           </h5>
         </Card.Header>
-        <Card.Body>
+        <Card.Body style={{ overflowY: 'auto' }}>
           <Tabs className="mb-3">
             <Tab eventKey="table" title="Table">
               <JsonTable json={sanitizedService} variant={currentVariant} />
@@ -105,8 +109,8 @@ function DetailsServiceComponent() {
             </tr>
           </thead>
           <tbody>
-            {currentService.tasks &&
-              currentService.tasks.map((task, idx) => (
+            {tasksForService &&
+              tasksForService.map((task, idx) => (
                 <tr
                   key={
                     (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
@@ -114,7 +118,19 @@ function DetailsServiceComponent() {
                   }
                 >
                   <td>
-                    <NodeName name={task.NodeName} id={task.NodeID} />
+                    {/* Prefer full node object if present, otherwise fall back to NodeName/NodeID */}
+                    <NodeName
+                      name={
+                        task.Node &&
+                        (task.Node.Description?.Hostname || task.Node.Hostname)
+                          ? task.Node.Description?.Hostname ||
+                            task.Node.Hostname
+                          : task.NodeName
+                      }
+                      id={
+                        task.Node && task.Node.ID ? task.Node.ID : task.NodeID
+                      }
+                    />
                   </td>
                   <td>
                     <ServiceStatusBadge

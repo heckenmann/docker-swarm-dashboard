@@ -1,6 +1,10 @@
 // Broad exercise test to touch many branches in atoms.js
 jest.mock('jotai', () => ({ atom: (v) => v }))
-jest.mock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a }))
+jest.mock('jotai/utils', () => ({
+  atomWithReducer: (v) => v,
+  atomWithReset: (v) => v,
+  selectAtom: (a) => a,
+}))
 jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
 describe('exercise many atoms to increase branch coverage', () => {
@@ -11,7 +15,9 @@ describe('exercise many atoms to increase branch coverage', () => {
   })
 
   test('call common atoms with various view states', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ json: async () => ({ ok: true, item: true }) })
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ json: async () => ({ ok: true, item: true }) })
     const atoms = require('../../../src/common/store/atoms')
 
     // common get returning baseUrl and empty view
@@ -45,7 +51,10 @@ describe('exercise many atoms to increase branch coverage', () => {
       if (req === atoms.viewAtom) return { id: 'nodesDetail', detail: 'x' }
       return null
     }
-    expect(await atoms.nodeDetailAtom(getNodeMatch)).toEqual({ ok: true, item: true })
+    expect(await atoms.nodeDetailAtom(getNodeMatch)).toEqual({
+      ok: true,
+      item: true,
+    })
 
     // service detail
     const getSvcMatch = (req) => {
@@ -53,7 +62,10 @@ describe('exercise many atoms to increase branch coverage', () => {
       if (req === atoms.viewAtom) return { id: 'servicesDetail', detail: 's1' }
       return null
     }
-    expect(await atoms.serviceDetailAtom(getSvcMatch)).toEqual({ ok: true, item: true })
+    expect(await atoms.serviceDetailAtom(getSvcMatch)).toEqual({
+      ok: true,
+      item: true,
+    })
 
     // task detail
     const getTaskMatch = (req) => {
@@ -61,11 +73,24 @@ describe('exercise many atoms to increase branch coverage', () => {
       if (req === atoms.viewAtom) return { id: 'tasks', detail: 't1' }
       return null
     }
-    expect(await atoms.taskDetailAtom(getTaskMatch)).toEqual({ ok: true, item: true })
+    expect(await atoms.taskDetailAtom(getTaskMatch)).toEqual({
+      ok: true,
+      item: true,
+    })
 
     // logsWebsocketUrlAtom with logsConfig present and relative base
     const getLogs = (req) => {
-      if (req === atoms.logsConfigAtom) return { serviceId: 's1', tail: '1', since: '0', follow: 'false', timestamps: 'false', stdout: 'true', stderr: 'false', details: 'false' }
+      if (req === atoms.logsConfigAtom)
+        return {
+          serviceId: 's1',
+          tail: '1',
+          since: '0',
+          follow: 'false',
+          timestamps: 'false',
+          stdout: 'true',
+          stderr: 'false',
+          details: 'false',
+        }
       if (req === atoms.baseUrlAtom) return '/app/'
       if (req === atoms.isDarkModeAtom) return false
       return null

@@ -16,7 +16,10 @@ jest.mock('../../../src/common/store/atoms', () => ({
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
-jest.mock('jotai', () => ({ useAtomValue: (...args) => mockUseAtomValue(...args), useAtom: (...args) => mockUseAtom(...args) }))
+jest.mock('jotai', () => ({
+  useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtom: (...args) => mockUseAtom(...args),
+}))
 
 describe('PortsComponent (combined)', () => {
   beforeEach(() => {
@@ -24,7 +27,17 @@ describe('PortsComponent (combined)', () => {
     mockUseAtom.mockReset()
   })
   test('renders port row with service open and filter', () => {
-    const ports = [ { PublishedPort: 8080, TargetPort: 8080, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'svc1', ServiceID: 's1', Stack: 'st1' } ]
+    const ports = [
+      {
+        PublishedPort: 8080,
+        TargetPort: 8080,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'svc1',
+        ServiceID: 's1',
+        Stack: 'st1',
+      },
+    ]
     const values = ['light', 'classes', 'sm', '', '', ports]
     mockUseAtomValue.mockImplementation(() => values.shift())
 
@@ -49,7 +62,17 @@ describe('PortsComponent (combined)', () => {
   })
 
   test('renders port row without service/stack buttons when names empty', () => {
-    const ports = [ { PublishedPort: 8080, TargetPort: 8080, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: '', ServiceID: '', Stack: '' } ]
+    const ports = [
+      {
+        PublishedPort: 8080,
+        TargetPort: 8080,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: '',
+        ServiceID: '',
+        Stack: '',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -87,7 +110,17 @@ describe('PortsComponent (combined)', () => {
   })
 
   test('service and stack buttons call setters and updateView', () => {
-    const ports = [ { PublishedPort: 9090, TargetPort: 9090, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'svcX', ServiceID: 'sX', Stack: 'stX' } ]
+    const ports = [
+      {
+        PublishedPort: 9090,
+        TargetPort: 9090,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'svcX',
+        ServiceID: 'sX',
+        Stack: 'stX',
+      },
+    ]
 
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
@@ -141,8 +174,24 @@ describe('PortsComponent (combined)', () => {
 
   test('stackNameFilter filters rows and stack button absent when stack empty', () => {
     const ports = [
-      { PublishedPort: 1111, TargetPort: 1111, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'a', ServiceID: 's1', Stack: '' },
-      { PublishedPort: 2222, TargetPort: 2222, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'b', ServiceID: 's2', Stack: 'st2' },
+      {
+        PublishedPort: 1111,
+        TargetPort: 1111,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'a',
+        ServiceID: 's1',
+        Stack: '',
+      },
+      {
+        PublishedPort: 2222,
+        TargetPort: 2222,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'b',
+        ServiceID: 's2',
+        Stack: 'st2',
+      },
     ]
 
     mockUseAtomValue.mockImplementation((atom) => {
@@ -190,8 +239,24 @@ describe('PortsComponent (combined)', () => {
 
   test('serviceNameFilter filters rows', () => {
     const ports = [
-      { PublishedPort: 1, TargetPort: 1, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'match', ServiceID: 's1', Stack: 'st1' },
-      { PublishedPort: 2, TargetPort: 2, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'other', ServiceID: 's2', Stack: 'st2' },
+      {
+        PublishedPort: 1,
+        TargetPort: 1,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'match',
+        ServiceID: 's1',
+        Stack: 'st1',
+      },
+      {
+        PublishedPort: 2,
+        TargetPort: 2,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'other',
+        ServiceID: 's2',
+        Stack: 'st2',
+      },
     ]
 
     mockUseAtomValue.mockImplementation((atom) => {
@@ -227,8 +292,24 @@ describe('PortsComponent (combined)', () => {
 
   test('renders filter buttons only when service/stack present and clicking sets atoms', () => {
     const ports = [
-      { PublishedPort: 1000, TargetPort: 2000, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: 'svc-a', ServiceID: 'sid-a', Stack: 'stack-a' },
-      { PublishedPort: 1001, TargetPort: 2001, Protocol: 'tcp', PublishMode: 'ingress', ServiceName: '', ServiceID: '', Stack: '' },
+      {
+        PublishedPort: 1000,
+        TargetPort: 2000,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'svc-a',
+        ServiceID: 'sid-a',
+        Stack: 'stack-a',
+      },
+      {
+        PublishedPort: 1001,
+        TargetPort: 2001,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: '',
+        ServiceID: '',
+        Stack: '',
+      },
     ]
 
     mockUseAtomValue.mockImplementation((atom) => {

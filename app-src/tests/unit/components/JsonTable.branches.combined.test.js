@@ -19,7 +19,12 @@ describe('JsonTable branch coverage via mocked flatten (combined)', () => {
       }))
 
       jest.doMock('jotai', () => ({ atom: (v) => v, useAtomValue: () => 'sm' }))
-      jest.doMock('jotai/utils', () => ({ atomWithReducer: (v) => v, atomWithReset: (v) => v, selectAtom: (a) => a, atomWithHash: (k, def) => def }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
       const origStringify = JSON.stringify

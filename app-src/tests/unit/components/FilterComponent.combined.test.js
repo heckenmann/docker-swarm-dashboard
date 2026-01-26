@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 const modFilter = require('../../../src/components/FilterComponent')
-const FilterComponent = modFilter.FilterComponent || modFilter.default || modFilter
+const FilterComponent =
+  modFilter.FilterComponent || modFilter.default || modFilter
 
 // mock atoms module
 jest.mock('../../../src/common/store/atoms', () => ({
@@ -16,7 +17,6 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
 }))
-
 
 describe('FilterComponent (combined)', () => {
   beforeEach(() => {
@@ -178,7 +178,9 @@ describe('FilterComponent (combined)', () => {
 
     render(<FilterComponent />)
     const buttons = screen.getAllByRole('button')
-    const clearBtn = buttons.find((b) => b.className && b.className.includes('btn-danger')) || buttons[0]
+    const clearBtn =
+      buttons.find((b) => b.className && b.className.includes('btn-danger')) ||
+      buttons[0]
     expect(clearBtn).toBeEnabled()
     fireEvent.click(clearBtn)
     expect(mockSetService).toHaveBeenCalledWith('')
@@ -241,7 +243,9 @@ describe('FilterComponent (combined)', () => {
 
     render(<FilterComponent />)
 
-    const input = screen.getByPlaceholderText(/Filter services by service name/i)
+    const input = screen.getByPlaceholderText(
+      /Filter services by service name/i,
+    )
     expect(input.value).toBe('svcA')
 
     const clearBtn = screen.getByRole('button')
