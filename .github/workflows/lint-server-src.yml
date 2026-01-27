@@ -33,7 +33,7 @@ jobs:
 
       - name: Install golangci-lint (build with repo Go)
         run: |
-          GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.0
+          GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
       - name: Run golangci-lint
