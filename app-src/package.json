@@ -93,7 +93,7 @@
     "react": "^19.2.4",
     "react-apexcharts": "^1.9.0",
     "react-bootstrap": "^2.10.10",
-    "react-dom": "^19.2.3",
+    "react-dom": "^19.2.4",
     "react-interval": "^2.1.2",
     
     "react-use-websocket": "^4.13.0",
