@@ -30,6 +30,11 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
 
+      - name: Build server packages (generate export data)
+        run: |
+          cd server-src
+          go test ./...
+
       - name: Run golangci-lint
         run: |
           cd server-src
