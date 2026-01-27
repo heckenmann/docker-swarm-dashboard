@@ -379,7 +379,21 @@ function LogsComponent() {
                     aria-label={
                       sinceIsISO ? 'Switch to duration' : 'Switch to ISO'
                     }
-                    onClick={() => setSinceIsISO((v) => !v)}
+                    onClick={() =>
+                      setSinceIsISO((v) => {
+                        const newV = !v
+                        if (newV) {
+                          const iso24 = new Date(
+                            Date.now() - 24 * 60 * 60 * 1000,
+                          ).toISOString()
+                          setSince(iso24)
+                        } else {
+                          setSince(`${sinceAmount}${sinceUnit}`)
+                        }
+                        setSinceError(false)
+                        return newV
+                      })
+                    }
                   >
                     <FontAwesomeIcon
                       icon={sinceIsISO ? 'clock' : 'calendar'}
