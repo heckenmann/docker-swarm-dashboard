@@ -11,6 +11,8 @@ jest.mock('../../../src/common/store/atoms', () => {
     ...real,
     logsServicesAtom: jotaiAtom([]),
     logsNumberOfLinesAtom: jotaiAtom(20),
+    // Ensure the form-level tail atom has a stable default for tests
+    logsFormTailAtom: jotaiAtom('20'),
   }
 })
 
@@ -69,6 +71,7 @@ describe('LogsComponent (combined)', () => {
           initialValues={[
             [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
             [atoms.logsNumberOfLinesAtom, 20],
+            [atoms.logsFormTailAtom, '20'],
           ]}
         >
           <LogsComponent />
@@ -97,6 +100,7 @@ describe('LogsComponent (combined)', () => {
           initialValues={[
             [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
             [atoms.logsNumberOfLinesAtom, 20],
+            [atoms.logsFormTailAtom, '20'],
           ]}
         >
           <LogsComponent />
@@ -126,7 +130,7 @@ describe('LogsComponent (combined)', () => {
         screen.getByRole('button', { name: /Show logs/i }),
       ).toBeInTheDocument(),
     )
-    const tailInput2 = screen.getByDisplayValue('20')
+    const tailInput2 = screen.getByDisplayValue('5')
     fireEvent.change(tailInput2, { target: { value: '' } })
     const form2 = container.querySelector('form')
     fireEvent.submit(form2)
@@ -144,6 +148,7 @@ describe('LogsComponent (combined)', () => {
           initialValues={[
             [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
             [atoms.logsNumberOfLinesAtom, 2],
+            [atoms.logsFormTailAtom, '20'],
           ]}
         >
           <LogsComponent />

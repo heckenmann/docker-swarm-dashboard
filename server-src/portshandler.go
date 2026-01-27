@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
 	"net/http"
 	"sort"
+
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type PortsHandlerSimplePort struct {
@@ -20,7 +21,7 @@ type PortsHandlerSimplePort struct {
 
 func portsHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
 	resultList := make([]PortsHandlerSimplePort, 0)
 
@@ -47,5 +48,5 @@ func portsHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

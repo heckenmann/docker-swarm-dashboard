@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/swarm"
 )
 
 // Serves the tasks
 func dockerTasksHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{})
+	Tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	jsonString, _ := json.Marshal(Tasks)
-	w.Write(jsonString)
+	_, _ = w.Write(jsonString)
 }

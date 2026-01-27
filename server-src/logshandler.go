@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
 	"net/http"
 	"sort"
+
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type LogsHandlerSimpleService struct {
@@ -15,7 +16,7 @@ type LogsHandlerSimpleService struct {
 
 func logsServicesHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
 	resultList := make([]LogsHandlerSimpleService, 0)
 
@@ -33,5 +34,5 @@ func logsServicesHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

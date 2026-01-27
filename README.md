@@ -6,6 +6,7 @@
 ![ESLint](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-app-src.yml/badge.svg?branch=master)
 ![Server Go CI](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/go-test-server-src.yml/badge.svg?branch=master)
 ![API Build & Healthcheck](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/api-test.yml/badge.svg?branch=master)
+[![Lint server-src](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-server-src.yml/badge.svg)](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-server-src.yml)
 
 # docker-swarm-dashboard
 Dashboard for Docker Swarm Cluster

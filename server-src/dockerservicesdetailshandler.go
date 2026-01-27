@@ -7,9 +7,8 @@ import (
 	"sort"
 
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/gorilla/mux"
-
-	"github.com/docker/docker/api/types"
 )
 
 // Serves single service
@@ -19,7 +18,7 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	cli := getCli()
 	servicesFilter := filters.NewArgs()
 	servicesFilter.Add("id", paramServiceId)
-	Services, err := cli.ServiceList(context.Background(), types.ServiceListOptions{Filters: servicesFilter})
+	Services, err := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: servicesFilter})
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +26,7 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		// Get tasks for this service
 		tasksFilter := filters.NewArgs()
 		tasksFilter.Add("service", paramServiceId)
-		Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{Filters: tasksFilter})
+		Tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilter})
 		if err != nil {
 			// If task list fails in the mock environment, return service without tasks
 			Tasks = nil
@@ -45,11 +44,11 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			// convert task to a generic map first
 			var tm map[string]interface{}
 			b, _ := json.Marshal(t)
-			json.Unmarshal(b, &tm)
+			_ = json.Unmarshal(b, &tm)
 			// try to fetch node object for this task
 			nodesFilter := filters.NewArgs()
 			nodesFilter.Add("id", t.NodeID)
-			nodeList, _ := cli.NodeList(context.Background(), types.NodeListOptions{Filters: nodesFilter})
+			nodeList, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{Filters: nodesFilter})
 			if len(nodeList) > 0 {
 				// attach full node object
 				tm["Node"] = nodeList[0]
@@ -65,8 +64,8 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			"tasks":   enriched,
 		}
 		jsonString, _ := json.Marshal(resp)
-		w.Write(jsonString)
+		_, _ = w.Write(jsonString)
 	} else {
-		w.Write([]byte("{}"))
+		_, _ = w.Write([]byte("{}"))
 	}
 }

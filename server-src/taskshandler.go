@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/filters"
 	"net/http"
 	"sort"
 	"time"
+
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type TasksHandlerSimpleTask struct {
@@ -27,7 +28,7 @@ type TasksHandlerSimpleTask struct {
 
 func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	tasks, _ := cli.TaskList(context.Background(), types.TaskListOptions{})
+	tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
 
 	resultList := make([]TasksHandlerSimpleTask, 0)
 
@@ -48,7 +49,7 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 		// Find Service for Task
 		servicesFilter := filters.NewArgs()
 		servicesFilter.Add("id", task.ServiceID)
-		services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{Filters: servicesFilter})
+		services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: servicesFilter})
 		if len(services) > 0 {
 			simpleTask.ServiceName = services[0].Spec.Name
 			simpleTask.Stack = services[0].Spec.Labels["com.docker.stack.namespace"]
@@ -56,7 +57,7 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 		// Find Node for Task
 		nodesFilter := filters.NewArgs()
 		nodesFilter.Add("id", task.NodeID)
-		node, _ := cli.NodeList(context.Background(), types.NodeListOptions{Filters: nodesFilter})
+		node, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{Filters: nodesFilter})
 		if len(node) > 0 {
 			simpleTask.NodeName = node[0].Description.Hostname
 		}
@@ -70,5 +71,5 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }
