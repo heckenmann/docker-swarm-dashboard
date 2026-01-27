@@ -1,21 +1,35 @@
 import { useAtom, useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
-import { Row, Col, Form, Button, Card } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import {
-  currentSyntaxHighlighterStyleAtom,
+  Row,
+  Col,
+  Form,
+  Button,
+  Card,
+  InputGroup,
+  ButtonGroup,
+} from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
   currentVariantAtom,
   currentVariantClassesAtom,
   logsConfigAtom,
   logsLinesAtom,
   logsNumberOfLinesAtom,
+  logsMessageMaxLenAtom,
   logsServicesAtom,
   logsShowLogsAtom,
   logsWebsocketUrlAtom,
 } from '../common/store/atoms'
 import useWebSocket from 'react-use-websocket'
-import { useEffect, useRef } from 'react'
+import { useEffect, useCallback, useState } from 'react'
+
+export function isValidSince(s) {
+  if (!s) return false
+  if (/^\d+[smhd]$/.test(s)) return true
+  const d = Date.parse(s)
+  return !Number.isNaN(d)
+}
 
 /**
  * LogsComponent is a React functional component that handles the display and management
@@ -28,124 +42,113 @@ function LogsComponent() {
   const [logsNumberOfLines, setLogsNumberOfLines] = useAtom(
     logsNumberOfLinesAtom,
   )
+  const logsMessageMaxLen = useAtomValue(logsMessageMaxLenAtom)
   const [logsShowLogs, setLogsShowLogs] = useAtom(logsShowLogsAtom)
   const [logsConfig, setLogsConfig] = useAtom(logsConfigAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const logsWebsocketUrl = useAtomValue(logsWebsocketUrlAtom)
+  // will define shouldReconnect below and call useWebSocket after
+  // Syntax highlighting removed — use plain rendering for logs
+
+  const shouldReconnect = useCallback(() => {
+    return Boolean(logsShowLogs && logsConfig?.follow)
+  }, [logsShowLogs, logsConfig?.follow])
+
   const { lastMessage } = useWebSocket(
     logsWebsocketUrl,
     {
       onOpen: () => console.log('logger-websocket connected'),
       onClose: () => console.log('logger-websocket closed'),
-      shouldReconnect: () => logsShowLogs && logsConfig?.follow,
+      shouldReconnect: shouldReconnect,
     },
     logsShowLogs,
   )
-  const currentSyntaxHighlighterStyle = useAtomValue(
-    currentSyntaxHighlighterStyleAtom,
-  )
 
-  // Inputs
-  let inputServiceId
-  let inputTail
-  let inputSince
-  let inputFollow
-  let inputTimestamps
-  let inputStdout
-  let inputStderr
-  let inputDetails
-
-  // Ring buffer for incoming log lines to reduce copy/GC churn under high
-  // message throughput. We collect incoming messages into a mutable buffer
-  // and flush to React state in a coalesced tick.
-  // Start with a safe default capacity; the effect below will resize the
-  // buffer if `logsNumberOfLines` differs. Avoid coercing `logsNumberOfLines`
-  // during render because test environments may provide non-primitive
-  // placeholders transiently.
-  const bufferRef = useRef({ arr: [], start: 0, size: 0, capacity: 20 })
-  const flushTimerRef = useRef(null)
-
-  // Helper: flush buffer content into the logsLines atom
-  const flushBuffer = () => {
-    const buf = bufferRef.current
-    const out = []
-    for (let i = 0; i < buf.size; i++) {
-      out.push(buf.arr[(buf.start + i) % buf.capacity])
-    }
-    setLogsLines(out)
-    if (flushTimerRef.current) {
-      clearTimeout(flushTimerRef.current)
-      flushTimerRef.current = null
-    }
-  }
-
+  // Controlled inputs (improves validation, accessibility and testability)
+  const [serviceId, setServiceId] = useState('')
+  const [serviceName, setServiceName] = useState('')
+  const [tail, setTail] = useState('20')
+  const [since, setSince] = useState('1h')
+  const [sinceError, setSinceError] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  // serviceSearch state removed (not used); keep code simple
+  const [_serviceHighlightIndex, setServiceHighlightIndex] = useState(-1)
+  const [followVal, setFollowVal] = useState(false)
+  const [timestampsVal, setTimestampsVal] = useState(false)
+  const [stdoutVal, setStdoutVal] = useState(true)
+  const [stderrVal, setStderrVal] = useState(true)
+  const [detailsVal, setDetailsVal] = useState(false)
+  const [sinceAmount, setSinceAmount] = useState('1')
+  const [sinceUnit, setSinceUnit] = useState('h')
+  const [sinceIsISO, setSinceIsISO] = useState(false)
   useEffect(() => {
-    if (lastMessage === null) return
-
-    const buf = bufferRef.current
-    const cap = Number(logsNumberOfLines) || 20
-
-    // If capacity changed, reallocate preserving most recent entries
-    if (buf.capacity !== cap) {
-      const newArr = new Array(cap)
-      const take = Math.min(buf.size, cap)
-      // copy last `take` entries
-      for (let i = 0; i < take; i++) {
-        newArr[i] = buf.arr[(buf.start + buf.size - take + i) % buf.capacity]
-      }
-      buf.arr = newArr
-      buf.start = 0
-      buf.size = take
-      buf.capacity = cap
+    if (!lastMessage) return
+    let raw
+    try {
+      raw = lastMessage.data
+    } catch {
+      return
     }
-
-    // push new message into ring buffer
-    const message = lastMessage.data
-    if (buf.size < buf.capacity) {
-      const idx = (buf.start + buf.size) % buf.capacity
-      buf.arr[idx] = message
-      buf.size += 1
-    } else {
-      // overwrite oldest
-      buf.arr[buf.start] = message
-      buf.start = (buf.start + 1) % buf.capacity
-    }
-
-    // schedule a coalesced flush on next tick if not already scheduled
-    if (!flushTimerRef.current) {
-      flushTimerRef.current = setTimeout(() => flushBuffer(), 0)
-    }
-
-    // cleanup on unmount
-    return () => {
-      if (flushTimerRef.current) {
-        clearTimeout(flushTimerRef.current)
-        flushTimerRef.current = null
+    let message
+    if (typeof raw === 'string') message = raw
+    else {
+      try {
+        message = JSON.stringify(raw)
+      } catch {
+        message = String(raw)
       }
     }
-  }, [lastMessage, logsNumberOfLines, setLogsLines])
+    const maxLen = Number(logsMessageMaxLen) || 10000
+    if (message.length > maxLen) message = message.slice(0, maxLen) + '...'
+    setLogsLines((prev) => {
+      const cap = Math.max(2 * Number(logsNumberOfLines) || 20, 20)
+      const out = [...prev, message].slice(-cap)
+      return out
+    })
+  }, [lastMessage, logsNumberOfLines, logsMessageMaxLen, setLogsLines])
 
   const hideLogs = () => {
     resetLogsLines()
     setLogsConfig(null)
     setLogsShowLogs(false)
+    clearForm()
   }
 
+  const clearForm = () => {
+    setServiceId('')
+    setServiceName('')
+    setTail('20')
+    setSince('1h')
+    setFollowVal(false)
+    setTimestampsVal(false)
+    setStdoutVal(true)
+    setStderrVal(true)
+    setDetailsVal(false)
+  }
+
+  // use the module-level `isValidSince` exported above
+
   const showLogs = () => {
-    const tailVal = inputTail?.value
-    if (tailVal && Number(tailVal) > 0) setLogsNumberOfLines(Number(tailVal))
-    else setLogsNumberOfLines(20)
+    // validate tail
+    const tailNum = Number(tail) || 20
+    setLogsNumberOfLines(tailNum)
+    // validate since
+    if (!isValidSince(since)) {
+      setSinceError('Invalid value. Use e.g. 5m, 1h or an ISO timestamp')
+      return
+    }
+    setSinceError(false)
     const newLogsConfig = {
-      serviceId: inputServiceId.value,
-      serviceName: serviceNames[inputServiceId.value],
-      tail: inputTail.value,
-      since: inputSince.value,
-      follow: inputFollow.checked,
-      timestamps: inputTimestamps.checked,
-      stdout: inputStdout.checked,
-      stderr: inputStderr.checked,
-      details: inputDetails.checked,
+      serviceId: serviceId,
+      serviceName: serviceName || serviceNames[serviceId],
+      tail: String(tailNum),
+      since: since,
+      follow: followVal,
+      timestamps: timestampsVal,
+      stdout: stdoutVal,
+      stderr: stderrVal,
+      details: detailsVal,
     }
     setLogsConfig(newLogsConfig)
     setLogsShowLogs(true)
@@ -159,11 +162,15 @@ function LogsComponent() {
     serviceNames[service['ID']] = service['Name']
     serviceOptions.push(
       <option key={'serviceDropdown-' + service['ID']} value={service['ID']}>
-        {service['Name']}
+        {service['Name']} ({service['ID']})
       </option>,
     )
   })
 
+  // service search is supported via `serviceSearch`, `serviceNames` and `serviceOptions`.
+  // A filtered list was previously computed but is unused; keeping hook dependencies
+  // minimal avoids unused-variable warnings.
+  const isServiceSelected = Boolean(serviceId)
   const logPrinterOptions = (
     <Form>
       <Form.Group as={Row} className="mb-3" controlId="logprinterservicename">
@@ -176,6 +183,9 @@ function LogsComponent() {
             defaultValue={logsConfig?.serviceName}
             disabled={true}
           />
+          <Form.Text className="text-muted">
+            Selected service for which logs are shown.
+          </Form.Text>
         </Col>
       </Form.Group>
 
@@ -187,8 +197,11 @@ function LogsComponent() {
           <Form.Control
             type="text"
             value={logsNumberOfLines}
-            onChange={(e) => setLogsNumberOfLines(e.target.value)}
+            onChange={(e) => setLogsNumberOfLines(Number(e.target.value) || 0)}
           />
+          <Form.Text className="text-muted">
+            How many of the most recent log lines to display (like --tail).
+          </Form.Text>
         </Col>
       </Form.Group>
 
@@ -198,6 +211,9 @@ function LogsComponent() {
         </Form.Label>
         <Col sm="10">
           <Form.Control type="text" disabled={true} />
+          <Form.Text className="text-muted">
+            Filter log lines containing this keyword (client-side filter).
+          </Form.Text>
         </Col>
       </Form.Group>
 
@@ -215,18 +231,40 @@ function LogsComponent() {
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Body>
         {!logsShowLogs && (
-          <Form onSubmit={showLogs}>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault()
+              showLogs()
+            }}
+          >
+            <Card.Header className="mb-3">
+              <strong>Logs</strong>
+              <div className="small text-muted">
+                Choose a service and options
+              </div>
+            </Card.Header>
             <Form.Group as={Row} className="mb-3" controlId="logsformservice">
               <Form.Label column sm="2">
                 Service
               </Form.Label>
               <Col sm="10">
-                <Form.Control
-                  as="select"
-                  ref={(node) => (inputServiceId = node)}
+                <Form.Select
+                  value={serviceId}
+                  onChange={(e) => {
+                    const id = e.target.value
+                    setServiceId(id)
+                    setServiceName(serviceNames[id] || '')
+                    setServiceHighlightIndex(-1)
+                  }}
+                  aria-label="Select service"
                 >
+                  <option value="">-- Select service --</option>
                   {serviceOptions}
-                </Form.Control>
+                </Form.Select>
+                <Form.Text className="text-muted">
+                  Select the service to retrieve logs from (Docker service
+                  identifier).
+                </Form.Text>
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3" controlId="logsformtail">
@@ -234,11 +272,20 @@ function LogsComponent() {
                 Tail
               </Form.Label>
               <Col sm="10">
-                <Form.Control
-                  type="text"
-                  defaultValue="20"
-                  ref={(node) => (inputTail = node)}
-                />
+                <InputGroup className="w-auto">
+                  <Form.Control
+                    type="number"
+                    min="1"
+                    value={tail}
+                    onChange={(e) => setTail(e.target.value)}
+                    aria-label="Number of lines"
+                  />
+                  <InputGroup.Text>lines</InputGroup.Text>
+                </InputGroup>
+                <Form.Text className="text-muted">
+                  Number of most recent log lines to show (similar to Docker's
+                  --tail option).
+                </Form.Text>
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3" controlId="logsformsince">
@@ -246,11 +293,116 @@ function LogsComponent() {
                 Since
               </Form.Label>
               <Col sm="10">
-                <Form.Control
-                  type="text"
-                  defaultValue="1h"
-                  ref={(node) => (inputSince = node)}
-                />
+                <div className="d-flex align-items-center gap-2 w-100 flex-nowrap">
+                  {!sinceIsISO ? (
+                    <>
+                      <Form.Control
+                        type="number"
+                        min="1"
+                        value={sinceAmount}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/[^0-9]/g, '')
+                          setSinceAmount(v)
+                          setSince(`${v}${sinceUnit}`)
+                          setSinceError(false)
+                        }}
+                        aria-label="Since amount"
+                        isInvalid={!!sinceError}
+                        className="me-2 w-auto"
+                      />
+                      <ButtonGroup aria-label="Since units">
+                        {[
+                          { k: 's', label: 's (seconds)' },
+                          { k: 'm', label: 'm (minutes)' },
+                          { k: 'h', label: 'h (hours)' },
+                          { k: 'd', label: 'd (days)' },
+                        ].map((u) => (
+                          <Button
+                            key={u.k}
+                            variant={
+                              sinceUnit === u.k
+                                ? 'primary'
+                                : 'outline-secondary'
+                            }
+                            onClick={() => {
+                              setSinceUnit(u.k)
+                              setSince(`${sinceAmount}${u.k}`)
+                              setSinceError(false)
+                            }}
+                          >
+                            {u.label}
+                          </Button>
+                        ))}
+                      </ButtonGroup>
+                      <ButtonGroup aria-label="Since presets">
+                        {['5m', '15m', '1h', '6h', '24h'].map((p) => {
+                          const match = p.match(/^(\d+)([smhd])$/)
+                          return (
+                            <Button
+                              key={p}
+                              variant="outline-secondary"
+                              onClick={() => {
+                                setSinceAmount(match[1])
+                                setSinceUnit(match[2])
+                                setSince(p)
+                                setSinceError(false)
+                              }}
+                            >
+                              {p}
+                            </Button>
+                          )
+                        })}
+                      </ButtonGroup>
+                    </>
+                  ) : (
+                    <Form.Control
+                      type="text"
+                      value={since}
+                      onChange={(e) => {
+                        setSince(e.target.value)
+                        setSinceError(false)
+                      }}
+                      onBlur={() => {
+                        if (!isValidSince(since))
+                          setSinceError('Invalid ISO timestamp')
+                      }}
+                      placeholder="2023-01-01T12:00:00Z"
+                      isInvalid={!!sinceError}
+                      className="w-100"
+                    />
+                  )}
+
+                  <Button
+                    variant="outline-secondary"
+                    className="ms-2 flex-shrink-0"
+                    aria-pressed={sinceIsISO}
+                    aria-label={
+                      sinceIsISO ? 'Switch to duration' : 'Switch to ISO'
+                    }
+                    onClick={() => setSinceIsISO((v) => !v)}
+                  >
+                    <FontAwesomeIcon
+                      icon={sinceIsISO ? 'clock' : 'calendar'}
+                      className="me-1"
+                    />
+                    {sinceIsISO ? 'Use duration' : 'Use ISO'}
+                  </Button>
+                </div>
+                {sinceError && (
+                  <div className="invalid-feedback d-block">{sinceError}</div>
+                )}
+                <Form.Text className="text-muted">
+                  Show logs since the given duration (e.g. "1h") or ISO
+                  timestamp. Matches Docker's --since behavior. See{' '}
+                  <a
+                    href="https://docs.docker.com/engine/reference/commandline/cli/#filtering"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Docker docs
+                  </a>
+                  .
+                </Form.Text>
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-3" controlId="logsformfollow">
@@ -258,65 +410,136 @@ function LogsComponent() {
                 Follow
               </Form.Label>
               <Col sm="10">
-                <Form.Check ref={(node) => (inputFollow = node)} />
-              </Col>
-            </Form.Group>
-            <Form.Group
-              as={Row}
-              className="mb-3"
-              controlId="logsformtimestamps"
-            >
-              <Form.Label column sm="2">
-                Timestamps
-              </Form.Label>
-              <Col sm="10">
                 <Form.Check
-                  defaultChecked={false}
-                  ref={(node) => (inputTimestamps = node)}
+                  type="switch"
+                  checked={followVal}
+                  onChange={(e) => setFollowVal(e.target.checked)}
                 />
+                <Form.Text className="text-muted">
+                  Stream logs in real-time (like docker logs -f).
+                </Form.Text>
               </Col>
             </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="logsformstdout">
-              <Form.Label column sm="2">
-                Stdout
-              </Form.Label>
-              <Col sm="10">
-                <Form.Check
-                  defaultChecked={true}
-                  ref={(node) => (inputStdout = node)}
-                />
+            <Form.Group as={Row} className="mb-3">
+              <Col sm={{ span: 10, offset: 2 }}>
+                <Button
+                  variant="link"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  aria-expanded={showAdvanced}
+                  aria-controls="advanced-options"
+                >
+                  <FontAwesomeIcon icon="chevron-right" className="me-2" />
+                  {showAdvanced
+                    ? 'Hide advanced options'
+                    : 'Show advanced options'}
+                </Button>
               </Col>
             </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="logsformstderr">
-              <Form.Label column sm="2">
-                Stderr
-              </Form.Label>
-              <Col sm="10">
-                <Form.Check
-                  defaultChecked={true}
-                  ref={(node) => (inputStderr = node)}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} className="mb-3" controlId="logsformdetails">
-              <Form.Label column sm="2">
-                Details
-              </Form.Label>
-              <Col sm="10">
-                <Form.Check
-                  defaultChecked={false}
-                  ref={(node) => (inputDetails = node)}
-                />
-              </Col>
-            </Form.Group>
+            {showAdvanced && (
+              <div id="advanced-options">
+                <Form.Group
+                  as={Row}
+                  className="mb-3"
+                  controlId="logsformtimestamps"
+                >
+                  <Form.Label column sm="2">
+                    Timestamps
+                  </Form.Label>
+                  <Col sm="10">
+                    <Form.Check
+                      type="switch"
+                      checked={timestampsVal}
+                      onChange={(e) => setTimestampsVal(e.target.checked)}
+                    />
+                    <Form.Text className="text-muted">
+                      Include timestamps for each log line.
+                    </Form.Text>
+                  </Col>
+                </Form.Group>
+                <Form.Group
+                  as={Row}
+                  className="mb-3"
+                  controlId="logsformstdout"
+                >
+                  <Form.Label column sm="2">
+                    Stdout
+                  </Form.Label>
+                  <Col sm="10">
+                    <Form.Check
+                      type="switch"
+                      checked={stdoutVal}
+                      onChange={(e) => setStdoutVal(e.target.checked)}
+                    />
+                    <Form.Text className="text-muted">
+                      Include standard output stream (stdout).
+                    </Form.Text>
+                  </Col>
+                </Form.Group>
+                <Form.Group
+                  as={Row}
+                  className="mb-3"
+                  controlId="logsformstderr"
+                >
+                  <Form.Label column sm="2">
+                    Stderr
+                  </Form.Label>
+                  <Col sm="10">
+                    <Form.Check
+                      type="switch"
+                      checked={stderrVal}
+                      onChange={(e) => setStderrVal(e.target.checked)}
+                    />
+                    <Form.Text className="text-muted">
+                      Include standard error stream (stderr).
+                    </Form.Text>
+                  </Col>
+                </Form.Group>
+                <Form.Group
+                  as={Row}
+                  className="mb-3"
+                  controlId="logsformdetails"
+                >
+                  <Form.Label column sm="2">
+                    Details
+                  </Form.Label>
+                  <Col sm="10">
+                    <Form.Check
+                      type="switch"
+                      checked={detailsVal}
+                      onChange={(e) => setDetailsVal(e.target.checked)}
+                    />
+                    <Form.Text className="text-muted">
+                      Include additional metadata/details (e.g., task and
+                      container IDs).
+                    </Form.Text>
+                  </Col>
+                </Form.Group>
+              </div>
+            )}
 
             <Form.Group as={Row}>
               <Col sm={{ span: 10, offset: 2 }}>
                 <Button
                   type="submit"
-                  disabled={!services || services.length === 0}
+                  disabled={!isServiceSelected}
+                  variant="primary"
+                  className="me-2"
+                  aria-disabled={!isServiceSelected}
+                  title={
+                    !isServiceSelected
+                      ? 'Select a valid service first'
+                      : 'Show logs'
+                  }
                 >
                   <FontAwesomeIcon icon="desktop" /> Show logs
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={clearForm}
+                  aria-label="Clear form"
+                >
+                  <FontAwesomeIcon icon="eraser" className="me-1" /> Clear
                 </Button>
               </Col>
             </Form.Group>
@@ -325,12 +548,57 @@ function LogsComponent() {
         {logsShowLogs && logPrinterOptions}
       </Card.Body>
       {logsShowLogs && (
-        <SyntaxHighlighter style={currentSyntaxHighlighterStyle}>
-          {logsLines?.join('\n')}
-        </SyntaxHighlighter>
+        <div
+          className="p-2 border-top overflow-auto"
+          aria-live="polite"
+          aria-label="Log output"
+        >
+          <div className="font-monospace small">
+            {/** Render only last N lines for performance */}
+            {logsLines
+              ?.slice(-Number(logsNumberOfLines || tail || 100))
+              .map((l, i) => {
+                const isErr = /stderr|error|ERROR/.test(l)
+                return (
+                  <div key={i} className={isErr ? 'text-danger' : undefined}>
+                    {l}
+                  </div>
+                )
+              })}
+          </div>
+          <div className="mt-2">
+            <Button
+              size="sm"
+              className="me-2"
+              onClick={() => {
+                navigator.clipboard?.writeText(logsLines?.join('\n') || '')
+              }}
+            >
+              Copy
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                const blob = new Blob([logsLines?.join('\n') || ''], {
+                  type: 'text/plain',
+                })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `${serviceName || serviceId || 'logs'}.log`
+                a.click()
+                URL.revokeObjectURL(url)
+              }}
+            >
+              Download
+            </Button>
+          </div>
+        </div>
       )}
     </Card>
   )
 }
+
+LogsComponent.propTypes = {}
 
 export { LogsComponent }

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	swarmtypes "github.com/docker/docker/api/types/swarm"
+	dockclient "github.com/docker/docker/client"
 )
 
 // TestDockerServicesHandler verifies that the services handler returns 200 OK
@@ -35,4 +36,33 @@ func TestDockerServicesHandler(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("expected 200 got %d", resp.StatusCode)
 	}
+}
+
+// Test that the services handler panics when the Docker client returns an error.
+func TestDockerServicesHandler_PanicsOnError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			http.Error(w, "internal", http.StatusInternalServerError)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	c, err := dockclient.NewClientWithOpts(dockclient.WithHost(server.URL), dockclient.WithVersion("1.35"))
+	if err != nil {
+		t.Fatalf("create client: %v", err)
+	}
+	SetCli(c)
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatalf("expected panic from dockerServicesHandler on client error")
+		}
+	}()
+
+	req := httptest.NewRequest(http.MethodGet, "/docker/services", nil)
+	w := httptest.NewRecorder()
+	dockerServicesHandler(w, req)
 }

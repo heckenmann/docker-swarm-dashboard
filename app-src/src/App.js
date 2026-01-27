@@ -17,13 +17,9 @@ import { Container } from 'react-bootstrap'
 import { WelcomeMessageComponent } from './components/WelcomeMessageComponent'
 import { ContentRouter } from './components/ContentRouter'
 import { isDarkModeAtom } from './common/store/atoms'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
-import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript'
 import './App.css'
 
 library.add(fab, fas, far)
-
-SyntaxHighlighter.registerLanguage('javascript', js)
 
 const App = () => {
   const isDarkMode = useAtomValue(isDarkModeAtom)

@@ -120,10 +120,50 @@ describe('useEntityActions branches', () => {
     // service onOpen should call updateView updater
     act(() => result.current.onOpen('svc1'))
     expect(mockUpdateView).toHaveBeenCalled()
+    let updater = mockUpdateView.mock.calls.pop()[0]
+    const nav = require('../../../src/common/navigationConstants')
+    expect(updater({})).toEqual({ id: nav.servicesDetailId, detail: 'svc1' })
     // service onFilter should set service filter and clear stack filter
     act(() => result.current.onFilter('mysvc'))
     expect(mockSetFilterType).toHaveBeenCalledWith('service')
     expect(mockSetService).toHaveBeenCalledWith('mysvc')
     expect(mockSetStack).toHaveBeenCalledWith('')
+  })
+
+  test('updateView updater handles null prev values for node/service/task', () => {
+    const mockUpdateView = jest.fn()
+    const actualJotai = jest.requireActual('jotai')
+    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+
+    const atoms = require('../../../src/common/store/atoms')
+    const jotai = require('jotai')
+    jotai.useAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return [null, mockUpdateView]
+      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
+      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
+      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    const {
+      useEntityActions,
+    } = require('../../../src/common/actions/entityActions')
+
+    const { result: nodeRes } = renderHook(() => useEntityActions('node'))
+    act(() => nodeRes.current.onOpen('n2'))
+    expect(mockUpdateView).toHaveBeenCalled()
+    let updater = mockUpdateView.mock.calls.pop()[0]
+    const nav = require('../../../src/common/navigationConstants')
+    expect(updater(null)).toEqual({ id: nav.nodesDetailId, detail: 'n2' })
+
+    const { result: svcRes } = renderHook(() => useEntityActions('service'))
+    act(() => svcRes.current.onOpen('s2'))
+    updater = mockUpdateView.mock.calls.pop()[0]
+    expect(updater(null)).toEqual({ id: nav.servicesDetailId, detail: 's2' })
+
+    const { result: taskRes } = renderHook(() => useEntityActions('task'))
+    act(() => taskRes.current.onOpen('t2'))
+    updater = mockUpdateView.mock.calls.pop()[0]
+    expect(updater(null)).toEqual({ id: nav.tasksId, detail: 't2' })
   })
 })

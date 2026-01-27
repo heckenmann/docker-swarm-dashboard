@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai'
 import {
-  currentSyntaxHighlighterStyleAtom,
   currentVariantAtom,
   currentVariantClassesAtom,
   nodeDetailAtom,
@@ -9,7 +8,6 @@ import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { Card, Tabs, Tab, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from './JsonTable'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { ServiceName } from './names/ServiceName'
 import ServiceStatusBadge from './ServiceStatusBadge'
 
@@ -21,9 +19,6 @@ import ServiceStatusBadge from './ServiceStatusBadge'
 function DetailsNodeComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const currentSyntaxHighlighterStyle = useAtomValue(
-    currentSyntaxHighlighterStyleAtom,
-  )
 
   const currentNode = useAtomValue(nodeDetailAtom)
 
@@ -59,12 +54,15 @@ function DetailsNodeComponent() {
               <JsonTable json={currentNode.node} variant={currentVariant} />
             </Tab>
             <Tab eventKey="json" title="JSON">
-              <SyntaxHighlighter
-                language="javascript"
-                style={currentSyntaxHighlighterStyle}
+              <pre
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                }}
               >
-                {JSON.stringify(currentNode.node, null, '\t')}
-              </SyntaxHighlighter>
+                <code>{JSON.stringify(currentNode.node, null, '\t')}</code>
+              </pre>
             </Tab>
           </Tabs>
         </Card.Body>
