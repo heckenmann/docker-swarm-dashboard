@@ -30,7 +30,9 @@ func TestWriteLogPipeToClient_Success(t *testing.T) {
 		// hand server side conn to test
 		srvConnCh <- conn
 		<-done
-				_ = conn.Close()
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
 	}))
 	defer server.Close()
 
@@ -93,7 +95,9 @@ func TestWriteLogPipeToClient_ErrorWhenClosed(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-				_ = conn.Close()
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
 	}))
 	defer server.Close()
 
@@ -143,7 +147,9 @@ func TestWriteLogPipeToClient_MultipleMessages(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
 	}))
 	defer server.Close()
 
@@ -206,7 +212,9 @@ func TestWriteLogPipeToClient_SplitAggregatedPayload(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
 	}))
 	defer server.Close()
 
@@ -270,7 +278,9 @@ func TestWriteLogPipeToClient_MultipleHeadersPayload(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
+		_ = conn.Close() // Ignore error
 	}))
 	defer server.Close()
 
@@ -343,7 +353,7 @@ func TestWriteLogPipeToClient_EmptyPayload(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -407,7 +417,7 @@ func TestWriteLogPipeToClient_LargeVolume(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -477,7 +487,7 @@ func TestWriteLogPipeToClient_WriterFinishesAfterChannelClose(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -486,7 +496,7 @@ func TestWriteLogPipeToClient_WriterFinishesAfterChannelClose(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -532,7 +542,7 @@ func TestWriteLogPipeToClient_PingTicker(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -541,7 +551,7 @@ func TestWriteLogPipeToClient_PingTicker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -585,7 +595,7 @@ func TestWriteLogPipeToClient_FallbackStripHeader(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -594,7 +604,7 @@ func TestWriteLogPipeToClient_FallbackStripHeader(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -646,7 +656,7 @@ func TestWriteLogPipeToClient_ShortPayload(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -655,7 +665,7 @@ func TestWriteLogPipeToClient_ShortPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -703,7 +713,7 @@ func TestWriteLogPipeToClient_PartialFrameRemainder(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -712,7 +722,7 @@ func TestWriteLogPipeToClient_PartialFrameRemainder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -772,7 +782,7 @@ func TestWriteLogPipeToClient_ZeroLengthPayload(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -781,7 +791,7 @@ func TestWriteLogPipeToClient_ZeroLengthPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -830,7 +840,7 @@ func TestWriteLogPipeToClient_NonStandardStreamHeader(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -839,7 +849,7 @@ func TestWriteLogPipeToClient_NonStandardStreamHeader(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -892,7 +902,7 @@ func TestWriteLogPipeToClient_WriteErrorDuringSend(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -925,7 +935,7 @@ func TestWriteLogPipeToClient_WriteErrorDuringSend(t *testing.T) {
 		t.Fatalf("expected 'first', got '%s'", string(msg))
 	}
 	// close client side to make subsequent WriteMessage fail on server
-	clientConn.Close()
+	_ = clientConn.Close()
 
 	// wait for writer to notice error and finish
 	select {
@@ -952,7 +962,7 @@ func TestWriteLogPipeToClient_ZeroStreamType(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -961,7 +971,7 @@ func TestWriteLogPipeToClient_ZeroStreamType(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -1014,7 +1024,7 @@ func TestWriteLogPipeToClient_PingWriteError(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+		_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -1039,7 +1049,7 @@ func TestWriteLogPipeToClient_PingWriteError(t *testing.T) {
 	select {
 	case <-doneWriter:
 	case <-time.After(2 * time.Second):
-		clientConn.Close()
+		_ = clientConn.Close()
 		t.Fatalf("writer did not exit after ping write error")
 	}
 	close(done)

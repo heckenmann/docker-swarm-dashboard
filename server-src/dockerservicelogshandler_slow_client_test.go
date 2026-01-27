@@ -110,10 +110,7 @@ func TestDockerServiceLogsHandler_ClosesSlowClient(t *testing.T) {
 	// deterministic by ensuring backpressure is in place before
 	// asserting the close.
 	deadline := time.After(6 * time.Second)
-	for {
-		if atomic.LoadInt32(&writes) >= 70 {
-			break
-		}
+	for atomic.LoadInt32(&writes) < 70 {
 		select {
 		case <-deadline:
 			close(done)

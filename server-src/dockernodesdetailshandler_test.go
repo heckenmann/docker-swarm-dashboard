@@ -18,7 +18,7 @@ func TestDockerNodesDetailsHandler_NoMatch(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			w.WriteHeader(http.StatusOK)
-			w.Write(b)
+			_, _ = w.Write(b)
 			return
 		}
 		http.NotFound(w, r)
@@ -51,7 +51,7 @@ func TestDockerNodesDetailsHandler_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			w.WriteHeader(http.StatusOK)
-			w.Write(bNodes)
+			_, _ = w.Write(bNodes)
 			return
 		}
 		http.NotFound(w, r)
@@ -101,15 +101,15 @@ func TestDockerNodesDetailsHandler_ServiceAttachedToTasks(t *testing.T) {
 		switch r.URL.Path {
 		case "/v1.35/nodes":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bNodes)
+			_, _ = w.Write(bNodes)
 			return
 		case "/v1.35/tasks":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bTasks)
+			_, _ = w.Write(bTasks)
 			return
 		case "/v1.35/services":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bServices)
+			_, _ = w.Write(bServices)
 			return
 		default:
 			http.NotFound(w, r)
