@@ -2,11 +2,8 @@ name: Lint server-src
 
 on:
   push:
-    paths:
-      - 'server-src/**'
   pull_request:
-    paths:
-      - 'server-src/**'
+    branches: [master]
 
 jobs:
   golangci-lint:
