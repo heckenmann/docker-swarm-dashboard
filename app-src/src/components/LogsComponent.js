@@ -123,10 +123,12 @@ function LogsComponent() {
   }, [lastMessage, logsNumberOfLines, logsMessageMaxLen, setLogsLines])
 
   const hideLogs = () => {
+    // Preserve form atom values so the form remains populated when
+    // reopening the logs UI. Only hide the logs output and clear
+    // the live lines/config used for the current view.
     resetLogsLines()
     setLogsConfig(null)
     setLogsShowLogs(false)
-    clearForm()
   }
 
   const clearForm = () => {
