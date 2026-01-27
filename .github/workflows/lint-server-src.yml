@@ -35,5 +35,6 @@ jobs:
         uses: golangci/golangci-lint-action@v4
         with:
           version: v1.59.0
+          install-mode: source
           args: run ./...
           working-directory: server-src
