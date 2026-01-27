@@ -4,6 +4,9 @@
         "npm test": true,
         "git rev-parse": true,
         "git checkout": true,
-        "true": true
+        "true": true,
+        "yarn lint": true,
+        "yarn test": true,
+        "yarn format": true
     }
 }
