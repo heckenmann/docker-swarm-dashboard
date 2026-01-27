@@ -36,5 +36,5 @@ jobs:
         with:
           version: v1.59.0
           install-mode: source
-          args: run ./...
+          args: ./...
           working-directory: server-src
