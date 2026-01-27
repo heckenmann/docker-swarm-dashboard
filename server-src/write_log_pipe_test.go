@@ -30,7 +30,7 @@ func TestWriteLogPipeToClient_Success(t *testing.T) {
 		// hand server side conn to test
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+				_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -93,7 +93,7 @@ func TestWriteLogPipeToClient_ErrorWhenClosed(t *testing.T) {
 		}
 		srvConnCh <- conn
 		<-done
-		conn.Close()
+				_ = conn.Close()
 	}))
 	defer server.Close()
 
@@ -279,7 +279,7 @@ func TestWriteLogPipeToClient_MultipleHeadersPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -352,7 +352,7 @@ func TestWriteLogPipeToClient_EmptyPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -416,7 +416,7 @@ func TestWriteLogPipeToClient_LargeVolume(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial failed: %v", err)
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	serverConn := <-srvConnCh
 
@@ -1034,7 +1034,7 @@ func TestWriteLogPipeToClient_PingWriteError(t *testing.T) {
 	}()
 
 	// Close server connection to ensure next ping fails
-	serverConn.Close()
+	_ = serverConn.Close()
 
 	select {
 	case <-doneWriter:

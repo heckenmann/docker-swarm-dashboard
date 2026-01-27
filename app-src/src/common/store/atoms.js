@@ -135,6 +135,21 @@ export const logsShowLogsAtom = atom(false)
 export const logsNumberOfLinesAtom = atomWithReset(20)
 export const logsConfigAtom = atom()
 export const logsMessageMaxLenAtom = atomWithReset(10000)
+// Form-level atoms to persist logs form state across navigation
+export const logsFormServiceIdAtom = atomWithReset('')
+export const logsFormServiceNameAtom = atomWithReset('')
+export const logsFormTailAtom = atomWithReset('20')
+export const logsFormSinceAtom = atomWithReset('1h')
+export const logsFormSinceErrorAtom = atomWithReset(false)
+export const logsFormShowAdvancedAtom = atomWithReset(false)
+export const logsFormSinceAmountAtom = atomWithReset('1')
+export const logsFormSinceUnitAtom = atomWithReset('h')
+export const logsFormSinceIsISOAtom = atomWithReset(false)
+export const logsFormFollowAtom = atomWithReset(false)
+export const logsFormTimestampsAtom = atomWithReset(false)
+export const logsFormStdoutAtom = atomWithReset(true)
+export const logsFormStderrAtom = atomWithReset(true)
+export const logsFormDetailsAtom = atomWithReset(false)
 /**
  * Build the websocket URL used to fetch logs for the currently configured
  * `logsConfigAtom` value. Returns `null` when no logs config is set.

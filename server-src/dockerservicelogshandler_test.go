@@ -244,7 +244,7 @@ func TestDockerServiceLogsHandler_UpgradeError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("http.Get failed: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Upgrade should fail and the server should respond with 400 or similar
 	if resp.StatusCode == http.StatusOK {

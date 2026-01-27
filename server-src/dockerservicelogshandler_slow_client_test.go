@@ -67,7 +67,7 @@ func TestDockerServiceLogsHandler_ClosesSlowClient(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial: %v", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Start a slow reader: read messages but sleep between reads so the
 	// server cannot keep up. We expect the server to close the

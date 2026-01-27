@@ -35,15 +35,15 @@ func TestDashboardVHandler(t *testing.T) {
 		switch r.URL.Path {
 		case "/v1.35/nodes":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bNodes)
+			_ = w.Write(bNodes)
 			return
 		case "/v1.35/services":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bServices)
+			_ = w.Write(bServices)
 			return
 		case "/v1.35/tasks":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bTasks)
+			_ = w.Write(bTasks)
 			return
 		default:
 			http.NotFound(w, r)

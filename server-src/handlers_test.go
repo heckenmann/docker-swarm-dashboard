@@ -196,9 +196,9 @@ func TestVersionHandler(t *testing.T) {
 			os.Setenv(k, v)
 		}
 	}()
-	os.Setenv("DSD_VERSION", "1.0.0")
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
-	os.Setenv("DSD_VERSION_RELEASE_URL", releaseServer.URL)
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	_ = os.Setenv("DSD_VERSION_RELEASE_URL", releaseServer.URL)
 
 	req := httptest.NewRequest(http.MethodGet, "/version", nil)
 	w := httptest.NewRecorder()
@@ -208,7 +208,9 @@ func TestVersionHandler(t *testing.T) {
 		t.Fatalf("expected 200 got %d", resp.StatusCode)
 	}
 	var u map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&u)
+	if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	if _, ok := u["version"]; !ok {
 		t.Fatalf("expected response to contain 'version' field")
 	}
