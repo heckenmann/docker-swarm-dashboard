@@ -26,17 +26,14 @@ jobs:
             ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.59.0
-
       - name: Build server packages (generate export data)
         run: |
           cd server-src
           go test ./...
 
       - name: Run golangci-lint
-        run: |
-          cd server-src
-          golangci-lint run ./...
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.59.0
+          args: run ./...
+          working-directory: server-src
