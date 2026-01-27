@@ -37,8 +37,6 @@ jobs:
           go test ./...
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.59.0
-          args: run ./...
-          working-directory: server-src
+        run: |
+          cd server-src
+          golangci-lint run ./...
