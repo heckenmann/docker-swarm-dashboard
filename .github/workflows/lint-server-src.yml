@@ -31,6 +31,8 @@ jobs:
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v4
+        # run from server-src so go mod and go files are discovered correctly
+        working-directory: server-src
         with:
           version: v1.59.0
-          args: run ./server-src/...
+          args: run ./...
