@@ -125,7 +125,6 @@ function LogsComponent() {
     setStdoutVal(true)
     setStderrVal(true)
     setDetailsVal(false)
-    setServiceSearch('')
   }
 
   // use the module-level `isValidSince` exported above
