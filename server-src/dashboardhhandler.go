@@ -86,5 +86,5 @@ func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(result)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

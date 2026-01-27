@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
 	"net/http"
 	"sort"
+
+	"github.com/docker/docker/api/types"
 )
 
 type PortsHandlerSimplePort struct {
@@ -47,5 +48,5 @@ func portsHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }
