@@ -20,6 +20,20 @@ import {
   logsServicesAtom,
   logsShowLogsAtom,
   logsWebsocketUrlAtom,
+  logsFormServiceIdAtom,
+  logsFormServiceNameAtom,
+  logsFormTailAtom,
+  logsFormSinceAtom,
+  logsFormSinceErrorAtom,
+  logsFormShowAdvancedAtom,
+  logsFormSinceAmountAtom,
+  logsFormSinceUnitAtom,
+  logsFormSinceIsISOAtom,
+  logsFormFollowAtom,
+  logsFormTimestampsAtom,
+  logsFormStdoutAtom,
+  logsFormStderrAtom,
+  logsFormDetailsAtom,
 } from '../common/store/atoms'
 import useWebSocket from 'react-use-websocket'
 import { useEffect, useCallback, useState } from 'react'
@@ -65,23 +79,23 @@ function LogsComponent() {
     logsShowLogs,
   )
 
-  // Controlled inputs (improves validation, accessibility and testability)
-  const [serviceId, setServiceId] = useState('')
-  const [serviceName, setServiceName] = useState('')
-  const [tail, setTail] = useState('20')
-  const [since, setSince] = useState('1h')
-  const [sinceError, setSinceError] = useState(false)
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  // Controlled inputs (persisted in atoms so they survive navigation)
+  const [serviceId, setServiceId] = useAtom(logsFormServiceIdAtom)
+  const [serviceName, setServiceName] = useAtom(logsFormServiceNameAtom)
+  const [tail, setTail] = useAtom(logsFormTailAtom)
+  const [since, setSince] = useAtom(logsFormSinceAtom)
+  const [sinceError, setSinceError] = useAtom(logsFormSinceErrorAtom)
+  const [showAdvanced, setShowAdvanced] = useAtom(logsFormShowAdvancedAtom)
   // serviceSearch state removed (not used); keep code simple
   const [_serviceHighlightIndex, setServiceHighlightIndex] = useState(-1)
-  const [followVal, setFollowVal] = useState(false)
-  const [timestampsVal, setTimestampsVal] = useState(false)
-  const [stdoutVal, setStdoutVal] = useState(true)
-  const [stderrVal, setStderrVal] = useState(true)
-  const [detailsVal, setDetailsVal] = useState(false)
-  const [sinceAmount, setSinceAmount] = useState('1')
-  const [sinceUnit, setSinceUnit] = useState('h')
-  const [sinceIsISO, setSinceIsISO] = useState(false)
+  const [followVal, setFollowVal] = useAtom(logsFormFollowAtom)
+  const [timestampsVal, setTimestampsVal] = useAtom(logsFormTimestampsAtom)
+  const [stdoutVal, setStdoutVal] = useAtom(logsFormStdoutAtom)
+  const [stderrVal, setStderrVal] = useAtom(logsFormStderrAtom)
+  const [detailsVal, setDetailsVal] = useAtom(logsFormDetailsAtom)
+  const [sinceAmount, setSinceAmount] = useAtom(logsFormSinceAmountAtom)
+  const [sinceUnit, setSinceUnit] = useAtom(logsFormSinceUnitAtom)
+  const [sinceIsISO, setSinceIsISO] = useAtom(logsFormSinceIsISOAtom)
   useEffect(() => {
     if (!lastMessage) return
     let raw

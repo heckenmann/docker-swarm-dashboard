@@ -22,5 +22,5 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 		UpdateAvailable: updateAvailable,
 	}
 
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }

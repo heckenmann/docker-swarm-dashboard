@@ -77,5 +77,5 @@ func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(result)
-	w.Write(resultJson)
+	_ = w.Write(resultJson)
 }

@@ -35,7 +35,9 @@ func TestNodesHandler(t *testing.T) {
 		t.Fatalf("expected 200 got %d", resp.StatusCode)
 	}
 	var out []map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&out)
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	if len(out) == 0 {
 		t.Fatalf("expected at least one node in response")
 	}
