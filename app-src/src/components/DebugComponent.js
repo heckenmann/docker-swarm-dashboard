@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai'
 import {
-  currentSyntaxHighlighterStyleAtom,
   currentVariantAtom,
   currentVariantClassesAtom,
   dashboardHAtom,
@@ -20,9 +19,6 @@ import {
 function DebugComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const currentSyntaxHighlighterStyle = useAtomValue(
-    currentSyntaxHighlighterStyleAtom,
-  )
 
   const debugJson = {
     dashboardh: useAtomValue(dashboardHAtom),
@@ -41,9 +37,15 @@ function DebugComponent() {
       <Card.Body>
         <h1>Debug</h1>
         <h2>API Dump</h2>
-        <SyntaxHighlighter style={currentSyntaxHighlighterStyle}>
-          {JSON.stringify(debugJson, null, 2)}
-        </SyntaxHighlighter>
+        <pre
+          style={{
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'monospace',
+            fontSize: 12,
+          }}
+        >
+          <code>{JSON.stringify(debugJson, null, 2)}</code>
+        </pre>
       </Card.Body>
     </Card>
   )

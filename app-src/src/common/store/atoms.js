@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { atomWithReducer, atomWithReset } from 'jotai/utils'
-import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
-import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
+const a11yDark = {}
+const a11yLight = {}
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
 import {
@@ -13,6 +13,15 @@ import {
 } from '../navigationConstants'
 
 // Initial values
+/**
+ * Parse a window.location.hash string into an object map.
+ *
+ * Supports hashes like `#base=/app&view=foo` and decodes URI components.
+ * Surrounding or embedded quotes are removed to normalize values.
+ *
+ * @param {string} hashString - The hash string to parse (may start with `#`).
+ * @returns {Object<string,string>} A map of parsed key/value pairs.
+ */
 export function parseHashToObj(hashString) {
   const hash = typeof hashString === 'string' ? hashString : ''
   const hashWithoutHash = hash.startsWith('#') ? hash.substring(1) : hash
@@ -125,6 +134,16 @@ export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
 export const logsNumberOfLinesAtom = atomWithReset(20)
 export const logsConfigAtom = atom()
+export const logsMessageMaxLenAtom = atomWithReset(10000)
+/**
+ * Build the websocket URL used to fetch logs for the currently configured
+ * `logsConfigAtom` value. Returns `null` when no logs config is set.
+ *
+ * The atom reads `baseUrlAtom` and adapts to absolute or relative base
+ * URLs, switching the protocol to `ws(s)` and appending query parameters.
+ *
+ * @returns {string|null} websocket URL or null
+ */
 export const logsWebsocketUrlAtom = atom((get) => {
   const logsConfig = get(logsConfigAtom)
   if (!logsConfig) {
@@ -181,6 +200,7 @@ export const currentVariantClassesAtom = atom((get) =>
 // Track outstanding network requests (number)
 export const networkRequestsAtom = atom(0)
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
+  // keep API shape for tests/components — returns an object
   get(isDarkModeAtom) ? a11yDark : a11yLight,
 )
 
