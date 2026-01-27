@@ -26,10 +26,11 @@ jobs:
             ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
+
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        # run from server-src so go mod and go files are discovered correctly
-        working-directory: server-src
-        with:
-          version: v1.59.0
-          args: run ./...
+        run: |
+          cd server-src
+          $(go env GOPATH)/bin/golangci-lint run ./...
