@@ -27,8 +27,9 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
       - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.59.0
 
       - name: Build server packages (generate export data)
         run: |
@@ -36,6 +37,8 @@ jobs:
           go test ./...
 
       - name: Run golangci-lint
-        run: |
-          cd server-src
-          $(go env GOPATH)/bin/golangci-lint run ./...
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.59.0
+          args: run ./...
+          working-directory: server-src
