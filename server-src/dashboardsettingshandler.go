@@ -89,5 +89,5 @@ func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 		WelcomeMessage:                   welcomeMessage,
 	})
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonString)
+	_, _ = w.Write(jsonString)
 }

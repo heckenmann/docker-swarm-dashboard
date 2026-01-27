@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/swarm"
 	"net/http"
 	"sort"
 	"time"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type TimelineHandlerSimpleTask struct {
@@ -72,5 +73,5 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

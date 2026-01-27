@@ -45,7 +45,7 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			// convert task to a generic map first
 			var tm map[string]interface{}
 			b, _ := json.Marshal(t)
-			json.Unmarshal(b, &tm)
+			_ = json.Unmarshal(b, &tm)
 			// try to fetch node object for this task
 			nodesFilter := filters.NewArgs()
 			nodesFilter.Add("id", t.NodeID)
@@ -65,8 +65,8 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			"tasks":   enriched,
 		}
 		jsonString, _ := json.Marshal(resp)
-		w.Write(jsonString)
+		_, _ = w.Write(jsonString)
 	} else {
-		w.Write([]byte("{}"))
+		_, _ = w.Write([]byte("{}"))
 	}
 }

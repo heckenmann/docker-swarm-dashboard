@@ -44,7 +44,7 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		for _, t := range Tasks {
 			var tm map[string]interface{}
 			b, _ := json.Marshal(t)
-			json.Unmarshal(b, &tm)
+			_ = json.Unmarshal(b, &tm)
 			// try to fetch service object for this task
 			servicesFilter := filters.NewArgs()
 			servicesFilter.Add("id", t.ServiceID)
@@ -63,8 +63,8 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			"tasks": enriched,
 		}
 		jsonString, _ := json.Marshal(resp)
-		w.Write(jsonString)
+		_, _ = w.Write(jsonString)
 	} else {
-		w.Write([]byte("{}"))
+		_, _ = w.Write([]byte("{}"))
 	}
 }
