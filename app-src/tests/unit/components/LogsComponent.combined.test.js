@@ -370,6 +370,49 @@ describe('LogsComponent (combined)', () => {
     )
   })
 
+  test('uses readable muted text in dark mode', async () => {
+    function ThemeSetter() {
+      const [, setDark] = useAtom(atoms.isDarkModeAtom)
+      const [, setServiceId] = useAtom(atoms.logsFormServiceIdAtom)
+      const [, setShowLogs] = useAtom(atoms.logsShowLogsAtom)
+      useEffect(() => {
+        setDark(true)
+        setServiceId('s1')
+        setShowLogs(true)
+      }, [setDark, setServiceId, setShowLogs])
+      return null
+    }
+
+    render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5]]}
+        >
+          <ThemeSetter />
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /Hide logs/i }),
+      ).toBeInTheDocument(),
+    )
+
+    // logs are shown via ThemeSetter; ensure logPrinterOptions rendered
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /Hide logs/i }),
+      ).toBeInTheDocument(),
+    )
+
+    // assert Form.Text uses text-secondary in dark mode
+    expect(
+      screen.getByText(/Filter log lines containing this keyword/),
+    ).toHaveClass('text-secondary')
+  })
+
   test('Show logs button is enabled when services are provided', async () => {
     render(
       <Suspense fallback={<div>loading</div>}>
