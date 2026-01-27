@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
 	"net/http"
 	"sort"
+
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type NodesHandlerSimpleNode struct {
@@ -23,7 +24,7 @@ type NodesHandlerSimpleNode struct {
 
 func nodesHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	nodes, _ := cli.NodeList(context.Background(), types.NodeListOptions{})
+	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
 
 	resultList := make([]NodesHandlerSimpleNode, 0)
 
@@ -52,5 +53,5 @@ func nodesHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

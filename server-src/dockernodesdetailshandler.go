@@ -7,9 +7,8 @@ import (
 	"sort"
 
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/gorilla/mux"
-
-	"github.com/docker/docker/api/types"
 )
 
 // Serves single node
@@ -19,7 +18,7 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	cli := getCli()
 	nodesFilter := filters.NewArgs()
 	nodesFilter.Add("id", paramNodeId)
-	Services, err := cli.NodeList(context.Background(), types.NodeListOptions{Filters: nodesFilter})
+	Services, err := cli.NodeList(context.Background(), swarm.NodeListOptions{Filters: nodesFilter})
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +26,7 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		// Get tasks for this node
 		tasksFilter := filters.NewArgs()
 		tasksFilter.Add("node", paramNodeId)
-		Tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{Filters: tasksFilter})
+		Tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilter})
 		if err != nil {
 			// If task list fails in the mock environment, return node without tasks
 			Tasks = nil
@@ -48,7 +47,7 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			// try to fetch service object for this task
 			servicesFilter := filters.NewArgs()
 			servicesFilter.Add("id", t.ServiceID)
-			svcList, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{Filters: servicesFilter})
+			svcList, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: servicesFilter})
 			if len(svcList) > 0 {
 				tm["Service"] = svcList[0]
 			} else {

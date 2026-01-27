@@ -6,10 +6,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/docker/docker/api/types/swarm"
-
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type DashboardH struct {
@@ -40,9 +38,9 @@ type SimpleService struct {
 func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 	result := DashboardH{}
 	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
-	//tasks, _ := cli.TaskList(context.Background(), types.TaskListOptions{})
-	nodes, _ := cli.NodeList(context.Background(), types.NodeListOptions{})
+	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
+	//tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
+	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
 
 	// Table Header
 	//result.Headlines = append(result.Headlines, "Services", "Role", "State", "Availability", "IP")
@@ -64,7 +62,7 @@ func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 		newNodeLine.Tasks = make(map[string][]swarm.Task)
 		tasksFilters := filters.NewArgs()
 		tasksFilters.Add("node", node.ID)
-		tasksForCurrentNode, _ := cli.TaskList(context.Background(), types.TaskListOptions{Filters: tasksFilters})
+		tasksForCurrentNode, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilters})
 		sort.SliceStable(tasksForCurrentNode, func(i, j int) bool {
 			return tasksForCurrentNode[i].CreatedAt.After(tasksForCurrentNode[j].CreatedAt)
 		})

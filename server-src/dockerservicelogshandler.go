@@ -146,9 +146,9 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		Details:    paramDetails,
 	})
 
-	// Ensure reader closed if it implements io.ReadCloser
-	if rc, ok := logReader.(io.ReadCloser); ok {
-		defer func() { _ = rc.Close() }()
+	// Ensure reader closed when set (cli.ServiceLogs returns an io.ReadCloser).
+	if logReader != nil {
+		defer func() { _ = logReader.Close() }()
 	}
 
 	// Buffered channel decouples the Docker log read from websocket writes.
@@ -223,8 +223,8 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		timer.Stop()
 		// ensure reader is closed to unblock underlying connection
-		if rc, ok := logReader.(io.ReadCloser); ok {
-			_ = rc.Close()
+		if logReader != nil {
+			_ = logReader.Close()
 		}
 		// determine requested tail and send only those lines
 		tailNum := 20

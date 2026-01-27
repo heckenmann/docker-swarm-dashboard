@@ -20,7 +20,7 @@ func TestGetLatestRemoteVersion_NoURL(t *testing.T) {
 // TestGetLatestRemoteVersion_Success verifies parsing of remote release tag.
 func TestGetLatestRemoteVersion_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"tag_name":"2.3.4"}`))
+		_, _ = w.Write([]byte(`{"tag_name":"2.3.4"}`))
 	}))
 	defer srv.Close()
 	_ = os.Setenv("DSD_VERSION_RELEASE_URL", srv.URL)
@@ -66,7 +66,7 @@ func TestGetLocalVersion_Success(t *testing.T) {
 // TestGetLatestRemoteVersion_BadJSON ensures JSON decoding errors are handled
 func TestGetLatestRemoteVersion_BadJSON(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`not-a-json`))
+		_, _ = w.Write([]byte(`not-a-json`))
 	}))
 	defer srv.Close()
 	_ = os.Setenv("DSD_VERSION_RELEASE_URL", srv.URL)
@@ -78,7 +78,7 @@ func TestGetLatestRemoteVersion_BadJSON(t *testing.T) {
 // TestCheckVersion_RemoteNonSemver ensures checkVersion handles non-semver remote tag
 func TestCheckVersion_RemoteNonSemver(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"tag_name":"not-a-semver"}`))
+		_, _ = w.Write([]byte(`{"tag_name":"not-a-semver"}`))
 	}))
 	defer srv.Close()
 	_ = os.Setenv("DSD_VERSION_RELEASE_URL", srv.URL)
@@ -94,7 +94,7 @@ func TestCheckVersion_RemoteNonSemver(t *testing.T) {
 
 // TestCheckVersion_NoLocal ensures checkVersion returns false when no local version set.
 func TestCheckVersion_NoLocal(t *testing.T) {
-	os.Unsetenv("DSD_VERSION")
+	_ = os.Unsetenv("DSD_VERSION")
 	_, _, ok := checkVersion()
 	if ok {
 		t.Fatalf("expected ok false when no local version")
@@ -103,9 +103,9 @@ func TestCheckVersion_NoLocal(t *testing.T) {
 
 // TestCheckVersion_Disabled ensures when version check is disabled it returns local and no remote.
 func TestCheckVersion_Disabled(t *testing.T) {
-	os.Setenv("DSD_VERSION", "1.0.0")
-	defer os.Unsetenv("DSD_VERSION")
-	os.Unsetenv("DSD_VERSION_CHECK_ENABLED")
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	_ = os.Unsetenv("DSD_VERSION_CHECK_ENABLED")
 
 	// reset cache
 	lastCheckTime = time.Time{}
@@ -121,10 +121,10 @@ func TestCheckVersion_Disabled(t *testing.T) {
 
 // TestCheckVersion_CachePath exercises code path where cache is fresh and checkVersion returns cached data.
 func TestCheckVersion_CachePath(t *testing.T) {
-	os.Setenv("DSD_VERSION", "1.0.0")
-	defer os.Unsetenv("DSD_VERSION")
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
-	defer os.Unsetenv("DSD_VERSION_CHECK_ENABLED")
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	defer func() { _ = os.Unsetenv("DSD_VERSION_CHECK_ENABLED") }()
 
 	// prime the cache
 	lastCheckTime = time.Now()
@@ -144,17 +144,17 @@ func TestCheckVersion_CachePath(t *testing.T) {
 
 // TestCheckVersion_FreshFetchSuccess simulates successful remote fetch and semver comparison.
 func TestCheckVersion_FreshFetchSuccess(t *testing.T) {
-	os.Setenv("DSD_VERSION", "1.0.0")
-	defer os.Unsetenv("DSD_VERSION")
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
-	defer os.Unsetenv("DSD_VERSION_CHECK_ENABLED")
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	defer func() { _ = os.Unsetenv("DSD_VERSION_CHECK_ENABLED") }()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]string{"tag_name": "2.0.0"})
 	}))
 	defer srv.Close()
-	os.Setenv("DSD_VERSION_RELEASE_URL", srv.URL)
-	defer os.Unsetenv("DSD_VERSION_RELEASE_URL")
+	_ = os.Setenv("DSD_VERSION_RELEASE_URL", srv.URL)
+	defer func() { _ = os.Unsetenv("DSD_VERSION_RELEASE_URL") }()
 
 	// invalidate cache
 	lastCheckTime = time.Time{}
@@ -168,8 +168,8 @@ func TestCheckVersion_FreshFetchSuccess(t *testing.T) {
 
 // TestCheckVersion_InvalidLocalSemver ensures invalid local semver returns false.
 func TestCheckVersion_InvalidLocalSemver(t *testing.T) {
-	os.Setenv("DSD_VERSION", "not-a-semver")
-	defer os.Unsetenv("DSD_VERSION")
+	_ = os.Setenv("DSD_VERSION", "not-a-semver")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
 	_, _, ok := checkVersion()
 	if ok {
 		t.Fatalf("expected ok false for invalid local semver")
@@ -180,10 +180,10 @@ func TestCheckVersion_InvalidLocalSemver(t *testing.T) {
 // taken but the local version is invalid semver, checkVersion returns false
 // without attempting a remote fetch.
 func TestCheckVersion_CacheInvalidLocalSemver(t *testing.T) {
-	os.Setenv("DSD_VERSION", "not-a-semver")
-	defer os.Unsetenv("DSD_VERSION")
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
-	defer os.Unsetenv("DSD_VERSION_CHECK_ENABLED")
+	_ = os.Setenv("DSD_VERSION", "not-a-semver")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	defer func() { _ = os.Unsetenv("DSD_VERSION_CHECK_ENABLED") }()
 
 	// prime cache and set lastCheckTime recent so cache path is used
 	cachedRemoteVersion = "2.0.0"

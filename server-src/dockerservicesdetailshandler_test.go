@@ -27,15 +27,15 @@ func TestDockerServicesDetailsHandler_Success(t *testing.T) {
 		switch r.URL.Path {
 		case "/v1.35/services":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bServices)
+			_, _ = w.Write(bServices)
 			return
 		case "/v1.35/tasks":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bTasks)
+			_, _ = w.Write(bTasks)
 			return
 		case "/v1.35/nodes":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bNodes)
+			_, _ = w.Write(bNodes)
 			return
 		default:
 			http.NotFound(w, r)

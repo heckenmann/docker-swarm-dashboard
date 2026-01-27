@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type PortsHandlerSimplePort struct {
@@ -21,7 +21,7 @@ type PortsHandlerSimplePort struct {
 
 func portsHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
 	resultList := make([]PortsHandlerSimplePort, 0)
 
