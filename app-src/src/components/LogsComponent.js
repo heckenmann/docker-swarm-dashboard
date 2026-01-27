@@ -199,7 +199,11 @@ function LogsComponent() {
             defaultValue={logsConfig?.serviceName}
             disabled={true}
           />
-          <Form.Text className="text-muted">
+          <Form.Text
+            className={
+              currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+            }
+          >
             Selected service for which logs are shown.
           </Form.Text>
         </Col>
@@ -215,7 +219,11 @@ function LogsComponent() {
             value={logsNumberOfLines}
             onChange={(e) => setLogsNumberOfLines(Number(e.target.value) || 0)}
           />
-          <Form.Text className="text-muted">
+          <Form.Text
+            className={
+              currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+            }
+          >
             How many of the most recent log lines to display (like --tail).
           </Form.Text>
         </Col>
@@ -227,7 +235,11 @@ function LogsComponent() {
         </Form.Label>
         <Col sm="10">
           <Form.Control type="text" disabled={true} />
-          <Form.Text className="text-muted">
+          <Form.Text
+            className={
+              currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+            }
+          >
             Filter log lines containing this keyword (client-side filter).
           </Form.Text>
         </Col>
@@ -253,9 +265,11 @@ function LogsComponent() {
               showLogs()
             }}
           >
-            <Card.Header className="mb-3">
+            <Card.Header className={`mb-3 ${currentVariantClasses}`}>
               <strong>Logs</strong>
-              <div className="small text-muted">
+              <div
+                className={`small ${currentVariant === 'dark' ? 'text-secondary' : 'text-muted'}`}
+              >
                 Choose a service and options
               </div>
             </Card.Header>
@@ -277,7 +291,11 @@ function LogsComponent() {
                   <option value="">-- Select service --</option>
                   {serviceOptions}
                 </Form.Select>
-                <Form.Text className="text-muted">
+                <Form.Text
+                  className={
+                    currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+                  }
+                >
                   Select the service to retrieve logs from (Docker service
                   identifier).
                 </Form.Text>
@@ -298,7 +316,11 @@ function LogsComponent() {
                   />
                   <InputGroup.Text>lines</InputGroup.Text>
                 </InputGroup>
-                <Form.Text className="text-muted">
+                <Form.Text
+                  className={
+                    currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+                  }
+                >
                   Number of most recent log lines to show (similar to Docker's
                   --tail option).
                 </Form.Text>
@@ -421,7 +443,11 @@ function LogsComponent() {
                 {sinceError && (
                   <div className="invalid-feedback d-block">{sinceError}</div>
                 )}
-                <Form.Text className="text-muted">
+                <Form.Text
+                  className={
+                    currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+                  }
+                >
                   Show logs since the given duration (e.g. "1h") or ISO
                   timestamp. Matches Docker's --since behavior. See{' '}
                   <a
@@ -445,7 +471,11 @@ function LogsComponent() {
                   checked={followVal}
                   onChange={(e) => setFollowVal(e.target.checked)}
                 />
-                <Form.Text className="text-muted">
+                <Form.Text
+                  className={
+                    currentVariant === 'dark' ? 'text-secondary' : 'text-muted'
+                  }
+                >
                   Stream logs in real-time (like docker logs -f).
                 </Form.Text>
               </Col>
@@ -481,7 +511,13 @@ function LogsComponent() {
                       checked={timestampsVal}
                       onChange={(e) => setTimestampsVal(e.target.checked)}
                     />
-                    <Form.Text className="text-muted">
+                    <Form.Text
+                      className={
+                        currentVariant === 'dark'
+                          ? 'text-secondary'
+                          : 'text-muted'
+                      }
+                    >
                       Include timestamps for each log line.
                     </Form.Text>
                   </Col>
@@ -500,7 +536,13 @@ function LogsComponent() {
                       checked={stdoutVal}
                       onChange={(e) => setStdoutVal(e.target.checked)}
                     />
-                    <Form.Text className="text-muted">
+                    <Form.Text
+                      className={
+                        currentVariant === 'dark'
+                          ? 'text-secondary'
+                          : 'text-muted'
+                      }
+                    >
                       Include standard output stream (stdout).
                     </Form.Text>
                   </Col>
@@ -519,7 +561,13 @@ function LogsComponent() {
                       checked={stderrVal}
                       onChange={(e) => setStderrVal(e.target.checked)}
                     />
-                    <Form.Text className="text-muted">
+                    <Form.Text
+                      className={
+                        currentVariant === 'dark'
+                          ? 'text-secondary'
+                          : 'text-muted'
+                      }
+                    >
                       Include standard error stream (stderr).
                     </Form.Text>
                   </Col>
@@ -538,7 +586,13 @@ function LogsComponent() {
                       checked={detailsVal}
                       onChange={(e) => setDetailsVal(e.target.checked)}
                     />
-                    <Form.Text className="text-muted">
+                    <Form.Text
+                      className={
+                        currentVariant === 'dark'
+                          ? 'text-secondary'
+                          : 'text-muted'
+                      }
+                    >
                       Include additional metadata/details (e.g., task and
                       container IDs).
                     </Form.Text>
@@ -579,7 +633,7 @@ function LogsComponent() {
       </Card.Body>
       {logsShowLogs && (
         <div
-          className="p-2 border-top overflow-auto"
+          className={`p-2 border-top border-secondary overflow-auto ${currentVariantClasses}`}
           aria-live="polite"
           aria-label="Log output"
         >
@@ -590,7 +644,10 @@ function LogsComponent() {
               .map((l, i) => {
                 const isErr = /stderr|error|ERROR/.test(l)
                 return (
-                  <div key={i} className={isErr ? 'text-danger' : undefined}>
+                  <div
+                    key={i}
+                    className={isErr ? 'text-danger fw-semibold' : undefined}
+                  >
                     {l}
                   </div>
                 )
@@ -599,6 +656,7 @@ function LogsComponent() {
           <div className="mt-2">
             <Button
               size="sm"
+              variant="outline-secondary"
               className="me-2"
               onClick={() => {
                 navigator.clipboard?.writeText(logsLines?.join('\n') || '')
@@ -608,6 +666,7 @@ function LogsComponent() {
             </Button>
             <Button
               size="sm"
+              variant="outline-secondary"
               onClick={() => {
                 const blob = new Blob([logsLines?.join('\n') || ''], {
                   type: 'text/plain',
