@@ -56,7 +56,9 @@ func TestDockerServicesDetailsHandler_Success(t *testing.T) {
 		t.Fatalf("expected 200 got %d", resp.StatusCode)
 	}
 	var out map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&out)
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	svcObj, ok := out["service"].(map[string]interface{})
 	if !ok {
 		t.Fatalf("expected service object, got %v", out["service"])
