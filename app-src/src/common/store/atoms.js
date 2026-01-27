@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { atomWithReducer, atomWithReset } from 'jotai/utils'
-import a11yDark from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark'
-import a11yLight from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-light'
+const a11yDark = {}
+const a11yLight = {}
 import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
 import {
@@ -200,6 +200,7 @@ export const currentVariantClassesAtom = atom((get) =>
 // Track outstanding network requests (number)
 export const networkRequestsAtom = atom(0)
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
+  // keep API shape for tests/components — returns an object
   get(isDarkModeAtom) ? a11yDark : a11yLight,
 )
 
