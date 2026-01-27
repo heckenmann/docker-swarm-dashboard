@@ -31,10 +31,12 @@ jobs:
           cd server-src
           go test ./...
 
+      - name: Install golangci-lint (build with repo Go)
+        run: |
+          GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.0
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.59.0
-          install-mode: source
-          args: ./...
-          working-directory: server-src
+        run: |
+          cd server-src
+          golangci-lint run ./...
