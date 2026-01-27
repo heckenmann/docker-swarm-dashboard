@@ -51,8 +51,8 @@ func TestBuildHandler_DefaultNoPrefix(t *testing.T) {
 // the environment variable is not set.
 func TestGetHTTPPort_Default(t *testing.T) {
 	old := os.Getenv("DSD_HTTP_PORT")
-	defer os.Setenv("DSD_HTTP_PORT", old)
-	os.Unsetenv("DSD_HTTP_PORT")
+	defer func() { _ = os.Setenv("DSD_HTTP_PORT", old) }()
+	_ = os.Unsetenv("DSD_HTTP_PORT")
 
 	p := getHTTPPort()
 	if p != "8080" {
@@ -64,8 +64,8 @@ func TestGetHTTPPort_Default(t *testing.T) {
 // DSD_HTTP_PORT environment variable when present.
 func TestGetHTTPPort_FromEnv(t *testing.T) {
 	old := os.Getenv("DSD_HTTP_PORT")
-	defer os.Setenv("DSD_HTTP_PORT", old)
-	os.Setenv("DSD_HTTP_PORT", "9090")
+	defer func() { _ = os.Setenv("DSD_HTTP_PORT", old) }()
+	_ = os.Setenv("DSD_HTTP_PORT", "9090")
 
 	p := getHTTPPort()
 	if p != "9090" {
@@ -125,7 +125,7 @@ func TestHealthHandler_MockedDockerServer_OK(t *testing.T) {
 		// docker client may call /v{version}/info
 		if r.URL.Path == "/v1.35/info" || r.URL.Path == "/v1.35.0/info" || r.URL.Path == "/v1.35/" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"ID":"test"}`))
+			_, _ = w.Write([]byte(`{"ID":"test"}`))
 			return
 		}
 		http.NotFound(w, r)

@@ -13,7 +13,7 @@ func TestSetResetCli(t *testing.T) {
 	b := []byte("[]")
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
-			w.Write(b)
+			_, _ = w.Write(b)
 			return
 		}
 		http.NotFound(w, r)
@@ -30,8 +30,8 @@ func TestSetResetCli(t *testing.T) {
 	// reset and ensure getCli recreates (SetCli called with nil then ResetCli)
 	ResetCli()
 	// set env to make NewClientWithOpts use FromEnv but can't actually connect; we just call getHTTPPort
-	os.Setenv("DSD_HTTP_PORT", "9090")
-	defer os.Unsetenv("DSD_HTTP_PORT")
+	_ = os.Setenv("DSD_HTTP_PORT", "9090")
+	defer func() { _ = os.Unsetenv("DSD_HTTP_PORT") }()
 	_ = getHTTPPort()
 }
 

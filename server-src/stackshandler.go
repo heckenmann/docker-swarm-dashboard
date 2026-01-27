@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type StackSimpleService struct {
@@ -25,7 +26,7 @@ type StacksHandlerSimpleStack struct {
 
 func stacksHandler(w http.ResponseWriter, _ *http.Request) {
 	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
 	resultMap := make(map[string]StacksHandlerSimpleStack, 0)
 
@@ -70,5 +71,5 @@ func stacksHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(resultList)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

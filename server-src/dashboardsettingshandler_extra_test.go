@@ -35,9 +35,9 @@ func TestLoadDashboardSettingsFromEnv_AllVars(t *testing.T) {
 	defer func() {
 		for k, v := range origs {
 			if v == "" {
-				os.Unsetenv(k)
+				_ = os.Unsetenv(k)
 			} else {
-				os.Setenv(k, v)
+				_ = os.Setenv(k, v)
 			}
 		}
 		// reset package vars to defaults to avoid polluting other tests
@@ -52,14 +52,14 @@ func TestLoadDashboardSettingsFromEnv_AllVars(t *testing.T) {
 	}()
 
 	// set test env values
-	os.Setenv("DSD_HANDLE_LOGS", "false")
-	os.Setenv("DSD_DASHBOARD_LAYOUT", "column")
-	os.Setenv("DSD_HIDE_SERVICE_STATES", "running, PAUSED")
-	os.Setenv("TZ", "UTC")
-	os.Setenv("LOCALE", "de")
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
-	os.Setenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES", "15")
-	os.Setenv("DSD_WELCOME_MESSAGE", "hello")
+	_ = os.Setenv("DSD_HANDLE_LOGS", "false")
+	_ = os.Setenv("DSD_DASHBOARD_LAYOUT", "column")
+	_ = os.Setenv("DSD_HIDE_SERVICE_STATES", "running, PAUSED")
+	_ = os.Setenv("TZ", "UTC")
+	_ = os.Setenv("LOCALE", "de")
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	_ = os.Setenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES", "15")
+	_ = os.Setenv("DSD_WELCOME_MESSAGE", "hello")
 
 	// call loader
 	loadDashboardSettingsFromEnv()

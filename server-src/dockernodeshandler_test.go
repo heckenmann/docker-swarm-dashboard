@@ -18,7 +18,7 @@ func TestDockerNodesHandler(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			w.WriteHeader(http.StatusOK)
-			w.Write(b)
+			_, _ = w.Write(b)
 			return
 		}
 		http.NotFound(w, r)

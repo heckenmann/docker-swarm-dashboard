@@ -31,27 +31,27 @@ func TestExtractReplicationFromService(t *testing.T) {
 // TestVersionHelpers covers getLocalVersion, getCacheTimeout and checkVersion cache path.
 func TestVersionHelpers(t *testing.T) {
 	// ensure DSD_VERSION empty returns error
-	os.Unsetenv("DSD_VERSION")
+	_ = os.Unsetenv("DSD_VERSION")
 	if _, err := getLocalVersion(); err == nil {
 		t.Fatalf("expected error when DSD_VERSION unset")
 	}
 
 	// cache timeout when unset
-	os.Unsetenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES")
+	_ = os.Unsetenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES")
 	if d := getCacheTimeout(); d <= 0 {
 		t.Fatalf("expected positive timeout, got %v", d)
 	}
 
 	// checkVersion when DSD_VERSION not set should return false
-	os.Unsetenv("DSD_VERSION")
+	_ = os.Unsetenv("DSD_VERSION")
 	_, _, ok := checkVersion()
 	if ok {
 		t.Fatalf("expected checkVersion to return false when local version missing")
 	}
 
 	// set local version and disable remote check
-	os.Setenv("DSD_VERSION", "1.0.0")
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "false")
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "false")
 	lv, rv, ok := checkVersion()
 	if lv != "1.0.0" || rv != "" || ok {
 		t.Fatalf("unexpected checkVersion result when disabled: %v %v %v", lv, rv, ok)
@@ -60,8 +60,8 @@ func TestVersionHelpers(t *testing.T) {
 	// set cache to be valid path: set lastCheckTime to now and cachedRemoteVersion
 	cachedRemoteVersion = "1.2.3"
 	lastCheckTime = time.Now()
-	os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
-	os.Setenv("DSD_VERSION", "1.0.0")
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
 	lv, rv, ok = checkVersion()
 	if lv != "1.0.0" {
 		t.Fatalf("expected local version preserved")

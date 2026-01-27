@@ -35,14 +35,14 @@ func TestTimelineHandler_Custom(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/v1.35/tasks":
-			json.NewEncoder(w).Encode(tasks)
+			_ = json.NewEncoder(w).Encode(tasks)
 			return
 		case "/v1.35/services":
 			// read filter id param to choose which service to return
 			// weak parsing, just return both services for simplicity
 			var out []map[string]interface{}
 			out = append(out, map[string]interface{}{"Spec": map[string]interface{}{"Name": services["s1"], "Labels": map[string]string{"com.docker.stack.namespace": "stack1"}}})
-			json.NewEncoder(w).Encode(out)
+			_ = json.NewEncoder(w).Encode(out)
 			return
 		default:
 			http.NotFound(w, r)
@@ -57,7 +57,9 @@ func TestTimelineHandler_Custom(t *testing.T) {
 	w := httptest.NewRecorder()
 	timelineHandler(w, req)
 	var out []map[string]interface{}
-	json.NewDecoder(w.Result().Body).Decode(&out)
+	if err := json.NewDecoder(w.Result().Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	if len(out) == 0 {
 		t.Fatalf("expected timeline entries")
 	}

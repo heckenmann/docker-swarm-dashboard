@@ -33,15 +33,15 @@ func TestTasksHandler(t *testing.T) {
 		switch r.URL.Path {
 		case "/v1.35/tasks":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bTasks)
+			_, _ = w.Write(bTasks)
 			return
 		case "/v1.35/services":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bServices)
+			_, _ = w.Write(bServices)
 			return
 		case "/v1.35/nodes":
 			w.WriteHeader(http.StatusOK)
-			w.Write(bNodes)
+			_, _ = w.Write(bNodes)
 			return
 		default:
 			http.NotFound(w, r)
@@ -60,7 +60,9 @@ func TestTasksHandler(t *testing.T) {
 		t.Fatalf("expected 200 got %d", resp.StatusCode)
 	}
 	var out []map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&out)
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	if len(out) == 0 {
 		t.Fatalf("expected tasks in response")
 	}

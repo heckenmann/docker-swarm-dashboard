@@ -17,7 +17,7 @@ func TestNodesHandler(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			w.WriteHeader(http.StatusOK)
-			w.Write(b)
+			_, _ = w.Write(b)
 			return
 		}
 		http.NotFound(w, r)
@@ -35,7 +35,9 @@ func TestNodesHandler(t *testing.T) {
 		t.Fatalf("expected 200 got %d", resp.StatusCode)
 	}
 	var out []map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&out)
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	if len(out) == 0 {
 		t.Fatalf("expected at least one node in response")
 	}
@@ -83,7 +85,7 @@ func TestNodesHandler_ManagerStatus(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			w.WriteHeader(http.StatusOK)
-			w.Write(b)
+			_, _ = w.Write(b)
 			return
 		}
 		http.NotFound(w, r)
@@ -98,7 +100,9 @@ func TestNodesHandler_ManagerStatus(t *testing.T) {
 	nodesHandler(w, req)
 	resp := w.Result()
 	var out []map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&out)
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
 	if len(out) == 0 {
 		t.Fatalf("expected nodes in response")
 	}

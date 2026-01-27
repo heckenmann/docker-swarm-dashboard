@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/swarm"
 	"net/http"
 	"sort"
+
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 )
 
 type DashboardV struct {
@@ -33,8 +33,8 @@ type ServiceLine struct {
 func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 	result := DashboardV{}
 	cli := getCli()
-	nodes, _ := cli.NodeList(context.Background(), types.NodeListOptions{})
-	services, _ := cli.ServiceList(context.Background(), types.ServiceListOptions{})
+	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
+	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
 	// Table Header
 	for _, node := range nodes {
@@ -54,7 +54,7 @@ func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 		tasksFilters := filters.NewArgs()
 
 		tasksFilters.Add("service", service.ID)
-		tasksForCurrentService, _ := cli.TaskList(context.Background(), types.TaskListOptions{Filters: tasksFilters})
+		tasksForCurrentService, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilters})
 		sort.SliceStable(tasksForCurrentService, func(i, j int) bool {
 			return tasksForCurrentService[i].CreatedAt.After(tasksForCurrentService[j].CreatedAt)
 		},
@@ -77,5 +77,5 @@ func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	var resultJson, _ = json.Marshal(result)
-	w.Write(resultJson)
+	_, _ = w.Write(resultJson)
 }

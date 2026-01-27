@@ -62,17 +62,17 @@ func TestLoadDashboardSettingsFromEnv(t *testing.T) {
 
 // Moved from more_helpers_test.go: TestLoadDashboardSettings_Advanced
 func TestLoadDashboardSettings_Advanced(t *testing.T) {
-	os.Setenv("DSD_HIDE_SERVICE_STATES", "running, paused")
-	os.Setenv("DSD_WELCOME_MESSAGE", "hi")
-	os.Setenv("TZ", "Europe/Berlin")
-	os.Setenv("LOCALE", "de-DE")
-	os.Setenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES", "7")
+	_ = os.Setenv("DSD_HIDE_SERVICE_STATES", "running, paused")
+	_ = os.Setenv("DSD_WELCOME_MESSAGE", "hi")
+	_ = os.Setenv("TZ", "Europe/Berlin")
+	_ = os.Setenv("LOCALE", "de-DE")
+	_ = os.Setenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES", "7")
 	defer func() {
-		os.Unsetenv("DSD_HIDE_SERVICE_STATES")
-		os.Unsetenv("DSD_WELCOME_MESSAGE")
-		os.Unsetenv("TZ")
-		os.Unsetenv("LOCALE")
-		os.Unsetenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES")
+		_ = os.Unsetenv("DSD_HIDE_SERVICE_STATES")
+		_ = os.Unsetenv("DSD_WELCOME_MESSAGE")
+		_ = os.Unsetenv("TZ")
+		_ = os.Unsetenv("LOCALE")
+		_ = os.Unsetenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES")
 	}()
 
 	// reset then load
