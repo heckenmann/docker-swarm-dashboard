@@ -21,6 +21,7 @@ import {
   currentVariantClassesAtom,
 } from './common/store/atoms'
 import './App.css'
+import bgLogo from './files/docker.png'
 
 library.add(fab, fas, far)
 
@@ -33,6 +34,7 @@ const App = () => {
       className={`App ${currentVariantClasses} ${currentVariant === 'dark' ? 'theme-dark' : 'theme-light'}`}
       data-bs-theme={currentVariant}
     >
+      <img id="background-image" aria-hidden="true" src={bgLogo} alt="" />
       <ErrorBoundary>
         <Suspense fallback={<LoadingComponent />}>
           <DashboardNavbar />
