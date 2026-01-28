@@ -5,14 +5,13 @@ import {
   isDarkModeAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
-  filterTypeAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import { servicesDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
-import { Table, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
@@ -28,11 +27,6 @@ import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-
-  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
-  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
-  const [, setFilterType] = useAtom(filterTypeAtom)
-
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
@@ -287,41 +281,13 @@ function DashboardComponent() {
                     className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                     style={h.style}
                   >
-                    <span className="service-name-text" title={h.name}>
-                      {h.name}
-                    </span>
-                    {h.name && (
-                      <>
-                        <Button
-                          className="name-open-btn me-1"
-                          size="sm"
-                          title={`Open service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            updateView((prev) => ({
-                              ...prev,
-                              id: servicesDetailId,
-                              detail: h.id,
-                            }))
-                          }}
-                        >
-                          <FontAwesomeIcon icon="search" />
-                        </Button>
-                        <Button
-                          className="name-filter-btn"
-                          size="sm"
-                          title={`Filter service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setServiceFilterName(h.name || '')
-                            setStackFilterName('')
-                            setFilterType('service')
-                          }}
-                        >
-                          <FontAwesomeIcon icon="filter" />
-                        </Button>
-                      </>
-                    )}
+                    <ServiceName
+                      name={h.name}
+                      id={h.id}
+                      useOverlay={false}
+                      tooltipText={h.name}
+                      nameClass="service-name-text"
+                    />
                   </th>
                 ) : (
                   <th
@@ -341,41 +307,13 @@ function DashboardComponent() {
                     className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                     style={h.style}
                   >
-                    <span className="service-name-text" title={h.name}>
-                      {h.name}
-                    </span>
-                    {h.name && (
-                      <>
-                        <Button
-                          className="name-open-btn me-1"
-                          size="sm"
-                          title={`Open service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            updateView((prev) => ({
-                              ...prev,
-                              id: servicesDetailId,
-                              detail: h.id,
-                            }))
-                          }}
-                        >
-                          <FontAwesomeIcon icon="search" />
-                        </Button>
-                        <Button
-                          className="name-filter-btn"
-                          size="sm"
-                          title={`Filter service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setServiceFilterName(h.name || '')
-                            setStackFilterName('')
-                            setFilterType('service')
-                          }}
-                        >
-                          <FontAwesomeIcon icon="filter" />
-                        </Button>
-                      </>
-                    )}
+                    <ServiceName
+                      name={h.name}
+                      id={h.id}
+                      useOverlay={false}
+                      tooltipText={h.name}
+                      nameClass="service-name-text"
+                    />
                   </th>
                 ) : (
                   <th
@@ -395,41 +333,13 @@ function DashboardComponent() {
                     className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                     style={h.style}
                   >
-                    <span className="service-name-text" title={h.name}>
-                      {h.name}
-                    </span>
-                    {h.name && (
-                      <>
-                        <Button
-                          className="name-open-btn me-1"
-                          size="sm"
-                          title={`Open service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            updateView((prev) => ({
-                              ...prev,
-                              id: servicesDetailId,
-                              detail: h.id,
-                            }))
-                          }}
-                        >
-                          <FontAwesomeIcon icon="search" />
-                        </Button>
-                        <Button
-                          className="name-filter-btn"
-                          size="sm"
-                          title={`Filter service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setServiceFilterName(h.name || '')
-                            setStackFilterName('')
-                            setFilterType('service')
-                          }}
-                        >
-                          <FontAwesomeIcon icon="filter" />
-                        </Button>
-                      </>
-                    )}
+                    <ServiceName
+                      name={h.name}
+                      id={h.id}
+                      useOverlay={false}
+                      tooltipText={h.name}
+                      nameClass="service-name-text"
+                    />
                   </th>
                 ) : (
                   <th

@@ -28,6 +28,8 @@ export function EntityName({
   onFilter,
   showOpen = true,
   showFilter = true,
+  showLogs = false,
+  onLogs,
   size = 'sm',
   nameClass = '',
   tooltipText = null,
@@ -55,14 +57,16 @@ export function EntityName({
     <>
       {nameNode || defaultNameNode}
       <div
-        className={`${showOpen || showFilter ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}
+        className={`${showOpen || showFilter || showLogs ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}
       >
         <NameActions
           showOpen={showOpen}
           showFilter={showFilter}
+          showLogs={showLogs}
           size={size}
           onOpen={finalOnOpen}
           onFilter={finalOnFilter}
+          onLogs={onLogs}
           name={name}
           id={id}
           entityType={entityType}

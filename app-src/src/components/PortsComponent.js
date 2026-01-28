@@ -11,7 +11,7 @@ import {
 // UI & internal imports
 import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { EntityName } from './names/EntityName'
+import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import { FilterComponent } from './FilterComponent'
 
@@ -46,7 +46,7 @@ function PortsComponent() {
           <td>{p.Protocol}</td>
           <td>{p.PublishMode}</td>
           <td>
-            <EntityName name={p.ServiceName} id={p.ServiceID} />
+            <ServiceName name={p.ServiceName} id={p.ServiceID} />
           </td>
           <td>
             <StackName name={p.Stack} />

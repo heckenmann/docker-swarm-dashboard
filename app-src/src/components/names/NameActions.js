@@ -24,6 +24,8 @@ export function NameActions({
   size = 'sm',
   onOpen,
   onFilter,
+  onLogs,
+  showLogs = false,
   name,
   id,
   entityType = 'service',
@@ -54,6 +56,19 @@ export function NameActions({
           }}
         >
           <FontAwesomeIcon icon="filter" />
+        </Button>
+      )}
+      {showLogs && (
+        <Button
+          className="name-logs-btn"
+          size={size}
+          title={`Show logs for ${entityType}: ${name}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onLogs && onLogs(id)
+          }}
+        >
+          <FontAwesomeIcon icon="desktop" />
         </Button>
       )}
     </>
