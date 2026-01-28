@@ -6,6 +6,12 @@
 :root {
     --dashboard-badge-width: 72px;
 }
+
+/* Ensure the App root fills the viewport and uses the theme background variable */
+.App {
+    min-height: 100vh;
+    background: var(--bg);
+}
 #background-image {
     display: none; /* background images will be handled via CSS variables/theme */
 }
@@ -221,6 +227,8 @@ table ul li {
     --overlay-thumb: var(--overlay-thumb, transparent);
     }
 }
+
+/* Removed custom settings-icon/default-cell styles — use Bootstrap utilities only */
 
 .rotating {
     animation: rotating 2s linear infinite;
