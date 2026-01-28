@@ -14,7 +14,7 @@ import {
 import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceStatusBadge from './ServiceStatusBadge'
-import { EntityName } from './names/EntityName'
+import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import { NodeName } from './names/NodeName'
 import { FilterComponent } from './FilterComponent'
@@ -66,7 +66,7 @@ function TasksComponent() {
         </td>
         <td>{task['DesiredState']}</td>
         <td>
-          <EntityName name={task.ServiceName} id={task.ServiceID} />
+          <ServiceName name={task.ServiceName} id={task.ServiceID} />
         </td>
         <td>{task.Slot}</td>
         <td>
@@ -85,22 +85,21 @@ function TasksComponent() {
         <FilterComponent />
       </Card.Header>
       <Table
-        id="tasksTable"
+        className="tasks-table mt-2"
         variant={currentVariant}
         striped
         size={tableSize}
-        className="mt-2"
       >
         <thead>
           <tr>
             <th style={{ width: '25px' }}></th>
-            <th id="timestampCol">Timestamp</th>
-            <th id="stateCol">State</th>
-            <th id="desiredstateCol">DesiredState</th>
-            <th id="serviceCol">ServiceName</th>
-            <th id="slotCol">Slot</th>
-            <th id="stackCol">Stack</th>
-            <th id="nodeCol">Node</th>
+            <th className="timestamp-col">Timestamp</th>
+            <th className="state-col">State</th>
+            <th className="desired-state-col">DesiredState</th>
+            <th className="service-col">ServiceName</th>
+            <th className="slot-col">Slot</th>
+            <th className="stack-col">Stack</th>
+            <th className="node-col">Node</th>
             <th>Error</th>
           </tr>
         </thead>

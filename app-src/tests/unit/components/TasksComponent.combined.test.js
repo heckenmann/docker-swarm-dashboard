@@ -12,6 +12,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   stackNameFilterAtom: 'stackNameFilterAtom',
   tasksAtomNew: 'tasksAtomNew',
   viewAtom: 'viewAtom',
+  showNamesButtonsAtom: 'showNamesButtonsAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
@@ -61,6 +62,8 @@ describe('TasksComponent (combined)', () => {
           return ''
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -127,6 +130,8 @@ describe('TasksComponent (combined)', () => {
           return ''
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -188,6 +193,8 @@ describe('TasksComponent (combined)', () => {
           return ''
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -250,6 +257,8 @@ describe('TasksComponent (combined)', () => {
           return ''
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -309,6 +318,8 @@ describe('TasksComponent (combined)', () => {
           return 'match'
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -358,6 +369,8 @@ describe('TasksComponent (combined)', () => {
           return ''
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -409,6 +422,8 @@ describe('TasksComponent (combined)', () => {
           return ''
         case 'tasksAtomNew':
           return tasks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }

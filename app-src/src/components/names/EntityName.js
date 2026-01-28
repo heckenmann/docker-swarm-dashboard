@@ -20,6 +20,8 @@
  */
 import { useEntityActions } from '../../common/actions/entityActions'
 import { NameActions } from './NameActions'
+import { useAtomValue } from 'jotai'
+import { showNamesButtonsAtom } from '../../common/store/atoms'
 
 export function EntityName({
   name,
@@ -28,6 +30,8 @@ export function EntityName({
   onFilter,
   showOpen = true,
   showFilter = true,
+  showLogs = false,
+  onLogs,
   size = 'sm',
   nameClass = '',
   tooltipText = null,
@@ -51,22 +55,30 @@ export function EntityName({
   const finalOnOpen = onOpen || hookOnOpen
   const finalOnFilter = onFilter || hookOnFilter
 
+  const showNamesButtons = useAtomValue(showNamesButtonsAtom)
+
+  const showAnyAction = showOpen || showFilter || showLogs
+
   return (
     <>
       {nameNode || defaultNameNode}
       <div
-        className={`${showOpen || showFilter ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}
+        className={`${showAnyAction && showNamesButtons ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}
       >
-        <NameActions
-          showOpen={showOpen}
-          showFilter={showFilter}
-          size={size}
-          onOpen={finalOnOpen}
-          onFilter={finalOnFilter}
-          name={name}
-          id={id}
-          entityType={entityType}
-        />
+        {showAnyAction && showNamesButtons && (
+          <NameActions
+            showOpen={showOpen}
+            showFilter={showFilter}
+            showLogs={showLogs}
+            size={size}
+            onOpen={finalOnOpen}
+            onFilter={finalOnFilter}
+            onLogs={onLogs}
+            name={name}
+            id={id}
+            entityType={entityType}
+          />
+        )}
       </div>
     </>
   )

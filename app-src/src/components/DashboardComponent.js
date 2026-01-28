@@ -5,14 +5,13 @@ import {
   isDarkModeAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
-  filterTypeAtom,
   tableSizeAtom,
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import { servicesDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
-import { Table, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Table, Badge, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
@@ -28,11 +27,6 @@ import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-
-  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
-  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
-  const [, setFilterType] = useAtom(filterTypeAtom)
-
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
@@ -78,7 +72,7 @@ function DashboardComponent() {
           'dashboardTable-' +
           (service && service.ID ? String(service.ID) : 'svc-unknown')
         }
-        className="dataCol"
+        className="data-col"
         style={{ width: '120px', minWidth: '120px' }}
       >
         <ServiceName
@@ -229,222 +223,142 @@ function DashboardComponent() {
   })
 
   return (
-    <>
-      <DashboardSettingsComponent />
-      <div className="dashboard-table-wrapper">
-        <Table
-          variant={isDarkMode ? currentVariant : null}
-          key="dashboardTable"
-          id="dashboardTable"
-          striped
-          size={tableSize}
-          role="table"
-          aria-label="Docker Swarm Dashboard"
-        >
-          <thead role="rowgroup">
-            {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
-            <tr role="row">
-              <th
-                className="nodeAttribute"
-                rowSpan={3}
-                style={{ width: '250px', minWidth: '250px' }}
-              >
-                Node
-              </th>
-              <th
-                className="nodeAttributeSmall"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                Role
-              </th>
-              <th
-                className="nodeAttributeSmall"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                State
-              </th>
-              <th
-                className="nodeAttributeSmall"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                Availability
-              </th>
-              <th
-                className="nodeAttributeSmall"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                IP
-              </th>
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 0 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
-                    style={h.style}
-                  >
-                    <span className="service-name-text" title={h.name}>
-                      {h.name}
-                    </span>
-                    {h.name && (
-                      <>
-                        <Button
-                          className="name-open-btn me-1"
-                          size="sm"
-                          title={`Open service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            updateView((prev) => ({
-                              ...prev,
-                              id: servicesDetailId,
-                              detail: h.id,
-                            }))
-                          }}
-                        >
-                          <FontAwesomeIcon icon="search" />
-                        </Button>
-                        <Button
-                          className="name-filter-btn"
-                          size="sm"
-                          title={`Filter service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setServiceFilterName(h.name || '')
-                            setStackFilterName('')
-                            setFilterType('service')
-                          }}
-                        >
-                          <FontAwesomeIcon icon="filter" />
-                        </Button>
-                      </>
-                    )}
-                  </th>
-                ) : (
-                  <th
-                    key={`ph-${h.key}`}
-                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-            <tr role="row">
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 1 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
-                    style={h.style}
-                  >
-                    <span className="service-name-text" title={h.name}>
-                      {h.name}
-                    </span>
-                    {h.name && (
-                      <>
-                        <Button
-                          className="name-open-btn me-1"
-                          size="sm"
-                          title={`Open service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            updateView((prev) => ({
-                              ...prev,
-                              id: servicesDetailId,
-                              detail: h.id,
-                            }))
-                          }}
-                        >
-                          <FontAwesomeIcon icon="search" />
-                        </Button>
-                        <Button
-                          className="name-filter-btn"
-                          size="sm"
-                          title={`Filter service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setServiceFilterName(h.name || '')
-                            setStackFilterName('')
-                            setFilterType('service')
-                          }}
-                        >
-                          <FontAwesomeIcon icon="filter" />
-                        </Button>
-                      </>
-                    )}
-                  </th>
-                ) : (
-                  <th
-                    key={`ph2-${h.key}`}
-                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-            <tr role="row">
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 2 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
-                    style={h.style}
-                  >
-                    <span className="service-name-text" title={h.name}>
-                      {h.name}
-                    </span>
-                    {h.name && (
-                      <>
-                        <Button
-                          className="name-open-btn me-1"
-                          size="sm"
-                          title={`Open service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            updateView((prev) => ({
-                              ...prev,
-                              id: servicesDetailId,
-                              detail: h.id,
-                            }))
-                          }}
-                        >
-                          <FontAwesomeIcon icon="search" />
-                        </Button>
-                        <Button
-                          className="name-filter-btn"
-                          size="sm"
-                          title={`Filter service: ${h.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setServiceFilterName(h.name || '')
-                            setStackFilterName('')
-                            setFilterType('service')
-                          }}
-                        >
-                          <FontAwesomeIcon icon="filter" />
-                        </Button>
-                      </>
-                    )}
-                  </th>
-                ) : (
-                  <th
-                    key={`ph3-${h.key}`}
-                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>{trows}</tbody>
-        </Table>
-      </div>
-    </>
+    <Card>
+      <Card.Header>
+        <DashboardSettingsComponent />
+      </Card.Header>
+      <Card.Body>
+        <div className="dashboard-table-wrapper table-responsive">
+          <Table
+            variant={isDarkMode ? currentVariant : null}
+            key="dashboardTable"
+            className="dashboard-table"
+            striped
+            size={tableSize}
+            role="table"
+            aria-label="Docker Swarm Dashboard"
+          >
+            <thead role="rowgroup">
+              {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
+              <tr role="row">
+                <th
+                  className="node-attribute"
+                  rowSpan={3}
+                  style={{ width: '250px', minWidth: '250px' }}
+                >
+                  Node
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  Role
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  State
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  Availability
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  IP
+                </th>
+                {serviceHeaders.map((h) =>
+                  h.index % 3 === 0 ? (
+                    <th
+                      key={h.key}
+                      data-index={h.index}
+                      className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                      style={h.style}
+                    >
+                      <ServiceName
+                        name={h.name}
+                        id={h.id}
+                        useOverlay={false}
+                        tooltipText={h.name}
+                        nameClass="service-name-text"
+                      />
+                    </th>
+                  ) : (
+                    <th
+                      key={`ph-${h.key}`}
+                      className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                      style={h.style}
+                    />
+                  ),
+                )}
+              </tr>
+              <tr role="row">
+                {serviceHeaders.map((h) =>
+                  h.index % 3 === 1 ? (
+                    <th
+                      key={h.key}
+                      data-index={h.index}
+                      className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                      style={h.style}
+                    >
+                      <ServiceName
+                        name={h.name}
+                        id={h.id}
+                        useOverlay={false}
+                        tooltipText={h.name}
+                        nameClass="service-name-text"
+                      />
+                    </th>
+                  ) : (
+                    <th
+                      key={`ph2-${h.key}`}
+                      className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                      style={h.style}
+                    />
+                  ),
+                )}
+              </tr>
+              <tr role="row">
+                {serviceHeaders.map((h) =>
+                  h.index % 3 === 2 ? (
+                    <th
+                      key={h.key}
+                      data-index={h.index}
+                      className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                      style={h.style}
+                    >
+                      <ServiceName
+                        name={h.name}
+                        id={h.id}
+                        useOverlay={false}
+                        tooltipText={h.name}
+                        nameClass="service-name-text"
+                      />
+                    </th>
+                  ) : (
+                    <th
+                      key={`ph3-${h.key}`}
+                      className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                      style={h.style}
+                    />
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
+        </div>
+      </Card.Body>
+    </Card>
   )
 }
 

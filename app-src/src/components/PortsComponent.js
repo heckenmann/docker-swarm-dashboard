@@ -11,7 +11,7 @@ import {
 // UI & internal imports
 import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { EntityName } from './names/EntityName'
+import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import { FilterComponent } from './FilterComponent'
 
@@ -46,7 +46,7 @@ function PortsComponent() {
           <td>{p.Protocol}</td>
           <td>{p.PublishMode}</td>
           <td>
-            <EntityName name={p.ServiceName} id={p.ServiceID} />
+            <ServiceName name={p.ServiceName} id={p.ServiceID} />
           </td>
           <td>
             <StackName name={p.Stack} />
@@ -61,22 +61,21 @@ function PortsComponent() {
         <FilterComponent />
       </Card.Header>
       <Table
-        id="portsTable"
+        className="ports-table mt-2"
         variant={currentVariant}
         striped
         size={tableSize}
-        className="mt-2"
       >
         <thead>
           <tr>
             <th style={{ width: '25px' }}></th>
-            <th id="publishedPort">PublishedPort</th>
-            <th id="arrow"></th>
-            <th id="targetPort">TargetPort</th>
-            <th id="protocol">Protocol</th>
-            <th id="publishMode">PublishMode</th>
-            <th id="serviceName">ServiceName</th>
-            <th id="stack">Stack</th>
+            <th className="published-port">PublishedPort</th>
+            <th className="arrow"></th>
+            <th className="target-port">TargetPort</th>
+            <th className="protocol">Protocol</th>
+            <th className="publish-mode">PublishMode</th>
+            <th className="service-name">ServiceName</th>
+            <th className="stack">Stack</th>
           </tr>
         </thead>
         <tbody>{renderedServices}</tbody>

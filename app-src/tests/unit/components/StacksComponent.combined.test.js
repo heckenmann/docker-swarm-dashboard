@@ -12,6 +12,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   filterTypeAtom: 'filterTypeAtom',
   viewAtom: 'viewAtom',
   stacksAtom: 'stacksAtom',
+  showNamesButtonsAtom: 'showNamesButtonsAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
@@ -45,15 +46,26 @@ describe('StacksComponent (combined)', () => {
     ]
 
     // atoms: currentVariant, currentVariantClasses, dashboardSettings, serviceNameFilter, stackNameFilter, stacksAtom
-    mockUseAtomValue.mockImplementationOnce(() => 'light')
-    mockUseAtomValue.mockImplementationOnce(() => 'classes')
-    mockUseAtomValue.mockImplementationOnce(() => ({
-      locale: 'en',
-      timeZone: 'UTC',
-    }))
-    mockUseAtomValue.mockImplementationOnce(() => 'myservice') // serviceNameFilter
-    mockUseAtomValue.mockImplementationOnce(() => '') // stackNameFilter
-    mockUseAtomValue.mockImplementationOnce(() => stacks)
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'classes'
+        case 'dashboardSettingsAtom':
+          return { locale: 'en', timeZone: 'UTC' }
+        case 'serviceNameFilterAtom':
+          return 'myservice'
+        case 'stackNameFilterAtom':
+          return ''
+        case 'stacksAtom':
+          return stacks
+        case 'showNamesButtonsAtom':
+          return true
+        default:
+          return ''
+      }
+    })
 
     const mockSetService = jest.fn()
     const mockSetStack = jest.fn()
@@ -117,7 +129,10 @@ describe('StacksComponent (combined)', () => {
       '',
       stacks,
     ]
-    mockUseAtomValue.mockImplementation(() => values.shift())
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
 
     const mockSetService = jest.fn()
     const mockSetStack = jest.fn()
@@ -169,7 +184,10 @@ describe('StacksComponent (combined)', () => {
       '',
       stacks,
     ]
-    mockUseAtomValue.mockImplementation(() => values.shift())
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
 
     const mockSetService = jest.fn()
     const mockSetStack = jest.fn()
@@ -221,6 +239,8 @@ describe('StacksComponent (combined)', () => {
           return ''
         case 'stacksAtom':
           return stacks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -278,6 +298,8 @@ describe('StacksComponent (combined)', () => {
           return ''
         case 'stacksAtom':
           return stacks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -325,6 +347,8 @@ describe('StacksComponent (combined)', () => {
           return ''
         case 'stacksAtom':
           return stacks
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }

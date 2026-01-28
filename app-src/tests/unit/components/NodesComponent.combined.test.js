@@ -1,6 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 
-jest.mock('../../../src/common/store/atoms', () => ({}))
+jest.mock('../../../src/common/store/atoms', () => ({
+  currentVariantAtom: 'currentVariantAtom',
+  currentVariantClassesAtom: 'currentVariantClassesAtom',
+  tableSizeAtom: 'tableSizeAtom',
+  showNamesButtonsAtom: 'showNamesButtonsAtom',
+}))
 
 // provide mockable hooks
 const mockUseAtomValue = jest.fn()
@@ -33,7 +38,10 @@ describe('NodesComponent (combined)', () => {
 
     // return values in sequence (more robust against extra calls)
     const values = ['light', 'classes', 'sm', nodes]
-    mockUseAtomValue.mockImplementation(() => values.shift())
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
 
     const mockUpdateView = jest.fn()
     mockUseAtom.mockImplementation(() => [null, mockUpdateView])
@@ -73,7 +81,10 @@ describe('NodesComponent (combined)', () => {
       },
     ]
     const values = ['light', 'classes', 'sm', nodes]
-    mockUseAtomValue.mockImplementation(() => values.shift())
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
     mockUseAtom.mockImplementation(() => [null, jest.fn()])
     render(<NodesComponent />)
     expect(screen.getByText('node2')).toBeInTheDocument()
@@ -94,7 +105,10 @@ describe('NodesComponent (combined)', () => {
       },
     ]
     const values = ['light', 'classes', 'sm', nodes]
-    mockUseAtomValue.mockImplementation(() => values.shift())
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
     mockUseAtom.mockImplementation(() => [null, jest.fn()])
     render(<NodesComponent />)
     expect(screen.getByText('node3')).toBeInTheDocument()

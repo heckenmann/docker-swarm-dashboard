@@ -36,3 +36,7 @@ jobs:
       - name: Run ESLint (app-src)
         working-directory: ./app-src
         run: yarn lint --max-warnings 0
+
+      - name: Run Stylelint (app-src)
+        working-directory: ./app-src
+        run: yarn lint:css
