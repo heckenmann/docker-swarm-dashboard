@@ -12,6 +12,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   stackNameFilterAtom: 'stackNameFilterAtom',
   filterTypeAtom: 'filterTypeAtom',
   portsAtom: 'portsAtom',
+  showNamesButtonsAtom: 'showNamesButtonsAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
@@ -39,7 +40,10 @@ describe('PortsComponent (combined)', () => {
       },
     ]
     const values = ['light', 'classes', 'sm', '', '', ports]
-    mockUseAtomValue.mockImplementation(() => values.shift())
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
 
     const mockUpdateView = jest.fn()
     mockUseAtom.mockImplementation((atom) => {
@@ -88,6 +92,8 @@ describe('PortsComponent (combined)', () => {
           return ''
         case 'portsAtom':
           return ports
+        case 'showNamesButtonsAtom':
+          return false
         default:
           return ''
       }
@@ -136,6 +142,8 @@ describe('PortsComponent (combined)', () => {
           return ''
         case 'portsAtom':
           return ports
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -208,6 +216,8 @@ describe('PortsComponent (combined)', () => {
           return 'st2'
         case 'portsAtom':
           return ports
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -273,6 +283,8 @@ describe('PortsComponent (combined)', () => {
           return ''
         case 'portsAtom':
           return ports
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }
@@ -326,6 +338,8 @@ describe('PortsComponent (combined)', () => {
           return ''
         case 'portsAtom':
           return ports
+        case 'showNamesButtonsAtom':
+          return true
         default:
           return ''
       }

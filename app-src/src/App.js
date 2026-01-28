@@ -16,16 +16,23 @@ import { DashboardNavbar } from './components/DashboardNavbar'
 import { Container } from 'react-bootstrap'
 import { WelcomeMessageComponent } from './components/WelcomeMessageComponent'
 import { ContentRouter } from './components/ContentRouter'
-import { isDarkModeAtom } from './common/store/atoms'
+import {
+  currentVariantAtom,
+  currentVariantClassesAtom,
+} from './common/store/atoms'
 import './App.css'
 
 library.add(fab, fas, far)
 
 const App = () => {
-  const isDarkMode = useAtomValue(isDarkModeAtom)
+  const currentVariant = useAtomValue(currentVariantAtom)
+  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
 
   return (
-    <div className={`App ${isDarkMode ? 'theme-dark' : 'theme-light'}`}>
+    <div
+      className={`App ${currentVariantClasses} ${currentVariant === 'dark' ? 'theme-dark' : 'theme-light'}`}
+      data-bs-theme={currentVariant}
+    >
       <ErrorBoundary>
         <Suspense fallback={<LoadingComponent />}>
           <DashboardNavbar />
