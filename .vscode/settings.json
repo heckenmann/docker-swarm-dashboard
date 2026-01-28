@@ -7,6 +7,8 @@
         "true": true,
         "yarn lint": true,
         "yarn test": true,
-        "yarn format": true
+        "yarn format": true,
+        "yarn build": true,
+        "yarn run test:coverage": true
     }
 }

@@ -14,7 +14,7 @@ import {
 import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceStatusBadge from './ServiceStatusBadge'
-import { EntityName } from './names/EntityName'
+import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import { NodeName } from './names/NodeName'
 import { FilterComponent } from './FilterComponent'
@@ -66,7 +66,7 @@ function TasksComponent() {
         </td>
         <td>{task['DesiredState']}</td>
         <td>
-          <EntityName name={task.ServiceName} id={task.ServiceID} />
+          <ServiceName name={task.ServiceName} id={task.ServiceID} />
         </td>
         <td>{task.Slot}</td>
         <td>

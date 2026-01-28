@@ -170,7 +170,7 @@ function DashboardNavbar() {
                   active={view?.id === logsId}
                   className="warning"
                 >
-                  <FontAwesomeIcon icon="file-medical-alt" /> Logs
+                  <FontAwesomeIcon icon="desktop" /> Logs
                   {readingLogsWarning}
                 </Nav.Link>
               )}

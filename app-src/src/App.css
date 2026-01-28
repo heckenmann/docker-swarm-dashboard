@@ -396,7 +396,8 @@ table ul li {
 /* Backwards-compatible selectors: apply base inline-action styles to existing classes */
 .inline-action-btn,
  .name-filter-btn,
- .name-open-btn {
+ .name-open-btn,
+ .name-logs-btn {
     position: static !important;
     border: none !important;
     background: transparent !important;
@@ -410,7 +411,8 @@ table ul li {
 
 .inline-action-btn svg,
  .name-filter-btn svg,
- .name-open-btn svg {
+ .name-open-btn svg,
+ .name-logs-btn svg {
     width: 14px;
     height: 14px;
 }
@@ -420,16 +422,18 @@ table ul li {
  .name-filter-btn:hover,
  .name-filter-btn:focus,
  .name-open-btn:hover,
- .name-open-btn:focus {
+ .name-open-btn:focus,
+ .name-logs-btn:hover,
+ .name-logs-btn:focus {
     text-decoration: none !important;
     opacity: 1 !important;
-    color: var(--accent, #0d6efd) !important;
     background: transparent !important;
 }
 
 /* stack-filter specific small offset */
  .name-filter-btn { margin-left: 0px !important; }
  .name-open-btn { margin-left: 0 !important; }
+ .name-logs-btn { margin-left: 0 !important; }
 
 /* Body-specific offsets if needed may be added here later. Shared rules above
     apply to both header and body buttons for consistent styling. */
