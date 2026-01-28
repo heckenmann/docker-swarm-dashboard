@@ -229,134 +229,134 @@ function DashboardComponent() {
       </Card.Header>
       <Card.Body>
         <div className="dashboard-table-wrapper table-responsive">
-        <Table
-          variant={isDarkMode ? currentVariant : null}
-          key="dashboardTable"
-          className="dashboard-table"
-          striped
-          size={tableSize}
-          role="table"
-          aria-label="Docker Swarm Dashboard"
-        >
-          <thead role="rowgroup">
-            {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
-            <tr role="row">
-              <th
-                className="node-attribute"
-                rowSpan={3}
-                style={{ width: '250px', minWidth: '250px' }}
-              >
-                Node
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                Role
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                State
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                Availability
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                IP
-              </th>
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 0 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
-                    style={h.style}
-                  >
-                    <ServiceName
-                      name={h.name}
-                      id={h.id}
-                      useOverlay={false}
-                      tooltipText={h.name}
-                      nameClass="service-name-text"
+          <Table
+            variant={isDarkMode ? currentVariant : null}
+            key="dashboardTable"
+            className="dashboard-table"
+            striped
+            size={tableSize}
+            role="table"
+            aria-label="Docker Swarm Dashboard"
+          >
+            <thead role="rowgroup">
+              {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
+              <tr role="row">
+                <th
+                  className="node-attribute"
+                  rowSpan={3}
+                  style={{ width: '250px', minWidth: '250px' }}
+                >
+                  Node
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  Role
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  State
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  Availability
+                </th>
+                <th
+                  className="node-attribute-small"
+                  rowSpan={3}
+                  style={{ width: '120px', minWidth: '120px' }}
+                >
+                  IP
+                </th>
+                {serviceHeaders.map((h) =>
+                  h.index % 3 === 0 ? (
+                    <th
+                      key={h.key}
+                      data-index={h.index}
+                      className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                      style={h.style}
+                    >
+                      <ServiceName
+                        name={h.name}
+                        id={h.id}
+                        useOverlay={false}
+                        tooltipText={h.name}
+                        nameClass="service-name-text"
+                      />
+                    </th>
+                  ) : (
+                    <th
+                      key={`ph-${h.key}`}
+                      className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                      style={h.style}
                     />
-                  </th>
-                ) : (
-                  <th
-                    key={`ph-${h.key}`}
-                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-            <tr role="row">
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 1 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
-                    style={h.style}
-                  >
-                    <ServiceName
-                      name={h.name}
-                      id={h.id}
-                      useOverlay={false}
-                      tooltipText={h.name}
-                      nameClass="service-name-text"
+                  ),
+                )}
+              </tr>
+              <tr role="row">
+                {serviceHeaders.map((h) =>
+                  h.index % 3 === 1 ? (
+                    <th
+                      key={h.key}
+                      data-index={h.index}
+                      className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                      style={h.style}
+                    >
+                      <ServiceName
+                        name={h.name}
+                        id={h.id}
+                        useOverlay={false}
+                        tooltipText={h.name}
+                        nameClass="service-name-text"
+                      />
+                    </th>
+                  ) : (
+                    <th
+                      key={`ph2-${h.key}`}
+                      className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                      style={h.style}
                     />
-                  </th>
-                ) : (
-                  <th
-                    key={`ph2-${h.key}`}
-                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-            <tr role="row">
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 2 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
-                    style={h.style}
-                  >
-                    <ServiceName
-                      name={h.name}
-                      id={h.id}
-                      useOverlay={false}
-                      tooltipText={h.name}
-                      nameClass="service-name-text"
+                  ),
+                )}
+              </tr>
+              <tr role="row">
+                {serviceHeaders.map((h) =>
+                  h.index % 3 === 2 ? (
+                    <th
+                      key={h.key}
+                      data-index={h.index}
+                      className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                      style={h.style}
+                    >
+                      <ServiceName
+                        name={h.name}
+                        id={h.id}
+                        useOverlay={false}
+                        tooltipText={h.name}
+                        nameClass="service-name-text"
+                      />
+                    </th>
+                  ) : (
+                    <th
+                      key={`ph3-${h.key}`}
+                      className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                      style={h.style}
                     />
-                  </th>
-                ) : (
-                  <th
-                    key={`ph3-${h.key}`}
-                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>{trows}</tbody>
-        </Table>
-      </div>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
+        </div>
       </Card.Body>
     </Card>
   )
