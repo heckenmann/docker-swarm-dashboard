@@ -11,7 +11,7 @@ import {
 import { useAtom, useAtomValue } from 'jotai'
 import { servicesDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
-import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Table, Badge, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
@@ -223,9 +223,12 @@ function DashboardComponent() {
   })
 
   return (
-    <>
-      <DashboardSettingsComponent />
-      <div className="dashboard-table-wrapper">
+    <Card>
+      <Card.Header>
+        <DashboardSettingsComponent />
+      </Card.Header>
+      <Card.Body>
+        <div className="dashboard-table-wrapper table-responsive">
         <Table
           variant={isDarkMode ? currentVariant : null}
           key="dashboardTable"
@@ -354,7 +357,8 @@ function DashboardComponent() {
           <tbody>{trows}</tbody>
         </Table>
       </div>
-    </>
+      </Card.Body>
+    </Card>
   )
 }
 

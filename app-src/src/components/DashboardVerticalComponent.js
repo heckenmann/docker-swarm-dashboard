@@ -9,7 +9,7 @@ import {
 } from '../common/store/atoms'
 import { useAtomValue } from 'jotai'
 import { serviceFilter } from '../common/utils'
-import { Table } from 'react-bootstrap'
+import { Table, Card } from 'react-bootstrap'
 import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
@@ -134,9 +134,13 @@ function DashboardVerticalComponent() {
     })
 
   return (
-    <>
-      <DashboardSettingsComponent />
-      <Table
+    <Card>
+      <Card.Header>
+        <DashboardSettingsComponent />
+      </Card.Header>
+      <Card.Body>
+        <div className="table-responsive">
+          <Table
         variant={isDarkMode ? currentVariant : null}
         key="dashboardTable"
         className="dashboard-table vertical-dashboard"
@@ -155,7 +159,9 @@ function DashboardVerticalComponent() {
         </thead>
         <tbody>{trows}</tbody>
       </Table>
-    </>
+        </div>
+      </Card.Body>
+    </Card>
   )
 }
 
