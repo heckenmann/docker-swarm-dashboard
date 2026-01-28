@@ -6081,10 +6081,10 @@ jotai-location@^0.6.2:
   resolved "https://registry.yarnpkg.com/jotai-location/-/jotai-location-0.6.2.tgz#7f90ec768d9aca62ce7d509baa771848225edb39"
   integrity sha512-D+fqGNNgPHpehOsGBsYsS7F3kNgml099MJrGYt8YlLumcnoTVrBdcO+Y11KyMlyzwPihEN0HPUgke9Iihz9OXw==
 
-jotai@^2.16.2:
-  version "2.16.2"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.16.2.tgz#e9685183ac8669060c3120bff60f6cec044b0052"
-  integrity sha512-DH0lBiTXvewsxtqqwjDW6Hg9JPTDnq9LcOsXSFWCAUEt+qj5ohl9iRVX9zQXPPHKLXCdH+5mGvM28fsXMl17/g==
+jotai@^2.17.0:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.17.0.tgz#b70732236ff881cdd7c53251caf54695b2ce3742"
+  integrity sha512-DBPT7Vx7E7R/ZJL7Uq7yUA9+LLR0IRiRM+Bw5ugVwv8L8++RjlXVXZ2//ccucypc5lcyuHOW09rYcW77RurduQ==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
