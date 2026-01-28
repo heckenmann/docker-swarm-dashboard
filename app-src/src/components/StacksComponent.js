@@ -13,7 +13,7 @@ import { useAtomValue } from 'jotai'
 import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { StackName } from './names/StackName'
-import { EntityName } from './names/EntityName'
+import { ServiceName } from './names/ServiceName'
 import { FilterComponent } from './FilterComponent'
 
 /**
@@ -43,7 +43,7 @@ function StacksComponent() {
       .map((service) => (
         <tr key={service['ID']}>
           <td className="text-nowrap">
-            <EntityName
+            <ServiceName
               name={
                 service['ShortName']
                   ? service['ShortName']

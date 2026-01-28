@@ -9,7 +9,7 @@ import {
 } from '../common/store/atoms'
 import { useAtomValue } from 'jotai'
 import { serviceFilter } from '../common/utils'
-import { Table } from 'react-bootstrap'
+import { Table, Card } from 'react-bootstrap'
 import { NodeName } from './names/NodeName'
 import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
@@ -42,7 +42,7 @@ function DashboardVerticalComponent() {
     theads.push(
       <th
         key={'dashboardTable-' + node['ID']}
-        className="service-header dataCol"
+        className="service-header data-col"
         style={{ width: '120px', minWidth: '120px' }}
       >
         <NodeName
@@ -134,29 +134,36 @@ function DashboardVerticalComponent() {
     })
 
   return (
-    <>
-      <DashboardSettingsComponent />
-      <Table
-        variant={isDarkMode ? currentVariant : null}
-        key="dashboardTable"
-        id="dashboardTable"
-        className="vertical-dashboard"
-        striped
-        size={tableSize}
-        role="table"
-        aria-label="Docker Swarm Dashboard (vertical)"
-      >
-        <thead role="rowgroup">
-          <tr role="row">
-            <th className="col-md-4">Service</th>
-            <th className="stack-column">Stack</th>
-            <th style={{ width: '120px', minWidth: '120px' }}>Replication</th>
-            {theads}
-          </tr>
-        </thead>
-        <tbody>{trows}</tbody>
-      </Table>
-    </>
+    <Card>
+      <Card.Header>
+        <DashboardSettingsComponent />
+      </Card.Header>
+      <Card.Body>
+        <div className="table-responsive">
+          <Table
+            variant={isDarkMode ? currentVariant : null}
+            key="dashboardTable"
+            className="dashboard-table vertical-dashboard"
+            striped
+            size={tableSize}
+            role="table"
+            aria-label="Docker Swarm Dashboard (vertical)"
+          >
+            <thead role="rowgroup">
+              <tr role="row">
+                <th className="col-md-4">Service</th>
+                <th className="stack-column">Stack</th>
+                <th style={{ width: '120px', minWidth: '120px' }}>
+                  Replication
+                </th>
+                {theads}
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
+        </div>
+      </Card.Body>
+    </Card>
   )
 }
 

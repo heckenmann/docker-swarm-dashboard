@@ -1,246 +1,299 @@
-#dockerlogo {
-    display: inline-block;
-    height: 30px;
-}
 /* Add global CSS variables */
 :root {
-    --dashboard-badge-width: 72px;
-}
-#background-image {
-    display: none; /* background images will be handled via CSS variables/theme */
+  --dashboard-badge-width: 72px;
 }
 
-.cursorPointer {
-    cursor: pointer;
+/* Ensure the App root fills the viewport and uses the theme background variable */
+.app {
+  min-height: 100vh;
+  background: var(--bg);
 }
 
-td.cursorPointer, th.cursorPointer {
-    text-decoration: underline;
+/* Decorative docker logo shown bottom-right in original size */
+.background-image {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 0;
+  display: block;
+  width: auto;
+
+  /* limit max size so it doesn't dominate the UI, keep natural aspect ratio */
+  max-width: 220px;
+  height: auto;
+  max-height: 220px;
+  pointer-events: none;
+
+  /* subtle stylistic effects */
+  filter: grayscale(100%) contrast(.95) brightness(.95);
+  mix-blend-mode: multiply;
+  opacity: var(--bg-logo-opacity, .07);
+  transition: opacity 240ms ease, transform 240ms ease;
+  transform: rotate(-8deg);
+}
+
+/* Reduce prominence on small screens */
+@media (max-width: 768px) {
+  .background-image { display: none; }
+}
+
+/* Theme-aware tweaks */
+.theme-dark .background-image {
+  filter: grayscale(100%) contrast(1.25) brightness(1.6) drop-shadow(0 6px 18px rgb(0, 0, 0, .45));
+  mix-blend-mode: screen;
+
+  /* Increase visibility in dark mode: lighten and slightly brighten the logo
+       while keeping it decorative and unobtrusive. Use screen blend so the
+       logo appears as a subtle light watermark on dark backgrounds. */
+  opacity: .14;
+}
+
+/* Ensure main content renders above the decorative background
+   Exclude the decorative background image to avoid overriding its
+   positioning/z-index when it's a direct child of .app. */
+.app > *:not(.background-image) {
+  position: relative;
+  z-index: 1;
+}
+
+.cursor-pointer {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* legacy docker logo rules removed; use #dockerlogo defined above */
 
-#dashboardTable .dataCol {
-    /* service columns use inline percent widths; avoid forcing a fixed pixel width */
-    width: auto;
-    min-width: 0;
+.dashboard-table .data-col {
+  /* service columns use inline percent widths; avoid forcing a fixed pixel width */
+  width: auto;
+  min-width: 0;
 }
 
 /* keep headers naturally sized (not extremely tall) so table looks like the original design */
-#dashboardTable thead th {
-    height: auto;
+.dashboard-table thead th {
+  height: auto;
 }
 
 /* Restore horizontal headers (no rotation) so the table header appearance matches the pre-change look.
    We still keep overflow handling and ellipsis for long names. */
-#dashboardTable .rotated {
-    display: block;
-    position: relative;
-    margin-left: 0;
-    white-space: nowrap;
-    padding: 2px 4px;
-    transform: none;
-    writing-mode: horizontal-tb;
-    text-orientation: mixed;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 14rem; /* keep a reasonable width for long service names */
+.dashboard-table .rotated {
+  position: relative;
+  display: block;
+  max-width: 14rem; /* keep a reasonable width for long service names */
+  padding: 2px 4px;
+  margin-left: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+  transform: none;
+  text-orientation: mixed;
 }
 
-#dashboardTable {
-    table-layout: fixed;
+.dashboard-table {
+  table-layout: fixed;
 }
 
 /* For the vertical dashboard we want auto table layout so content-sized columns like
    the stack-column can shrink to content without overlapping the next columns. */
 .vertical-dashboard {
-    table-layout: auto !important;
+  table-layout: auto;
 }
 
-#dashboardTable .nodeAttribute {
-    white-space: nowrap;
+.dashboard-table .node-attribute {
+  white-space: nowrap;
 }
 
-#dashboardTable .nodeAttributeSmall {
-    white-space: nowrap;
+.dashboard-table .node-attribute-small {
+  white-space: nowrap;
 }
 
 /* Make the Stack column only as wide as its longest content */
 .vertical-dashboard .stack-column {
-    white-space: nowrap !important;
-    width: 1px !important; /* shrink-to-fit trick for tables */
-    min-width: 5rem !important; /* make stack column a bit wider */
-    max-width: none !important;
+  width: 1px; /* shrink-to-fit trick for tables */
+  min-width: 5rem; /* make stack column a bit wider */
+  max-width: none;
+  white-space: nowrap;
 }
+
 /* Ensure the replication column keeps a reasonable min width so it doesn't collide */
-#dashboardTable th[style], #dashboardTable td[style] {
-    min-width: 120px;
+.dashboard-table [style] {
+  min-width: 120px;
 }
 .stack-column .me-2 {
-    display: inline-block;
-    max-width: none;
+  display: inline-block;
+  max-width: none;
 }
 
 /* Ports table columns - leave widths to layout; selectors reserved for future tweaks (no empty rules) */
 
 .loading-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* theme-aware overlay background (no hard-coded color) */
-    background: var(--overlay-background, transparent);
-    z-index: 2000;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* theme-aware overlay background (no hard-coded color) */
+  background: var(--overlay-background, transparent);
 }
 
 .loading-card {
-    width: min(460px, 90%);
-    border-radius: 12px;
-    /* prefer theme variables for shadow and background */
-    box-shadow: var(--loading-card-shadow, var(--shadow));
-    background: var(--card-bg);
-    padding: 1rem 1.25rem;
+  width: min(460px, 90%);
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+
+  /* prefer theme variables for shadow and background */
+  box-shadow: var(--loading-card-shadow, var(--shadow));
 }
 
 /* Loading bar inside the loading dialog */
 .loading-card .loading-bar {
-    position: relative;
-    height: 6px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--loading-card-bar-bg, transparent);
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  background: var(--loading-card-bar-bg, transparent);
+  border-radius: 6px;
 }
 .loading-card .loading-bar .loading-bar-progress {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
-    box-shadow: none;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
+  box-shadow: none;
 }
 
 .loading-title {
-    font-weight: 600;
-    font-size: 1.125rem;
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .loading-subtitle {
-    margin-top: 6px;
-    color: inherit;
-    font-size: 0.95rem;
+  margin-top: 6px;
+  font-size: .95rem;
+  color: inherit;
 }
 
 /* Thin loading bar under navbar (rendered directly after the Navbar) */
 .loading-bar {
-    position: relative;
-    width: 100%;
-    height: 3px;
-    pointer-events: none;
-    z-index: 1050;
-    transition: opacity 200ms ease;
-    opacity: 0;
+  position: relative;
+  z-index: 1050;
+  width: 100%;
+  height: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
 }
-.loading-bar.visible { opacity: 1 }
+.loading-bar.visible { opacity: 1; }
 .loading-bar .loading-bar-progress {
-    height: 100%;
-    width: 0%;
-    box-shadow: var(--loading-bar-shadow, var(--shadow));
-    transition: width 180ms ease;
+  width: 0%;
+  height: 100%;
+  box-shadow: var(--loading-bar-shadow, var(--shadow));
+  transition: width 180ms ease;
 }
 
 /* Shared background for any loading progress element */
 .loading-bar .loading-bar-progress,
 .loading-card .loading-bar .loading-bar-progress {
-    background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
+  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
 }
 
 /* if LoadingBar follows the Navbar in the DOM, ensure it's snug to the bottom */
 .navbar + .loading-bar {
-    margin-top: 0 !important;
+  margin-top: 0;
 }
 
 /* Ensure main content sits below the Navbar (navbar height ~56-64px) */
+
 /* Ensure main content sits below the Navbar. Reduce the default gap so content starts higher. */
-main[role="main"] {
-    padding-top: 16px; /* reduced further */
+main {
+  padding-top: 16px; /* reduced further */
 }
 @media (min-width: 1200px) {
-    main[role="main"] { padding-top: 32px } /* reduced further for large screens */
+  main { padding-top: 32px; } /* reduced further for large screens */
 }
 
-#portsTable #arrow {
-    width: 50px;
+.ports-table .arrow {
+  width: 50px;
 }
 
-#tasksTable #timestampCol {
-    width: 200px;
+.tasks-table .timestamp-col {
+  width: 200px;
 }
 
-#tasksTable #stateCol {
-    width: 100px;
+.tasks-table .state-col {
+  width: 100px;
 }
 
-#tasksTable #desiredstateCol {
-    width: 120px;
+.tasks-table .desired-state-col {
+  width: 120px;
 }
 
-#tasksTable #serviceCol {
-    max-width: 300px;
+.tasks-table .service-col {
+  max-width: 300px;
 }
 
-#tasksTable #nodeCol {
-    width: 200px;
+.tasks-table .node-col {
+  width: 200px;
 }
 
 table ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
-table ul li {
-    padding-left: 0;
-    margin: 0;
+ul li {
+  padding-left: 0;
+  margin: 0;
 }
 
-.jsonTextarea {
-    width: 100%;
-    min-height: 400px;
+.json-textarea {
+  width: 100%;
+  min-height: 400px;
 }
 
 .toast-container {
-    z-index: 1000;
+  z-index: 1000;
 }
 
 @keyframes rotating {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+
     /* keep CSS variables theme-aware; do not set hard colors here */
     --overlay: var(--overlay, transparent);
     --overlay-thumb: var(--overlay-thumb, transparent);
-    }
+  }
 }
 
+/* Removed custom settings-icon/default-cell styles — use Bootstrap utilities only */
+
 .rotating {
-    animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
 }
 
 .service-status-tooltip {
-    .tooltip-inner {
-        min-width: 250px;
-    }
+  .tooltip-inner {
+    min-width: 250px;
+  }
 }
 
 /* Modern utility classes */
 .card-elevated {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
+
 /* Keep navbar styling mostly to Bootstrap utilities. Avoid custom layout rules here to
     rely on Bootstrap's responsive behaviour. */
+
 /* Use Bootstrap's default navbar/nav-link/button styles. Custom styles removed to revert to standard look. */
+
 /* No custom color overrides here — Bootstrap utility and color classes control button colors */
 
 /* Navbar-specific overrides removed so Bootstrap defaults apply. */
@@ -248,46 +301,47 @@ table ul li {
 /* Ensure header and service names do NOT wrap but are allowed to overflow into adjacent columns */
 .header-wrap,
 .rotated {
-    white-space: nowrap !important;
-    overflow: visible !important; /* allow overflow into next column */
-    text-overflow: clip !important;
-    max-width: none; /* don't artificially cap width */
-    position: relative; /* so z-index applies */
-    z-index: 5; /* render above neighboring cells */
-    display: inline-block;
+  position: relative; /* so z-index applies */
+  z-index: 5; /* render above neighboring cells */
+  display: inline-block;
+  max-width: none; /* don't artificially cap width */
+  overflow: visible; /* allow overflow into next column */
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
 /* Service name container (vertical view) - single line, can overflow to right */
 .service-name-wrap {
-    white-space: nowrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    max-width: none;
-    position: relative;
-    z-index: 5;
-    display: inline-block;
+  position: relative;
+  z-index: 5;
+  display: inline-block;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
 /* For service-name cells in vertical dashboard, ensure the name container uses inline-block and no extra padding that would block overflow */
 .service-name-cell .service-name-wrap {
-    /* rely on .service-name-wrap for display; only override padding here */
-    max-width: none; /* allow overflow into adjacent column */
-    padding-right: 0;
+  /* rely on .service-name-wrap for display; only override padding here */
+  max-width: none; /* allow overflow into adjacent column */
+  padding-right: 0;
 }
 
 /* Header border behavior:
    - the first two header rows in the dashboard's THEAD should not show a bottom border
    - only the last header row should display the normal bottom border separating THEAD from TBODY
 */
-/* Only affect the service-name/service header columns (they have class .dataCol) */
-#dashboardTable thead tr:nth-child(1) th.dataCol,
-#dashboardTable thead tr:nth-child(2) th.dataCol {
-    border-bottom: none !important;
+
+/* Only affect the service-name/service header columns (they have class .data-col) */
+.dashboard-table thead tr:nth-child(1) .data-col,
+.dashboard-table thead tr:nth-child(2) .data-col {
+  border-bottom: none;
 }
 
 /* Ensure only the service header columns in the last header row show the separator */
-#dashboardTable thead tr:last-child th.dataCol {
-    border-bottom: 1px solid var(--table-border-color) !important;
+.dashboard-table thead tr:last-child .data-col {
+  border-bottom: 1px solid var(--table-border-color);
 }
 
 /* Show left border for service columns starting from the header row where the service name sits.
@@ -295,141 +349,121 @@ table ul li {
    hdr-row-Y marks which header row the TH belongs to (0,1,2). We want the left border to appear
    for rows >= svc-start.
 */
+
 /* Header rows: show left border when the header cell's start <= this row */
-#dashboardTable thead th.dataCol.svc-start-0,
-#dashboardTable thead th.dataCol.svc-start-1.hdr-row-1,
-#dashboardTable thead th.dataCol.svc-start-1.hdr-row-2,
-#dashboardTable thead th.dataCol.svc-start-2.hdr-row-2 {
-    border-left: 1px solid var(--table-border-color) !important;
+.dashboard-table thead .data-col.svc-start-0,
+.dashboard-table thead .data-col.svc-start-1.hdr-row-1,
+.dashboard-table thead .data-col.svc-start-1.hdr-row-2,
+.dashboard-table thead .data-col.svc-start-2.hdr-row-2 {
+  border-left: 1px solid var(--table-border-color);
 }
 
 /* Body cells: any TD with the service column index should show the left border
    only if the service started at row 0 (then border from top) or row 1 (from its header row)
    We'll show border for all body cells in that column — visual alignment is handled by thead rules above.
 */
-#dashboardTable tbody td.svc-index-0,
-#dashboardTable tbody td.svc-index-1,
-#dashboardTable tbody td.svc-index-2,
-#dashboardTable tbody td[class*="svc-index-"] {
-    border-left: 1px solid var(--table-border-color);
+.dashboard-table tbody .svc-index-0,
+.dashboard-table tbody .svc-index-1,
+.dashboard-table tbody .svc-index-2,
+.dashboard-table tbody [class*="svc-index-"] {
+  border-left: 1px solid var(--table-border-color);
 }
 
 /* To avoid affecting non-service columns, ensure node/attribute columns do not get svc-index classes */
-#dashboardTable thead th.nodeAttribute,
-#dashboardTable thead th.nodeAttributeSmall,
-#dashboardTable tbody td.nodeAttribute,
-#dashboardTable tbody td.nodeAttributeSmall {
-    border-left: none !important;
+.dashboard-table thead .node-attribute,
+.dashboard-table thead .node-attribute-small,
+.dashboard-table tbody .node-attribute,
+.dashboard-table tbody .node-attribute-small {
+  border-left: none;
 }
 
 /* Service header 'flag' — improved pennant styling for service header cells.
    Adds a small triangular marker at the left, a subtle left->right fade, padding
    and improved vertical alignment. Only targets actual service header THs. */
+
 /* Header uses secondary badges for service names */
-#dashboardTable thead th.service-header {
-    /* restore sensible padding so header content doesn't get clipped */
-    padding-left: 8px;
-    padding-right: 8px;
-    vertical-align: middle;
+.dashboard-table thead .service-header {
+  position: relative;
+  padding: 5px 8px; /* slightly reduced from previous */
+  padding-left: 4px; /* match service-name-text left padding */
+  overflow: visible; /* allow overflow into adjacent columns when needed */
+  line-height: 1.05;
+  text-align: left;
+  white-space: nowrap; /* prevent wrapping */
+  vertical-align: middle;
 }
 
-#dashboardTable thead th.service-header .header-wrap {
-    padding: 0;
-}
-
-/* Header service names use a single consolidated rule (centers inline text and
-   provides ellipsis for overflow). Use inline-flex so the filter button aligns
-   correctly without turning the whole TH into a flex container. */
-.service-name-text {
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
-    font-size: 0.95rem;
-    padding: 3px 6px 3px 4px; /* slightly less vertical padding */
-    line-height: 1.05; /* slightly reduced line height */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Left-align service names in header */
-#dashboardTable thead th.service-header {
-    text-align: left;
-    padding: 5px 8px; /* slightly reduced from previous */
-    padding-left: 4px; /* match service-name-text left padding */
-    vertical-align: middle;
-    white-space: nowrap; /* prevent wrapping */
-    overflow: visible; /* allow overflow into adjacent columns when needed */
-    line-height: 1.05;
-}
-
-/* Ensure header cells are positioning context for absolute filter buttons */
-/* Keep small padding; buttons are inline and sit right after the text */
-#dashboardTable thead th.service-header {
-    position: relative;
-    padding-right: 8px;
+.dashboard-table thead .service-header .header-wrap {
+  padding: 0;
 }
 
 /* Make any badges inside table body fill the entire cell width */
-#dashboardTable td .badge,
-#dashboardTable td .badge.w-100 {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    display: block !important;
-    margin: 0 !important;
-    text-align: center !important;
-    padding-left: 0.25rem !important;
-    padding-right: 0.25rem !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+.dashboard-table td .badge,
+.dashboard-table td .badge.w-100 {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding-right: .25rem;
+  padding-left: .25rem;
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 /* Center content in service columns vertically */
-#dashboardTable tbody td[class*="svc-index-"] {
-    text-align: center;
-    vertical-align: middle;
+.dashboard-table tbody [class*="svc-index-"] {
+  text-align: center;
+  vertical-align: middle;
 }
 
 /* Subtle magnifier button used in the vertical dashboard Stack column */
+
 /* Shared inline action button base for small header/body buttons */
+
 /* Backwards-compatible selectors: apply base inline-action styles to existing classes */
 .inline-action-btn,
- .name-filter-btn,
- .name-open-btn {
-    position: static !important;
-    border: none !important;
-    background: transparent !important;
-    color: var(--muted, #6c757d) !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    opacity: 0.85 !important;
+.name-filter-btn,
+.name-open-btn,
+.name-logs-btn {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--muted, #6c757d);
+  background: transparent;
+  border: none;
+  opacity: .85;
 }
 
 .inline-action-btn svg,
- .name-filter-btn svg,
- .name-open-btn svg {
-    width: 14px;
-    height: 14px;
+.name-filter-btn svg,
+.name-open-btn svg,
+.name-logs-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .inline-action-btn:hover,
 .inline-action-btn:focus,
- .name-filter-btn:hover,
- .name-filter-btn:focus,
- .name-open-btn:hover,
- .name-open-btn:focus {
-    text-decoration: none !important;
-    opacity: 1 !important;
-    color: var(--accent, #0d6efd) !important;
-    background: transparent !important;
+.name-filter-btn:hover,
+.name-filter-btn:focus,
+.name-open-btn:hover,
+.name-open-btn:focus,
+.name-logs-btn:hover,
+.name-logs-btn:focus {
+  text-decoration: none;
+  background: transparent;
+  opacity: 1;
 }
 
 /* stack-filter specific small offset */
- .name-filter-btn { margin-left: 0px !important; }
- .name-open-btn { margin-left: 0 !important; }
+.name-filter-btn { margin-left: 0; }
+.name-open-btn { margin-left: 0; }
+.name-logs-btn { margin-left: 0; }
 
 /* Body-specific offsets if needed may be added here later. Shared rules above
     apply to both header and body buttons for consistent styling. */

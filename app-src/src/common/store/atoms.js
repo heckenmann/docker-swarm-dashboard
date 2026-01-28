@@ -212,6 +212,10 @@ export const currentVariantClassesAtom = atom((get) =>
     : 'bg-light text-dark',
 )
 
+// UI preferences
+// Control whether action buttons next to entity names are shown
+export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
+
 // Track outstanding network requests (number)
 export const networkRequestsAtom = atom(0)
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>

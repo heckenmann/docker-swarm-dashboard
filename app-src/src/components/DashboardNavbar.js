@@ -5,7 +5,6 @@ import {
   currentVariantAtom,
   dashboardSettingsAtom,
   dashboardSettingsDefaultLayoutViewIdAtom,
-  isDarkModeAtom,
   logsConfigAtom,
   logsShowLogsAtom,
   refreshIntervalAtom,
@@ -45,7 +44,6 @@ function DashboardNavbar() {
     RefreshIntervalToggleReducer,
   )
   // messageReducer removed — do not show toast on manual refresh
-  const [isDarkMode] = useAtom(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const [view, updateView] = useAtom(viewAtom)
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
@@ -53,9 +51,6 @@ function DashboardNavbar() {
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const version = useAtomValue(versionAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
-
-  if (isDarkMode) document.body.classList.add('bg-dark')
-  else document.body.classList.remove('bg-dark')
 
   const reloadData = () => {
     updateView((prev) => ({ ...prev, timestamp: new Date() }))
@@ -170,7 +165,7 @@ function DashboardNavbar() {
                   active={view?.id === logsId}
                   className="warning"
                 >
-                  <FontAwesomeIcon icon="file-medical-alt" /> Logs
+                  <FontAwesomeIcon icon="desktop" /> Logs
                   {readingLogsWarning}
                 </Nav.Link>
               )}

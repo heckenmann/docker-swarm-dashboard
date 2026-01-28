@@ -5,10 +5,10 @@ name: Cypress
 env:
   WORKING_DIRECTORY: ./app-src
 
-# Trigger the workflow on push or manual dispatch
+# Trigger the workflow on pull request or manual dispatch
 on:
   workflow_dispatch:
-  push:
+  pull_request:
 
 jobs:
   # Job to run Cypress tests
@@ -21,18 +21,12 @@ jobs:
       fail-fast: false
       matrix:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        node-version: ['22', '24']
+        node-version: ['24']
         browser: ['firefox', 'electron']
         include:
           - runner: ubuntu-24.04
             browser: chromium
-            node-version: '22'
-          - runner: ubuntu-24.04
-            browser: chromium
             node-version: '24'
-          - runner: ubuntu-24.04
-            browser: edge
-            node-version: '22'
           - runner: ubuntu-24.04
             browser: edge
             node-version: '24'

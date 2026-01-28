@@ -122,4 +122,40 @@ describe('Name-related components combined', () => {
     fireEvent.click(filterBtn)
     expect(onFilter).toHaveBeenCalledWith('e1')
   })
+
+  test('EntityName renders provided nameNode and uses ms-0 when no actions requested', () => {
+    const EntityName = require('../../../src/components/names/EntityName').EntityName
+    const nameNode = React.createElement('span', {}, 'CUSTOM')
+    const { container } = render(
+      React.createElement(EntityName, {
+        name: 'e2',
+        id: 'eid2',
+        nameNode,
+        showOpen: false,
+        showFilter: false,
+        showLogs: false,
+      }),
+    )
+    expect(screen.getByText('CUSTOM')).toBeInTheDocument()
+    // container should have the ms-0 class on the wrapper div
+    const wrapper = container.querySelector('div.d-inline-flex')
+    expect(wrapper).toBeTruthy()
+    expect(wrapper.className.includes('ms-0')).toBe(true)
+  })
+
+  test('ms-1 used when any action is enabled (showLogs)', () => {
+    const EntityName = require('../../../src/components/names/EntityName').EntityName
+    const { container } = render(
+      React.createElement(EntityName, {
+        name: 'e3',
+        id: 'eid3',
+        showOpen: false,
+        showFilter: false,
+        showLogs: true,
+      }),
+    )
+    const wrapper = container.querySelector('div.d-inline-flex')
+    expect(wrapper).toBeTruthy()
+    expect(wrapper.className.includes('ms-1')).toBe(true)
+  })
 })
