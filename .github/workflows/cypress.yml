@@ -21,18 +21,12 @@ jobs:
       fail-fast: false
       matrix:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        node-version: ['22', '24']
+        node-version: ['24']
         browser: ['firefox', 'electron']
         include:
           - runner: ubuntu-24.04
             browser: chromium
-            node-version: '22'
-          - runner: ubuntu-24.04
-            browser: chromium
             node-version: '24'
-          - runner: ubuntu-24.04
-            browser: edge
-            node-version: '22'
           - runner: ubuntu-24.04
             browser: edge
             node-version: '24'
