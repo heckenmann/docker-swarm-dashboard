@@ -5,10 +5,10 @@ name: Cypress
 env:
   WORKING_DIRECTORY: ./app-src
 
-# Trigger the workflow on push or manual dispatch
+# Trigger the workflow on pull request or manual dispatch
 on:
   workflow_dispatch:
-  push:
+  pull_request:
 
 jobs:
   # Job to run Cypress tests
