@@ -141,24 +141,26 @@ function DashboardVerticalComponent() {
       <Card.Body>
         <div className="table-responsive">
           <Table
-        variant={isDarkMode ? currentVariant : null}
-        key="dashboardTable"
-        className="dashboard-table vertical-dashboard"
-        striped
-        size={tableSize}
-        role="table"
-        aria-label="Docker Swarm Dashboard (vertical)"
-      >
-        <thead role="rowgroup">
-          <tr role="row">
-            <th className="col-md-4">Service</th>
-            <th className="stack-column">Stack</th>
-            <th style={{ width: '120px', minWidth: '120px' }}>Replication</th>
-            {theads}
-          </tr>
-        </thead>
-        <tbody>{trows}</tbody>
-      </Table>
+            variant={isDarkMode ? currentVariant : null}
+            key="dashboardTable"
+            className="dashboard-table vertical-dashboard"
+            striped
+            size={tableSize}
+            role="table"
+            aria-label="Docker Swarm Dashboard (vertical)"
+          >
+            <thead role="rowgroup">
+              <tr role="row">
+                <th className="col-md-4">Service</th>
+                <th className="stack-column">Stack</th>
+                <th style={{ width: '120px', minWidth: '120px' }}>
+                  Replication
+                </th>
+                {theads}
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
         </div>
       </Card.Body>
     </Card>
