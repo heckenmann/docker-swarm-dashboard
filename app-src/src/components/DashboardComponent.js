@@ -72,7 +72,7 @@ function DashboardComponent() {
           'dashboardTable-' +
           (service && service.ID ? String(service.ID) : 'svc-unknown')
         }
-        className="dataCol"
+        className="data-col"
         style={{ width: '120px', minWidth: '120px' }}
       >
         <ServiceName
@@ -229,7 +229,7 @@ function DashboardComponent() {
         <Table
           variant={isDarkMode ? currentVariant : null}
           key="dashboardTable"
-          id="dashboardTable"
+          className="dashboard-table"
           striped
           size={tableSize}
           role="table"
@@ -239,35 +239,35 @@ function DashboardComponent() {
             {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
             <tr role="row">
               <th
-                className="nodeAttribute"
+                className="node-attribute"
                 rowSpan={3}
                 style={{ width: '250px', minWidth: '250px' }}
               >
                 Node
               </th>
               <th
-                className="nodeAttributeSmall"
+                className="node-attribute-small"
                 rowSpan={3}
                 style={{ width: '120px', minWidth: '120px' }}
               >
                 Role
               </th>
               <th
-                className="nodeAttributeSmall"
+                className="node-attribute-small"
                 rowSpan={3}
                 style={{ width: '120px', minWidth: '120px' }}
               >
                 State
               </th>
               <th
-                className="nodeAttributeSmall"
+                className="node-attribute-small"
                 rowSpan={3}
                 style={{ width: '120px', minWidth: '120px' }}
               >
                 Availability
               </th>
               <th
-                className="nodeAttributeSmall"
+                className="node-attribute-small"
                 rowSpan={3}
                 style={{ width: '120px', minWidth: '120px' }}
               >
@@ -278,7 +278,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                     style={h.style}
                   >
                     <ServiceName
@@ -292,7 +292,7 @@ function DashboardComponent() {
                 ) : (
                   <th
                     key={`ph-${h.key}`}
-                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                     style={h.style}
                   />
                 ),
@@ -304,7 +304,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                     style={h.style}
                   >
                     <ServiceName
@@ -318,7 +318,7 @@ function DashboardComponent() {
                 ) : (
                   <th
                     key={`ph2-${h.key}`}
-                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                     style={h.style}
                   />
                 ),
@@ -330,7 +330,7 @@ function DashboardComponent() {
                   <th
                     key={h.key}
                     data-index={h.index}
-                    className={`service-header row-${h.index % 3} dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                     style={h.style}
                   >
                     <ServiceName
@@ -344,7 +344,7 @@ function DashboardComponent() {
                 ) : (
                   <th
                     key={`ph3-${h.key}`}
-                    className={`dataCol svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                     style={h.style}
                   />
                 ),
