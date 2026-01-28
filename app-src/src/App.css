@@ -12,8 +12,48 @@
     min-height: 100vh;
     background: var(--bg);
 }
+/* Decorative docker logo shown bottom-right in original size */
 #background-image {
-    display: none; /* background images will be handled via CSS variables/theme */
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--bg-logo-opacity, 0.07);
+    display: block;
+    /* limit max size so it doesn't dominate the UI, keep natural aspect ratio */
+    max-width: 220px;
+    max-height: 220px;
+    width: auto;
+    height: auto;
+    /* subtle stylistic effects */
+    filter: grayscale(100%) contrast(0.95) brightness(0.95);
+    transform: rotate(-8deg);
+    transition: opacity 240ms ease, transform 240ms ease;
+    mix-blend-mode: multiply;
+}
+
+/* Reduce prominence on small screens */
+@media (max-width: 768px) {
+    #background-image { display: none }
+}
+
+/* Theme-aware tweaks */
+.theme-dark #background-image {
+    /* Increase visibility in dark mode: lighten and slightly brighten the logo
+       while keeping it decorative and unobtrusive. Use screen blend so the
+       logo appears as a subtle light watermark on dark backgrounds. */
+    opacity: 0.14;
+    filter: grayscale(100%) contrast(1.25) brightness(1.6) drop-shadow(0 6px 18px rgba(0,0,0,0.45));
+    mix-blend-mode: screen;
+}
+
+/* Ensure main content renders above the decorative background
+   Exclude the decorative background image to avoid overriding its
+   positioning/z-index when it's a direct child of .App. */
+.App > *:not(#background-image) {
+    position: relative;
+    z-index: 1;
 }
 
 .cursorPointer {
