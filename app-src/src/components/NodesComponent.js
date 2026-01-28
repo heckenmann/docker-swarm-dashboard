@@ -84,7 +84,7 @@ function NodesComponent() {
       <Table
         variant={currentVariant}
         key="nodesTable"
-        id="nodesTable"
+        id="nodes-table"
         striped
         hover
         size={tableSize}
@@ -92,11 +92,11 @@ function NodesComponent() {
         <thead>
           <tr>
             <th style={{ width: '25px' }}></th>
-            <th className="nodeAttribute">Node</th>
-            <th className="nodeAttributeSmall">Role</th>
-            <th className="nodeAttributeSmall">State</th>
-            <th className="nodeAttributeSmall">Availability</th>
-            <th className="nodeAttributeSmall">IP</th>
+            <th className="node-attribute">Node</th>
+            <th className="node-attribute-small">Role</th>
+            <th className="node-attribute-small">State</th>
+            <th className="node-attribute-small">Availability</th>
+            <th className="node-attribute-small">IP</th>
           </tr>
         </thead>
         <tbody>{trows}</tbody>

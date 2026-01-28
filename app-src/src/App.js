@@ -31,10 +31,15 @@ const App = () => {
 
   return (
     <div
-      className={`App ${currentVariantClasses} ${currentVariant === 'dark' ? 'theme-dark' : 'theme-light'}`}
+      className={`app ${currentVariantClasses} ${currentVariant === 'dark' ? 'theme-dark' : 'theme-light'}`}
       data-bs-theme={currentVariant}
     >
-      <img id="background-image" aria-hidden="true" src={bgLogo} alt="" />
+      <img
+        className="background-image"
+        aria-hidden="true"
+        src={bgLogo}
+        alt=""
+      />
       <ErrorBoundary>
         <Suspense fallback={<LoadingComponent />}>
           <DashboardNavbar />

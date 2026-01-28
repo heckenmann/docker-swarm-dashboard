@@ -42,7 +42,7 @@ function DashboardVerticalComponent() {
     theads.push(
       <th
         key={'dashboardTable-' + node['ID']}
-        className="service-header dataCol"
+        className="service-header data-col"
         style={{ width: '120px', minWidth: '120px' }}
       >
         <NodeName
@@ -139,8 +139,7 @@ function DashboardVerticalComponent() {
       <Table
         variant={isDarkMode ? currentVariant : null}
         key="dashboardTable"
-        id="dashboardTable"
-        className="vertical-dashboard"
+        className="dashboard-table vertical-dashboard"
         striped
         size={tableSize}
         role="table"
