@@ -142,6 +142,7 @@ function DashboardVerticalComponent() {
         <div className="table-responsive">
           <Table
             variant={isDarkMode ? currentVariant : null}
+            id="dashboardTable"
             key="dashboardTable"
             className="dashboard-table vertical-dashboard"
             striped
