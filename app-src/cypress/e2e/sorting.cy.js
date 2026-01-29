@@ -1,7 +1,7 @@
 import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Table Sorting Tests', () => {
-  it('Nodes table sorting works', () => {
+  it('Nodes table has light arrows and sorting works with 3-click cycle', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Nodes').click()
 
@@ -12,36 +12,30 @@ describe('Table Sorting Tests', () => {
         .find('svg')
         .should('exist')
 
-      // Click the Node header to sort
+      // First click: sort ascending
       cy.get('#nodes-table thead th').contains('Node').click()
 
-      // Verify sort indicator appears (should be solid now)
+      // Verify sort indicator appears (should be sort-up icon)
       cy.get('#nodes-table thead th')
         .contains('Node')
         .parent()
         .find('svg')
         .should('exist')
 
-      // Click again to reverse sort
+      // Second click: sort descending
       cy.get('#nodes-table thead th').contains('Node').click()
 
-      // Verify sort indicator still appears (direction changed)
+      // Verify sort indicator still appears (should be sort-down icon)
       cy.get('#nodes-table thead th')
         .contains('Node')
         .parent()
         .find('svg')
         .should('exist')
 
-      // Reset button should be visible when sorted
-      cy.contains('button', 'Reset Sort').should('be.visible')
+      // Third click: reset (should go back to light arrow)
+      cy.get('#nodes-table thead th').contains('Node').click()
 
-      // Click reset button
-      cy.contains('button', 'Reset Sort').click()
-
-      // Reset button should not be visible after reset
-      cy.contains('button', 'Reset Sort').should('not.exist')
-
-      // Light arrows should be back
+      // Verify light arrow is back
       cy.get('#nodes-table thead th')
         .contains('Node')
         .parent()
@@ -50,7 +44,7 @@ describe('Table Sorting Tests', () => {
     })
   })
 
-  it('Tasks table sorting works', () => {
+  it('Tasks table sorting works with 3-click cycle', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Tasks').click()
 
@@ -61,7 +55,7 @@ describe('Table Sorting Tests', () => {
         .find('svg')
         .should('exist')
 
-      // Click the ServiceName header to sort
+      // Click the ServiceName header to sort ascending
       cy.get('.tasks-table thead th').contains('ServiceName').click()
 
       // Verify sort indicator appears
@@ -71,7 +65,7 @@ describe('Table Sorting Tests', () => {
         .find('svg')
         .should('exist')
 
-      // Click again to reverse sort
+      // Click again to sort descending
       cy.get('.tasks-table thead th').contains('ServiceName').click()
 
       // Verify sort indicator still appears
@@ -81,18 +75,19 @@ describe('Table Sorting Tests', () => {
         .find('svg')
         .should('exist')
 
-      // Reset button should be visible
-      cy.contains('button', 'Reset Sort').should('be.visible')
+      // Click third time to reset
+      cy.get('.tasks-table thead th').contains('ServiceName').click()
 
-      // Click reset button
-      cy.contains('button', 'Reset Sort').click()
-
-      // Reset button should not be visible after reset
-      cy.contains('button', 'Reset Sort').should('not.exist')
+      // Verify light arrow is back
+      cy.get('.tasks-table thead th')
+        .contains('ServiceName')
+        .parent()
+        .find('svg')
+        .should('exist')
     })
   })
 
-  it('Ports table sorting works', () => {
+  it('Ports table sorting works with 3-click cycle', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Ports').click()
 
@@ -123,14 +118,15 @@ describe('Table Sorting Tests', () => {
         .find('svg')
         .should('exist')
 
-      // Reset button should be visible
-      cy.contains('button', 'Reset Sort').should('be.visible')
+      // Click third time to reset
+      cy.get('#portsTable thead th').contains('PublishedPort').click()
 
-      // Click reset button
-      cy.contains('button', 'Reset Sort').click()
-
-      // Reset button should not be visible after reset
-      cy.contains('button', 'Reset Sort').should('not.exist')
+      // Verify light arrow is back
+      cy.get('#portsTable thead th')
+        .contains('PublishedPort')
+        .parent()
+        .find('svg')
+        .should('exist')
     })
   })
 
@@ -142,8 +138,8 @@ describe('Table Sorting Tests', () => {
       cy.get('#nodes-table thead th').contains('Node').click()
 
       // Check that the URL contains the sort information
-      cy.url().should('include', 'SortBy')
-      cy.url().should('include', 'SortDirection')
+      cy.url().should('include', 'sortBy')
+      cy.url().should('include', 'sortDirection')
 
       // Reload the page
       cy.reload()
@@ -154,9 +150,6 @@ describe('Table Sorting Tests', () => {
         .parent()
         .find('svg')
         .should('exist')
-
-      // Reset button should still be visible
-      cy.contains('button', 'Reset Sort').should('be.visible')
     })
   })
 })

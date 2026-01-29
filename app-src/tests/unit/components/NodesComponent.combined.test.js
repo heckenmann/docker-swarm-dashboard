@@ -6,6 +6,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
   viewAtom: 'viewAtom',
+  nodesAtomNew: 'nodesAtomNew',
 }))
 
 // provide mockable hooks
@@ -126,7 +127,7 @@ describe('NodesComponent (combined)', () => {
     expect(screen.getByText('3.3.3.3')).toBeInTheDocument()
   })
 
-  test('clicking column headers triggers sorting', () => {
+  test('clicking column headers triggers sorting with 3-click cycle', () => {
     const nodes = [
       {
         ID: 'n1',
@@ -147,31 +148,67 @@ describe('NodesComponent (combined)', () => {
         StatusAddr: '2.2.2.2',
       },
     ]
-    const values = ['light', 'classes', 'sm', nodes]
-    mockUseAtomValue.mockImplementation((atom) => {
-      if (atom === 'showNamesButtonsAtom') return true
-      return values.shift()
-    })
 
     const mockSetView = jest.fn()
+
+    // Test first click: ascending
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      if (atom === 'nodesAtomNew') return nodes
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'tableSizeAtom') return 'sm'
+      return null
+    })
+
     mockUseAtom.mockImplementation((atom) => {
       if (atom === 'viewAtom') return [{}, mockSetView]
       return [null, jest.fn()]
     })
 
-    render(<NodesComponent />)
+    const { rerender } = render(<NodesComponent />)
 
-    // Click the hostname header and click it
     const hostnameHeader = screen.getByText('Node').closest('th')
     fireEvent.click(hostnameHeader)
 
     expect(mockSetView).toHaveBeenCalled()
-    const updater = mockSetView.mock.calls[0][0]
-    expect(typeof updater).toBe('function')
-    const result = updater({})
-    expect(result).toEqual({
-      nodesSortBy: 'Hostname',
-      nodesSortDirection: 'asc',
+    const updater1 = mockSetView.mock.calls[0][0]
+    expect(typeof updater1).toBe('function')
+    const result1 = updater1({})
+    expect(result1).toEqual({ sortBy: 'Hostname', sortDirection: 'asc' })
+
+    // Test second click: descending
+    mockSetView.mockClear()
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom')
+        return [{ sortBy: 'Hostname', sortDirection: 'asc' }, mockSetView]
+      return [null, jest.fn()]
     })
+
+    rerender(<NodesComponent />)
+    const hostnameHeader2 = screen.getByText('Node').closest('th')
+    fireEvent.click(hostnameHeader2)
+
+    expect(mockSetView).toHaveBeenCalled()
+    const updater2 = mockSetView.mock.calls[0][0]
+    const result2 = updater2({ sortBy: 'Hostname', sortDirection: 'asc' })
+    expect(result2).toEqual({ sortBy: 'Hostname', sortDirection: 'desc' })
+
+    // Test third click: reset
+    mockSetView.mockClear()
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom')
+        return [{ sortBy: 'Hostname', sortDirection: 'desc' }, mockSetView]
+      return [null, jest.fn()]
+    })
+
+    rerender(<NodesComponent />)
+    const hostnameHeader3 = screen.getByText('Node').closest('th')
+    fireEvent.click(hostnameHeader3)
+
+    expect(mockSetView).toHaveBeenCalled()
+    const updater3 = mockSetView.mock.calls[0][0]
+    const result3 = updater3({ sortBy: 'Hostname', sortDirection: 'desc' })
+    expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
 })

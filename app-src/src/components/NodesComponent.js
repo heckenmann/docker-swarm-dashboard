@@ -8,14 +8,7 @@ import {
 } from '../common/store/atoms'
 
 // UI & internal imports
-import {
-  Card,
-  Table,
-  Badge,
-  OverlayTrigger,
-  Tooltip,
-  Button,
-} from 'react-bootstrap'
+import { Card, Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
 import { SortableHeader } from './SortableHeader'
@@ -34,39 +27,43 @@ function NodesComponent() {
   const [view, setView] = useAtom(viewAtom)
   const trows = []
 
-  // Namespace the sort state for this view
-  const sortBy = view?.nodesSortBy || null
-  const sortDirection = view?.nodesSortDirection || 'asc'
+  // Use unified sort state (shared across all views)
+  const sortBy = view?.sortBy || null
+  const sortDirection = view?.sortDirection || 'asc'
 
   const nodes = useAtomValue(nodesAtomNew)
 
   /**
    * Handle sorting when a column header is clicked
+   * Implements 3-click cycle: asc -> desc -> reset (null)
    * @param {string} column - The column name to sort by
    */
   const handleSort = useCallback(
     (column) => {
-      const newDirection =
-        sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
+      let newSortBy = column
+      let newSortDirection = 'asc'
+
+      if (sortBy === column) {
+        // Same column clicked
+        if (sortDirection === 'asc') {
+          // First click was asc, now go to desc
+          newSortDirection = 'desc'
+        } else {
+          // Second click was desc, now reset (clear sort)
+          newSortBy = null
+          newSortDirection = 'asc'
+        }
+      }
+      // else: Different column clicked, start with asc
+
       setView((prev) => ({
         ...prev,
-        nodesSortBy: column,
-        nodesSortDirection: newDirection,
+        sortBy: newSortBy,
+        sortDirection: newSortDirection,
       }))
     },
     [sortBy, sortDirection, setView],
   )
-
-  /**
-   * Reset sorting to default (no sorting)
-   */
-  const handleResetSort = useCallback(() => {
-    setView((prev) => ({
-      ...prev,
-      nodesSortBy: null,
-      nodesSortDirection: 'asc',
-    }))
-  }, [setView])
 
   // Define column types for proper sorting
   const columnTypes = {
@@ -136,18 +133,7 @@ function NodesComponent() {
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header>
-        {sortBy && (
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            onClick={handleResetSort}
-            title="Reset sorting"
-          >
-            <FontAwesomeIcon icon="undo" /> Reset Sort
-          </Button>
-        )}
-      </Card.Header>
+      <Card.Header></Card.Header>
       <Table
         variant={currentVariant}
         key="nodesTable"

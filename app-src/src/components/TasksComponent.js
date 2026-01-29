@@ -12,7 +12,7 @@ import {
 } from '../common/store/atoms'
 
 // Add missing UI and internal component imports
-import { Card, Table, Button } from 'react-bootstrap'
+import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { ServiceName } from './names/ServiceName'
@@ -36,39 +36,43 @@ function TasksComponent() {
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const [view, setView] = useAtom(viewAtom)
 
-  // Namespace the sort state for this view
-  const sortBy = view?.tasksSortBy || null
-  const sortDirection = view?.tasksSortDirection || 'asc'
+  // Use unified sort state (shared across all views)
+  const sortBy = view?.sortBy || null
+  const sortDirection = view?.sortDirection || 'asc'
 
   const tasks = useAtomValue(tasksAtomNew)
 
   /**
    * Handle sorting when a column header is clicked
+   * Implements 3-click cycle: asc -> desc -> reset (null)
    * @param {string} column - The column name to sort by
    */
   const handleSort = useCallback(
     (column) => {
-      const newDirection =
-        sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
+      let newSortBy = column
+      let newSortDirection = 'asc'
+
+      if (sortBy === column) {
+        // Same column clicked
+        if (sortDirection === 'asc') {
+          // First click was asc, now go to desc
+          newSortDirection = 'desc'
+        } else {
+          // Second click was desc, now reset (clear sort)
+          newSortBy = null
+          newSortDirection = 'asc'
+        }
+      }
+      // else: Different column clicked, start with asc
+
       setView((prev) => ({
         ...prev,
-        tasksSortBy: column,
-        tasksSortDirection: newDirection,
+        sortBy: newSortBy,
+        sortDirection: newSortDirection,
       }))
     },
     [sortBy, sortDirection, setView],
   )
-
-  /**
-   * Reset sorting to default (no sorting)
-   */
-  const handleResetSort = useCallback(() => {
-    setView((prev) => ({
-      ...prev,
-      tasksSortBy: null,
-      tasksSortDirection: 'asc',
-    }))
-  }, [setView])
 
   const filteredTasks = tasks
     .filter((task) =>
