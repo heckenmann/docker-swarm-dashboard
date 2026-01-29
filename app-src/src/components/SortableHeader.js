@@ -47,10 +47,12 @@ export function SortableHeader({
       onKeyDown={handleKeyDown}
     >
       {label}{' '}
-      {isSorted && (
+      {isSorted ? (
         <FontAwesomeIcon
           icon={sortDirection === 'asc' ? 'sort-up' : 'sort-down'}
         />
+      ) : (
+        <FontAwesomeIcon icon="sort" style={{ opacity: 0.3 }} />
       )}
     </th>
   )

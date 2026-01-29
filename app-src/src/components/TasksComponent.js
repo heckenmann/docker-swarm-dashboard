@@ -12,7 +12,7 @@ import {
 } from '../common/store/atoms'
 
 // Add missing UI and internal component imports
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { ServiceName } from './names/ServiceName'
@@ -58,6 +58,17 @@ function TasksComponent() {
     },
     [sortBy, sortDirection, setView],
   )
+
+  /**
+   * Reset sorting to default (no sorting)
+   */
+  const handleResetSort = useCallback(() => {
+    setView((prev) => ({
+      ...prev,
+      tasksSortBy: null,
+      tasksSortDirection: 'asc',
+    }))
+  }, [setView])
 
   const filteredTasks = tasks
     .filter((task) =>
@@ -129,7 +140,19 @@ function TasksComponent() {
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Header>
-        <FilterComponent />
+        <div className="d-flex justify-content-between align-items-center">
+          <FilterComponent />
+          {sortBy && (
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={handleResetSort}
+              title="Reset sorting"
+            >
+              <FontAwesomeIcon icon="undo" /> Reset Sort
+            </Button>
+          )}
+        </div>
       </Card.Header>
       <Table
         className="tasks-table mt-2"
