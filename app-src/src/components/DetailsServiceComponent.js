@@ -10,6 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from './JsonTable'
 import { NodeName } from './names/NodeName'
 import ServiceStatusBadge from './ServiceStatusBadge'
+import { SortableHeader } from './SortableHeader'
+import { sortData } from '../common/sortUtils'
+import { useState, useCallback } from 'react'
 
 /**
  * Component to display the details of a service.
@@ -21,6 +24,39 @@ function DetailsServiceComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
 
   const currentService = useAtomValue(serviceDetailAtom)
+
+  // Local sorting state for task table
+  const [sortBy, setSortBy] = useState(null)
+  const [sortDirection, setSortDirection] = useState('asc')
+
+  /**
+   * Handle sorting when a column header is clicked
+   * Implements 3-click cycle: asc -> desc -> reset (null)
+   * @param {string} column - The column name to sort by
+   */
+  const handleSort = useCallback(
+    (column) => {
+      let newSortBy = column
+      let newSortDirection = 'asc'
+
+      if (sortBy === column) {
+        // Same column clicked
+        if (sortDirection === 'asc') {
+          // First click was asc, now go to desc
+          newSortDirection = 'desc'
+        } else {
+          // Second click was desc, now reset (clear sort)
+          newSortBy = null
+          newSortDirection = 'asc'
+        }
+      }
+      // else: Different column clicked, start with asc
+
+      setSortBy(newSortBy)
+      setSortDirection(newSortDirection)
+    },
+    [sortBy, sortDirection],
+  )
 
   if (!currentService) return <div>Service doesn't exist</div>
 
@@ -59,6 +95,35 @@ function DetailsServiceComponent() {
   }
 
   const sanitizedService = sanitizeAttrs(serviceObj || {})
+
+  // Prepare tasks with sortable fields
+  const tasksWithSortableFields = tasksForService.map((task) => ({
+    ...task,
+    NodeName:
+      task.Node && (task.Node.Description?.Hostname || task.Node.Hostname)
+        ? task.Node.Description?.Hostname || task.Node.Hostname
+        : task.NodeName || '',
+    State: task.Status?.State || task.State || '',
+    CreatedAt: task.CreatedAt || task.Timestamp || '',
+    UpdatedAt: task.UpdatedAt || task.CreatedAt || task.Timestamp || '',
+  }))
+
+  // Define column types for proper sorting
+  const columnTypes = {
+    NodeName: 'string',
+    State: 'string',
+    DesiredState: 'string',
+    CreatedAt: 'date',
+    UpdatedAt: 'date',
+  }
+
+  // Sort the tasks
+  const sortedTasks = sortData(
+    tasksWithSortableFields,
+    sortBy,
+    sortDirection,
+    columnTypes,
+  )
 
   return (
     <div
@@ -99,16 +164,46 @@ function DetailsServiceComponent() {
         <Table striped bordered hover size="sm" variant={currentVariant}>
           <thead>
             <tr>
-              <th>Node</th>
-              <th>State</th>
-              <th>Desired State</th>
-              <th>Created</th>
-              <th>Updated</th>
+              <SortableHeader
+                column="NodeName"
+                label="Node"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                column="State"
+                label="State"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                column="DesiredState"
+                label="Desired State"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                column="CreatedAt"
+                label="Created"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                column="UpdatedAt"
+                label="Updated"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
             </tr>
           </thead>
           <tbody>
-            {tasksForService &&
-              tasksForService.map((task, idx) => (
+            {sortedTasks &&
+              sortedTasks.map((task, idx) => (
                 <tr
                   key={
                     (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
@@ -118,13 +213,7 @@ function DetailsServiceComponent() {
                   <td>
                     {/* Prefer full node object if present, otherwise fall back to NodeName/NodeID */}
                     <NodeName
-                      name={
-                        task.Node &&
-                        (task.Node.Description?.Hostname || task.Node.Hostname)
-                          ? task.Node.Description?.Hostname ||
-                            task.Node.Hostname
-                          : task.NodeName
-                      }
+                      name={task.NodeName}
                       id={
                         task.Node && task.Node.ID ? task.Node.ID : task.NodeID
                       }
@@ -137,14 +226,8 @@ function DetailsServiceComponent() {
                     />
                   </td>
                   <td>{task.DesiredState}</td>
-                  <td>
-                    {toDefaultDateTimeString(task.CreatedAt || task.Timestamp)}
-                  </td>
-                  <td>
-                    {toDefaultDateTimeString(
-                      task.UpdatedAt || task.CreatedAt || task.Timestamp,
-                    )}
-                  </td>
+                  <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
+                  <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
                 </tr>
               ))}
           </tbody>
