@@ -13,6 +13,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   filterTypeAtom: 'filterTypeAtom',
   portsAtom: 'portsAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+  viewAtom: 'viewAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
@@ -368,5 +369,112 @@ describe('PortsComponent (combined)', () => {
     expect(mockSetStack).toHaveBeenCalledWith('stack-a')
     expect(mockSetService).toHaveBeenCalledWith('')
     expect(mockSetType).toHaveBeenCalledWith('stack')
+  })
+
+  test('clicking column headers triggers sorting with 3-click cycle', () => {
+    const ports = [
+      {
+        PublishedPort: 8080,
+        TargetPort: 8080,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'zeta',
+        ServiceID: 's1',
+        Stack: 'stack-z',
+      },
+      {
+        PublishedPort: 80,
+        TargetPort: 80,
+        Protocol: 'tcp',
+        PublishMode: 'ingress',
+        ServiceName: 'alpha',
+        ServiceID: 's2',
+        Stack: 'stack-a',
+      },
+    ]
+
+    const mockSetView = jest.fn()
+
+    // Test first click: ascending
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'classes'
+        case 'tableSizeAtom':
+          return 'sm'
+        case 'serviceNameFilterAtom':
+          return ''
+        case 'stackNameFilterAtom':
+          return ''
+        case 'portsAtom':
+          return ports
+        case 'showNamesButtonsAtom':
+          return true
+        default:
+          return ''
+      }
+    })
+
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, mockSetView]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    const { rerender } = render(<PortsComponent />)
+
+    // First click on PublishedPort
+    const header = screen.getByText('PublishedPort').closest('th')
+    fireEvent.click(header)
+
+    expect(mockSetView).toHaveBeenCalled()
+    const updater1 = mockSetView.mock.calls[0][0]
+    expect(typeof updater1).toBe('function')
+    const result1 = updater1({})
+    expect(result1).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
+
+    // Second click: should sort descending
+    mockSetView.mockClear()
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom')
+        return [{ sortBy: 'PublishedPort', sortDirection: 'asc' }, mockSetView]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    rerender(<PortsComponent />)
+    const header2 = screen.getByText('PublishedPort').closest('th')
+    fireEvent.click(header2)
+
+    expect(mockSetView).toHaveBeenCalled()
+    const updater2 = mockSetView.mock.calls[0][0]
+    const result2 = updater2({ sortBy: 'PublishedPort', sortDirection: 'asc' })
+    expect(result2).toEqual({ sortBy: 'PublishedPort', sortDirection: 'desc' })
+
+    // Third click: should reset (clear sort)
+    mockSetView.mockClear()
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom')
+        return [{ sortBy: 'PublishedPort', sortDirection: 'desc' }, mockSetView]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    rerender(<PortsComponent />)
+    const header3 = screen.getByText('PublishedPort').closest('th')
+    fireEvent.click(header3)
+
+    expect(mockSetView).toHaveBeenCalled()
+    const updater3 = mockSetView.mock.calls[0][0]
+    const result3 = updater3({ sortBy: 'PublishedPort', sortDirection: 'desc' })
+    expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
 })
