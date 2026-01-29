@@ -11,6 +11,9 @@ import {
 import { Card, Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
+import { SortableHeader } from './SortableHeader'
+import { sortData } from '../common/sortUtils'
+import { useCallback } from 'react'
 
 /**
  * NodesComponent is a React functional component that renders a table of nodes.
@@ -24,8 +27,9 @@ function NodesComponent() {
   const [view, setView] = useAtom(viewAtom)
   const trows = []
 
-  const sortBy = view?.sortBy || null
-  const sortDirection = view?.sortDirection || 'asc'
+  // Namespace the sort state for this view
+  const sortBy = view?.nodesSortBy || null
+  const sortDirection = view?.nodesSortDirection || 'asc'
 
   const nodes = useAtomValue(nodesAtomNew)
 
@@ -33,52 +37,29 @@ function NodesComponent() {
    * Handle sorting when a column header is clicked
    * @param {string} column - The column name to sort by
    */
-  const handleSort = (column) => {
-    const newDirection =
-      sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
-    setView((prev) => ({
-      ...prev,
-      sortBy: column,
-      sortDirection: newDirection,
-    }))
+  const handleSort = useCallback(
+    (column) => {
+      const newDirection =
+        sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
+      setView((prev) => ({
+        ...prev,
+        nodesSortBy: column,
+        nodesSortDirection: newDirection,
+      }))
+    },
+    [sortBy, sortDirection, setView],
+  )
+
+  // Define column types for proper sorting
+  const columnTypes = {
+    Hostname: 'string',
+    Role: 'string',
+    State: 'string',
+    Availability: 'string',
+    StatusAddr: 'string',
   }
 
-  /**
-   * Sort nodes based on current sort settings
-   */
-  const sortedNodes = [...nodes].sort((a, b) => {
-    if (!sortBy) return 0
-
-    let aValue, bValue
-    switch (sortBy) {
-      case 'Hostname':
-        aValue = a['Hostname'] || ''
-        bValue = b['Hostname'] || ''
-        break
-      case 'Role':
-        aValue = a['Role'] || ''
-        bValue = b['Role'] || ''
-        break
-      case 'State':
-        aValue = a['State'] || ''
-        bValue = b['State'] || ''
-        break
-      case 'Availability':
-        aValue = a['Availability'] || ''
-        bValue = b['Availability'] || ''
-        break
-      case 'StatusAddr':
-        aValue = a['StatusAddr'] || ''
-        bValue = b['StatusAddr'] || ''
-        break
-      default:
-        return 0
-    }
-
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
-    return 0
-  })
+  const sortedNodes = sortData(nodes, sortBy, sortDirection, columnTypes)
 
   sortedNodes.forEach((node) => {
     trows.push(
@@ -135,28 +116,6 @@ function NodesComponent() {
     )
   })
 
-  /**
-   * Render a sortable table header
-   * @param {string} column - The column name
-   * @param {string} label - The display label
-   * @param {object} style - Optional style object
-   * @param {string} className - Optional className
-   */
-  const SortableHeader = ({ column, label, style, className }) => (
-    <th
-      style={{ ...style, cursor: 'pointer' }}
-      className={className}
-      onClick={() => handleSort(column)}
-    >
-      {label}{' '}
-      {sortBy === column && (
-        <FontAwesomeIcon
-          icon={sortDirection === 'asc' ? 'sort-up' : 'sort-down'}
-        />
-      )}
-    </th>
-  )
-
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Header></Card.Header>
@@ -174,26 +133,41 @@ function NodesComponent() {
             <SortableHeader
               column="Hostname"
               label="Node"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="node-attribute"
             />
             <SortableHeader
               column="Role"
               label="Role"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="node-attribute-small"
             />
             <SortableHeader
               column="State"
               label="State"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="node-attribute-small"
             />
             <SortableHeader
               column="Availability"
               label="Availability"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="node-attribute-small"
             />
             <SortableHeader
               column="StatusAddr"
               label="IP"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="node-attribute-small"
             />
           </tr>

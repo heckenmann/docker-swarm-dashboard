@@ -161,7 +161,7 @@ describe('NodesComponent (combined)', () => {
 
     render(<NodesComponent />)
 
-    // Find the hostname header and click it
+    // Click the hostname header and click it
     const hostnameHeader = screen.getByText('Node').closest('th')
     fireEvent.click(hostnameHeader)
 
@@ -169,6 +169,9 @@ describe('NodesComponent (combined)', () => {
     const updater = mockSetView.mock.calls[0][0]
     expect(typeof updater).toBe('function')
     const result = updater({})
-    expect(result).toEqual({ sortBy: 'Hostname', sortDirection: 'asc' })
+    expect(result).toEqual({
+      nodesSortBy: 'Hostname',
+      nodesSortDirection: 'asc',
+    })
   })
 })
