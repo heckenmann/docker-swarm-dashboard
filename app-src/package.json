@@ -2,7 +2,9 @@
   "name": "docker-swarm-dashboard",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "react-transition-group": "^4.4.5"
+  },
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage --runInBand",
