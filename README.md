@@ -25,8 +25,6 @@ Feedback would be nice.
 - [Getting started](#getting-started)
 - [Development](#development)
 
-![whales](screenshots/whales.jpg)
-
 
 ## Tools
 Special thanks to JetBrains for supporting this project with <a href="https://www.jetbrains.com/community/opensource/#support" target="_blank">Open Source development licenses</a>.
@@ -48,15 +46,14 @@ Special thanks to JetBrains for supporting this project with <a href="https://ww
 
 ## Screenshots
 
-![Horizontal Dashboard](screenshots/dashboard_h.jpeg)
-![Horizontal Dashboard Dark](screenshots/darkmode.jpeg)
-![Vertical Dashboard](screenshots/dashboard_v.jpeg)
-![Stacks](screenshots/stacks.jpeg)
-![Nodes](screenshots/nodes.jpeg)
-![Tasks](screenshots/tasks.jpeg)
-![Ports](screenshots/ports.jpeg)
-![Logs Form](screenshots/logs.jpeg)
-![Logs](screenshots/logs-f.jpeg)
+![Dashboard - Light Mode](screenshots/dashboard-light.png)
+![Dashboard - Dark Mode](screenshots/dashboard-dark.png)
+![Timeline](screenshots/timeline.png)
+![Stacks](screenshots/stacks.png)
+![Nodes](screenshots/nodes.png)
+![Tasks](screenshots/tasks.png)
+![Ports](screenshots/ports.png)
+![Logs](screenshots/logs.png)
 
 
 ## Getting started
