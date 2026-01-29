@@ -5,6 +5,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   currentVariantClassesAtom: 'currentVariantClassesAtom',
   tableSizeAtom: 'tableSizeAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+  viewAtom: 'viewAtom',
 }))
 
 // provide mockable hooks
@@ -44,7 +45,10 @@ describe('NodesComponent (combined)', () => {
     })
 
     const mockUpdateView = jest.fn()
-    mockUseAtom.mockImplementation(() => [null, mockUpdateView])
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, mockUpdateView]
+      return [null, mockUpdateView]
+    })
 
     render(<NodesComponent />)
 
@@ -85,7 +89,10 @@ describe('NodesComponent (combined)', () => {
       if (atom === 'showNamesButtonsAtom') return true
       return values.shift()
     })
-    mockUseAtom.mockImplementation(() => [null, jest.fn()])
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, jest.fn()]
+      return [null, jest.fn()]
+    })
     render(<NodesComponent />)
     expect(screen.getByText('node2')).toBeInTheDocument()
     // Expect badge text showing 'Down' and availability 'pause'
@@ -109,10 +116,59 @@ describe('NodesComponent (combined)', () => {
       if (atom === 'showNamesButtonsAtom') return true
       return values.shift()
     })
-    mockUseAtom.mockImplementation(() => [null, jest.fn()])
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, jest.fn()]
+      return [null, jest.fn()]
+    })
     render(<NodesComponent />)
     expect(screen.getByText('node3')).toBeInTheDocument()
     expect(screen.getByText('unknown')).toBeInTheDocument()
     expect(screen.getByText('3.3.3.3')).toBeInTheDocument()
+  })
+
+  test('clicking column headers triggers sorting', () => {
+    const nodes = [
+      {
+        ID: 'n1',
+        Hostname: 'zeta',
+        Role: 'worker',
+        Leader: false,
+        State: 'ready',
+        Availability: 'active',
+        StatusAddr: '1.1.1.1',
+      },
+      {
+        ID: 'n2',
+        Hostname: 'alpha',
+        Role: 'manager',
+        Leader: true,
+        State: 'ready',
+        Availability: 'active',
+        StatusAddr: '2.2.2.2',
+      },
+    ]
+    const values = ['light', 'classes', 'sm', nodes]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'showNamesButtonsAtom') return true
+      return values.shift()
+    })
+
+    const mockSetView = jest.fn()
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, mockSetView]
+      return [null, jest.fn()]
+    })
+
+    render(<NodesComponent />)
+
+    // Find the hostname header and click it
+    const hostnameHeader = screen.getByText('Node').closest('th')
+    fireEvent.click(hostnameHeader)
+
+    expect(mockSetView).toHaveBeenCalled()
+    const updater = mockSetView.mock.calls[0][0]
+    expect(typeof updater).toBe('function')
+    const result = updater({})
+    expect(result).toEqual({ sortBy: 'Hostname', sortDirection: 'asc' })
   })
 })

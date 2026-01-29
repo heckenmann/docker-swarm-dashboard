@@ -1,9 +1,10 @@
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useAtom } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
   nodesAtomNew,
   tableSizeAtom,
+  viewAtom,
 } from '../common/store/atoms'
 
 // UI & internal imports
@@ -20,10 +21,66 @@ function NodesComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+  const [view, setView] = useAtom(viewAtom)
   const trows = []
 
+  const sortBy = view?.sortBy || null
+  const sortDirection = view?.sortDirection || 'asc'
+
   const nodes = useAtomValue(nodesAtomNew)
-  nodes.forEach((node) => {
+
+  /**
+   * Handle sorting when a column header is clicked
+   * @param {string} column - The column name to sort by
+   */
+  const handleSort = (column) => {
+    const newDirection =
+      sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
+    setView((prev) => ({
+      ...prev,
+      sortBy: column,
+      sortDirection: newDirection,
+    }))
+  }
+
+  /**
+   * Sort nodes based on current sort settings
+   */
+  const sortedNodes = [...nodes].sort((a, b) => {
+    if (!sortBy) return 0
+
+    let aValue, bValue
+    switch (sortBy) {
+      case 'Hostname':
+        aValue = a['Hostname'] || ''
+        bValue = b['Hostname'] || ''
+        break
+      case 'Role':
+        aValue = a['Role'] || ''
+        bValue = b['Role'] || ''
+        break
+      case 'State':
+        aValue = a['State'] || ''
+        bValue = b['State'] || ''
+        break
+      case 'Availability':
+        aValue = a['Availability'] || ''
+        bValue = b['Availability'] || ''
+        break
+      case 'StatusAddr':
+        aValue = a['StatusAddr'] || ''
+        bValue = b['StatusAddr'] || ''
+        break
+      default:
+        return 0
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
+    return 0
+  })
+
+  sortedNodes.forEach((node) => {
     trows.push(
       <tr
         key={'tr' + node['ID']}
@@ -78,6 +135,28 @@ function NodesComponent() {
     )
   })
 
+  /**
+   * Render a sortable table header
+   * @param {string} column - The column name
+   * @param {string} label - The display label
+   * @param {object} style - Optional style object
+   * @param {string} className - Optional className
+   */
+  const SortableHeader = ({ column, label, style, className }) => (
+    <th
+      style={{ ...style, cursor: 'pointer' }}
+      className={className}
+      onClick={() => handleSort(column)}
+    >
+      {label}{' '}
+      {sortBy === column && (
+        <FontAwesomeIcon
+          icon={sortDirection === 'asc' ? 'sort-up' : 'sort-down'}
+        />
+      )}
+    </th>
+  )
+
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Header></Card.Header>
@@ -92,11 +171,31 @@ function NodesComponent() {
         <thead>
           <tr>
             <th style={{ width: '25px' }}></th>
-            <th className="node-attribute">Node</th>
-            <th className="node-attribute-small">Role</th>
-            <th className="node-attribute-small">State</th>
-            <th className="node-attribute-small">Availability</th>
-            <th className="node-attribute-small">IP</th>
+            <SortableHeader
+              column="Hostname"
+              label="Node"
+              className="node-attribute"
+            />
+            <SortableHeader
+              column="Role"
+              label="Role"
+              className="node-attribute-small"
+            />
+            <SortableHeader
+              column="State"
+              label="State"
+              className="node-attribute-small"
+            />
+            <SortableHeader
+              column="Availability"
+              label="Availability"
+              className="node-attribute-small"
+            />
+            <SortableHeader
+              column="StatusAddr"
+              label="IP"
+              className="node-attribute-small"
+            />
           </tr>
         </thead>
         <tbody>{trows}</tbody>
