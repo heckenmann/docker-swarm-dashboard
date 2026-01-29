@@ -10,7 +10,7 @@ import {
 } from '../common/store/atoms'
 
 // UI & internal imports
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
@@ -53,6 +53,17 @@ function PortsComponent() {
     },
     [sortBy, sortDirection, setView],
   )
+
+  /**
+   * Reset sorting to default (no sorting)
+   */
+  const handleResetSort = useCallback(() => {
+    setView((prev) => ({
+      ...prev,
+      portsSortBy: null,
+      portsSortDirection: 'asc',
+    }))
+  }, [setView])
 
   const filteredPorts = ports
     .filter((p) =>
@@ -103,7 +114,19 @@ function PortsComponent() {
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Header>
-        <FilterComponent />
+        <div className="d-flex justify-content-between align-items-center">
+          <FilterComponent />
+          {sortBy && (
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={handleResetSort}
+              title="Reset sorting"
+            >
+              <FontAwesomeIcon icon="undo" /> Reset Sort
+            </Button>
+          )}
+        </div>
       </Card.Header>
       <Table
         id="portsTable"

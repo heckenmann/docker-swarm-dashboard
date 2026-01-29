@@ -8,7 +8,14 @@ import {
 } from '../common/store/atoms'
 
 // UI & internal imports
-import { Card, Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import {
+  Card,
+  Table,
+  Badge,
+  OverlayTrigger,
+  Tooltip,
+  Button,
+} from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from './names/NodeName'
 import { SortableHeader } from './SortableHeader'
@@ -49,6 +56,17 @@ function NodesComponent() {
     },
     [sortBy, sortDirection, setView],
   )
+
+  /**
+   * Reset sorting to default (no sorting)
+   */
+  const handleResetSort = useCallback(() => {
+    setView((prev) => ({
+      ...prev,
+      nodesSortBy: null,
+      nodesSortDirection: 'asc',
+    }))
+  }, [setView])
 
   // Define column types for proper sorting
   const columnTypes = {
@@ -118,7 +136,18 @@ function NodesComponent() {
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header></Card.Header>
+      <Card.Header>
+        {sortBy && (
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={handleResetSort}
+            title="Reset sorting"
+          >
+            <FontAwesomeIcon icon="undo" /> Reset Sort
+          </Button>
+        )}
+      </Card.Header>
       <Table
         variant={currentVariant}
         key="nodesTable"
