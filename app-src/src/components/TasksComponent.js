@@ -144,19 +144,7 @@ function TasksComponent() {
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Header>
-        <div className="d-flex justify-content-between align-items-center">
-          <FilterComponent />
-          {sortBy && (
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={handleResetSort}
-              title="Reset sorting"
-            >
-              <FontAwesomeIcon icon="undo" /> Reset Sort
-            </Button>
-          )}
-        </div>
+        <FilterComponent />
       </Card.Header>
       <Table
         className="tasks-table mt-2"
