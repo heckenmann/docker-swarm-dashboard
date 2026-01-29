@@ -231,6 +231,7 @@ function DashboardComponent() {
         <div className="dashboard-table-wrapper table-responsive">
           <Table
             variant={isDarkMode ? currentVariant : null}
+            id="dashboardTable"
             key="dashboardTable"
             className="dashboard-table"
             striped
