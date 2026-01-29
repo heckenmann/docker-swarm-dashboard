@@ -9,6 +9,9 @@
         "yarn test": true,
         "yarn format": true,
         "yarn build": true,
-        "yarn run test:coverage": true
+        "yarn run test:coverage": true,
+        "yarn run cy:run": true,
+        "yarn run lint": true,
+        "npm run lint": true
     }
 }
