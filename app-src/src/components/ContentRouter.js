@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { useEffect, useState } from 'react'
 import {
   aboutId,
   dashboardHId,
@@ -48,6 +49,14 @@ export function ContentRouter() {
 
   // Default Dashboard
   const idToRender = idToRenderInitial || defaultLayout
+
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    setShow(false)
+    const timer = setTimeout(() => setShow(true), 50)
+    return () => clearTimeout(timer)
+  }, [idToRender])
   /**
    * A mapping of view IDs to their corresponding React components.
    * This is used to dynamically render the appropriate component
@@ -70,5 +79,9 @@ export function ContentRouter() {
     [versionUpdateId]: <VersionUpdateComponent />,
   }
 
-  return componentMap[idToRender] || <DashboardComponent />
+  return (
+    <div key={idToRender} className={`fade ${show ? 'show' : ''}`}>
+      {componentMap[idToRender] || <DashboardComponent />}
+    </div>
+  )
 }

@@ -467,3 +467,13 @@ ul li {
 
 /* Body-specific offsets if needed may be added here later. Shared rules above
     apply to both header and body buttons for consistent styling. */
+
+/* Override Bootstrap fade transition for longer animation */
+.fade {
+  opacity: 0;
+  transition: opacity .2s ease-in;
+}
+
+.fade.show {
+  opacity: 1;
+}
