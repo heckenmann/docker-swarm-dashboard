@@ -19,6 +19,9 @@ import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import { NodeName } from './names/NodeName'
 import { FilterComponent } from './FilterComponent'
+import { SortableHeader } from './SortableHeader'
+import { sortData } from '../common/sortUtils'
+import { useCallback } from 'react'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks
@@ -33,8 +36,9 @@ function TasksComponent() {
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const [view, setView] = useAtom(viewAtom)
 
-  const sortBy = view?.sortBy || null
-  const sortDirection = view?.sortDirection || 'asc'
+  // Namespace the sort state for this view
+  const sortBy = view?.tasksSortBy || null
+  const sortDirection = view?.tasksSortDirection || 'asc'
 
   const tasks = useAtomValue(tasksAtomNew)
 
@@ -42,15 +46,18 @@ function TasksComponent() {
    * Handle sorting when a column header is clicked
    * @param {string} column - The column name to sort by
    */
-  const handleSort = (column) => {
-    const newDirection =
-      sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
-    setView((prev) => ({
-      ...prev,
-      sortBy: column,
-      sortDirection: newDirection,
-    }))
-  }
+  const handleSort = useCallback(
+    (column) => {
+      const newDirection =
+        sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
+      setView((prev) => ({
+        ...prev,
+        tasksSortBy: column,
+        tasksSortDirection: newDirection,
+      }))
+    },
+    [sortBy, sortDirection, setView],
+  )
 
   const filteredTasks = tasks
     .filter((task) =>
@@ -60,54 +67,24 @@ function TasksComponent() {
       stackNameFilter ? task.Stack.includes(stackNameFilter) : true,
     )
 
-  /**
-   * Sort tasks based on current sort settings
-   */
-  const sortedTasks = [...filteredTasks].sort((a, b) => {
-    if (!sortBy) return 0
+  // Define column types for proper sorting
+  const columnTypes = {
+    Timestamp: 'date',
+    State: 'string',
+    DesiredState: 'string',
+    ServiceName: 'string',
+    Slot: 'number',
+    Stack: 'string',
+    NodeName: 'string',
+    Err: 'string',
+  }
 
-    let aValue, bValue
-    switch (sortBy) {
-      case 'Timestamp':
-        aValue = new Date(a['Timestamp']).getTime()
-        bValue = new Date(b['Timestamp']).getTime()
-        break
-      case 'State':
-        aValue = a['State'] || ''
-        bValue = b['State'] || ''
-        break
-      case 'DesiredState':
-        aValue = a['DesiredState'] || ''
-        bValue = b['DesiredState'] || ''
-        break
-      case 'ServiceName':
-        aValue = a['ServiceName'] || ''
-        bValue = b['ServiceName'] || ''
-        break
-      case 'Slot':
-        aValue = a['Slot'] || 0
-        bValue = b['Slot'] || 0
-        break
-      case 'Stack':
-        aValue = a['Stack'] || ''
-        bValue = b['Stack'] || ''
-        break
-      case 'NodeName':
-        aValue = a['NodeName'] || ''
-        bValue = b['NodeName'] || ''
-        break
-      case 'Err':
-        aValue = a['Err'] || ''
-        bValue = b['Err'] || ''
-        break
-      default:
-        return 0
-    }
-
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
-    return 0
-  })
+  const sortedTasks = sortData(
+    filteredTasks,
+    sortBy,
+    sortDirection,
+    columnTypes,
+  )
 
   const rows = sortedTasks.map((task, id) => (
     <tr
@@ -149,27 +126,6 @@ function TasksComponent() {
     </tr>
   ))
 
-  /**
-   * Render a sortable table header
-   * @param {string} column - The column name
-   * @param {string} label - The display label
-   * @param {string} className - Optional className
-   */
-  const SortableHeader = ({ column, label, className }) => (
-    <th
-      style={{ cursor: 'pointer' }}
-      className={className}
-      onClick={() => handleSort(column)}
-    >
-      {label}{' '}
-      {sortBy === column && (
-        <FontAwesomeIcon
-          icon={sortDirection === 'asc' ? 'sort-up' : 'sort-down'}
-        />
-      )}
-    </th>
-  )
-
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       <Card.Header>
@@ -187,35 +143,66 @@ function TasksComponent() {
             <SortableHeader
               column="Timestamp"
               label="Timestamp"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="timestamp-col"
             />
             <SortableHeader
               column="State"
               label="State"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="state-col"
             />
             <SortableHeader
               column="DesiredState"
               label="DesiredState"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="desired-state-col"
             />
             <SortableHeader
               column="ServiceName"
               label="ServiceName"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="service-col"
             />
-            <SortableHeader column="Slot" label="Slot" className="slot-col" />
+            <SortableHeader
+              column="Slot"
+              label="Slot"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="slot-col"
+            />
             <SortableHeader
               column="Stack"
               label="Stack"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="stack-col"
             />
             <SortableHeader
               column="NodeName"
               label="Node"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
               className="node-col"
             />
-            <SortableHeader column="Err" label="Error" />
+            <SortableHeader
+              column="Err"
+              label="Error"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
           </tr>
         </thead>
         <tbody>{rows}</tbody>
