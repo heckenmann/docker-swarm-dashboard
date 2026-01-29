@@ -1,0 +1,4 @@
+# Track screenshot images with Git LFS
+screenshots/*.png filter=lfs diff=lfs merge=lfs -text
+screenshots/*.jpg filter=lfs diff=lfs merge=lfs -text
+screenshots/*.jpeg filter=lfs diff=lfs merge=lfs -text
