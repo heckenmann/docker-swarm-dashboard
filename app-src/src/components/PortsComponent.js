@@ -10,7 +10,7 @@ import {
 } from '../common/store/atoms'
 
 // UI & internal imports
-import { Card, Table, Button } from 'react-bootstrap'
+import { Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
@@ -31,39 +31,43 @@ function PortsComponent() {
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const [view, setView] = useAtom(viewAtom)
 
-  // Namespace the sort state for this view
-  const sortBy = view?.portsSortBy || null
-  const sortDirection = view?.portsSortDirection || 'asc'
+  // Use unified sort state (shared across all views)
+  const sortBy = view?.sortBy || null
+  const sortDirection = view?.sortDirection || 'asc'
 
   const ports = useAtomValue(portsAtom)
 
   /**
    * Handle sorting when a column header is clicked
+   * Implements 3-click cycle: asc -> desc -> reset (null)
    * @param {string} column - The column name to sort by
    */
   const handleSort = useCallback(
     (column) => {
-      const newDirection =
-        sortBy === column && sortDirection === 'asc' ? 'desc' : 'asc'
+      let newSortBy = column
+      let newSortDirection = 'asc'
+
+      if (sortBy === column) {
+        // Same column clicked
+        if (sortDirection === 'asc') {
+          // First click was asc, now go to desc
+          newSortDirection = 'desc'
+        } else {
+          // Second click was desc, now reset (clear sort)
+          newSortBy = null
+          newSortDirection = 'asc'
+        }
+      }
+      // else: Different column clicked, start with asc
+
       setView((prev) => ({
         ...prev,
-        portsSortBy: column,
-        portsSortDirection: newDirection,
+        sortBy: newSortBy,
+        sortDirection: newSortDirection,
       }))
     },
     [sortBy, sortDirection, setView],
   )
-
-  /**
-   * Reset sorting to default (no sorting)
-   */
-  const handleResetSort = useCallback(() => {
-    setView((prev) => ({
-      ...prev,
-      portsSortBy: null,
-      portsSortDirection: 'asc',
-    }))
-  }, [setView])
 
   const filteredPorts = ports
     .filter((p) =>
