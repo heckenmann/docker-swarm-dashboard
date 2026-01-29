@@ -61,6 +61,7 @@ function PortsComponent() {
         <FilterComponent />
       </Card.Header>
       <Table
+        id="portsTable"
         className="ports-table mt-2"
         variant={currentVariant}
         striped
