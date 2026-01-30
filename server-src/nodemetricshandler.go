@@ -12,6 +12,8 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	"github.com/gorilla/mux"
+	dto "github.com/prometheus/client_model/go"
+	"github.com/prometheus/common/expfmt"
 )
 
 var (
@@ -31,12 +33,31 @@ func loadNodeExporterLabelFromEnv() {
 	}
 }
 
+// CPUMetric represents CPU time data for a specific mode
+type CPUMetric struct {
+	Mode  string  `json:"mode"`
+	Value float64 `json:"value"`
+}
+
+// MemoryMetrics represents memory metrics
+type MemoryMetrics struct {
+	Total     float64 `json:"total"`
+	Free      float64 `json:"free"`
+	Available float64 `json:"available"`
+}
+
+// ParsedMetrics represents the parsed and extracted metrics
+type ParsedMetrics struct {
+	CPU    []CPUMetric   `json:"cpu"`
+	Memory MemoryMetrics `json:"memory"`
+}
+
 // nodeMetricsResponse represents the response structure for node metrics endpoint
 type nodeMetricsResponse struct {
-	Available bool    `json:"available"`
-	Metrics   *string `json:"metrics,omitempty"`
-	Error     *string `json:"error,omitempty"`
-	Message   *string `json:"message,omitempty"`
+	Available bool           `json:"available"`
+	Metrics   *ParsedMetrics `json:"metrics,omitempty"`
+	Error     *string        `json:"error,omitempty"`
+	Message   *string        `json:"message,omitempty"`
 }
 
 // findNodeExporterService discovers the node-exporter service by label
@@ -106,6 +127,77 @@ func fetchMetricsFromNodeExporter(url string) (string, error) {
 	return string(body), nil
 }
 
+// parsePrometheusMetrics parses Prometheus text format and extracts CPU and memory metrics
+func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
+	parser := expfmt.TextParser{}
+	metricFamilies, err := parser.TextToMetricFamilies(strings.NewReader(metricsText))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse metrics: %w", err)
+	}
+
+	parsed := &ParsedMetrics{
+		CPU:    make([]CPUMetric, 0),
+		Memory: MemoryMetrics{},
+	}
+
+	// Extract CPU metrics
+	if cpuFamily, ok := metricFamilies["node_cpu_seconds_total"]; ok {
+		cpuModes := make(map[string]float64)
+		for _, metric := range cpuFamily.GetMetric() {
+			var mode string
+			for _, label := range metric.GetLabel() {
+				if label.GetName() == "mode" {
+					mode = label.GetValue()
+					break
+				}
+			}
+			if mode != "" {
+				value := getMetricValue(metric)
+				cpuModes[mode] += value
+			}
+		}
+		for mode, value := range cpuModes {
+			parsed.CPU = append(parsed.CPU, CPUMetric{
+				Mode:  mode,
+				Value: value,
+			})
+		}
+	}
+
+	// Extract memory metrics
+	if memTotalFamily, ok := metricFamilies["node_memory_MemTotal_bytes"]; ok {
+		if len(memTotalFamily.GetMetric()) > 0 {
+			parsed.Memory.Total = getMetricValue(memTotalFamily.GetMetric()[0])
+		}
+	}
+	if memFreeFamily, ok := metricFamilies["node_memory_MemFree_bytes"]; ok {
+		if len(memFreeFamily.GetMetric()) > 0 {
+			parsed.Memory.Free = getMetricValue(memFreeFamily.GetMetric()[0])
+		}
+	}
+	if memAvailableFamily, ok := metricFamilies["node_memory_MemAvailable_bytes"]; ok {
+		if len(memAvailableFamily.GetMetric()) > 0 {
+			parsed.Memory.Available = getMetricValue(memAvailableFamily.GetMetric()[0])
+		}
+	}
+
+	return parsed, nil
+}
+
+// getMetricValue extracts the numeric value from a Prometheus metric
+func getMetricValue(metric *dto.Metric) float64 {
+	if metric.GetGauge() != nil {
+		return metric.GetGauge().GetValue()
+	}
+	if metric.GetCounter() != nil {
+		return metric.GetCounter().GetValue()
+	}
+	if metric.GetUntyped() != nil {
+		return metric.GetUntyped().GetValue()
+	}
+	return 0
+}
+
 // nodeMetricsHandler handles requests for node metrics from node-exporter
 func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
@@ -157,7 +249,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch metrics from node-exporter
-	metrics, err := fetchMetricsFromNodeExporter(endpoint)
+	metricsText, err := fetchMetricsFromNodeExporter(endpoint)
 	if err != nil {
 		errMsg := "Error fetching metrics from node-exporter: " + err.Error()
 		response := nodeMetricsResponse{
@@ -169,22 +261,30 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Filter metrics for this specific node
-	filteredMetrics := filterMetricsForNode(metrics, nodeID)
+	// Parse metrics
+	parsedMetrics, err := parsePrometheusMetrics(metricsText)
+	if err != nil {
+		errMsg := "Error parsing metrics: " + err.Error()
+		response := nodeMetricsResponse{
+			Available: true,
+			Error:     &errMsg,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
 
 	// Success
 	response := nodeMetricsResponse{
 		Available: true,
-		Metrics:   &filteredMetrics,
+		Metrics:   parsedMetrics,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
-// filterMetricsForNode filters Prometheus metrics for a specific node
-// For now, we return all metrics as node-exporter already runs per-node
+// filterMetricsForNode is no longer needed as parsing handles this
+// Keeping as a no-op for compatibility if needed elsewhere
 func filterMetricsForNode(metrics string, nodeID string) string {
-	// Node-exporter is a per-node service, so all metrics are already node-specific
-	// In the future, we could add node_id labels or filter further
 	return strings.TrimSpace(metrics)
 }

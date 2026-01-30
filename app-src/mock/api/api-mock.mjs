@@ -571,51 +571,26 @@ app.get('/ui/dashboard-settings', (req, res) => {
 app.get('/docker/nodes/:id/metrics', (req, res) => {
   const nodeId = req.params.id
   
-  // Generate mock Prometheus metrics
-  const mockMetrics = `# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
-# TYPE node_cpu_seconds_total counter
-node_cpu_seconds_total{cpu="0",mode="idle"} 12543.21
-node_cpu_seconds_total{cpu="0",mode="iowait"} 123.45
-node_cpu_seconds_total{cpu="0",mode="irq"} 0.12
-node_cpu_seconds_total{cpu="0",mode="nice"} 2.34
-node_cpu_seconds_total{cpu="0",mode="softirq"} 15.67
-node_cpu_seconds_total{cpu="0",mode="steal"} 0.0
-node_cpu_seconds_total{cpu="0",mode="system"} 456.78
-node_cpu_seconds_total{cpu="0",mode="user"} 890.12
-node_cpu_seconds_total{cpu="1",mode="idle"} 12678.90
-node_cpu_seconds_total{cpu="1",mode="iowait"} 98.76
-node_cpu_seconds_total{cpu="1",mode="irq"} 0.15
-node_cpu_seconds_total{cpu="1",mode="nice"} 1.23
-node_cpu_seconds_total{cpu="1",mode="softirq"} 12.34
-node_cpu_seconds_total{cpu="1",mode="steal"} 0.0
-node_cpu_seconds_total{cpu="1",mode="system"} 412.56
-node_cpu_seconds_total{cpu="1",mode="user"} 845.67
-# HELP node_memory_MemTotal_bytes Memory information field MemTotal_bytes.
-# TYPE node_memory_MemTotal_bytes gauge
-node_memory_MemTotal_bytes 8589934592
-# HELP node_memory_MemFree_bytes Memory information field MemFree_bytes.
-# TYPE node_memory_MemFree_bytes gauge
-node_memory_MemFree_bytes 2147483648
-# HELP node_memory_MemAvailable_bytes Memory information field MemAvailable_bytes.
-# TYPE node_memory_MemAvailable_bytes gauge
-node_memory_MemAvailable_bytes 4294967296
-# HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
-# TYPE node_disk_io_time_seconds_total counter
-node_disk_io_time_seconds_total{device="sda"} 1234.56
-node_disk_io_time_seconds_total{device="sdb"} 789.01
-# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
-# TYPE node_network_receive_bytes_total counter
-node_network_receive_bytes_total{device="eth0"} 123456789012
-node_network_receive_bytes_total{device="eth1"} 98765432109
-# HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
-# TYPE node_network_transmit_bytes_total counter
-node_network_transmit_bytes_total{device="eth0"} 987654321098
-node_network_transmit_bytes_total{device="eth1"} 123456789012
-`
-  
+  // Return parsed metrics in the new JSON format (matching server-side parsing)
   res.json({
     available: true,
-    metrics: mockMetrics
+    metrics: {
+      cpu: [
+        { mode: 'idle', value: 25222.11 },      // Sum of CPU0 + CPU1 idle
+        { mode: 'iowait', value: 222.21 },      // Sum of CPU0 + CPU1 iowait
+        { mode: 'irq', value: 0.27 },           // Sum of CPU0 + CPU1 irq
+        { mode: 'nice', value: 3.57 },          // Sum of CPU0 + CPU1 nice
+        { mode: 'softirq', value: 28.01 },      // Sum of CPU0 + CPU1 softirq
+        { mode: 'steal', value: 0.0 },          // Sum of CPU0 + CPU1 steal
+        { mode: 'system', value: 869.34 },      // Sum of CPU0 + CPU1 system
+        { mode: 'user', value: 1735.79 }        // Sum of CPU0 + CPU1 user
+      ],
+      memory: {
+        total: 8589934592,        // 8GB
+        free: 2147483648,         // 2GB
+        available: 4294967296     // 4GB
+      }
+    }
   })
 })
 
