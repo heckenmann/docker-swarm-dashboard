@@ -19,7 +19,7 @@ import { NodeMetricsComponent } from './NodeMetricsComponent'
 /**
  * Component to display details of a node.
  * It uses various atoms to get the current state and displays the node details
- * in a card with tabs for table and JSON views.
+ * in a card with tabs for metrics, tasks, table and JSON views.
  */
 function DetailsNodeComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
@@ -106,7 +106,7 @@ function DetailsNodeComponent() {
     <div>
       <Row>
         <Col xs={12}>
-          <Card className={`${currentVariantClasses} mb-3`}>
+          <Card className={currentVariantClasses}>
             <Card.Header>
               <h5>
                 <FontAwesomeIcon icon="server" /> Node "
@@ -117,6 +117,76 @@ function DetailsNodeComponent() {
               <Tabs className="mb-3" defaultActiveKey="metrics">
                 <Tab eventKey="metrics" title="Metrics">
                   <NodeMetricsComponent nodeId={currentNode.node?.ID} />
+                </Tab>
+                <Tab eventKey="tasks" title="Tasks">
+                  <Table striped bordered hover size={tableSize} variant={currentVariant}>
+                    <thead>
+                      <tr>
+                        <SortableHeader
+                          column="ServiceName"
+                          label="Service"
+                          sortBy={sortBy}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          column="State"
+                          label="State"
+                          sortBy={sortBy}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          column="DesiredState"
+                          label="Desired State"
+                          sortBy={sortBy}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          column="CreatedAt"
+                          label="Created"
+                          sortBy={sortBy}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        />
+                        <SortableHeader
+                          column="UpdatedAt"
+                          label="Updated"
+                          sortBy={sortBy}
+                          sortDirection={sortDirection}
+                          onSort={handleSort}
+                        />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedTasks &&
+                        sortedTasks.map((task, idx) => (
+                          <tr
+                            key={
+                              (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
+                              `-${idx}`
+                            }
+                          >
+                            <td>
+                              <ServiceName
+                                name={taskServiceName(task)}
+                                id={taskServiceId(task)}
+                              />
+                            </td>
+                            <td>
+                              <ServiceStatusBadge
+                                id={task.ID}
+                                serviceState={task.Status?.State || task.State}
+                              />
+                            </td>
+                            <td>{task.DesiredState}</td>
+                            <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
+                            <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </Table>
                 </Tab>
                 <Tab eventKey="table" title="Table">
                   <JsonTable json={currentNode.node} variant={currentVariant} />
@@ -133,88 +203,6 @@ function DetailsNodeComponent() {
                   </pre>
                 </Tab>
               </Tabs>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={12}>
-          <Card className={currentVariantClasses}>
-            <Card.Header>
-              <h5>
-                <FontAwesomeIcon icon="tasks" /> Tasks on{' '}
-                {currentNode.node?.Description?.Hostname}
-              </h5>
-            </Card.Header>
-            <Card.Body className="p-0">
-              <Table striped bordered hover size={tableSize} variant={currentVariant} className="mb-0">
-                <thead>
-                  <tr>
-                    <SortableHeader
-                      column="ServiceName"
-                      label="Service"
-                      sortBy={sortBy}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                    />
-                    <SortableHeader
-                      column="State"
-                      label="State"
-                      sortBy={sortBy}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                    />
-                    <SortableHeader
-                      column="DesiredState"
-                      label="Desired State"
-                      sortBy={sortBy}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                    />
-                    <SortableHeader
-                      column="CreatedAt"
-                      label="Created"
-                      sortBy={sortBy}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                    />
-                    <SortableHeader
-                      column="UpdatedAt"
-                      label="Updated"
-                      sortBy={sortBy}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                    />
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedTasks &&
-                    sortedTasks.map((task, idx) => (
-                      <tr
-                        key={
-                          (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
-                          `-${idx}`
-                        }
-                      >
-                        <td>
-                          <ServiceName
-                            name={taskServiceName(task)}
-                            id={taskServiceId(task)}
-                          />
-                        </td>
-                        <td>
-                          <ServiceStatusBadge
-                            id={task.ID}
-                            serviceState={task.Status?.State || task.State}
-                          />
-                        </td>
-                        <td>{task.DesiredState}</td>
-                        <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
-                        <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </Table>
             </Card.Body>
           </Card>
         </Col>
