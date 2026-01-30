@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { baseUrlAtom, isDarkModeAtom } from '../common/store/atoms'
+import { baseUrlAtom, isDarkModeAtom, tableSizeAtom } from '../common/store/atoms'
 import { Card, Alert, Spinner, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 
@@ -110,6 +110,7 @@ function formatBytes(bytes, decimals = 2) {
 function NodeMetricsComponent({ nodeId }) {
   const baseURL = useAtomValue(baseUrlAtom)
   const isDarkMode = useAtomValue(isDarkModeAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [metricsData, setMetricsData] = useState(null)
@@ -506,10 +507,10 @@ function NodeMetricsComponent({ nodeId }) {
       {/* System Info Header */}
       <Alert variant="secondary" className="mb-3 py-2">
         <Row>
-          <Col md={6}>
+          <Col xs={12} md={6} className="mb-1 mb-md-0">
             <strong>Server Time:</strong> {serverTime}
           </Col>
-          <Col md={6}>
+          <Col xs={12} md={6}>
             {systemData.load1 !== undefined && (
               <span>
                 <strong>Load Avg:</strong> {systemData.load1.toFixed(2)},{' '}
@@ -524,7 +525,7 @@ function NodeMetricsComponent({ nodeId }) {
           </Col>
         </Row>
         <Row className="mt-1">
-          <Col md={6}>
+          <Col xs={12} md={6} className="mb-1 mb-md-0">
             {ntpData.syncStatus !== undefined && (
               <span>
                 <strong>NTP Sync:</strong>{' '}
@@ -541,7 +542,7 @@ function NodeMetricsComponent({ nodeId }) {
               </span>
             )}
           </Col>
-          <Col md={6}>
+          <Col xs={12} md={6}>
             {systemData.numCPUs > 0 && (
               <span>
                 <strong>CPUs:</strong> {systemData.numCPUs}
@@ -559,7 +560,7 @@ function NodeMetricsComponent({ nodeId }) {
 
       {/* CPU and Memory Charts */}
       <Row className="mb-3">
-        <Col lg={4}>
+        <Col xs={12} md={6} lg={4} className="mb-3 mb-lg-0">
           {cpuData.length > 0 ? (
             <ReactApexChart
               options={cpuChartOptions}
@@ -571,7 +572,7 @@ function NodeMetricsComponent({ nodeId }) {
             <Alert variant="info">No CPU metrics available</Alert>
           )}
         </Col>
-        <Col lg={4}>
+        <Col xs={12} md={6} lg={4} className="mb-3 mb-lg-0">
           {memTotal > 0 ? (
             <ReactApexChart
               options={memoryChartOptions}
@@ -583,7 +584,7 @@ function NodeMetricsComponent({ nodeId }) {
             <Alert variant="info">No memory metrics available</Alert>
           )}
         </Col>
-        <Col lg={4}>
+        <Col xs={12} md={12} lg={4}>
           {swapTotal > 0 ? (
             <ReactApexChart
               options={swapChartOptions}
@@ -599,7 +600,7 @@ function NodeMetricsComponent({ nodeId }) {
 
       {/* Filesystem and Network Charts */}
       <Row className="mb-3">
-        <Col lg={6}>
+        <Col xs={12} lg={6} className="mb-3 mb-lg-0">
           {filesystemData.length > 0 ? (
             <ReactApexChart
               options={filesystemChartOptions}
@@ -611,7 +612,7 @@ function NodeMetricsComponent({ nodeId }) {
             <Alert variant="info">No filesystem metrics available</Alert>
           )}
         </Col>
-        <Col lg={6}>
+        <Col xs={12} lg={6}>
           {networkData.length > 0 ? (
             <ReactApexChart
               options={networkChartOptions}
@@ -627,7 +628,7 @@ function NodeMetricsComponent({ nodeId }) {
 
       {/* Disk I/O Charts */}
       <Row className="mb-3">
-        <Col lg={6}>
+        <Col xs={12} lg={6} className="mb-3 mb-lg-0">
           {diskIOData.length > 0 ? (
             <ReactApexChart
               options={diskIOChartOptions}
@@ -639,7 +640,7 @@ function NodeMetricsComponent({ nodeId }) {
             <Alert variant="info">No disk I/O metrics available</Alert>
           )}
         </Col>
-        <Col lg={6}>
+        <Col xs={12} lg={6}>
           {diskIOData.length > 0 ? (
             <ReactApexChart
               options={diskIOPSChartOptions}
@@ -658,7 +659,7 @@ function NodeMetricsComponent({ nodeId }) {
         <Row className="mb-3">
           <Col>
             <h6>Network Details</h6>
-            <Table striped bordered hover size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+            <Table striped bordered hover size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
               <thead>
                 <tr>
                   <th>Interface</th>
@@ -698,9 +699,9 @@ function NodeMetricsComponent({ nodeId }) {
 
       {/* System Stats Table */}
       <Row className="mb-3">
-        <Col lg={6}>
+        <Col xs={12} lg={6} className="mb-3 mb-lg-0">
           <h6>TCP Connections</h6>
-          <Table striped bordered size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+          <Table striped bordered size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
             <tbody>
               <tr>
                 <td><strong>Allocated:</strong></td>
@@ -721,9 +722,9 @@ function NodeMetricsComponent({ nodeId }) {
             </tbody>
           </Table>
         </Col>
-        <Col lg={6}>
+        <Col xs={12} lg={6}>
           <h6>System Statistics</h6>
-          <Table striped bordered size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+          <Table striped bordered size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
             <tbody>
               <tr>
                 <td><strong>File Descriptors:</strong></td>
@@ -756,7 +757,7 @@ function NodeMetricsComponent({ nodeId }) {
         <Row className="mb-3">
           <Col>
             <h6>Disk I/O Details</h6>
-            <Table striped bordered hover size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+            <Table striped bordered hover size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
               <thead>
                 <tr>
                   <th>Device</th>
