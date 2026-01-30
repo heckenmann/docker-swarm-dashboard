@@ -3,55 +3,30 @@ import { useAtomValue } from 'jotai'
 import { baseURLAtom } from '../common/store/atoms'
 import { Card, Alert, Spinner } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
+import parsePrometheusTextFormat from 'parse-prometheus-text-format'
 
 /**
- * Parse Prometheus metrics format and extract key metrics for visualization
- * @param {string} metricsText - Raw Prometheus metrics text
- * @returns {object} Parsed metrics data structure
- */
-function parsePrometheusMetrics(metricsText) {
-  const lines = metricsText.split('\n')
-  const metrics = {}
-
-  for (const line of lines) {
-    // Skip comments and empty lines
-    if (line.startsWith('#') || line.trim() === '') continue
-
-    // Parse metric line: metric_name{labels} value timestamp?
-    const match = line.match(/^([a-zA-Z_:][a-zA-Z0-9_:]*)\{?([^}]*)\}?\s+([\d.eE+-]+)/)
-    if (match) {
-      const [, metricName, labels, value] = match
-      if (!metrics[metricName]) {
-        metrics[metricName] = []
-      }
-      metrics[metricName].push({
-        labels: labels,
-        value: parseFloat(value),
-      })
-    }
-  }
-
-  return metrics
-}
-
-/**
- * Extract CPU metrics and prepare for chart display
- * @param {object} metrics - Parsed metrics object
+ * Extract CPU metrics from parsed Prometheus metrics and prepare for chart display
+ * @param {Array} metrics - Parsed metrics array from parse-prometheus-text-format
  * @returns {Array} CPU series data for ApexCharts
  */
 function extractCPUMetrics(metrics) {
-  const cpuMetrics = metrics['node_cpu_seconds_total'] || []
+  const cpuMetric = metrics.find((m) => m.name === 'node_cpu_seconds_total')
+  if (!cpuMetric || !cpuMetric.metrics) {
+    return []
+  }
+
   const cpuModes = {}
 
   // Group by mode
-  for (const metric of cpuMetrics) {
-    const modeMatch = metric.labels.match(/mode="([^"]+)"/)
-    if (modeMatch) {
-      const mode = modeMatch[1]
+  for (const metric of cpuMetric.metrics) {
+    if (metric.labels && metric.labels.mode) {
+      const mode = metric.labels.mode
+      const value = parseFloat(metric.value)
       if (!cpuModes[mode]) {
         cpuModes[mode] = 0
       }
-      cpuModes[mode] += metric.value
+      cpuModes[mode] += value
     }
   }
 
@@ -62,21 +37,30 @@ function extractCPUMetrics(metrics) {
 }
 
 /**
- * Extract memory metrics and prepare for display
- * @param {object} metrics - Parsed metrics object
+ * Extract memory metrics from parsed Prometheus metrics and prepare for display
+ * @param {Array} metrics - Parsed metrics array from parse-prometheus-text-format
  * @returns {object} Memory metrics object
  */
 function extractMemoryMetrics(metrics) {
-  const memTotal = metrics['node_memory_MemTotal_bytes']?.[0]?.value || 0
-  const memFree = metrics['node_memory_MemFree_bytes']?.[0]?.value || 0
-  const memAvailable = metrics['node_memory_MemAvailable_bytes']?.[0]?.value || 0
+  const getMetricValue = (metricName) => {
+    const metric = metrics.find((m) => m.name === metricName)
+    if (metric && metric.metrics && metric.metrics.length > 0) {
+      return parseFloat(metric.metrics[0].value) || 0
+    }
+    return 0
+  }
+
+  const memTotal = getMetricValue('node_memory_MemTotal_bytes')
+  const memFree = getMetricValue('node_memory_MemFree_bytes')
+  const memAvailable = getMetricValue('node_memory_MemAvailable_bytes')
 
   return {
     total: memTotal,
     free: memFree,
     available: memAvailable,
     used: memTotal - memFree,
-    usedPercent: memTotal > 0 ? ((memTotal - memAvailable) / memTotal) * 100 : 0,
+    usedPercent:
+      memTotal > 0 ? ((memTotal - memAvailable) / memTotal) * 100 : 0,
   }
 }
 
@@ -114,7 +98,7 @@ function NodeMetricsComponent({ nodeId }) {
           setError(data.message)
           setMetricsData(null)
         } else if (data.metrics) {
-          const parsed = parsePrometheusMetrics(data.metrics)
+          const parsed = parsePrometheusTextFormat(data.metrics)
           setMetricsData(parsed)
           setError(null)
         }
