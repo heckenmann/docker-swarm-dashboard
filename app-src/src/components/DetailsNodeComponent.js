@@ -3,9 +3,10 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   nodeDetailAtom,
+  tableSizeAtom,
 } from '../common/store/atoms'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { Card, Tabs, Tab, Table } from 'react-bootstrap'
+import { Card, Tabs, Tab, Table, Row, Col } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from './JsonTable'
 import { ServiceName } from './names/ServiceName'
@@ -23,6 +24,7 @@ import { NodeMetricsComponent } from './NodeMetricsComponent'
 function DetailsNodeComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
 
   const currentNode = useAtomValue(nodeDetailAtom)
 
@@ -101,114 +103,122 @@ function DetailsNodeComponent() {
   )
 
   return (
-    <div
-      style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}
-    >
-      <Card className={currentVariantClasses}>
-        <Card.Header>
-          <h5>
-            <FontAwesomeIcon icon="server" /> Node "
-            {currentNode.node?.Description?.Hostname}"
-          </h5>
-        </Card.Header>
-        <Card.Body style={{ overflowY: 'auto' }}>
-          <Tabs className="mb-3" defaultActiveKey="metrics">
-            <Tab eventKey="metrics" title="Metrics">
-              <NodeMetricsComponent nodeId={currentNode.node?.ID} />
-            </Tab>
-            <Tab eventKey="table" title="Table">
-              <JsonTable json={currentNode.node} variant={currentVariant} />
-            </Tab>
-            <Tab eventKey="json" title="JSON">
-              <pre
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                }}
-              >
-                <code>{JSON.stringify(currentNode.node, null, '\t')}</code>
-              </pre>
-            </Tab>
-          </Tabs>
-        </Card.Body>
-      </Card>
-      <Card className={currentVariantClasses}>
-        <Card.Header>
-          <h5>
-            <FontAwesomeIcon icon="tasks" /> Tasks on{' '}
-            {currentNode.node?.Description?.Hostname}
-          </h5>
-        </Card.Header>
-        <Table striped bordered hover size="sm" variant={currentVariant}>
-          <thead>
-            <tr>
-              <SortableHeader
-                column="ServiceName"
-                label="Service"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="State"
-                label="State"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="DesiredState"
-                label="Desired State"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="CreatedAt"
-                label="Created"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="UpdatedAt"
-                label="Updated"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {sortedTasks &&
-              sortedTasks.map((task, idx) => (
-                <tr
-                  key={
-                    (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
-                    `-${idx}`
-                  }
-                >
-                  <td>
-                    <ServiceName
-                      name={taskServiceName(task)}
-                      id={taskServiceId(task)}
+    <div>
+      <Row>
+        <Col xs={12}>
+          <Card className={`${currentVariantClasses} mb-3`}>
+            <Card.Header>
+              <h5>
+                <FontAwesomeIcon icon="server" /> Node "
+                {currentNode.node?.Description?.Hostname}"
+              </h5>
+            </Card.Header>
+            <Card.Body>
+              <Tabs className="mb-3" defaultActiveKey="metrics">
+                <Tab eventKey="metrics" title="Metrics">
+                  <NodeMetricsComponent nodeId={currentNode.node?.ID} />
+                </Tab>
+                <Tab eventKey="table" title="Table">
+                  <JsonTable json={currentNode.node} variant={currentVariant} />
+                </Tab>
+                <Tab eventKey="json" title="JSON">
+                  <pre
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                    }}
+                  >
+                    <code>{JSON.stringify(currentNode.node, null, '\t')}</code>
+                  </pre>
+                </Tab>
+              </Tabs>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={12}>
+          <Card className={currentVariantClasses}>
+            <Card.Header>
+              <h5>
+                <FontAwesomeIcon icon="tasks" /> Tasks on{' '}
+                {currentNode.node?.Description?.Hostname}
+              </h5>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <Table striped bordered hover size={tableSize} variant={currentVariant} className="mb-0">
+                <thead>
+                  <tr>
+                    <SortableHeader
+                      column="ServiceName"
+                      label="Service"
+                      sortBy={sortBy}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
                     />
-                  </td>
-                  <td>
-                    <ServiceStatusBadge
-                      id={task.ID}
-                      serviceState={task.Status?.State || task.State}
+                    <SortableHeader
+                      column="State"
+                      label="State"
+                      sortBy={sortBy}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
                     />
-                  </td>
-                  <td>{task.DesiredState}</td>
-                  <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
-                  <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
-                </tr>
-              ))}
-          </tbody>
-        </Table>
-      </Card>
+                    <SortableHeader
+                      column="DesiredState"
+                      label="Desired State"
+                      sortBy={sortBy}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortableHeader
+                      column="CreatedAt"
+                      label="Created"
+                      sortBy={sortBy}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <SortableHeader
+                      column="UpdatedAt"
+                      label="Updated"
+                      sortBy={sortBy}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedTasks &&
+                    sortedTasks.map((task, idx) => (
+                      <tr
+                        key={
+                          (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
+                          `-${idx}`
+                        }
+                      >
+                        <td>
+                          <ServiceName
+                            name={taskServiceName(task)}
+                            id={taskServiceId(task)}
+                          />
+                        </td>
+                        <td>
+                          <ServiceStatusBadge
+                            id={task.ID}
+                            serviceState={task.Status?.State || task.State}
+                          />
+                        </td>
+                        <td>{task.DesiredState}</td>
+                        <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
+                        <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     </div>
   )
 }

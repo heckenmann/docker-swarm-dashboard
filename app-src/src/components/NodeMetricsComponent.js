@@ -223,7 +223,7 @@ function NodeMetricsComponent({ nodeId }) {
     chart: {
       ...commonOpts.chart,
       type: 'bar',
-      height: 300,
+      height: 350,
     },
     plotOptions: {
       bar: {
@@ -270,7 +270,7 @@ function NodeMetricsComponent({ nodeId }) {
     chart: {
       ...commonOpts.chart,
       type: 'donut',
-      height: 300,
+      height: 350,
     },
     labels: ['Used', 'Available'],
     title: {
@@ -309,7 +309,7 @@ function NodeMetricsComponent({ nodeId }) {
     chart: {
       ...commonOpts.chart,
       type: 'donut',
-      height: 300,
+      height: 350,
     },
     labels: ['Used', 'Free'],
     title: {
@@ -385,7 +385,7 @@ function NodeMetricsComponent({ nodeId }) {
     chart: {
       ...commonOpts.chart,
       type: 'bar',
-      height: 300,
+      height: 350,
     },
     plotOptions: {
       bar: {
@@ -426,7 +426,7 @@ function NodeMetricsComponent({ nodeId }) {
     chart: {
       ...commonOpts.chart,
       type: 'bar',
-      height: 300,
+      height: 350,
     },
     plotOptions: {
       bar: {
@@ -467,7 +467,7 @@ function NodeMetricsComponent({ nodeId }) {
     chart: {
       ...commonOpts.chart,
       type: 'bar',
-      height: 300,
+      height: 350,
     },
     plotOptions: {
       bar: {
@@ -566,7 +566,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={cpuChartOptions}
               series={cpuChartSeries}
               type="bar"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No CPU metrics available</Alert>
@@ -578,7 +578,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={memoryChartOptions}
               series={memoryChartSeries}
               type="donut"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No memory metrics available</Alert>
@@ -590,7 +590,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={swapChartOptions}
               series={swapChartSeries}
               type="donut"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No swap configured</Alert>
@@ -606,7 +606,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={filesystemChartOptions}
               series={filesystemChartSeries}
               type="bar"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No filesystem metrics available</Alert>
@@ -618,7 +618,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={networkChartOptions}
               series={networkChartSeries}
               type="bar"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No network metrics available</Alert>
@@ -634,7 +634,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={diskIOChartOptions}
               series={diskIOChartSeries}
               type="bar"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No disk I/O metrics available</Alert>
@@ -646,7 +646,7 @@ function NodeMetricsComponent({ nodeId }) {
               options={diskIOPSChartOptions}
               series={diskIOPSChartSeries}
               type="bar"
-              height={300}
+              height={350}
             />
           ) : (
             <Alert variant="info">No disk IOPS metrics available</Alert>
