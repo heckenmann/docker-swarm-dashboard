@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { baseURLAtom } from '../common/store/atoms'
+import { baseUrlAtom } from '../common/store/atoms'
 import { Card, Alert, Spinner } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 
@@ -55,7 +55,7 @@ function formatMemoryMetrics(memoryMetrics) {
  * @param {string} props.nodeId - The ID of the node to fetch metrics for
  */
 function NodeMetricsComponent({ nodeId }) {
-  const baseURL = useAtomValue(baseURLAtom)
+  const baseURL = useAtomValue(baseUrlAtom)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [metricsData, setMetricsData] = useState(null)
