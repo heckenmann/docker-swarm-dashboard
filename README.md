@@ -78,6 +78,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `TZ` | [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in. | (system) |
 | `DSD_VERSION_CHECK_ENABLED` | When `true`, the system will check for updates and notify in the UI if a new version is available. | `false` |
 | `DSD_WELCOME_MESSAGE` | If set, this message will be displayed to the user in a modal dialog when the web application is opened in the browser. | (none) |
+| `DOCKER_API_VERSION` | Forces a specific Docker API version to use (e.g. `1.35`, `1.41`). When not specified, the server automatically negotiates the highest API version supported by both the client and Docker daemon. Only set this if you need to force a specific version for compatibility. | (auto-negotiated) |
 
 ### Pull Image from ghcr.io
 ```
