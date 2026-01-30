@@ -1,6 +1,10 @@
 ---
 version: '3.5'
 
+networks:
+  dashboard-network:
+    driver: overlay
+
 services:
   docker-swarm-dashboard:
     image: ghcr.io/heckenmann/docker-swarm-dashboard:local
@@ -15,3 +19,24 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       DSD_VERSION_CHECK_ENABLED: 'true'
+    networks:
+      - dashboard-network
+
+  # Optional: Node Exporter for node metrics
+  # Uncomment to enable node metrics in the dashboard
+  # node-exporter:
+  #   image: prom/node-exporter:latest
+  #   deploy:
+  #     mode: global
+  #     labels:
+  #       - "dsd.node-exporter=true"
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /:/rootfs:ro
+  #   command:
+  #     - '--path.procfs=/host/proc'
+  #     - '--path.sysfs=/host/sys'
+  #     - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+  #   networks:
+  #     - dashboard-network

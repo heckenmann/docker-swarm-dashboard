@@ -74,6 +74,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `DSD_DASHBOARD_LAYOUT` | Default dashboard layout. Either `row` (default) or `column`. | `row` |
 | `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |
 | `DSD_PATH_PREFIX` | Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path. | `/` |
+| `DSD_NODE_EXPORTER_LABEL` | Docker service label to identify node-exporter service for metrics collection. | `dsd.node-exporter` |
 | `LOCALE` | Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag. | (system) |
 | `TZ` | [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in. | (system) |
 | `DSD_VERSION_CHECK_ENABLED` | When `true`, the system will check for updates and notify in the UI if a new version is available. | `false` |
@@ -158,6 +159,42 @@ From the directory with docker-compose.yml run:
 docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 
+### Node Metrics (Optional)
+Docker Swarm Dashboard can display node metrics from [Prometheus Node Exporter](https://github.com/prometheus/node_exporter).
+
+#### Setup Node Exporter
+Deploy node-exporter as a global service with the label `dsd.node-exporter`:
+
+```yaml
+node-exporter:
+  image: prom/node-exporter:latest
+  deploy:
+    mode: global
+    labels:
+      - "dsd.node-exporter=true"
+  volumes:
+    - /proc:/host/proc:ro
+    - /sys:/host/sys:ro
+    - /:/rootfs:ro
+  command:
+    - '--path.procfs=/host/proc'
+    - '--path.sysfs=/host/sys'
+    - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+  networks:
+    - your-network-name
+```
+
+**Important:** 
+- The node-exporter service must be on the same Docker network as the dashboard
+- The service must have the label `dsd.node-exporter=true` (or custom label set via `DSD_NODE_EXPORTER_LABEL`)
+- Metrics will appear in the "Metrics" tab when viewing node details
+
+#### Customize Label
+You can customize the label used to discover node-exporter by setting:
+```yaml
+environment:
+  DSD_NODE_EXPORTER_LABEL: "my.custom.label"
+```
 
 ### logs-generator (for testing)
 ```
