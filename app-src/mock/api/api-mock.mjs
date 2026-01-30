@@ -576,20 +576,55 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
     available: true,
     metrics: {
       cpu: [
-        { mode: 'idle', value: 25222.11 },      // Sum of CPU0 + CPU1 idle
-        { mode: 'iowait', value: 222.21 },      // Sum of CPU0 + CPU1 iowait
-        { mode: 'irq', value: 0.27 },           // Sum of CPU0 + CPU1 irq
-        { mode: 'nice', value: 3.57 },          // Sum of CPU0 + CPU1 nice
-        { mode: 'softirq', value: 28.01 },      // Sum of CPU0 + CPU1 softirq
-        { mode: 'steal', value: 0.0 },          // Sum of CPU0 + CPU1 steal
-        { mode: 'system', value: 869.34 },      // Sum of CPU0 + CPU1 system
-        { mode: 'user', value: 1735.79 }        // Sum of CPU0 + CPU1 user
+        { mode: 'idle', value: 25222.11 },
+        { mode: 'iowait', value: 222.21 },
+        { mode: 'irq', value: 0.27 },
+        { mode: 'nice', value: 3.57 },
+        { mode: 'softirq', value: 28.01 },
+        { mode: 'steal', value: 0.0 },
+        { mode: 'system', value: 869.34 },
+        { mode: 'user', value: 1735.79 }
       ],
       memory: {
         total: 8589934592,        // 8GB
         free: 2147483648,         // 2GB
         available: 4294967296     // 4GB
-      }
+      },
+      filesystem: [
+        {
+          device: '/dev/sda1',
+          mountpoint: '/',
+          size: 107374182400,      // 100GB
+          available: 53687091200,  // 50GB
+          used: 53687091200,       // 50GB
+          usedPercent: 50.0
+        },
+        {
+          device: '/dev/sdb1',
+          mountpoint: '/var/lib/docker',
+          size: 536870912000,      // 500GB
+          available: 268435456000, // 250GB
+          used: 268435456000,      // 250GB
+          usedPercent: 50.0
+        }
+      ],
+      network: [
+        {
+          interface: 'eth0',
+          receiveBytes: 123456789012,
+          transmitBytes: 987654321098
+        },
+        {
+          interface: 'eth1',
+          receiveBytes: 98765432109,
+          transmitBytes: 123456789012
+        }
+      ],
+      ntp: {
+        offsetSeconds: 0.000123,
+        syncStatus: 1
+      },
+      serverTime: Date.now() / 1000  // Current Unix timestamp
     }
   })
 })

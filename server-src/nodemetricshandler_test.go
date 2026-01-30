@@ -379,3 +379,110 @@ if err != nil {
 t.Logf("Parser rejected invalid format (expected): %v", err)
 }
 }
+
+func TestParsePrometheusMetrics_WithAllMetrics(t *testing.T) {
+// Sample Prometheus metrics text with filesystem, network, NTP, and time metrics
+metricsText := `# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 12543.21
+node_cpu_seconds_total{cpu="0",mode="system"} 456.78
+# HELP node_memory_MemTotal_bytes Memory information field MemTotal_bytes.
+# TYPE node_memory_MemTotal_bytes gauge
+node_memory_MemTotal_bytes 8589934592
+# HELP node_memory_MemFree_bytes Memory information field MemFree_bytes.
+# TYPE node_memory_MemFree_bytes gauge
+node_memory_MemFree_bytes 2147483648
+# HELP node_memory_MemAvailable_bytes Memory information field MemAvailable_bytes.
+# TYPE node_memory_MemAvailable_bytes gauge
+node_memory_MemAvailable_bytes 4294967296
+# HELP node_filesystem_size_bytes Filesystem size in bytes.
+# TYPE node_filesystem_size_bytes gauge
+node_filesystem_size_bytes{device="/dev/sda1",mountpoint="/"} 107374182400
+node_filesystem_size_bytes{device="/dev/sdb1",mountpoint="/data"} 536870912000
+# HELP node_filesystem_avail_bytes Filesystem space available in bytes.
+# TYPE node_filesystem_avail_bytes gauge
+node_filesystem_avail_bytes{device="/dev/sda1",mountpoint="/"} 53687091200
+node_filesystem_avail_bytes{device="/dev/sdb1",mountpoint="/data"} 268435456000
+# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
+# TYPE node_network_receive_bytes_total counter
+node_network_receive_bytes_total{device="eth0"} 123456789012
+node_network_receive_bytes_total{device="eth1"} 98765432109
+# HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
+# TYPE node_network_transmit_bytes_total counter
+node_network_transmit_bytes_total{device="eth0"} 987654321098
+node_network_transmit_bytes_total{device="eth1"} 123456789012
+# HELP node_timex_offset_seconds Time offset in between local system and reference clock.
+# TYPE node_timex_offset_seconds gauge
+node_timex_offset_seconds 0.000123
+# HELP node_timex_sync_status Is clock synchronized to a reliable server.
+# TYPE node_timex_sync_status gauge
+node_timex_sync_status 1
+# HELP node_time_seconds System time in seconds since epoch (1970).
+# TYPE node_time_seconds gauge
+node_time_seconds 1706632800.123
+`
+
+parsed, err := parsePrometheusMetrics(metricsText)
+if err != nil {
+t.Fatalf("Failed to parse metrics: %v", err)
+}
+
+// Verify filesystem metrics
+if len(parsed.Filesystem) == 0 {
+t.Error("Expected filesystem metrics, got none")
+}
+foundRoot := false
+for _, fs := range parsed.Filesystem {
+if fs.Mountpoint == "/" {
+foundRoot = true
+if fs.Size != 107374182400 {
+t.Errorf("Expected filesystem size 107374182400, got %f", fs.Size)
+}
+if fs.Available != 53687091200 {
+t.Errorf("Expected filesystem available 53687091200, got %f", fs.Available)
+}
+expectedUsed := fs.Size - fs.Available
+if fs.Used != expectedUsed {
+t.Errorf("Expected filesystem used %f, got %f", expectedUsed, fs.Used)
+}
+}
+}
+if !foundRoot {
+t.Error("Expected to find root filesystem")
+}
+
+// Verify network metrics
+if len(parsed.Network) == 0 {
+t.Error("Expected network metrics, got none")
+}
+foundEth0 := false
+for _, net := range parsed.Network {
+if net.Interface == "eth0" {
+foundEth0 = true
+if net.ReceiveBytes != 123456789012 {
+t.Errorf("Expected receive bytes 123456789012, got %f", net.ReceiveBytes)
+}
+if net.TransmitBytes != 987654321098 {
+t.Errorf("Expected transmit bytes 987654321098, got %f", net.TransmitBytes)
+}
+}
+}
+if !foundEth0 {
+t.Error("Expected to find eth0 network interface")
+}
+
+// Verify NTP metrics
+expectedOffset := 0.000123
+if parsed.NTP.OffsetSeconds < expectedOffset-0.000001 || parsed.NTP.OffsetSeconds > expectedOffset+0.000001 {
+t.Errorf("Expected NTP offset %f, got %f", expectedOffset, parsed.NTP.OffsetSeconds)
+}
+if parsed.NTP.SyncStatus != 1 {
+t.Errorf("Expected NTP sync status 1, got %f", parsed.NTP.SyncStatus)
+}
+
+// Verify server time
+expectedTime := 1706632800.123
+if parsed.ServerTime < expectedTime-0.01 || parsed.ServerTime > expectedTime+0.01 {
+t.Errorf("Expected server time %f, got %f", expectedTime, parsed.ServerTime)
+}
+}

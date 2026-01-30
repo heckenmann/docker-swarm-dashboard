@@ -101,12 +101,11 @@ function NodeMetricsComponent({ nodeId }) {
 
     fetchMetrics()
 
-    // Refresh metrics every 30 seconds
-    const interval = setInterval(fetchMetrics, 30000)
+    // Component will refresh when parent re-renders (global refresh/interval)
+    // No local interval needed
 
     return () => {
       mounted = false
-      clearInterval(interval)
     }
   }, [baseURL, nodeId])
 
@@ -154,6 +153,12 @@ function NodeMetricsComponent({ nodeId }) {
 
   const cpuData = formatCPUMetrics(metricsData.cpu)
   const memoryData = formatMemoryMetrics(metricsData.memory)
+  const filesystemData = metricsData.filesystem || []
+  const networkData = metricsData.network || []
+  const ntpData = metricsData.ntp || {}
+  const serverTime = metricsData.serverTime
+    ? new Date(metricsData.serverTime * 1000).toLocaleString()
+    : 'N/A'
 
   // CPU Chart Configuration
   const cpuChartOptions = {
@@ -235,8 +240,133 @@ function NodeMetricsComponent({ nodeId }) {
     memoryData.available,
   ]
 
+  // Filesystem Chart Configuration
+  const filesystemChartOptions = {
+    chart: {
+      type: 'bar',
+      height: 250,
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        distributed: false,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => (val / 1024 / 1024 / 1024).toFixed(1) + ' GB',
+    },
+    xaxis: {
+      categories: filesystemData.map(
+        (fs) => fs.mountpoint || fs.device,
+      ),
+      title: {
+        text: 'Storage (GB)',
+      },
+    },
+    yaxis: {
+      title: {
+        text: 'Filesystem',
+      },
+    },
+    title: {
+      text: 'Filesystem Usage',
+      align: 'center',
+    },
+    legend: {
+      show: true,
+      position: 'top',
+    },
+  }
+
+  const filesystemChartSeries = [
+    {
+      name: 'Used',
+      data: filesystemData.map((fs) => fs.used),
+    },
+    {
+      name: 'Available',
+      data: filesystemData.map((fs) => fs.available),
+    },
+  ]
+
+  // Network Chart Configuration
+  const networkChartOptions = {
+    chart: {
+      type: 'bar',
+      height: 250,
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        distributed: false,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => (val / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+    },
+    xaxis: {
+      categories: networkData.map((net) => net.interface),
+      title: {
+        text: 'Bytes (GB)',
+      },
+    },
+    yaxis: {
+      title: {
+        text: 'Interface',
+      },
+    },
+    title: {
+      text: 'Network Traffic',
+      align: 'center',
+    },
+    legend: {
+      show: true,
+      position: 'top',
+    },
+  }
+
+  const networkChartSeries = [
+    {
+      name: 'Received',
+      data: networkData.map((net) => net.receiveBytes),
+    },
+    {
+      name: 'Transmitted',
+      data: networkData.map((net) => net.transmitBytes),
+    },
+  ]
+
   return (
     <Card.Body>
+      {/* Server Time Display */}
+      <div className="row mb-3">
+        <div className="col-12">
+          <div className="alert alert-secondary mb-0 py-2">
+            <strong>Server Time:</strong> {serverTime}
+            {ntpData.syncStatus !== undefined && (
+              <span className="ms-3">
+                <strong>NTP Sync:</strong>{' '}
+                {ntpData.syncStatus === 1 ? (
+                  <span className="text-success">✓ Synchronized</span>
+                ) : (
+                  <span className="text-warning">⚠ Not Synchronized</span>
+                )}
+                {ntpData.offsetSeconds !== undefined && (
+                  <span className="ms-2">
+                    (Offset: {(ntpData.offsetSeconds * 1000).toFixed(2)} ms)
+                  </span>
+                )}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* CPU and Memory Charts */}
       <div className="row">
         <div className="col-md-6">
           {cpuData.length > 0 ? (
@@ -263,10 +393,41 @@ function NodeMetricsComponent({ nodeId }) {
           )}
         </div>
       </div>
+
+      {/* Filesystem and Network Charts */}
+      <div className="row mt-3">
+        <div className="col-md-6">
+          {filesystemData.length > 0 ? (
+            <ReactApexChart
+              options={filesystemChartOptions}
+              series={filesystemChartSeries}
+              type="bar"
+              height={250}
+            />
+          ) : (
+            <Alert variant="info">No filesystem metrics available</Alert>
+          )}
+        </div>
+        <div className="col-md-6">
+          {networkData.length > 0 ? (
+            <ReactApexChart
+              options={networkChartOptions}
+              series={networkChartSeries}
+              type="bar"
+              height={250}
+            />
+          ) : (
+            <Alert variant="info">No network metrics available</Alert>
+          )}
+        </div>
+      </div>
+
+      {/* Footer Info */}
       <div className="row mt-3">
         <div className="col-12">
           <small className="text-muted">
-            Metrics refresh every 30 seconds. Data from node-exporter service.
+            Metrics refresh with global interval. Data from node-exporter
+            service.
           </small>
         </div>
       </div>

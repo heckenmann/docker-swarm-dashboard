@@ -47,10 +47,37 @@ type MemoryMetrics struct {
 	Available float64 `json:"available"`
 }
 
+// FilesystemMetric represents filesystem/disk metrics
+type FilesystemMetric struct {
+	Device     string  `json:"device"`
+	Mountpoint string  `json:"mountpoint"`
+	Size       float64 `json:"size"`
+	Available  float64 `json:"available"`
+	Used       float64 `json:"used"`
+	UsedPercent float64 `json:"usedPercent"`
+}
+
+// NetworkMetric represents network interface metrics
+type NetworkMetric struct {
+	Interface    string  `json:"interface"`
+	ReceiveBytes float64 `json:"receiveBytes"`
+	TransmitBytes float64 `json:"transmitBytes"`
+}
+
+// NTPMetrics represents NTP/time synchronization metrics
+type NTPMetrics struct {
+	OffsetSeconds float64 `json:"offsetSeconds"`
+	SyncStatus    float64 `json:"syncStatus"`
+}
+
 // ParsedMetrics represents the parsed and extracted metrics
 type ParsedMetrics struct {
-	CPU    []CPUMetric   `json:"cpu"`
-	Memory MemoryMetrics `json:"memory"`
+	CPU        []CPUMetric        `json:"cpu"`
+	Memory     MemoryMetrics      `json:"memory"`
+	Filesystem []FilesystemMetric `json:"filesystem"`
+	Network    []NetworkMetric    `json:"network"`
+	NTP        NTPMetrics         `json:"ntp"`
+	ServerTime float64            `json:"serverTime"` // Unix timestamp
 }
 
 // nodeMetricsResponse represents the response structure for node metrics endpoint
@@ -137,8 +164,11 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	}
 
 	parsed := &ParsedMetrics{
-		CPU:    make([]CPUMetric, 0),
-		Memory: MemoryMetrics{},
+		CPU:        make([]CPUMetric, 0),
+		Memory:     MemoryMetrics{},
+		Filesystem: make([]FilesystemMetric, 0),
+		Network:    make([]NetworkMetric, 0),
+		NTP:        NTPMetrics{},
 	}
 
 	// Extract CPU metrics
@@ -182,7 +212,132 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 		}
 	}
 
+	// Extract filesystem metrics
+	filesystemSizes := make(map[string]map[string]float64)
+	if fsSize, ok := metricFamilies["node_filesystem_size_bytes"]; ok {
+		for _, metric := range fsSize.GetMetric() {
+			device, mountpoint := getFilesystemLabels(metric)
+			if device != "" && mountpoint != "" {
+				key := device + "|" + mountpoint
+				if filesystemSizes[key] == nil {
+					filesystemSizes[key] = make(map[string]float64)
+				}
+				filesystemSizes[key]["size"] = getMetricValue(metric)
+				filesystemSizes[key]["device"] = 0 // placeholder
+				filesystemSizes[key]["mountpoint"] = 0 // placeholder
+			}
+		}
+	}
+	if fsAvail, ok := metricFamilies["node_filesystem_avail_bytes"]; ok {
+		for _, metric := range fsAvail.GetMetric() {
+			device, mountpoint := getFilesystemLabels(metric)
+			if device != "" && mountpoint != "" {
+				key := device + "|" + mountpoint
+				if filesystemSizes[key] == nil {
+					filesystemSizes[key] = make(map[string]float64)
+				}
+				filesystemSizes[key]["avail"] = getMetricValue(metric)
+			}
+		}
+	}
+
+	// Build filesystem metrics from collected data
+	for key, data := range filesystemSizes {
+		parts := strings.Split(key, "|")
+		if len(parts) != 2 {
+			continue
+		}
+		size := data["size"]
+		avail := data["avail"]
+		if size > 0 {
+			used := size - avail
+			usedPercent := (used / size) * 100
+			parsed.Filesystem = append(parsed.Filesystem, FilesystemMetric{
+				Device:      parts[0],
+				Mountpoint:  parts[1],
+				Size:        size,
+				Available:   avail,
+				Used:        used,
+				UsedPercent: usedPercent,
+			})
+		}
+	}
+
+	// Extract network metrics
+	networkRx := make(map[string]float64)
+	networkTx := make(map[string]float64)
+	
+	if netRx, ok := metricFamilies["node_network_receive_bytes_total"]; ok {
+		for _, metric := range netRx.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" { // Skip loopback
+				networkRx[iface] = getMetricValue(metric)
+			}
+		}
+	}
+	if netTx, ok := metricFamilies["node_network_transmit_bytes_total"]; ok {
+		for _, metric := range netTx.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" { // Skip loopback
+				networkTx[iface] = getMetricValue(metric)
+			}
+		}
+	}
+
+	// Build network metrics
+	for iface, rx := range networkRx {
+		tx := networkTx[iface]
+		parsed.Network = append(parsed.Network, NetworkMetric{
+			Interface:     iface,
+			ReceiveBytes:  rx,
+			TransmitBytes: tx,
+		})
+	}
+
+	// Extract NTP metrics
+	if ntpOffset, ok := metricFamilies["node_timex_offset_seconds"]; ok {
+		if len(ntpOffset.GetMetric()) > 0 {
+			parsed.NTP.OffsetSeconds = getMetricValue(ntpOffset.GetMetric()[0])
+		}
+	}
+	if ntpSync, ok := metricFamilies["node_timex_sync_status"]; ok {
+		if len(ntpSync.GetMetric()) > 0 {
+			parsed.NTP.SyncStatus = getMetricValue(ntpSync.GetMetric()[0])
+		}
+	}
+
+	// Extract server time
+	if timeMetric, ok := metricFamilies["node_time_seconds"]; ok {
+		if len(timeMetric.GetMetric()) > 0 {
+			parsed.ServerTime = getMetricValue(timeMetric.GetMetric()[0])
+		}
+	}
+
 	return parsed, nil
+}
+
+// getFilesystemLabels extracts device and mountpoint from filesystem metric labels
+func getFilesystemLabels(metric *dto.Metric) (string, string) {
+	var device, mountpoint string
+	for _, label := range metric.GetLabel() {
+		switch label.GetName() {
+		case "device":
+			device = label.GetValue()
+		case "mountpoint":
+			mountpoint = label.GetValue()
+		}
+	}
+	return device, mountpoint
+}
+
+// getNetworkInterface extracts the network interface name from metric labels
+func getNetworkInterface(metric *dto.Metric) string {
+	for _, label := range metric.GetLabel() {
+		if label.GetName() == "device" {
+			return label.GetValue()
+		}
+	}
+	return ""
 }
 
 // getMetricValue extracts the numeric value from a Prometheus metric
