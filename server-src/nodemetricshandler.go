@@ -42,9 +42,13 @@ type CPUMetric struct {
 
 // MemoryMetrics represents memory metrics
 type MemoryMetrics struct {
-	Total     float64 `json:"total"`
-	Free      float64 `json:"free"`
-	Available float64 `json:"available"`
+	Total         float64 `json:"total"`
+	Free          float64 `json:"free"`
+	Available     float64 `json:"available"`
+	SwapTotal     float64 `json:"swapTotal"`
+	SwapFree      float64 `json:"swapFree"`
+	SwapUsed      float64 `json:"swapUsed"`
+	SwapUsedPercent float64 `json:"swapUsedPercent"`
 }
 
 // FilesystemMetric represents filesystem/disk metrics
@@ -59,9 +63,26 @@ type FilesystemMetric struct {
 
 // NetworkMetric represents network interface metrics
 type NetworkMetric struct {
-	Interface    string  `json:"interface"`
-	ReceiveBytes float64 `json:"receiveBytes"`
-	TransmitBytes float64 `json:"transmitBytes"`
+	Interface       string  `json:"interface"`
+	ReceiveBytes    float64 `json:"receiveBytes"`
+	TransmitBytes   float64 `json:"transmitBytes"`
+	ReceivePackets  float64 `json:"receivePackets"`
+	TransmitPackets float64 `json:"transmitPackets"`
+	ReceiveErrs     float64 `json:"receiveErrs"`
+	TransmitErrs    float64 `json:"transmitErrs"`
+	ReceiveDrop     float64 `json:"receiveDrop"`
+	TransmitDrop    float64 `json:"transmitDrop"`
+}
+
+// DiskIOMetric represents disk I/O metrics
+type DiskIOMetric struct {
+	Device            string  `json:"device"`
+	ReadsCompleted    float64 `json:"readsCompleted"`
+	WritesCompleted   float64 `json:"writesCompleted"`
+	ReadBytes         float64 `json:"readBytes"`
+	WrittenBytes      float64 `json:"writtenBytes"`
+	IOTimeSeconds     float64 `json:"ioTimeSeconds"`
+	IOTimeWeightedSeconds float64 `json:"ioTimeWeightedSeconds"`
 }
 
 // NTPMetrics represents NTP/time synchronization metrics
@@ -72,22 +93,45 @@ type NTPMetrics struct {
 
 // SystemMetrics represents system-level metrics
 type SystemMetrics struct {
-	Load1        float64 `json:"load1"`
-	Load5        float64 `json:"load5"`
-	Load15       float64 `json:"load15"`
-	BootTime     float64 `json:"bootTime"`
-	UptimeSeconds float64 `json:"uptimeSeconds"`
+	Load1             float64 `json:"load1"`
+	Load5             float64 `json:"load5"`
+	Load15            float64 `json:"load15"`
+	BootTime          float64 `json:"bootTime"`
+	UptimeSeconds     float64 `json:"uptimeSeconds"`
+	NumCPUs           int     `json:"numCPUs"`
+	ContextSwitches   float64 `json:"contextSwitches"`
+	Interrupts        float64 `json:"interrupts"`
+	ProcsRunning      float64 `json:"procsRunning"`
+	ProcsBlocked      float64 `json:"procsBlocked"`
+}
+
+// TCPMetrics represents TCP connection metrics
+type TCPMetrics struct {
+	Alloc       float64 `json:"alloc"`
+	InUse       float64 `json:"inuse"`
+	CurrEstab   float64 `json:"currEstab"`
+	TimeWait    float64 `json:"timeWait"`
+}
+
+// FileDescriptorMetrics represents file descriptor metrics
+type FileDescriptorMetrics struct {
+	Allocated float64 `json:"allocated"`
+	Maximum   float64 `json:"maximum"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
 // ParsedMetrics represents the parsed and extracted metrics
 type ParsedMetrics struct {
-	CPU        []CPUMetric        `json:"cpu"`
-	Memory     MemoryMetrics      `json:"memory"`
-	Filesystem []FilesystemMetric `json:"filesystem"`
-	Network    []NetworkMetric    `json:"network"`
-	NTP        NTPMetrics         `json:"ntp"`
-	System     SystemMetrics      `json:"system"`
-	ServerTime float64            `json:"serverTime"` // Unix timestamp
+	CPU            []CPUMetric           `json:"cpu"`
+	Memory         MemoryMetrics         `json:"memory"`
+	Filesystem     []FilesystemMetric    `json:"filesystem"`
+	Network        []NetworkMetric       `json:"network"`
+	DiskIO         []DiskIOMetric        `json:"diskIO"`
+	NTP            NTPMetrics            `json:"ntp"`
+	System         SystemMetrics         `json:"system"`
+	TCP            TCPMetrics            `json:"tcp"`
+	FileDescriptor FileDescriptorMetrics `json:"fileDescriptor"`
+	ServerTime     float64               `json:"serverTime"` // Unix timestamp
 }
 
 // nodeMetricsResponse represents the response structure for node metrics endpoint
@@ -174,30 +218,40 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	}
 
 	parsed := &ParsedMetrics{
-		CPU:        make([]CPUMetric, 0),
-		Memory:     MemoryMetrics{},
-		Filesystem: make([]FilesystemMetric, 0),
-		Network:    make([]NetworkMetric, 0),
-		NTP:        NTPMetrics{},
-		System:     SystemMetrics{},
+		CPU:            make([]CPUMetric, 0),
+		Memory:         MemoryMetrics{},
+		Filesystem:     make([]FilesystemMetric, 0),
+		Network:        make([]NetworkMetric, 0),
+		DiskIO:         make([]DiskIOMetric, 0),
+		NTP:            NTPMetrics{},
+		System:         SystemMetrics{},
+		TCP:            TCPMetrics{},
+		FileDescriptor: FileDescriptorMetrics{},
 	}
 
-	// Extract CPU metrics
+	// Extract CPU metrics and count CPUs
+	numCPUs := 0
 	if cpuFamily, ok := metricFamilies["node_cpu_seconds_total"]; ok {
 		cpuModes := make(map[string]float64)
+		cpuSet := make(map[string]bool)
 		for _, metric := range cpuFamily.GetMetric() {
-			var mode string
+			var mode, cpu string
 			for _, label := range metric.GetLabel() {
 				if label.GetName() == "mode" {
 					mode = label.GetValue()
-					break
+				} else if label.GetName() == "cpu" {
+					cpu = label.GetValue()
 				}
 			}
 			if mode != "" {
 				value := getMetricValue(metric)
 				cpuModes[mode] += value
 			}
+			if cpu != "" {
+				cpuSet[cpu] = true
+			}
 		}
+		numCPUs = len(cpuSet)
 		for mode, value := range cpuModes {
 			parsed.CPU = append(parsed.CPU, CPUMetric{
 				Mode:  mode,
@@ -205,6 +259,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 			})
 		}
 	}
+	parsed.System.NumCPUs = numCPUs
 
 	// Extract memory metrics
 	if memTotalFamily, ok := metricFamilies["node_memory_MemTotal_bytes"]; ok {
@@ -221,6 +276,23 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 		if len(memAvailableFamily.GetMetric()) > 0 {
 			parsed.Memory.Available = getMetricValue(memAvailableFamily.GetMetric()[0])
 		}
+	}
+	
+	// Extract swap metrics
+	if swapTotalFamily, ok := metricFamilies["node_memory_SwapTotal_bytes"]; ok {
+		if len(swapTotalFamily.GetMetric()) > 0 {
+			parsed.Memory.SwapTotal = getMetricValue(swapTotalFamily.GetMetric()[0])
+		}
+	}
+	if swapFreeFamily, ok := metricFamilies["node_memory_SwapFree_bytes"]; ok {
+		if len(swapFreeFamily.GetMetric()) > 0 {
+			parsed.Memory.SwapFree = getMetricValue(swapFreeFamily.GetMetric()[0])
+		}
+	}
+	// Calculate swap usage
+	if parsed.Memory.SwapTotal > 0 {
+		parsed.Memory.SwapUsed = parsed.Memory.SwapTotal - parsed.Memory.SwapFree
+		parsed.Memory.SwapUsedPercent = (parsed.Memory.SwapUsed / parsed.Memory.SwapTotal) * 100
 	}
 
 	// Extract filesystem metrics
@@ -277,6 +349,12 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	// Extract network metrics
 	networkRx := make(map[string]float64)
 	networkTx := make(map[string]float64)
+	networkRxPackets := make(map[string]float64)
+	networkTxPackets := make(map[string]float64)
+	networkRxErrs := make(map[string]float64)
+	networkTxErrs := make(map[string]float64)
+	networkRxDrop := make(map[string]float64)
+	networkTxDrop := make(map[string]float64)
 	
 	if netRx, ok := metricFamilies["node_network_receive_bytes_total"]; ok {
 		for _, metric := range netRx.GetMetric() {
@@ -294,14 +372,137 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 			}
 		}
 	}
+	if netRxPkts, ok := metricFamilies["node_network_receive_packets_total"]; ok {
+		for _, metric := range netRxPkts.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" {
+				networkRxPackets[iface] = getMetricValue(metric)
+			}
+		}
+	}
+	if netTxPkts, ok := metricFamilies["node_network_transmit_packets_total"]; ok {
+		for _, metric := range netTxPkts.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" {
+				networkTxPackets[iface] = getMetricValue(metric)
+			}
+		}
+	}
+	if netRxErr, ok := metricFamilies["node_network_receive_errs_total"]; ok {
+		for _, metric := range netRxErr.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" {
+				networkRxErrs[iface] = getMetricValue(metric)
+			}
+		}
+	}
+	if netTxErr, ok := metricFamilies["node_network_transmit_errs_total"]; ok {
+		for _, metric := range netTxErr.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" {
+				networkTxErrs[iface] = getMetricValue(metric)
+			}
+		}
+	}
+	if netRxDropped, ok := metricFamilies["node_network_receive_drop_total"]; ok {
+		for _, metric := range netRxDropped.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" {
+				networkRxDrop[iface] = getMetricValue(metric)
+			}
+		}
+	}
+	if netTxDropped, ok := metricFamilies["node_network_transmit_drop_total"]; ok {
+		for _, metric := range netTxDropped.GetMetric() {
+			iface := getNetworkInterface(metric)
+			if iface != "" && iface != "lo" {
+				networkTxDrop[iface] = getMetricValue(metric)
+			}
+		}
+	}
 
 	// Build network metrics
 	for iface, rx := range networkRx {
-		tx := networkTx[iface]
 		parsed.Network = append(parsed.Network, NetworkMetric{
-			Interface:     iface,
-			ReceiveBytes:  rx,
-			TransmitBytes: tx,
+			Interface:       iface,
+			ReceiveBytes:    rx,
+			TransmitBytes:   networkTx[iface],
+			ReceivePackets:  networkRxPackets[iface],
+			TransmitPackets: networkTxPackets[iface],
+			ReceiveErrs:     networkRxErrs[iface],
+			TransmitErrs:    networkTxErrs[iface],
+			ReceiveDrop:     networkRxDrop[iface],
+			TransmitDrop:    networkTxDrop[iface],
+		})
+	}
+
+	// Extract disk I/O metrics
+	diskReads := make(map[string]float64)
+	diskWrites := make(map[string]float64)
+	diskReadBytes := make(map[string]float64)
+	diskWriteBytes := make(map[string]float64)
+	diskIOTime := make(map[string]float64)
+	diskIOTimeWeighted := make(map[string]float64)
+	
+	if diskReadsMetric, ok := metricFamilies["node_disk_reads_completed_total"]; ok {
+		for _, metric := range diskReadsMetric.GetMetric() {
+			device := getDiskDevice(metric)
+			if device != "" {
+				diskReads[device] = getMetricValue(metric)
+			}
+		}
+	}
+	if diskWritesMetric, ok := metricFamilies["node_disk_writes_completed_total"]; ok {
+		for _, metric := range diskWritesMetric.GetMetric() {
+			device := getDiskDevice(metric)
+			if device != "" {
+				diskWrites[device] = getMetricValue(metric)
+			}
+		}
+	}
+	if diskReadBytesMetric, ok := metricFamilies["node_disk_read_bytes_total"]; ok {
+		for _, metric := range diskReadBytesMetric.GetMetric() {
+			device := getDiskDevice(metric)
+			if device != "" {
+				diskReadBytes[device] = getMetricValue(metric)
+			}
+		}
+	}
+	if diskWriteBytesMetric, ok := metricFamilies["node_disk_written_bytes_total"]; ok {
+		for _, metric := range diskWriteBytesMetric.GetMetric() {
+			device := getDiskDevice(metric)
+			if device != "" {
+				diskWriteBytes[device] = getMetricValue(metric)
+			}
+		}
+	}
+	if diskIOTimeMetric, ok := metricFamilies["node_disk_io_time_seconds_total"]; ok {
+		for _, metric := range diskIOTimeMetric.GetMetric() {
+			device := getDiskDevice(metric)
+			if device != "" {
+				diskIOTime[device] = getMetricValue(metric)
+			}
+		}
+	}
+	if diskIOTimeWeightedMetric, ok := metricFamilies["node_disk_io_time_weighted_seconds_total"]; ok {
+		for _, metric := range diskIOTimeWeightedMetric.GetMetric() {
+			device := getDiskDevice(metric)
+			if device != "" {
+				diskIOTimeWeighted[device] = getMetricValue(metric)
+			}
+		}
+	}
+	
+	// Build disk I/O metrics
+	for device, reads := range diskReads {
+		parsed.DiskIO = append(parsed.DiskIO, DiskIOMetric{
+			Device:                device,
+			ReadsCompleted:        reads,
+			WritesCompleted:       diskWrites[device],
+			ReadBytes:             diskReadBytes[device],
+			WrittenBytes:          diskWriteBytes[device],
+			IOTimeSeconds:         diskIOTime[device],
+			IOTimeWeightedSeconds: diskIOTimeWeighted[device],
 		})
 	}
 
@@ -352,6 +553,68 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 		}
 	}
 
+	// Extract process stats
+	if procsRunning, ok := metricFamilies["node_procs_running"]; ok {
+		if len(procsRunning.GetMetric()) > 0 {
+			parsed.System.ProcsRunning = getMetricValue(procsRunning.GetMetric()[0])
+		}
+	}
+	if procsBlocked, ok := metricFamilies["node_procs_blocked"]; ok {
+		if len(procsBlocked.GetMetric()) > 0 {
+			parsed.System.ProcsBlocked = getMetricValue(procsBlocked.GetMetric()[0])
+		}
+	}
+
+	// Extract context switches and interrupts
+	if ctxSwitches, ok := metricFamilies["node_context_switches_total"]; ok {
+		if len(ctxSwitches.GetMetric()) > 0 {
+			parsed.System.ContextSwitches = getMetricValue(ctxSwitches.GetMetric()[0])
+		}
+	}
+	if interrupts, ok := metricFamilies["node_intr_total"]; ok {
+		if len(interrupts.GetMetric()) > 0 {
+			parsed.System.Interrupts = getMetricValue(interrupts.GetMetric()[0])
+		}
+	}
+
+	// Extract TCP metrics
+	if tcpAlloc, ok := metricFamilies["node_sockstat_TCP_alloc"]; ok {
+		if len(tcpAlloc.GetMetric()) > 0 {
+			parsed.TCP.Alloc = getMetricValue(tcpAlloc.GetMetric()[0])
+		}
+	}
+	if tcpInUse, ok := metricFamilies["node_sockstat_TCP_inuse"]; ok {
+		if len(tcpInUse.GetMetric()) > 0 {
+			parsed.TCP.InUse = getMetricValue(tcpInUse.GetMetric()[0])
+		}
+	}
+	if tcpEstab, ok := metricFamilies["node_netstat_Tcp_CurrEstab"]; ok {
+		if len(tcpEstab.GetMetric()) > 0 {
+			parsed.TCP.CurrEstab = getMetricValue(tcpEstab.GetMetric()[0])
+		}
+	}
+	if tcpTimeWait, ok := metricFamilies["node_sockstat_TCP_tw"]; ok {
+		if len(tcpTimeWait.GetMetric()) > 0 {
+			parsed.TCP.TimeWait = getMetricValue(tcpTimeWait.GetMetric()[0])
+		}
+	}
+
+	// Extract file descriptor metrics
+	if fdAlloc, ok := metricFamilies["node_filefd_allocated"]; ok {
+		if len(fdAlloc.GetMetric()) > 0 {
+			parsed.FileDescriptor.Allocated = getMetricValue(fdAlloc.GetMetric()[0])
+		}
+	}
+	if fdMax, ok := metricFamilies["node_filefd_maximum"]; ok {
+		if len(fdMax.GetMetric()) > 0 {
+			parsed.FileDescriptor.Maximum = getMetricValue(fdMax.GetMetric()[0])
+		}
+	}
+	// Calculate file descriptor usage percentage
+	if parsed.FileDescriptor.Maximum > 0 {
+		parsed.FileDescriptor.UsedPercent = (parsed.FileDescriptor.Allocated / parsed.FileDescriptor.Maximum) * 100
+	}
+
 	return parsed, nil
 }
 
@@ -371,6 +634,16 @@ func getFilesystemLabels(metric *dto.Metric) (string, string) {
 
 // getNetworkInterface extracts the network interface name from metric labels
 func getNetworkInterface(metric *dto.Metric) string {
+	for _, label := range metric.GetLabel() {
+		if label.GetName() == "device" {
+			return label.GetValue()
+		}
+	}
+	return ""
+}
+
+// getDiskDevice extracts the disk device name from metric labels
+func getDiskDevice(metric *dto.Metric) string {
 	for _, label := range metric.GetLabel() {
 		if label.GetName() == "device" {
 			return label.GetValue()

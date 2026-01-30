@@ -1,52 +1,105 @@
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { baseUrlAtom } from '../common/store/atoms'
-import { Card, Alert, Spinner } from 'react-bootstrap'
+import { baseUrlAtom, isDarkModeAtom } from '../common/store/atoms'
+import { Card, Alert, Spinner, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 
 /**
- * Format CPU metrics for chart display
- * @param {Array} cpuMetrics - Array of {mode, value} objects from server
- * @returns {Array} CPU series data for ApexCharts
+ * Get chart theme configuration based on dark mode
+ * @param {boolean} isDarkMode - Whether dark mode is enabled
+ * @returns {object} Theme configuration for ApexCharts
  */
-function formatCPUMetrics(cpuMetrics) {
-  if (!cpuMetrics || !Array.isArray(cpuMetrics)) {
-    return []
+function getChartTheme(isDarkMode) {
+  return {
+    mode: isDarkMode ? 'dark' : 'light',
+    palette: 'palette1',
+    monochrome: {
+      enabled: false,
+    },
   }
-
-  return cpuMetrics.map((metric) => ({
-    x: metric.mode,
-    y: metric.value.toFixed(2),
-  }))
 }
 
 /**
- * Calculate memory usage details from memory metrics
- * @param {object} memoryMetrics - Memory metrics object from server
- * @returns {object} Memory metrics with calculated usage
+ * Get common chart options for dark mode compatibility
+ * @param {boolean} isDarkMode - Whether dark mode is enabled
+ * @returns {object} Common chart options
  */
-function formatMemoryMetrics(memoryMetrics) {
-  if (!memoryMetrics) {
-    return {
-      total: 0,
-      free: 0,
-      available: 0,
-      used: 0,
-      usedPercent: 0,
-    }
-  }
-
-  const total = memoryMetrics.total || 0
-  const free = memoryMetrics.free || 0
-  const available = memoryMetrics.available || 0
-
+function getCommonChartOptions(isDarkMode) {
+  const textColor = isDarkMode ? '#e0e0e0' : '#373d3f'
+  const gridColor = isDarkMode ? '#444' : '#e0e0e0'
+  
   return {
-    total,
-    free,
-    available,
-    used: total - free,
-    usedPercent: total > 0 ? ((total - available) / total) * 100 : 0,
+    theme: getChartTheme(isDarkMode),
+    chart: {
+      foreColor: textColor,
+      background: 'transparent',
+      toolbar: {
+        show: true,
+        tools: {
+          download: true,
+          selection: false,
+          zoom: false,
+          zoomin: false,
+          zoomout: false,
+          pan: false,
+          reset: false,
+        },
+      },
+    },
+    grid: {
+      borderColor: gridColor,
+    },
+    xaxis: {
+      labels: {
+        style: {
+          colors: textColor,
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: textColor,
+        },
+      },
+    },
+    legend: {
+      labels: {
+        colors: textColor,
+      },
+    },
+    tooltip: {
+      theme: isDarkMode ? 'dark' : 'light',
+    },
   }
+}
+
+/**
+ * Format uptime in human-readable format
+ * @param {number} seconds - Uptime in seconds
+ * @returns {string} Formatted uptime
+ */
+function formatUptime(seconds) {
+  if (!seconds) return 'N/A'
+  const days = Math.floor(seconds / 86400)
+  const hours = Math.floor((seconds % 86400) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  return `${days}d ${hours}h ${minutes}m`
+}
+
+/**
+ * Format bytes to human-readable format
+ * @param {number} bytes - Number of bytes
+ * @param {number} decimals - Number of decimal places
+ * @returns {string} Formatted string
+ */
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
 /**
@@ -56,6 +109,7 @@ function formatMemoryMetrics(memoryMetrics) {
  */
 function NodeMetricsComponent({ nodeId }) {
   const baseURL = useAtomValue(baseUrlAtom)
+  const isDarkMode = useAtomValue(isDarkModeAtom)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [metricsData, setMetricsData] = useState(null)
@@ -83,7 +137,6 @@ function NodeMetricsComponent({ nodeId }) {
           setError(data.message)
           setMetricsData(null)
         } else if (data.metrics) {
-          // Metrics are already parsed by the server, just store them
           setMetricsData(data.metrics)
           setError(null)
         }
@@ -100,9 +153,6 @@ function NodeMetricsComponent({ nodeId }) {
     }
 
     fetchMetrics()
-
-    // Component will refresh when parent re-renders (global refresh/interval)
-    // No local interval needed
 
     return () => {
       mounted = false
@@ -151,31 +201,28 @@ function NodeMetricsComponent({ nodeId }) {
     )
   }
 
-  const cpuData = formatCPUMetrics(metricsData.cpu)
-  const memoryData = formatMemoryMetrics(metricsData.memory)
+  const cpuData = metricsData.cpu || []
+  const memoryData = metricsData.memory || {}
   const filesystemData = metricsData.filesystem || []
   const networkData = metricsData.network || []
+  const diskIOData = metricsData.diskIO || []
   const ntpData = metricsData.ntp || {}
   const systemData = metricsData.system || {}
+  const tcpData = metricsData.tcp || {}
+  const fdData = metricsData.fileDescriptor || {}
   const serverTime = metricsData.serverTime
     ? new Date(metricsData.serverTime * 1000).toLocaleString()
     : 'N/A'
 
-  // Format uptime
-  const formatUptime = (seconds) => {
-    if (!seconds) return 'N/A'
-    const days = Math.floor(seconds / 86400)
-    const hours = Math.floor((seconds % 86400) / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    return `${days}d ${hours}h ${minutes}m`
-  }
+  const commonOpts = getCommonChartOptions(isDarkMode)
 
-  // CPU Chart Configuration
+  // CPU Chart
   const cpuChartOptions = {
+    ...commonOpts,
     chart: {
+      ...commonOpts.chart,
       type: 'bar',
-      height: 250,
-      toolbar: { show: false },
+      height: 300,
     },
     plotOptions: {
       bar: {
@@ -188,17 +235,13 @@ function NodeMetricsComponent({ nodeId }) {
       formatter: (val) => val + 's',
     },
     xaxis: {
+      ...commonOpts.xaxis,
       title: {
         text: 'Seconds',
       },
     },
-    yaxis: {
-      title: {
-        text: 'CPU Mode',
-      },
-    },
     title: {
-      text: 'CPU Time by Mode',
+      text: `CPU Time by Mode (${systemData.numCPUs || '?'} cores)`,
       align: 'center',
     },
     legend: {
@@ -209,15 +252,24 @@ function NodeMetricsComponent({ nodeId }) {
   const cpuChartSeries = [
     {
       name: 'CPU Seconds',
-      data: cpuData,
+      data: cpuData.map((metric) => ({
+        x: metric.mode,
+        y: parseFloat(metric.value.toFixed(2)),
+      })),
     },
   ]
 
-  // Memory Chart Configuration
+  // Memory Chart
+  const memTotal = memoryData.total || 0
+  const memAvailable = memoryData.available || 0
+  const memUsed = memTotal - memAvailable
+
   const memoryChartOptions = {
+    ...commonOpts,
     chart: {
+      ...commonOpts.chart,
       type: 'donut',
-      height: 250,
+      height: 300,
     },
     labels: ['Used', 'Available'],
     title: {
@@ -232,8 +284,7 @@ function NodeMetricsComponent({ nodeId }) {
             total: {
               show: true,
               label: 'Total',
-              formatter: () =>
-                (memoryData.total / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+              formatter: () => formatBytes(memTotal),
             },
           },
         },
@@ -245,97 +296,115 @@ function NodeMetricsComponent({ nodeId }) {
     },
   }
 
-  const memoryChartSeries = [
-    memoryData.total - memoryData.available,
-    memoryData.available,
-  ]
+  const memoryChartSeries = [memUsed, memAvailable]
 
-  // Filesystem Chart Configuration
-  const filesystemChartOptions = {
+  // Swap Chart (if swap exists)
+  const swapTotal = memoryData.swapTotal || 0
+  const swapUsed = memoryData.swapUsed || 0
+  const swapFree = memoryData.swapFree || 0
+
+  const swapChartOptions = {
+    ...commonOpts,
     chart: {
-      type: 'bar',
-      height: 250,
-      toolbar: { show: false },
+      ...commonOpts.chart,
+      type: 'donut',
+      height: 300,
+    },
+    labels: ['Used', 'Free'],
+    title: {
+      text: 'Swap Usage',
+      align: 'center',
     },
     plotOptions: {
-      bar: {
-        horizontal: true,
-        distributed: false,
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Total',
+              formatter: () => formatBytes(swapTotal),
+            },
+          },
+        },
       },
     },
     dataLabels: {
       enabled: true,
-      formatter: (val) => (val / 1024 / 1024 / 1024).toFixed(1) + ' GB',
+      formatter: (val) => val.toFixed(1) + '%',
     },
-    xaxis: {
-      categories: filesystemData.map(
-        (fs) => fs.mountpoint || fs.device,
-      ),
-      title: {
-        text: 'Storage (GB)',
+  }
+
+  const swapChartSeries = [swapUsed, swapFree]
+
+  // Filesystem Chart
+  const filesystemChartOptions = {
+    ...commonOpts,
+    chart: {
+      ...commonOpts.chart,
+      type: 'bar',
+      height: 300,
+      stacked: true,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
       },
     },
-    yaxis: {
+    dataLabels: {
+      enabled: false,
+    },
+    xaxis: {
+      ...commonOpts.xaxis,
+      categories: filesystemData.map((fs) => fs.mountpoint || fs.device),
       title: {
-        text: 'Filesystem',
+        text: 'Storage (GB)',
       },
     },
     title: {
       text: 'Filesystem Usage',
       align: 'center',
     },
-    legend: {
-      show: true,
-      position: 'top',
-    },
   }
 
   const filesystemChartSeries = [
     {
       name: 'Used',
-      data: filesystemData.map((fs) => fs.used),
+      data: filesystemData.map((fs) => (fs.used / 1024 / 1024 / 1024).toFixed(2)),
     },
     {
       name: 'Available',
-      data: filesystemData.map((fs) => fs.available),
+      data: filesystemData.map((fs) => (fs.available / 1024 / 1024 / 1024).toFixed(2)),
     },
   ]
 
-  // Network Chart Configuration
+  // Network Traffic Chart
   const networkChartOptions = {
+    ...commonOpts,
     chart: {
+      ...commonOpts.chart,
       type: 'bar',
-      height: 250,
-      toolbar: { show: false },
+      height: 300,
     },
     plotOptions: {
       bar: {
         horizontal: true,
-        distributed: false,
       },
     },
     dataLabels: {
       enabled: true,
-      formatter: (val) => (val / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+      formatter: (val) => formatBytes(val),
     },
     xaxis: {
+      ...commonOpts.xaxis,
       categories: networkData.map((net) => net.interface),
       title: {
-        text: 'Bytes (GB)',
-      },
-    },
-    yaxis: {
-      title: {
-        text: 'Interface',
+        text: 'Bytes',
       },
     },
     title: {
       text: 'Network Traffic',
       align: 'center',
-    },
-    legend: {
-      show: true,
-      position: 'top',
     },
   }
 
@@ -350,116 +419,381 @@ function NodeMetricsComponent({ nodeId }) {
     },
   ]
 
+  // Disk I/O Throughput Chart
+  const diskIOChartOptions = {
+    ...commonOpts,
+    chart: {
+      ...commonOpts.chart,
+      type: 'bar',
+      height: 300,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => formatBytes(val),
+    },
+    xaxis: {
+      ...commonOpts.xaxis,
+      categories: diskIOData.map((disk) => disk.device),
+      title: {
+        text: 'Bytes',
+      },
+    },
+    title: {
+      text: 'Disk I/O Throughput (Total)',
+      align: 'center',
+    },
+  }
+
+  const diskIOChartSeries = [
+    {
+      name: 'Read',
+      data: diskIOData.map((disk) => disk.readBytes),
+    },
+    {
+      name: 'Written',
+      data: diskIOData.map((disk) => disk.writtenBytes),
+    },
+  ]
+
+  // Disk IOPS Chart
+  const diskIOPSChartOptions = {
+    ...commonOpts,
+    chart: {
+      ...commonOpts.chart,
+      type: 'bar',
+      height: 300,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => val.toLocaleString(),
+    },
+    xaxis: {
+      ...commonOpts.xaxis,
+      categories: diskIOData.map((disk) => disk.device),
+      title: {
+        text: 'Operations',
+      },
+    },
+    title: {
+      text: 'Disk IOPS (Total)',
+      align: 'center',
+    },
+  }
+
+  const diskIOPSChartSeries = [
+    {
+      name: 'Reads',
+      data: diskIOData.map((disk) => disk.readsCompleted),
+    },
+    {
+      name: 'Writes',
+      data: diskIOData.map((disk) => disk.writesCompleted),
+    },
+  ]
+
   return (
     <Card.Body>
-      {/* Server Time and System Info Display */}
-      <div className="row mb-3">
-        <div className="col-12">
-          <div className="alert alert-secondary mb-0 py-2">
-            <div className="row">
-              <div className="col-md-6">
-                <strong>Server Time:</strong> {serverTime}
-              </div>
-              <div className="col-md-6">
-                {systemData.load1 !== undefined && (
-                  <span>
-                    <strong>Load Avg:</strong> {systemData.load1.toFixed(2)},{' '}
-                    {systemData.load5.toFixed(2)}, {systemData.load15.toFixed(2)}
-                  </span>
-                )}
-                {systemData.uptimeSeconds !== undefined && (
-                  <span className="ms-3">
-                    <strong>Uptime:</strong> {formatUptime(systemData.uptimeSeconds)}
-                  </span>
-                )}
-              </div>
-            </div>
-            {ntpData.syncStatus !== undefined && (
-              <div className="row mt-1">
-                <div className="col-12">
-                  <strong>NTP Sync:</strong>{' '}
-                  {ntpData.syncStatus === 1 ? (
-                    <span className="text-success">✓ Synchronized</span>
-                  ) : (
-                    <span className="text-warning">⚠ Not Synchronized</span>
-                  )}
-                  {ntpData.offsetSeconds !== undefined && (
-                    <span className="ms-2">
-                      (Offset: {(ntpData.offsetSeconds * 1000).toFixed(2)} ms)
-                    </span>
-                  )}
-                </div>
-              </div>
+      {/* System Info Header */}
+      <Alert variant="secondary" className="mb-3 py-2">
+        <Row>
+          <Col md={6}>
+            <strong>Server Time:</strong> {serverTime}
+          </Col>
+          <Col md={6}>
+            {systemData.load1 !== undefined && (
+              <span>
+                <strong>Load Avg:</strong> {systemData.load1.toFixed(2)},{' '}
+                {systemData.load5.toFixed(2)}, {systemData.load15.toFixed(2)}
+              </span>
             )}
-          </div>
-        </div>
-      </div>
+            {systemData.uptimeSeconds !== undefined && (
+              <span className="ms-3">
+                <strong>Uptime:</strong> {formatUptime(systemData.uptimeSeconds)}
+              </span>
+            )}
+          </Col>
+        </Row>
+        <Row className="mt-1">
+          <Col md={6}>
+            {ntpData.syncStatus !== undefined && (
+              <span>
+                <strong>NTP Sync:</strong>{' '}
+                {ntpData.syncStatus === 1 ? (
+                  <span className="text-success">✓ Synchronized</span>
+                ) : (
+                  <span className="text-warning">⚠ Not Synchronized</span>
+                )}
+                {ntpData.offsetSeconds !== undefined && (
+                  <span className="ms-2">
+                    (Offset: {(ntpData.offsetSeconds * 1000).toFixed(2)} ms)
+                  </span>
+                )}
+              </span>
+            )}
+          </Col>
+          <Col md={6}>
+            {systemData.numCPUs > 0 && (
+              <span>
+                <strong>CPUs:</strong> {systemData.numCPUs}
+              </span>
+            )}
+            {systemData.procsRunning !== undefined && (
+              <span className="ms-3">
+                <strong>Processes:</strong> {systemData.procsRunning} running
+                {systemData.procsBlocked > 0 && `, ${systemData.procsBlocked} blocked`}
+              </span>
+            )}
+          </Col>
+        </Row>
+      </Alert>
 
       {/* CPU and Memory Charts */}
-      <div className="row">
-        <div className="col-md-6">
+      <Row className="mb-3">
+        <Col lg={4}>
           {cpuData.length > 0 ? (
             <ReactApexChart
               options={cpuChartOptions}
               series={cpuChartSeries}
               type="bar"
-              height={250}
+              height={300}
             />
           ) : (
             <Alert variant="info">No CPU metrics available</Alert>
           )}
-        </div>
-        <div className="col-md-6">
-          {memoryData.total > 0 ? (
+        </Col>
+        <Col lg={4}>
+          {memTotal > 0 ? (
             <ReactApexChart
               options={memoryChartOptions}
               series={memoryChartSeries}
               type="donut"
-              height={250}
+              height={300}
             />
           ) : (
             <Alert variant="info">No memory metrics available</Alert>
           )}
-        </div>
-      </div>
+        </Col>
+        <Col lg={4}>
+          {swapTotal > 0 ? (
+            <ReactApexChart
+              options={swapChartOptions}
+              series={swapChartSeries}
+              type="donut"
+              height={300}
+            />
+          ) : (
+            <Alert variant="info">No swap configured</Alert>
+          )}
+        </Col>
+      </Row>
 
       {/* Filesystem and Network Charts */}
-      <div className="row mt-3">
-        <div className="col-md-6">
+      <Row className="mb-3">
+        <Col lg={6}>
           {filesystemData.length > 0 ? (
             <ReactApexChart
               options={filesystemChartOptions}
               series={filesystemChartSeries}
               type="bar"
-              height={250}
+              height={300}
             />
           ) : (
             <Alert variant="info">No filesystem metrics available</Alert>
           )}
-        </div>
-        <div className="col-md-6">
+        </Col>
+        <Col lg={6}>
           {networkData.length > 0 ? (
             <ReactApexChart
               options={networkChartOptions}
               series={networkChartSeries}
               type="bar"
-              height={250}
+              height={300}
             />
           ) : (
             <Alert variant="info">No network metrics available</Alert>
           )}
-        </div>
-      </div>
+        </Col>
+      </Row>
+
+      {/* Disk I/O Charts */}
+      <Row className="mb-3">
+        <Col lg={6}>
+          {diskIOData.length > 0 ? (
+            <ReactApexChart
+              options={diskIOChartOptions}
+              series={diskIOChartSeries}
+              type="bar"
+              height={300}
+            />
+          ) : (
+            <Alert variant="info">No disk I/O metrics available</Alert>
+          )}
+        </Col>
+        <Col lg={6}>
+          {diskIOData.length > 0 ? (
+            <ReactApexChart
+              options={diskIOPSChartOptions}
+              series={diskIOPSChartSeries}
+              type="bar"
+              height={300}
+            />
+          ) : (
+            <Alert variant="info">No disk IOPS metrics available</Alert>
+          )}
+        </Col>
+      </Row>
+
+      {/* Network Details Table */}
+      {networkData.length > 0 && (
+        <Row className="mb-3">
+          <Col>
+            <h6>Network Details</h6>
+            <Table striped bordered hover size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+              <thead>
+                <tr>
+                  <th>Interface</th>
+                  <th>RX Packets</th>
+                  <th>TX Packets</th>
+                  <th>RX Errors</th>
+                  <th>TX Errors</th>
+                  <th>RX Dropped</th>
+                  <th>TX Dropped</th>
+                </tr>
+              </thead>
+              <tbody>
+                {networkData.map((net) => (
+                  <tr key={net.interface}>
+                    <td>{net.interface}</td>
+                    <td>{net.receivePackets?.toLocaleString() || 0}</td>
+                    <td>{net.transmitPackets?.toLocaleString() || 0}</td>
+                    <td className={net.receiveErrs > 0 ? 'text-warning' : ''}>
+                      {net.receiveErrs?.toLocaleString() || 0}
+                    </td>
+                    <td className={net.transmitErrs > 0 ? 'text-warning' : ''}>
+                      {net.transmitErrs?.toLocaleString() || 0}
+                    </td>
+                    <td className={net.receiveDrop > 0 ? 'text-warning' : ''}>
+                      {net.receiveDrop?.toLocaleString() || 0}
+                    </td>
+                    <td className={net.transmitDrop > 0 ? 'text-warning' : ''}>
+                      {net.transmitDrop?.toLocaleString() || 0}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
+      )}
+
+      {/* System Stats Table */}
+      <Row className="mb-3">
+        <Col lg={6}>
+          <h6>TCP Connections</h6>
+          <Table striped bordered size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+            <tbody>
+              <tr>
+                <td><strong>Allocated:</strong></td>
+                <td>{tcpData.alloc?.toLocaleString() || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td><strong>In Use:</strong></td>
+                <td>{tcpData.inuse?.toLocaleString() || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td><strong>Established:</strong></td>
+                <td>{tcpData.currEstab?.toLocaleString() || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td><strong>Time Wait:</strong></td>
+                <td>{tcpData.timeWait?.toLocaleString() || 'N/A'}</td>
+              </tr>
+            </tbody>
+          </Table>
+        </Col>
+        <Col lg={6}>
+          <h6>System Statistics</h6>
+          <Table striped bordered size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+            <tbody>
+              <tr>
+                <td><strong>File Descriptors:</strong></td>
+                <td>
+                  {fdData.allocated?.toLocaleString() || 'N/A'} / {fdData.maximum?.toLocaleString() || 'N/A'}
+                  {fdData.usedPercent > 0 && ` (${fdData.usedPercent.toFixed(2)}%)`}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Context Switches:</strong></td>
+                <td>{systemData.contextSwitches?.toLocaleString() || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td><strong>Interrupts:</strong></td>
+                <td>{systemData.interrupts?.toLocaleString() || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td><strong>Processes (Running/Blocked):</strong></td>
+                <td>
+                  {systemData.procsRunning || 0} / {systemData.procsBlocked || 0}
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+
+      {/* Disk I/O Details Table */}
+      {diskIOData.length > 0 && (
+        <Row className="mb-3">
+          <Col>
+            <h6>Disk I/O Details</h6>
+            <Table striped bordered hover size="sm" variant={isDarkMode ? 'dark' : 'light'}>
+              <thead>
+                <tr>
+                  <th>Device</th>
+                  <th>Reads</th>
+                  <th>Writes</th>
+                  <th>Read Bytes</th>
+                  <th>Written Bytes</th>
+                  <th>I/O Time (s)</th>
+                  <th>Weighted I/O Time (s)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {diskIOData.map((disk) => (
+                  <tr key={disk.device}>
+                    <td>{disk.device}</td>
+                    <td>{disk.readsCompleted?.toLocaleString() || 0}</td>
+                    <td>{disk.writesCompleted?.toLocaleString() || 0}</td>
+                    <td>{formatBytes(disk.readBytes || 0)}</td>
+                    <td>{formatBytes(disk.writtenBytes || 0)}</td>
+                    <td>{disk.ioTimeSeconds?.toFixed(2) || 0}</td>
+                    <td>{disk.ioTimeWeightedSeconds?.toFixed(2) || 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
+      )}
 
       {/* Footer Info */}
-      <div className="row mt-3">
-        <div className="col-12">
+      <Row>
+        <Col>
           <small className="text-muted">
-            Metrics refresh with global interval. Data from node-exporter
-            service.
+            Metrics refresh with global interval. Data from node-exporter service.
           </small>
-        </div>
-      </div>
+        </Col>
+      </Row>
     </Card.Body>
   )
 }

@@ -588,7 +588,11 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
       memory: {
         total: 8589934592,        // 8GB
         free: 2147483648,         // 2GB
-        available: 4294967296     // 4GB
+        available: 4294967296,    // 4GB
+        swapTotal: 2147483648,    // 2GB swap
+        swapFree: 1073741824,     // 1GB free
+        swapUsed: 1073741824,     // 1GB used
+        swapUsedPercent: 50.0
       },
       filesystem: [
         {
@@ -612,12 +616,44 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         {
           interface: 'eth0',
           receiveBytes: 123456789012,
-          transmitBytes: 987654321098
+          transmitBytes: 987654321098,
+          receivePackets: 456789012,
+          transmitPackets: 654321098,
+          receiveErrs: 12,
+          transmitErrs: 8,
+          receiveDrop: 3,
+          transmitDrop: 2
         },
         {
           interface: 'eth1',
           receiveBytes: 98765432109,
-          transmitBytes: 123456789012
+          transmitBytes: 123456789012,
+          receivePackets: 345678901,
+          transmitPackets: 456789012,
+          receiveErrs: 5,
+          transmitErrs: 3,
+          receiveDrop: 1,
+          transmitDrop: 1
+        }
+      ],
+      diskIO: [
+        {
+          device: 'sda',
+          readsCompleted: 1234567,
+          writesCompleted: 9876543,
+          readBytes: 52428800000,       // ~50GB
+          writtenBytes: 104857600000,   // ~100GB
+          ioTimeSeconds: 12345.67,
+          ioTimeWeightedSeconds: 23456.78
+        },
+        {
+          device: 'sdb',
+          readsCompleted: 987654,
+          writesCompleted: 7654321,
+          readBytes: 26214400000,       // ~25GB
+          writtenBytes: 78643200000,    // ~75GB
+          ioTimeSeconds: 8765.43,
+          ioTimeWeightedSeconds: 17654.32
         }
       ],
       ntp: {
@@ -629,7 +665,23 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         load5: 0.48,
         load15: 0.45,
         bootTime: Date.now() / 1000 - 86400 * 7,  // Boot time 7 days ago
-        uptimeSeconds: 86400 * 7  // 7 days uptime
+        uptimeSeconds: 86400 * 7,  // 7 days uptime
+        numCPUs: 4,
+        contextSwitches: 123456789,
+        interrupts: 987654321,
+        procsRunning: 3,
+        procsBlocked: 0
+      },
+      tcp: {
+        alloc: 512,
+        inuse: 256,
+        currEstab: 128,
+        timeWait: 32
+      },
+      fileDescriptor: {
+        allocated: 2048,
+        maximum: 65536,
+        usedPercent: 3.125
       },
       serverTime: Date.now() / 1000  // Current Unix timestamp
     }
