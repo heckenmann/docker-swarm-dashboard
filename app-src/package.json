@@ -94,7 +94,6 @@
     "react-apexcharts": "^1.9.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.4",
-    "react-interval": "^2.1.2",
     "react-transition-group": "^4.4.5",
     "react-use-websocket": "^4.13.0",
     "style-loader": "^4.0.0",
