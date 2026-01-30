@@ -13,6 +13,7 @@ import ServiceStatusBadge from './ServiceStatusBadge'
 import { SortableHeader } from './SortableHeader'
 import { sortData } from '../common/sortUtils'
 import { useState, useCallback } from 'react'
+import { NodeMetricsComponent } from './NodeMetricsComponent'
 
 /**
  * Component to display details of a node.
@@ -111,7 +112,10 @@ function DetailsNodeComponent() {
           </h5>
         </Card.Header>
         <Card.Body style={{ overflowY: 'auto' }}>
-          <Tabs className="mb-3">
+          <Tabs className="mb-3" defaultActiveKey="metrics">
+            <Tab eventKey="metrics" title="Metrics">
+              <NodeMetricsComponent nodeId={currentNode.node?.ID} />
+            </Tab>
             <Tab eventKey="table" title="Table">
               <JsonTable json={currentNode.node} variant={currentVariant} />
             </Tab>
