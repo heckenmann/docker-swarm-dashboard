@@ -177,7 +177,7 @@ func getNodeExporterEndpoint(service *swarm.Service, nodeID string) (string, err
 	port := 9100
 
 	// Check if service has port configuration
-	if service.Endpoint.Ports != nil && len(service.Endpoint.Ports) > 0 {
+	if len(service.Endpoint.Ports) > 0 {
 		port = int(service.Endpoint.Ports[0].PublishedPort)
 		if port == 0 {
 			port = int(service.Endpoint.Ports[0].TargetPort)
@@ -687,7 +687,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			Error:     &errMsg,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -699,7 +699,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			Message:   &msg,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -712,7 +712,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			Error:     &errMsg,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -725,7 +725,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			Error:     &errMsg,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -738,7 +738,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			Error:     &errMsg,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -748,7 +748,7 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		Metrics:   parsedMetrics,
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // filterMetricsForNode is no longer needed as parsing handles this

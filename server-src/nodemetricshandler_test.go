@@ -260,7 +260,7 @@ func TestFetchMetricsFromNodeExporter(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/metrics" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(metricsData))
+			_, _ = w.Write([]byte(metricsData))
 		} else {
 			w.WriteHeader(http.StatusNotFound)
 		}
