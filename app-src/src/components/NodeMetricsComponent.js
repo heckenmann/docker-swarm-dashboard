@@ -156,9 +156,19 @@ function NodeMetricsComponent({ nodeId }) {
   const filesystemData = metricsData.filesystem || []
   const networkData = metricsData.network || []
   const ntpData = metricsData.ntp || {}
+  const systemData = metricsData.system || {}
   const serverTime = metricsData.serverTime
     ? new Date(metricsData.serverTime * 1000).toLocaleString()
     : 'N/A'
+
+  // Format uptime
+  const formatUptime = (seconds) => {
+    if (!seconds) return 'N/A'
+    const days = Math.floor(seconds / 86400)
+    const hours = Math.floor((seconds % 86400) / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    return `${days}d ${hours}h ${minutes}m`
+  }
 
   // CPU Chart Configuration
   const cpuChartOptions = {
@@ -342,25 +352,44 @@ function NodeMetricsComponent({ nodeId }) {
 
   return (
     <Card.Body>
-      {/* Server Time Display */}
+      {/* Server Time and System Info Display */}
       <div className="row mb-3">
         <div className="col-12">
           <div className="alert alert-secondary mb-0 py-2">
-            <strong>Server Time:</strong> {serverTime}
-            {ntpData.syncStatus !== undefined && (
-              <span className="ms-3">
-                <strong>NTP Sync:</strong>{' '}
-                {ntpData.syncStatus === 1 ? (
-                  <span className="text-success">✓ Synchronized</span>
-                ) : (
-                  <span className="text-warning">⚠ Not Synchronized</span>
-                )}
-                {ntpData.offsetSeconds !== undefined && (
-                  <span className="ms-2">
-                    (Offset: {(ntpData.offsetSeconds * 1000).toFixed(2)} ms)
+            <div className="row">
+              <div className="col-md-6">
+                <strong>Server Time:</strong> {serverTime}
+              </div>
+              <div className="col-md-6">
+                {systemData.load1 !== undefined && (
+                  <span>
+                    <strong>Load Avg:</strong> {systemData.load1.toFixed(2)},{' '}
+                    {systemData.load5.toFixed(2)}, {systemData.load15.toFixed(2)}
                   </span>
                 )}
-              </span>
+                {systemData.uptimeSeconds !== undefined && (
+                  <span className="ms-3">
+                    <strong>Uptime:</strong> {formatUptime(systemData.uptimeSeconds)}
+                  </span>
+                )}
+              </div>
+            </div>
+            {ntpData.syncStatus !== undefined && (
+              <div className="row mt-1">
+                <div className="col-12">
+                  <strong>NTP Sync:</strong>{' '}
+                  {ntpData.syncStatus === 1 ? (
+                    <span className="text-success">✓ Synchronized</span>
+                  ) : (
+                    <span className="text-warning">⚠ Not Synchronized</span>
+                  )}
+                  {ntpData.offsetSeconds !== undefined && (
+                    <span className="ms-2">
+                      (Offset: {(ntpData.offsetSeconds * 1000).toFixed(2)} ms)
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>

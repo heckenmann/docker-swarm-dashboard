@@ -486,3 +486,53 @@ if parsed.ServerTime < expectedTime-0.01 || parsed.ServerTime > expectedTime+0.0
 t.Errorf("Expected server time %f, got %f", expectedTime, parsed.ServerTime)
 }
 }
+
+func TestParsePrometheusMetrics_WithSystemMetrics(t *testing.T) {
+// Sample Prometheus metrics text with load and uptime
+metricsText := `# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 12543.21
+# HELP node_load1 1m load average.
+# TYPE node_load1 gauge
+node_load1 0.52
+# HELP node_load5 5m load average.
+# TYPE node_load5 gauge
+node_load5 0.48
+# HELP node_load15 15m load average.
+# TYPE node_load15 gauge
+node_load15 0.45
+# HELP node_boot_time_seconds Node boot time, in unixtime.
+# TYPE node_boot_time_seconds gauge
+node_boot_time_seconds 1706000000
+# HELP node_time_seconds System time in seconds since epoch (1970).
+# TYPE node_time_seconds gauge
+node_time_seconds 1706604800
+`
+
+parsed, err := parsePrometheusMetrics(metricsText)
+if err != nil {
+t.Fatalf("Failed to parse metrics: %v", err)
+}
+
+// Verify load average
+if parsed.System.Load1 != 0.52 {
+t.Errorf("Expected load1 0.52, got %f", parsed.System.Load1)
+}
+if parsed.System.Load5 != 0.48 {
+t.Errorf("Expected load5 0.48, got %f", parsed.System.Load5)
+}
+if parsed.System.Load15 != 0.45 {
+t.Errorf("Expected load15 0.45, got %f", parsed.System.Load15)
+}
+
+// Verify boot time
+if parsed.System.BootTime != 1706000000 {
+t.Errorf("Expected boot time 1706000000, got %f", parsed.System.BootTime)
+}
+
+// Verify uptime calculation
+expectedUptime := 1706604800.0 - 1706000000.0
+if parsed.System.UptimeSeconds != expectedUptime {
+t.Errorf("Expected uptime %f, got %f", expectedUptime, parsed.System.UptimeSeconds)
+}
+}

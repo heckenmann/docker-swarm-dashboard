@@ -70,6 +70,15 @@ type NTPMetrics struct {
 	SyncStatus    float64 `json:"syncStatus"`
 }
 
+// SystemMetrics represents system-level metrics
+type SystemMetrics struct {
+	Load1        float64 `json:"load1"`
+	Load5        float64 `json:"load5"`
+	Load15       float64 `json:"load15"`
+	BootTime     float64 `json:"bootTime"`
+	UptimeSeconds float64 `json:"uptimeSeconds"`
+}
+
 // ParsedMetrics represents the parsed and extracted metrics
 type ParsedMetrics struct {
 	CPU        []CPUMetric        `json:"cpu"`
@@ -77,6 +86,7 @@ type ParsedMetrics struct {
 	Filesystem []FilesystemMetric `json:"filesystem"`
 	Network    []NetworkMetric    `json:"network"`
 	NTP        NTPMetrics         `json:"ntp"`
+	System     SystemMetrics      `json:"system"`
 	ServerTime float64            `json:"serverTime"` // Unix timestamp
 }
 
@@ -169,6 +179,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 		Filesystem: make([]FilesystemMetric, 0),
 		Network:    make([]NetworkMetric, 0),
 		NTP:        NTPMetrics{},
+		System:     SystemMetrics{},
 	}
 
 	// Extract CPU metrics
@@ -310,6 +321,34 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	if timeMetric, ok := metricFamilies["node_time_seconds"]; ok {
 		if len(timeMetric.GetMetric()) > 0 {
 			parsed.ServerTime = getMetricValue(timeMetric.GetMetric()[0])
+		}
+	}
+
+	// Extract load average
+	if load1, ok := metricFamilies["node_load1"]; ok {
+		if len(load1.GetMetric()) > 0 {
+			parsed.System.Load1 = getMetricValue(load1.GetMetric()[0])
+		}
+	}
+	if load5, ok := metricFamilies["node_load5"]; ok {
+		if len(load5.GetMetric()) > 0 {
+			parsed.System.Load5 = getMetricValue(load5.GetMetric()[0])
+		}
+	}
+	if load15, ok := metricFamilies["node_load15"]; ok {
+		if len(load15.GetMetric()) > 0 {
+			parsed.System.Load15 = getMetricValue(load15.GetMetric()[0])
+		}
+	}
+
+	// Extract boot time and calculate uptime
+	if bootTime, ok := metricFamilies["node_boot_time_seconds"]; ok {
+		if len(bootTime.GetMetric()) > 0 {
+			parsed.System.BootTime = getMetricValue(bootTime.GetMetric()[0])
+			// Calculate uptime if we have server time
+			if parsed.ServerTime > 0 && parsed.System.BootTime > 0 {
+				parsed.System.UptimeSeconds = parsed.ServerTime - parsed.System.BootTime
+			}
 		}
 	}
 

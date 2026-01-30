@@ -624,6 +624,13 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         offsetSeconds: 0.000123,
         syncStatus: 1
       },
+      system: {
+        load1: 0.52,
+        load5: 0.48,
+        load15: 0.45,
+        bootTime: Date.now() / 1000 - 86400 * 7,  // Boot time 7 days ago
+        uptimeSeconds: 86400 * 7  // 7 days uptime
+      },
       serverTime: Date.now() / 1000  // Current Unix timestamp
     }
   })
