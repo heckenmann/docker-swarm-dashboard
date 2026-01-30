@@ -536,3 +536,165 @@ if parsed.System.UptimeSeconds != expectedUptime {
 t.Errorf("Expected uptime %f, got %f", expectedUptime, parsed.System.UptimeSeconds)
 }
 }
+
+func TestParsePrometheusMetrics_ComprehensiveMetrics(t *testing.T) {
+// Test all new metrics added in the comprehensive update
+metricsText := `# CPU metrics with multiple cores
+node_cpu_seconds_total{cpu="0",mode="idle"} 1000.0
+node_cpu_seconds_total{cpu="1",mode="idle"} 1100.0
+node_cpu_seconds_total{cpu="2",mode="idle"} 1200.0
+node_cpu_seconds_total{cpu="3",mode="idle"} 1300.0
+node_cpu_seconds_total{cpu="0",mode="system"} 100.0
+# Memory and Swap
+node_memory_MemTotal_bytes 8589934592
+node_memory_MemFree_bytes 2147483648
+node_memory_MemAvailable_bytes 4294967296
+node_memory_SwapTotal_bytes 2147483648
+node_memory_SwapFree_bytes 1073741824
+# Network detailed metrics
+node_network_receive_bytes_total{device="eth0"} 123456789
+node_network_transmit_bytes_total{device="eth0"} 987654321
+node_network_receive_packets_total{device="eth0"} 456789
+node_network_transmit_packets_total{device="eth0"} 654321
+node_network_receive_errs_total{device="eth0"} 12
+node_network_transmit_errs_total{device="eth0"} 8
+node_network_receive_drop_total{device="eth0"} 3
+node_network_transmit_drop_total{device="eth0"} 2
+# Disk I/O metrics
+node_disk_reads_completed_total{device="sda"} 1234567
+node_disk_writes_completed_total{device="sda"} 9876543
+node_disk_read_bytes_total{device="sda"} 52428800000
+node_disk_written_bytes_total{device="sda"} 104857600000
+node_disk_io_time_seconds_total{device="sda"} 12345.67
+node_disk_io_time_weighted_seconds_total{device="sda"} 23456.78
+# TCP and system metrics
+node_sockstat_TCP_alloc 512
+node_sockstat_TCP_inuse 256
+node_netstat_Tcp_CurrEstab 128
+node_sockstat_TCP_tw 32
+node_filefd_allocated 2048
+node_filefd_maximum 65536
+node_procs_running 3
+node_procs_blocked 0
+node_context_switches_total 123456789
+node_intr_total 987654321
+node_time_seconds 1706632800
+`
+
+parsed, err := parsePrometheusMetrics(metricsText)
+if err != nil {
+t.Fatalf("Failed to parse metrics: %v", err)
+}
+
+// Verify CPU count
+if parsed.System.NumCPUs != 4 {
+t.Errorf("Expected 4 CPUs, got %d", parsed.System.NumCPUs)
+}
+
+// Verify swap metrics
+if parsed.Memory.SwapTotal != 2147483648 {
+t.Errorf("Expected swap total 2147483648, got %f", parsed.Memory.SwapTotal)
+}
+if parsed.Memory.SwapFree != 1073741824 {
+t.Errorf("Expected swap free 1073741824, got %f", parsed.Memory.SwapFree)
+}
+expectedSwapUsed := 2147483648.0 - 1073741824.0
+if parsed.Memory.SwapUsed != expectedSwapUsed {
+t.Errorf("Expected swap used %f, got %f", expectedSwapUsed, parsed.Memory.SwapUsed)
+}
+if parsed.Memory.SwapUsedPercent < 49.9 || parsed.Memory.SwapUsedPercent > 50.1 {
+t.Errorf("Expected swap used percent ~50%%, got %f", parsed.Memory.SwapUsedPercent)
+}
+
+// Verify network detailed metrics
+if len(parsed.Network) == 0 {
+t.Error("Expected network metrics, got none")
+} else {
+net := parsed.Network[0]
+if net.Interface != "eth0" {
+t.Errorf("Expected interface eth0, got %s", net.Interface)
+}
+if net.ReceivePackets != 456789 {
+t.Errorf("Expected receive packets 456789, got %f", net.ReceivePackets)
+}
+if net.TransmitPackets != 654321 {
+t.Errorf("Expected transmit packets 654321, got %f", net.TransmitPackets)
+}
+if net.ReceiveErrs != 12 {
+t.Errorf("Expected receive errors 12, got %f", net.ReceiveErrs)
+}
+if net.TransmitErrs != 8 {
+t.Errorf("Expected transmit errors 8, got %f", net.TransmitErrs)
+}
+if net.ReceiveDrop != 3 {
+t.Errorf("Expected receive drops 3, got %f", net.ReceiveDrop)
+}
+if net.TransmitDrop != 2 {
+t.Errorf("Expected transmit drops 2, got %f", net.TransmitDrop)
+}
+}
+
+// Verify disk I/O metrics
+if len(parsed.DiskIO) == 0 {
+t.Error("Expected disk I/O metrics, got none")
+} else {
+disk := parsed.DiskIO[0]
+if disk.Device != "sda" {
+t.Errorf("Expected device sda, got %s", disk.Device)
+}
+if disk.ReadsCompleted != 1234567 {
+t.Errorf("Expected reads 1234567, got %f", disk.ReadsCompleted)
+}
+if disk.WritesCompleted != 9876543 {
+t.Errorf("Expected writes 9876543, got %f", disk.WritesCompleted)
+}
+if disk.ReadBytes != 52428800000 {
+t.Errorf("Expected read bytes 52428800000, got %f", disk.ReadBytes)
+}
+if disk.WrittenBytes != 104857600000 {
+t.Errorf("Expected written bytes 104857600000, got %f", disk.WrittenBytes)
+}
+}
+
+// Verify TCP metrics
+if parsed.TCP.Alloc != 512 {
+t.Errorf("Expected TCP alloc 512, got %f", parsed.TCP.Alloc)
+}
+if parsed.TCP.InUse != 256 {
+t.Errorf("Expected TCP inuse 256, got %f", parsed.TCP.InUse)
+}
+if parsed.TCP.CurrEstab != 128 {
+t.Errorf("Expected TCP established 128, got %f", parsed.TCP.CurrEstab)
+}
+if parsed.TCP.TimeWait != 32 {
+t.Errorf("Expected TCP time-wait 32, got %f", parsed.TCP.TimeWait)
+}
+
+// Verify file descriptor metrics
+if parsed.FileDescriptor.Allocated != 2048 {
+t.Errorf("Expected FD allocated 2048, got %f", parsed.FileDescriptor.Allocated)
+}
+if parsed.FileDescriptor.Maximum != 65536 {
+t.Errorf("Expected FD maximum 65536, got %f", parsed.FileDescriptor.Maximum)
+}
+expectedFDPercent := (2048.0 / 65536.0) * 100
+if parsed.FileDescriptor.UsedPercent < expectedFDPercent-0.1 || parsed.FileDescriptor.UsedPercent > expectedFDPercent+0.1 {
+t.Errorf("Expected FD used percent %f, got %f", expectedFDPercent, parsed.FileDescriptor.UsedPercent)
+}
+
+// Verify process stats
+if parsed.System.ProcsRunning != 3 {
+t.Errorf("Expected procs running 3, got %f", parsed.System.ProcsRunning)
+}
+if parsed.System.ProcsBlocked != 0 {
+t.Errorf("Expected procs blocked 0, got %f", parsed.System.ProcsBlocked)
+}
+
+// Verify context switches and interrupts
+if parsed.System.ContextSwitches != 123456789 {
+t.Errorf("Expected context switches 123456789, got %f", parsed.System.ContextSwitches)
+}
+if parsed.System.Interrupts != 987654321 {
+t.Errorf("Expected interrupts 987654321, got %f", parsed.System.Interrupts)
+}
+}
