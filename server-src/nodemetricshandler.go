@@ -14,6 +14,7 @@ import (
 	"github.com/gorilla/mux"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/model"
 )
 
 var (
@@ -129,7 +130,7 @@ func fetchMetricsFromNodeExporter(url string) (string, error) {
 
 // parsePrometheusMetrics parses Prometheus text format and extracts CPU and memory metrics
 func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
-	parser := expfmt.TextParser{}
+	parser := expfmt.NewTextParser(model.LegacyValidation)
 	metricFamilies, err := parser.TextToMetricFamilies(strings.NewReader(metricsText))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse metrics: %w", err)

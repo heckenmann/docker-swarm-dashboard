@@ -283,3 +283,99 @@ func TestFetchMetricsFromNodeExporter_Error(t *testing.T) {
 		t.Error("Expected error when connecting to invalid endpoint")
 	}
 }
+
+func TestParsePrometheusMetrics(t *testing.T) {
+// Sample Prometheus metrics text
+metricsText := `# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 12543.21
+node_cpu_seconds_total{cpu="0",mode="system"} 456.78
+node_cpu_seconds_total{cpu="1",mode="idle"} 12678.90
+node_cpu_seconds_total{cpu="1",mode="system"} 412.56
+# HELP node_memory_MemTotal_bytes Memory information field MemTotal_bytes.
+# TYPE node_memory_MemTotal_bytes gauge
+node_memory_MemTotal_bytes 8589934592
+# HELP node_memory_MemFree_bytes Memory information field MemFree_bytes.
+# TYPE node_memory_MemFree_bytes gauge
+node_memory_MemFree_bytes 2147483648
+# HELP node_memory_MemAvailable_bytes Memory information field MemAvailable_bytes.
+# TYPE node_memory_MemAvailable_bytes gauge
+node_memory_MemAvailable_bytes 4294967296
+`
+
+parsed, err := parsePrometheusMetrics(metricsText)
+if err != nil {
+t.Fatalf("Failed to parse metrics: %v", err)
+}
+
+// Verify CPU metrics
+if len(parsed.CPU) == 0 {
+t.Error("Expected CPU metrics, got none")
+}
+
+// Check that idle and system modes are present
+var idleFound, systemFound bool
+var idleValue, systemValue float64
+for _, cpu := range parsed.CPU {
+if cpu.Mode == "idle" {
+idleFound = true
+idleValue = cpu.Value
+}
+if cpu.Mode == "system" {
+systemFound = true
+systemValue = cpu.Value
+}
+}
+
+if !idleFound {
+t.Error("Expected to find 'idle' CPU mode")
+}
+if !systemFound {
+t.Error("Expected to find 'system' CPU mode")
+}
+
+// Verify aggregation (sum of CPU0 and CPU1)
+expectedIdle := 12543.21 + 12678.90
+	if idleFound && (idleValue < expectedIdle-0.01 || idleValue > expectedIdle+0.01) {
+t.Errorf("Expected idle value %f, got %f", expectedIdle, idleValue)
+}
+
+expectedSystem := 456.78 + 412.56
+	if systemFound && (systemValue < expectedSystem-0.01 || systemValue > expectedSystem+0.01) {
+t.Errorf("Expected system value %f, got %f", expectedSystem, systemValue)
+}
+
+// Verify memory metrics
+if parsed.Memory.Total != 8589934592 {
+t.Errorf("Expected memory total 8589934592, got %f", parsed.Memory.Total)
+}
+if parsed.Memory.Free != 2147483648 {
+t.Errorf("Expected memory free 2147483648, got %f", parsed.Memory.Free)
+}
+if parsed.Memory.Available != 4294967296 {
+t.Errorf("Expected memory available 4294967296, got %f", parsed.Memory.Available)
+}
+}
+
+func TestParsePrometheusMetrics_EmptyInput(t *testing.T) {
+parsed, err := parsePrometheusMetrics("")
+if err != nil {
+t.Fatalf("Should handle empty input: %v", err)
+}
+
+if len(parsed.CPU) != 0 {
+t.Error("Expected no CPU metrics for empty input")
+}
+if parsed.Memory.Total != 0 {
+t.Error("Expected zero memory total for empty input")
+}
+}
+
+func TestParsePrometheusMetrics_InvalidFormat(t *testing.T) {
+_, err := parsePrometheusMetrics("not valid prometheus format\ninvalid data")
+// Should still complete without crashing, may or may not return error
+// depending on how lenient the parser is
+if err != nil {
+t.Logf("Parser rejected invalid format (expected): %v", err)
+}
+}
