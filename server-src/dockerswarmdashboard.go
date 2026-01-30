@@ -83,7 +83,7 @@ func buildHandler() http.Handler {
 func getCli() *client.Client {
 	if cli == nil {
 		var err error
-		cli, err = client.NewClientWithOpts(client.FromEnv)
+		cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 		if err != nil {
 			panic(err)
 		}
