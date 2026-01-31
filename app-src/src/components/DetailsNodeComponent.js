@@ -119,7 +119,13 @@ function DetailsNodeComponent() {
                   <NodeMetricsComponent nodeId={currentNode.node?.ID} />
                 </Tab>
                 <Tab eventKey="tasks" title="Tasks">
-                  <Table striped bordered hover size={tableSize} variant={currentVariant}>
+                  <Table
+                    striped
+                    bordered
+                    hover
+                    size={tableSize}
+                    variant={currentVariant}
+                  >
                     <thead>
                       <tr>
                         <SortableHeader
@@ -164,8 +170,9 @@ function DetailsNodeComponent() {
                         sortedTasks.map((task, idx) => (
                           <tr
                             key={
-                              (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
-                              `-${idx}`
+                              (task && task.ID
+                                ? String(task.ID)
+                                : `task-idx-${idx}`) + `-${idx}`
                             }
                           >
                             <td>
