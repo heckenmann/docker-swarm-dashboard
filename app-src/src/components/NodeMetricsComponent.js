@@ -528,7 +528,8 @@ function NodeMetricsComponent({ nodeId }) {
             )}
             {systemData.uptimeSeconds !== undefined && (
               <span className="ms-3">
-                <strong>Uptime:</strong> {formatUptime(systemData.uptimeSeconds)}
+                <strong>Uptime:</strong>{' '}
+                {formatUptime(systemData.uptimeSeconds)}
               </span>
             )}
           </Col>
@@ -560,7 +561,8 @@ function NodeMetricsComponent({ nodeId }) {
             {systemData.procsRunning !== undefined && (
               <span className="ms-3">
                 <strong>Processes:</strong> {systemData.procsRunning} running
-                {systemData.procsBlocked > 0 && `, ${systemData.procsBlocked} blocked`}
+                {systemData.procsBlocked > 0 &&
+                  `, ${systemData.procsBlocked} blocked`}
               </span>
             )}
           </Col>
@@ -841,7 +843,8 @@ function NodeMetricsComponent({ nodeId }) {
       <Row>
         <Col>
           <small className="text-muted">
-            Metrics refresh with global interval. Data from node-exporter service.
+            Metrics refresh with global interval. Data from node-exporter
+            service.
           </small>
         </Col>
       </Row>
