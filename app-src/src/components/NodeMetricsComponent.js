@@ -31,7 +31,7 @@ function getChartTheme(isDarkMode) {
 function getCommonChartOptions(isDarkMode) {
   const textColor = isDarkMode ? '#e0e0e0' : '#373d3f'
   const gridColor = isDarkMode ? '#444' : '#e0e0e0'
-  
+
   return {
     theme: getChartTheme(isDarkMode),
     chart: {
@@ -375,11 +375,15 @@ function NodeMetricsComponent({ nodeId }) {
   const filesystemChartSeries = [
     {
       name: 'Used',
-      data: filesystemData.map((fs) => (fs.used / 1024 / 1024 / 1024).toFixed(2)),
+      data: filesystemData.map((fs) =>
+        (fs.used / 1024 / 1024 / 1024).toFixed(2),
+      ),
     },
     {
       name: 'Available',
-      data: filesystemData.map((fs) => (fs.available / 1024 / 1024 / 1024).toFixed(2)),
+      data: filesystemData.map((fs) =>
+        (fs.available / 1024 / 1024 / 1024).toFixed(2),
+      ),
     },
   ]
 
