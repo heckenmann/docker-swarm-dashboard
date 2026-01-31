@@ -1,6 +1,6 @@
 module heckenmann.de/docker-swarm-dashboard/v2
 
-go 1.23
+go 1.25
 
 require (
 	github.com/blang/semver v3.5.1+incompatible

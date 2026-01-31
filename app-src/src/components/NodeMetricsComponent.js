@@ -521,7 +521,8 @@ function NodeMetricsComponent({ nodeId }) {
           <Col xs={12} md={6}>
             {systemData.load1 !== undefined && (
               <span>
-                <strong>Load Avg:</strong> {systemData.load1.toFixed(2)},{' '}
+                <strong>Load Avg:</strong> {systemData.load1.toFixed(2)}
+                {', '}
                 {systemData.load5.toFixed(2)}, {systemData.load15.toFixed(2)}
               </span>
             )}
@@ -667,7 +668,13 @@ function NodeMetricsComponent({ nodeId }) {
         <Row className="mb-3">
           <Col>
             <h6>Network Details</h6>
-            <Table striped bordered hover size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
+            <Table
+              striped
+              bordered
+              hover
+              size={tableSize}
+              variant={isDarkMode ? 'dark' : 'light'}
+            >
               <thead>
                 <tr>
                   <th>Interface</th>
@@ -709,22 +716,35 @@ function NodeMetricsComponent({ nodeId }) {
       <Row className="mb-3">
         <Col xs={12} lg={6} className="mb-3 mb-lg-0">
           <h6>TCP Connections</h6>
-          <Table striped bordered size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
+          <Table
+            striped
+            bordered
+            size={tableSize}
+            variant={isDarkMode ? 'dark' : 'light'}
+          >
             <tbody>
               <tr>
-                <td><strong>Allocated:</strong></td>
+                <td>
+                  <strong>Allocated:</strong>
+                </td>
                 <td>{tcpData.alloc?.toLocaleString() || 'N/A'}</td>
               </tr>
               <tr>
-                <td><strong>In Use:</strong></td>
+                <td>
+                  <strong>In Use:</strong>
+                </td>
                 <td>{tcpData.inuse?.toLocaleString() || 'N/A'}</td>
               </tr>
               <tr>
-                <td><strong>Established:</strong></td>
+                <td>
+                  <strong>Established:</strong>
+                </td>
                 <td>{tcpData.currEstab?.toLocaleString() || 'N/A'}</td>
               </tr>
               <tr>
-                <td><strong>Time Wait:</strong></td>
+                <td>
+                  <strong>Time Wait:</strong>
+                </td>
                 <td>{tcpData.timeWait?.toLocaleString() || 'N/A'}</td>
               </tr>
             </tbody>
@@ -732,27 +752,43 @@ function NodeMetricsComponent({ nodeId }) {
         </Col>
         <Col xs={12} lg={6}>
           <h6>System Statistics</h6>
-          <Table striped bordered size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
+          <Table
+            striped
+            bordered
+            size={tableSize}
+            variant={isDarkMode ? 'dark' : 'light'}
+          >
             <tbody>
               <tr>
-                <td><strong>File Descriptors:</strong></td>
                 <td>
-                  {fdData.allocated?.toLocaleString() || 'N/A'} / {fdData.maximum?.toLocaleString() || 'N/A'}
-                  {fdData.usedPercent > 0 && ` (${fdData.usedPercent.toFixed(2)}%)`}
+                  <strong>File Descriptors:</strong>
+                </td>
+                <td>
+                  {fdData.allocated?.toLocaleString() || 'N/A'} /{' '}
+                  {fdData.maximum?.toLocaleString() || 'N/A'}
+                  {fdData.usedPercent > 0 &&
+                    ` (${fdData.usedPercent.toFixed(2)}%)`}
                 </td>
               </tr>
               <tr>
-                <td><strong>Context Switches:</strong></td>
+                <td>
+                  <strong>Context Switches:</strong>
+                </td>
                 <td>{systemData.contextSwitches?.toLocaleString() || 'N/A'}</td>
               </tr>
               <tr>
-                <td><strong>Interrupts:</strong></td>
+                <td>
+                  <strong>Interrupts:</strong>
+                </td>
                 <td>{systemData.interrupts?.toLocaleString() || 'N/A'}</td>
               </tr>
               <tr>
-                <td><strong>Processes (Running/Blocked):</strong></td>
                 <td>
-                  {systemData.procsRunning || 0} / {systemData.procsBlocked || 0}
+                  <strong>Processes (Running/Blocked):</strong>
+                </td>
+                <td>
+                  {systemData.procsRunning || 0} /{' '}
+                  {systemData.procsBlocked || 0}
                 </td>
               </tr>
             </tbody>
@@ -765,7 +801,13 @@ function NodeMetricsComponent({ nodeId }) {
         <Row className="mb-3">
           <Col>
             <h6>Disk I/O Details</h6>
-            <Table striped bordered hover size={tableSize} variant={isDarkMode ? 'dark' : 'light'}>
+            <Table
+              striped
+              bordered
+              hover
+              size={tableSize}
+              variant={isDarkMode ? 'dark' : 'light'}
+            >
               <thead>
                 <tr>
                   <th>Device</th>
