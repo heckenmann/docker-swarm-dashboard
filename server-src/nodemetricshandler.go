@@ -9,6 +9,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	"github.com/gorilla/mux"
@@ -42,22 +44,22 @@ type CPUMetric struct {
 
 // MemoryMetrics represents memory metrics
 type MemoryMetrics struct {
-	Total         float64 `json:"total"`
-	Free          float64 `json:"free"`
-	Available     float64 `json:"available"`
-	SwapTotal     float64 `json:"swapTotal"`
-	SwapFree      float64 `json:"swapFree"`
-	SwapUsed      float64 `json:"swapUsed"`
+	Total           float64 `json:"total"`
+	Free            float64 `json:"free"`
+	Available       float64 `json:"available"`
+	SwapTotal       float64 `json:"swapTotal"`
+	SwapFree        float64 `json:"swapFree"`
+	SwapUsed        float64 `json:"swapUsed"`
 	SwapUsedPercent float64 `json:"swapUsedPercent"`
 }
 
 // FilesystemMetric represents filesystem/disk metrics
 type FilesystemMetric struct {
-	Device     string  `json:"device"`
-	Mountpoint string  `json:"mountpoint"`
-	Size       float64 `json:"size"`
-	Available  float64 `json:"available"`
-	Used       float64 `json:"used"`
+	Device      string  `json:"device"`
+	Mountpoint  string  `json:"mountpoint"`
+	Size        float64 `json:"size"`
+	Available   float64 `json:"available"`
+	Used        float64 `json:"used"`
 	UsedPercent float64 `json:"usedPercent"`
 }
 
@@ -76,12 +78,12 @@ type NetworkMetric struct {
 
 // DiskIOMetric represents disk I/O metrics
 type DiskIOMetric struct {
-	Device            string  `json:"device"`
-	ReadsCompleted    float64 `json:"readsCompleted"`
-	WritesCompleted   float64 `json:"writesCompleted"`
-	ReadBytes         float64 `json:"readBytes"`
-	WrittenBytes      float64 `json:"writtenBytes"`
-	IOTimeSeconds     float64 `json:"ioTimeSeconds"`
+	Device                string  `json:"device"`
+	ReadsCompleted        float64 `json:"readsCompleted"`
+	WritesCompleted       float64 `json:"writesCompleted"`
+	ReadBytes             float64 `json:"readBytes"`
+	WrittenBytes          float64 `json:"writtenBytes"`
+	IOTimeSeconds         float64 `json:"ioTimeSeconds"`
 	IOTimeWeightedSeconds float64 `json:"ioTimeWeightedSeconds"`
 }
 
@@ -93,30 +95,30 @@ type NTPMetrics struct {
 
 // SystemMetrics represents system-level metrics
 type SystemMetrics struct {
-	Load1             float64 `json:"load1"`
-	Load5             float64 `json:"load5"`
-	Load15            float64 `json:"load15"`
-	BootTime          float64 `json:"bootTime"`
-	UptimeSeconds     float64 `json:"uptimeSeconds"`
-	NumCPUs           int     `json:"numCPUs"`
-	ContextSwitches   float64 `json:"contextSwitches"`
-	Interrupts        float64 `json:"interrupts"`
-	ProcsRunning      float64 `json:"procsRunning"`
-	ProcsBlocked      float64 `json:"procsBlocked"`
+	Load1           float64 `json:"load1"`
+	Load5           float64 `json:"load5"`
+	Load15          float64 `json:"load15"`
+	BootTime        float64 `json:"bootTime"`
+	UptimeSeconds   float64 `json:"uptimeSeconds"`
+	NumCPUs         int     `json:"numCPUs"`
+	ContextSwitches float64 `json:"contextSwitches"`
+	Interrupts      float64 `json:"interrupts"`
+	ProcsRunning    float64 `json:"procsRunning"`
+	ProcsBlocked    float64 `json:"procsBlocked"`
 }
 
 // TCPMetrics represents TCP connection metrics
 type TCPMetrics struct {
-	Alloc       float64 `json:"alloc"`
-	InUse       float64 `json:"inuse"`
-	CurrEstab   float64 `json:"currEstab"`
-	TimeWait    float64 `json:"timeWait"`
+	Alloc     float64 `json:"alloc"`
+	InUse     float64 `json:"inuse"`
+	CurrEstab float64 `json:"currEstab"`
+	TimeWait  float64 `json:"timeWait"`
 }
 
 // FileDescriptorMetrics represents file descriptor metrics
 type FileDescriptorMetrics struct {
-	Allocated float64 `json:"allocated"`
-	Maximum   float64 `json:"maximum"`
+	Allocated   float64 `json:"allocated"`
+	Maximum     float64 `json:"maximum"`
 	UsedPercent float64 `json:"usedPercent"`
 }
 
@@ -162,31 +164,65 @@ func findNodeExporterService(cli *client.Client) (*swarm.Service, error) {
 }
 
 // getNodeExporterEndpoint returns the endpoint URL for the node-exporter service
-func getNodeExporterEndpoint(service *swarm.Service, nodeID string) (string, error) {
+// getNodeExporterEndpoint resolves the node-exporter endpoint for a specific node.
+// It prefers the task's overlay network address so the dashboard can query the exact
+// node instance instead of hitting the service VIP.
+func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
 	if service == nil {
 		return "", fmt.Errorf("service is nil")
 	}
 
-	// Node-exporter typically runs as a global service on each node
-	// We need to find the task running on the specified node
-	serviceName := service.Spec.Name
-
-	// For global services, we can construct the URL using the service name
-	// The service is accessible via Docker's internal network
-	// Port 9100 is the default for node-exporter
+	// Determine port to use: prefer target port if configured, default 9100
 	port := 9100
-
-	// Check if service has port configuration
 	if len(service.Endpoint.Ports) > 0 {
-		port = int(service.Endpoint.Ports[0].PublishedPort)
-		if port == 0 {
+		if int(service.Endpoint.Ports[0].TargetPort) != 0 {
 			port = int(service.Endpoint.Ports[0].TargetPort)
+		} else if int(service.Endpoint.Ports[0].PublishedPort) != 0 {
+			port = int(service.Endpoint.Ports[0].PublishedPort)
 		}
 	}
 
-	// Construct URL - using service name for DNS resolution within Docker network
-	url := fmt.Sprintf("http://%s:%d/metrics", serviceName, port)
-	return url, nil
+	// Try to find a task for this service running on the requested node and read its network address
+	serviceID := service.ID
+	if serviceID == "" && service.Spec.Annotations.Name != "" {
+		// Fallback to service name DNS when ID is not available (tests)
+		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+	}
+
+	f := filters.NewArgs()
+	f.Add("service", serviceID)
+	if nodeID != "" {
+		f.Add("node", nodeID)
+	}
+
+	tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{Filters: f})
+	if err != nil {
+		if service.Spec.Annotations.Name != "" {
+			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+		}
+		return "", fmt.Errorf("failed to list tasks: %w", err)
+	}
+
+	for _, t := range tasks {
+		if t.Status.State != swarm.TaskStateRunning {
+			continue
+		}
+		for _, na := range t.NetworksAttachments {
+			if len(na.Addresses) > 0 {
+				addr := na.Addresses[0]
+				if strings.Contains(addr, "/") {
+					addr = strings.SplitN(addr, "/", 2)[0]
+				}
+				return fmt.Sprintf("http://%s:%d/metrics", addr, port), nil
+			}
+		}
+	}
+
+	if service.Spec.Annotations.Name != "" {
+		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+	}
+
+	return "", fmt.Errorf("no task address found for service %s on node %s", serviceID, nodeID)
 }
 
 // fetchMetricsFromNodeExporter fetches metrics from the node-exporter endpoint
@@ -277,7 +313,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 			parsed.Memory.Available = getMetricValue(memAvailableFamily.GetMetric()[0])
 		}
 	}
-	
+
 	// Extract swap metrics
 	if swapTotalFamily, ok := metricFamilies["node_memory_SwapTotal_bytes"]; ok {
 		if len(swapTotalFamily.GetMetric()) > 0 {
@@ -306,7 +342,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 					filesystemSizes[key] = make(map[string]float64)
 				}
 				filesystemSizes[key]["size"] = getMetricValue(metric)
-				filesystemSizes[key]["device"] = 0 // placeholder
+				filesystemSizes[key]["device"] = 0     // placeholder
 				filesystemSizes[key]["mountpoint"] = 0 // placeholder
 			}
 		}
@@ -355,7 +391,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	networkTxErrs := make(map[string]float64)
 	networkRxDrop := make(map[string]float64)
 	networkTxDrop := make(map[string]float64)
-	
+
 	if netRx, ok := metricFamilies["node_network_receive_bytes_total"]; ok {
 		for _, metric := range netRx.GetMetric() {
 			iface := getNetworkInterface(metric)
@@ -443,7 +479,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	diskWriteBytes := make(map[string]float64)
 	diskIOTime := make(map[string]float64)
 	diskIOTimeWeighted := make(map[string]float64)
-	
+
 	if diskReadsMetric, ok := metricFamilies["node_disk_reads_completed_total"]; ok {
 		for _, metric := range diskReadsMetric.GetMetric() {
 			device := getDiskDevice(metric)
@@ -492,7 +528,7 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 			}
 		}
 	}
-	
+
 	// Build disk I/O metrics
 	for device, reads := range diskReads {
 		parsed.DiskIO = append(parsed.DiskIO, DiskIOMetric{
@@ -703,8 +739,8 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the endpoint URL
-	endpoint, err := getNodeExporterEndpoint(service, nodeID)
+	// Get the endpoint URL (resolve task IP for the requested node)
+	endpoint, err := getNodeExporterEndpoint(cli, service, nodeID)
 	if err != nil {
 		errMsg := "Error constructing node-exporter endpoint: " + err.Error()
 		response := nodeMetricsResponse{

@@ -164,7 +164,7 @@ docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 Docker Swarm Dashboard can display node metrics from [Prometheus Node Exporter](https://github.com/prometheus/node_exporter).
 
 #### Setup Node Exporter
-Deploy node-exporter as a global service with the label `dsd.node-exporter`:
+Deploy `node-exporter` as a global service with the label `dsd.node-exporter` and attach it to the same overlay network as the dashboard. In this configuration the exporter is only reachable from other containers on the overlay network (recommended).
 
 ```yaml
 node-exporter:
@@ -173,6 +173,8 @@ node-exporter:
     mode: global
     labels:
       - "dsd.node-exporter=true"
+  networks:
+    - your-network-name
   volumes:
     - /proc:/host/proc:ro
     - /sys:/host/sys:ro
@@ -181,14 +183,7 @@ node-exporter:
     - '--path.procfs=/host/proc'
     - '--path.sysfs=/host/sys'
     - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-  networks:
-    - your-network-name
-```
 
-**Important:** 
-- The node-exporter service must be on the same Docker network as the dashboard
-- The service must have the label `dsd.node-exporter=true` (or custom label set via `DSD_NODE_EXPORTER_LABEL`)
-- Metrics will appear in the "Metrics" tab when viewing node details
 
 #### Customize Label
 You can customize the label used to discover node-exporter by setting:
