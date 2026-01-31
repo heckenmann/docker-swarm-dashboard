@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
@@ -195,7 +194,7 @@ func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID 
 		f.Add("node", nodeID)
 	}
 
-	tasks, err := cli.TaskList(context.Background(), types.TaskListOptions{Filters: f})
+	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
 	if err != nil {
 		if service.Spec.Annotations.Name != "" {
 			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
