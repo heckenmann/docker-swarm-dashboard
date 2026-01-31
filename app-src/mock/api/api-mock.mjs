@@ -567,6 +567,127 @@ app.get('/ui/dashboard-settings', (req, res) => {
   res.json(resources)
 })
 
+// Mock node metrics endpoint
+app.get('/docker/nodes/:id/metrics', (req, res) => {
+  const nodeId = req.params.id
+  
+  // Return parsed metrics in the new JSON format (matching server-side parsing)
+  res.json({
+    available: true,
+    metrics: {
+      cpu: [
+        { mode: 'idle', value: 25222.11 },
+        { mode: 'iowait', value: 222.21 },
+        { mode: 'irq', value: 0.27 },
+        { mode: 'nice', value: 3.57 },
+        { mode: 'softirq', value: 28.01 },
+        { mode: 'steal', value: 0.0 },
+        { mode: 'system', value: 869.34 },
+        { mode: 'user', value: 1735.79 }
+      ],
+      memory: {
+        total: 8589934592,        // 8GB
+        free: 2147483648,         // 2GB
+        available: 4294967296,    // 4GB
+        swapTotal: 2147483648,    // 2GB swap
+        swapFree: 1073741824,     // 1GB free
+        swapUsed: 1073741824,     // 1GB used
+        swapUsedPercent: 50.0
+      },
+      filesystem: [
+        {
+          device: '/dev/sda1',
+          mountpoint: '/',
+          size: 107374182400,      // 100GB
+          available: 53687091200,  // 50GB
+          used: 53687091200,       // 50GB
+          usedPercent: 50.0
+        },
+        {
+          device: '/dev/sdb1',
+          mountpoint: '/var/lib/docker',
+          size: 536870912000,      // 500GB
+          available: 268435456000, // 250GB
+          used: 268435456000,      // 250GB
+          usedPercent: 50.0
+        }
+      ],
+      network: [
+        {
+          interface: 'eth0',
+          receiveBytes: 123456789012,
+          transmitBytes: 987654321098,
+          receivePackets: 456789012,
+          transmitPackets: 654321098,
+          receiveErrs: 12,
+          transmitErrs: 8,
+          receiveDrop: 3,
+          transmitDrop: 2
+        },
+        {
+          interface: 'eth1',
+          receiveBytes: 98765432109,
+          transmitBytes: 123456789012,
+          receivePackets: 345678901,
+          transmitPackets: 456789012,
+          receiveErrs: 5,
+          transmitErrs: 3,
+          receiveDrop: 1,
+          transmitDrop: 1
+        }
+      ],
+      diskIO: [
+        {
+          device: 'sda',
+          readsCompleted: 1234567,
+          writesCompleted: 9876543,
+          readBytes: 52428800000,       // ~50GB
+          writtenBytes: 104857600000,   // ~100GB
+          ioTimeSeconds: 12345.67,
+          ioTimeWeightedSeconds: 23456.78
+        },
+        {
+          device: 'sdb',
+          readsCompleted: 987654,
+          writesCompleted: 7654321,
+          readBytes: 26214400000,       // ~25GB
+          writtenBytes: 78643200000,    // ~75GB
+          ioTimeSeconds: 8765.43,
+          ioTimeWeightedSeconds: 17654.32
+        }
+      ],
+      ntp: {
+        offsetSeconds: 0.000123,
+        syncStatus: 1
+      },
+      system: {
+        load1: 0.52,
+        load5: 0.48,
+        load15: 0.45,
+        bootTime: Date.now() / 1000 - 86400 * 7,  // Boot time 7 days ago
+        uptimeSeconds: 86400 * 7,  // 7 days uptime
+        numCPUs: 4,
+        contextSwitches: 123456789,
+        interrupts: 987654321,
+        procsRunning: 3,
+        procsBlocked: 0
+      },
+      tcp: {
+        alloc: 512,
+        inuse: 256,
+        currEstab: 128,
+        timeWait: 32
+      },
+      fileDescriptor: {
+        allocated: 2048,
+        maximum: 65536,
+        usedPercent: 3.125
+      },
+      serverTime: Date.now() / 1000  // Current Unix timestamp
+    }
+  })
+})
+
 // fallback to serve all resources under /ui and /docker
 app.get('/ui/:resource', (req, res) => {
   const list = db.data?.[req.params.resource]

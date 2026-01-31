@@ -1,5 +1,5 @@
 import logo from '../files/docker.png'
-import ReactInterval from 'react-interval'
+import { useEffect } from 'react'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 import {
   currentVariantAtom,
@@ -56,6 +56,14 @@ function DashboardNavbar() {
     updateView((prev) => ({ ...prev, timestamp: new Date() }))
   }
 
+  // Automatic refresh interval using useEffect
+  useEffect(() => {
+    if (refreshInterval != null) {
+      const intervalId = setInterval(reloadData, refreshInterval)
+      return () => clearInterval(intervalId)
+    }
+  }, [refreshInterval])
+
   /**
    * Toggles the refresh interval and notifies the user with a message.
    */
@@ -78,11 +86,6 @@ function DashboardNavbar() {
 
   return (
     <>
-      <ReactInterval
-        enabled={refreshInterval != null}
-        timeout={refreshInterval}
-        callback={reloadData}
-      />
       <Navbar
         collapseOnSelect
         expand="xl"
