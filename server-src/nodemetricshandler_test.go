@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -12,6 +15,128 @@ import (
 	dockclient "github.com/docker/docker/client"
 	"github.com/gorilla/mux"
 )
+
+// TestNodeMetricsHandler_Success verifies the full handler flow: resolve task IP, fetch metrics and parse them
+func TestNodeMetricsHandler_Success(t *testing.T) {
+	// Start a mock node-exporter HTTP server
+	metricsData := "node_time_seconds 1700000000\nnode_cpu_seconds_total{cpu=\"0\",mode=\"idle\"} 100.0\n"
+	mockExporter := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/metrics" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(metricsData))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer mockExporter.Close()
+
+	// Extract host and port from mock server URL
+	u, err := url.Parse(mockExporter.URL)
+	if err != nil {
+		t.Fatalf("failed to parse mock server URL: %v", err)
+	}
+	host, portStr, err := netSplitHostPort(u.Host)
+	if err != nil {
+		t.Fatalf("failed to split host:port: %v", err)
+	}
+
+	// Create service and task matching the expectations of getNodeExporterEndpoint
+	service := swarm.Service{
+		ID: "s-metrics",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: "node-exporter",
+				Labels: map[string]string{
+					nodeExporterLabel: "true",
+				},
+			},
+		},
+		Endpoint: swarm.Endpoint{
+			Ports: []swarm.PortConfig{{
+				TargetPort: uint32(parsePort(t, portStr)),
+			}},
+		},
+	}
+
+	tasks := []swarm.Task{{
+		ID:        "t-metrics",
+		ServiceID: "s-metrics",
+		NodeID:    "node-metrics-1",
+		Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+		NetworksAttachments: []swarm.NetworkAttachment{{
+			Addresses: []string{host + "/32"},
+		}},
+	}}
+
+	bServices, _ := json.Marshal([]swarm.Service{service})
+	bTasks, _ := json.Marshal(tasks)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/services":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bServices)
+			return
+		case "/v1.35/tasks":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTasks)
+			return
+		default:
+			http.NotFound(w, r)
+			return
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	// Call the handler
+	req := httptest.NewRequest("GET", "/docker/nodes/node-metrics-1/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "node-metrics-1"})
+	w := httptest.NewRecorder()
+	nodeMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+
+	var resp nodeMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if !resp.Available || resp.Metrics == nil {
+		t.Fatalf("expected available metrics, got %+v", resp)
+	}
+	if resp.Metrics.ServerTime == 0 {
+		t.Fatalf("expected server time in parsed metrics, got zero")
+	}
+}
+
+// helper to parse port string to int
+func parsePort(t *testing.T, p string) int {
+	t.Helper()
+	var port int
+	_, err := fmt.Sscanf(p, "%d", &port)
+	if err != nil {
+		t.Fatalf("invalid port %s: %v", p, err)
+	}
+	return port
+}
+
+// netSplitHostPort is like net.SplitHostPort but accepts host without port gracefully
+func netSplitHostPort(h string) (string, string, error) {
+	if strings.Contains(h, ":") {
+		return netSplitHostPortStrict(h)
+	}
+	// no port present, return host and empty port
+	return h, "", nil
+}
+
+func netSplitHostPortStrict(h string) (string, string, error) {
+	host, port, err := net.SplitHostPort(h)
+	return host, port, err
+}
 
 func TestLoadNodeExporterLabelFromEnv(t *testing.T) {
 	// Save original value
