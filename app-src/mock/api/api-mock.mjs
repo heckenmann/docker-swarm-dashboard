@@ -688,6 +688,49 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
   })
 })
 
+// Mock service metrics endpoint (cAdvisor)
+app.get('/docker/services/:id/metrics', (req, res) => {
+  const serviceId = req.params.id
+  
+  // Generate realistic container metrics for a service
+  const containerCount = Math.floor(Math.random() * 3) + 2 // 2-4 containers
+  const containers = []
+  
+  for (let i = 0; i < containerCount; i++) {
+    const usage = Math.floor(Math.random() * 400) * 1024 * 1024 + 100 * 1024 * 1024 // 100-500 MB
+    const limit = 512 * 1024 * 1024 // 512 MB limit
+    const workingSet = usage * 0.9 // Working set is typically ~90% of usage
+    
+    containers.push({
+      containerId: `/docker/${Math.random().toString(36).substring(2, 15)}`,
+      taskId: `task-${serviceId}-${i + 1}`,
+      taskName: `service.${i + 1}`,
+      usage: usage,
+      workingSet: workingSet,
+      limit: limit,
+      usagePercent: (usage / limit) * 100,
+      serverTime: Date.now() / 1000
+    })
+  }
+  
+  const totalUsage = containers.reduce((sum, c) => sum + c.usage, 0)
+  const totalLimit = containers.reduce((sum, c) => sum + c.limit, 0)
+  const averageUsage = totalUsage / containers.length
+  const averagePercent = (totalUsage / totalLimit) * 100
+  
+  res.json({
+    available: true,
+    metrics: {
+      totalUsage: totalUsage,
+      totalLimit: totalLimit,
+      averageUsage: averageUsage,
+      averagePercent: averagePercent,
+      containers: containers,
+      serverTime: Date.now() / 1000
+    }
+  })
+})
+
 // fallback to serve all resources under /ui and /docker
 app.get('/ui/:resource', (req, res) => {
   const list = db.data?.[req.params.resource]

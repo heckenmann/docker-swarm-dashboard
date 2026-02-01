@@ -13,6 +13,7 @@ import ServiceStatusBadge from './ServiceStatusBadge'
 import { SortableHeader } from './SortableHeader'
 import { sortData } from '../common/sortUtils'
 import { useState, useCallback } from 'react'
+import { ServiceMetricsComponent } from './ServiceMetricsComponent'
 
 /**
  * Component to display the details of a service.
@@ -137,7 +138,10 @@ function DetailsServiceComponent() {
           </h5>
         </Card.Header>
         <Card.Body style={{ overflowY: 'auto' }}>
-          <Tabs className="mb-3">
+          <Tabs className="mb-3" defaultActiveKey="metrics">
+            <Tab eventKey="metrics" title="Metrics">
+              <ServiceMetricsComponent serviceId={serviceObj?.ID} />
+            </Tab>
             <Tab eventKey="table" title="Table">
               <JsonTable json={sanitizedService} variant={currentVariant} />
             </Tab>
