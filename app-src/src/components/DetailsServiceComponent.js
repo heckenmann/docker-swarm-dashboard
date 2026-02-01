@@ -167,16 +167,25 @@ function DetailsServiceComponent() {
   const sanitizedService = sanitizeAttrs(serviceObj || {})
 
   // Prepare tasks with sortable fields
-  const tasksWithSortableFields = tasksForService.map((task) => ({
-    ...task,
-    NodeName:
-      task.Node && (task.Node.Description?.Hostname || task.Node.Hostname)
-        ? task.Node.Description?.Hostname || task.Node.Hostname
-        : task.NodeName || '',
-    State: task.Status?.State || task.State || '',
-    CreatedAt: task.CreatedAt || task.Timestamp || '',
-    UpdatedAt: task.UpdatedAt || task.CreatedAt || task.Timestamp || '',
-  }))
+  const tasksWithSortableFields = tasksForService.map((task) => {
+    const metrics = getTaskMetrics(task)
+    return {
+      ...task,
+      NodeName:
+        task.Node && (task.Node.Description?.Hostname || task.Node.Hostname)
+          ? task.Node.Description?.Hostname || task.Node.Hostname
+          : task.NodeName || '',
+      State: task.Status?.State || task.State || '',
+      CreatedAt: task.CreatedAt || task.Timestamp || '',
+      UpdatedAt: task.UpdatedAt || task.CreatedAt || task.Timestamp || '',
+      // Add metric fields for sorting
+      MemoryUsage: metrics?.usage || 0,
+      MemoryLimit: metrics?.limit || 0,
+      MemoryUsagePercent: metrics?.usagePercent || 0,
+      WorkingSet: metrics?.workingSet || 0,
+      CPUUsage: metrics?.cpuUsage || 0,
+    }
+  })
 
   // Define column types for proper sorting
   const columnTypes = {
@@ -185,6 +194,11 @@ function DetailsServiceComponent() {
     DesiredState: 'string',
     CreatedAt: 'date',
     UpdatedAt: 'date',
+    MemoryUsage: 'number',
+    MemoryLimit: 'number',
+    MemoryUsagePercent: 'number',
+    WorkingSet: 'number',
+    CPUUsage: 'number',
   }
 
   // Sort the tasks
@@ -241,9 +255,41 @@ function DetailsServiceComponent() {
                     sortDirection={sortDirection}
                     onSort={handleSort}
                   />
-                  <th>Memory</th>
-                  <th>Working Set</th>
-                  <th>CPU</th>
+                  <SortableHeader
+                    column="MemoryUsage"
+                    label="Usage"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableHeader
+                    column="WorkingSet"
+                    label="Working Set"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableHeader
+                    column="MemoryLimit"
+                    label="Limit"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableHeader
+                    column="MemoryUsagePercent"
+                    label="Usage %"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableHeader
+                    column="CPUUsage"
+                    label="CPU"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
                   <th>Container ID</th>
                   <SortableHeader
                     column="CreatedAt"
@@ -264,7 +310,7 @@ function DetailsServiceComponent() {
               <tbody>
                 {metricsLoading && (
                   <tr>
-                    <td colSpan="8" className="text-center">
+                    <td colSpan="10" className="text-center">
                       <Spinner animation="border" size="sm" /> Loading metrics...
                     </td>
                   </tr>
@@ -299,25 +345,7 @@ function DetailsServiceComponent() {
                         </td>
                         <td>
                           {metrics ? (
-                            <span
-                              className={
-                                metrics.usagePercent > 90
-                                  ? 'text-danger'
-                                  : metrics.usagePercent > 75
-                                    ? 'text-warning'
-                                    : ''
-                              }
-                            >
-                              {formatBytes(metrics.usage)}
-                              {metrics.limit > 0 &&
-                                ` / ${formatBytes(metrics.limit)}`}
-                              {metrics.limit > 0 && (
-                                <small className="text-muted">
-                                  {' '}
-                                  ({metrics.usagePercent.toFixed(0)}%)
-                                </small>
-                              )}
-                            </span>
+                            <span>{formatBytes(metrics.usage)}</span>
                           ) : (
                             <span className="text-muted">-</span>
                           )}
@@ -325,6 +353,28 @@ function DetailsServiceComponent() {
                         <td>
                           {metrics && metrics.workingSet ? (
                             <span>{formatBytes(metrics.workingSet)}</span>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                        <td>
+                          {metrics && metrics.limit > 0 ? (
+                            <span>{formatBytes(metrics.limit)}</span>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                        <td
+                          className={
+                            metrics && metrics.usagePercent > 90
+                              ? 'text-danger'
+                              : metrics && metrics.usagePercent > 75
+                                ? 'text-warning'
+                                : ''
+                          }
+                        >
+                          {metrics && metrics.limit > 0 ? (
+                            <span>{metrics.usagePercent.toFixed(2)}%</span>
                           ) : (
                             <span className="text-muted">-</span>
                           )}

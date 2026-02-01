@@ -366,65 +366,6 @@ function ServiceMetricsComponent({ serviceId }) {
         </Col>
       </Row>
 
-      {/* Container Details Table */}
-      {containerMetrics.length > 0 && (
-        <Row className="mb-3">
-          <Col>
-            <h6>Container Memory Details</h6>
-            <Table
-              striped
-              bordered
-              hover
-              size={tableSize}
-              variant={isDarkMode ? 'dark' : 'light'}
-            >
-              <thead>
-                <tr>
-                  <th>Task</th>
-                  <th>Container ID</th>
-                  <th>Usage</th>
-                  <th>Working Set</th>
-                  <th>Limit</th>
-                  <th>Usage %</th>
-                </tr>
-              </thead>
-              <tbody>
-                {containerMetrics.map((container, idx) => (
-                  <tr key={container.containerId || idx}>
-                    <td>{container.taskName || 'N/A'}</td>
-                    <td>
-                      <code>
-                        {container.containerId?.substring(0, 12) || 'N/A'}
-                      </code>
-                    </td>
-                    <td>{formatBytes(container.usage || 0)}</td>
-                    <td>{formatBytes(container.workingSet || 0)}</td>
-                    <td>
-                      {container.limit > 0
-                        ? formatBytes(container.limit)
-                        : NO_LIMIT_TEXT}
-                    </td>
-                    <td
-                      className={
-                        container.usagePercent > 90
-                          ? 'text-danger'
-                          : container.usagePercent > 75
-                            ? 'text-warning'
-                            : ''
-                      }
-                    >
-                      {container.limit > 0
-                        ? `${container.usagePercent.toFixed(2)}%`
-                        : 'N/A'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
-      )}
-
       {/* Footer Info */}
       <Row>
         <Col>
