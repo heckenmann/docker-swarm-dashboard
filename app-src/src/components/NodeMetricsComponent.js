@@ -4,6 +4,7 @@ import {
   baseUrlAtom,
   isDarkModeAtom,
   tableSizeAtom,
+  viewAtom,
 } from '../common/store/atoms'
 import { Card, Alert, Spinner, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
@@ -115,6 +116,7 @@ function NodeMetricsComponent({ nodeId }) {
   const baseURL = useAtomValue(baseUrlAtom)
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+  const view = useAtomValue(viewAtom)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [metricsData, setMetricsData] = useState(null)
@@ -162,7 +164,7 @@ function NodeMetricsComponent({ nodeId }) {
     return () => {
       mounted = false
     }
-  }, [baseURL, nodeId])
+  }, [baseURL, nodeId, view?.timestamp])
 
   if (loading) {
     return (
