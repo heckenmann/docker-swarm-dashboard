@@ -45,6 +45,7 @@ func buildHandler() http.Handler {
 
 	apiRouter.HandleFunc("/docker/services", dockerServicesHandler)
 	apiRouter.HandleFunc("/docker/services/{id}", dockerServicesDetailsHandler)
+	apiRouter.HandleFunc("/docker/services/{id}/metrics", serviceMetricsHandler)
 	apiRouter.HandleFunc("/docker/nodes", dockerNodesHandler)
 	apiRouter.HandleFunc("/docker/nodes/{id}", dockerNodesDetailsHandler)
 	apiRouter.HandleFunc("/docker/nodes/{id}/metrics", nodeMetricsHandler)
