@@ -74,21 +74,7 @@
   height: auto;
 }
 
-/* Restore horizontal headers (no rotation) so the table header appearance matches the pre-change look.
-   We still keep overflow handling and ellipsis for long names. */
-.dashboard-table .rotated {
-  position: relative;
-  display: block;
-  max-width: 14rem; /* keep a reasonable width for long service names */
-  padding: 2px 4px;
-  margin-left: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  writing-mode: horizontal-tb;
-  transform: none;
-  text-orientation: mixed;
-}
+/* (removed unused rotated header styles) */
 
 .dashboard-table {
   table-layout: fixed;
@@ -298,35 +284,7 @@ ul li {
 
 /* Navbar-specific overrides removed so Bootstrap defaults apply. */
 
-/* Ensure header and service names do NOT wrap but are allowed to overflow into adjacent columns */
-.header-wrap,
-.rotated {
-  position: relative; /* so z-index applies */
-  z-index: 5; /* render above neighboring cells */
-  display: inline-block;
-  max-width: none; /* don't artificially cap width */
-  overflow: visible; /* allow overflow into next column */
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
-/* Service name container (vertical view) - single line, can overflow to right */
-.service-name-wrap {
-  position: relative;
-  z-index: 5;
-  display: inline-block;
-  max-width: none;
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
-/* For service-name cells in vertical dashboard, ensure the name container uses inline-block and no extra padding that would block overflow */
-.service-name-cell .service-name-wrap {
-  /* rely on .service-name-wrap for display; only override padding here */
-  max-width: none; /* allow overflow into adjacent column */
-  padding-right: 0;
-}
+/* Removed unused header/service-name overflow helpers (no longer referenced) */
 
 /* Header border behavior:
    - the first two header rows in the dashboard's THEAD should not show a bottom border
