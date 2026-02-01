@@ -95,10 +95,11 @@ function TasksComponent() {
     Err: 'string',
   }
 
+  // When no sorting is selected, default to reverse timestamp order (newest first)
   const sortedTasks = sortData(
     filteredTasks,
-    sortBy,
-    sortDirection,
+    sortBy || 'Timestamp',
+    sortBy ? sortDirection : 'desc',
     columnTypes,
   )
 
