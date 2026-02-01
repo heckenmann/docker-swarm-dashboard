@@ -483,6 +483,27 @@ app.get('/docker/tasks/:id', (req, res) => {
   sendResource(res, resource, 'tasks', req.params.id)
 })
 
+app.get('/docker/tasks/:id/metrics', (req, res) => {
+  const taskId = req.params.id
+  const task = findResource(db.data?.tasks, taskId)
+  
+  if (!task) {
+    res.status(404).json({ error: 'task not found' })
+    return
+  }
+  
+  // Return mock metrics for the task
+  res.json({
+    usage: 268435456, // 256 MB
+    workingSet: 201326592, // ~192 MB
+    limit: 536870912, // 512 MB
+    usagePercent: 50.0,
+    cpuUsage: 123.45,
+    cpuPercent: 45.0,
+    containerId: `docker://abc123def456ghi789jkl012mno345pqr678stu901vwx234yz${taskId.substring(0, 8)}`
+  })
+})
+
 app.get('/ui/services/:id', (req, res) => {
   const id = req.params.id
   const service = findResource(db.data?.services, id)
