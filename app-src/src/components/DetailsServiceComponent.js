@@ -311,7 +311,8 @@ function DetailsServiceComponent() {
                 {metricsLoading && (
                   <tr>
                     <td colSpan="10" className="text-center">
-                      <Spinner animation="border" size="sm" /> Loading metrics...
+                      <Spinner animation="border" size="sm" /> Loading
+                      metrics...
                     </td>
                   </tr>
                 )}
@@ -398,7 +399,10 @@ function DetailsServiceComponent() {
                           {metrics && metrics.containerId ? (
                             <small>
                               <code>
-                                {metrics.containerId.split('/').pop().substring(0, 12)}
+                                {metrics.containerId
+                                  .split('/')
+                                  .pop()
+                                  .substring(0, 12)}
                               </code>
                             </small>
                           ) : (

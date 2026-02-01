@@ -412,8 +412,8 @@ describe('DetailsServiceComponent', () => {
     })
 
     await waitFor(() => {
-      const memoryCell = screen.getByText(/480 MB/)
-      expect(memoryCell.closest('span')).toHaveClass('text-danger')
+      const percentCell = screen.getByText(/93.75/)
+      expect(percentCell.closest('td')).toHaveClass('text-danger')
     })
   })
 

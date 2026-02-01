@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import {
-  baseUrlAtom,
-  isDarkModeAtom,
-  tableSizeAtom,
-  viewAtom,
-} from '../common/store/atoms'
-import { Card, Alert, Spinner, Row, Col, Table } from 'react-bootstrap'
+import { baseUrlAtom, isDarkModeAtom, viewAtom } from '../common/store/atoms'
+import { Card, Alert, Spinner, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 
 /**
@@ -115,7 +110,6 @@ const UNKNOWN_CONTAINER_TEXT = 'Container N/A'
 function ServiceMetricsComponent({ serviceId }) {
   const baseURL = useAtomValue(baseUrlAtom)
   const isDarkMode = useAtomValue(isDarkModeAtom)
-  const tableSize = useAtomValue(tableSizeAtom)
   const view = useAtomValue(viewAtom)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -282,7 +276,9 @@ function ServiceMetricsComponent({ serviceId }) {
       ...commonOpts.xaxis,
       categories: containerMetrics.map(
         (c) =>
-          c.taskName || c.containerId?.substring(0, 12) || UNKNOWN_CONTAINER_TEXT,
+          c.taskName ||
+          c.containerId?.substring(0, 12) ||
+          UNKNOWN_CONTAINER_TEXT,
       ),
       title: {
         text: 'Memory (MB)',

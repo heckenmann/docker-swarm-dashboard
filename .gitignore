@@ -57,4 +57,4 @@ app-src/cypress/screenshots/
 app-src/cypress/videos/
 # Cypress dumped HTML/state files used for debugging during test runs
 **/cypress/dumps/
-app-src/cypress/dumps/
+app-src/cypress/dumps/app-src/package-lock.json
