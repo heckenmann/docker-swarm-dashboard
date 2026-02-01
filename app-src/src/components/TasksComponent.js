@@ -12,7 +12,7 @@ import {
 } from '../common/store/atoms'
 
 // Add missing UI and internal component imports
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { ServiceName } from './names/ServiceName'
@@ -22,6 +22,7 @@ import { FilterComponent } from './FilterComponent'
 import { SortableHeader } from './SortableHeader'
 import { sortData } from '../common/sortUtils'
 import { useCallback } from 'react'
+import { tasksDetailId } from '../common/navigationConstants'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks
@@ -138,90 +139,113 @@ function TasksComponent() {
         <NodeName name={task.NodeName} id={task.NodeID} />
       </td>
       <td>{task.Err}</td>
+      <td>
+        <Button
+          size="sm"
+          variant="outline-primary"
+          onClick={() =>
+            setView({
+              id: tasksDetailId,
+              detail: task.ID,
+              timestamp: Date.now(),
+            })
+          }
+        >
+          <FontAwesomeIcon icon="info-circle" className="me-1" />
+          Details
+        </Button>
+      </td>
     </tr>
   ))
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header>
+    <Card className={currentVariantClasses}>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
+          <FontAwesomeIcon icon="tasks" className="me-2" />
+          <strong>Tasks</strong>
+        </div>
         <FilterComponent />
       </Card.Header>
-      <Table
-        className="tasks-table mt-2"
-        variant={currentVariant}
-        striped
-        size={tableSize}
-      >
-        <thead>
-          <tr>
-            <th style={{ width: '25px' }}></th>
-            <SortableHeader
-              column="Timestamp"
-              label="Timestamp"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="timestamp-col"
-            />
-            <SortableHeader
-              column="State"
-              label="State"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="state-col"
-            />
-            <SortableHeader
-              column="DesiredState"
-              label="DesiredState"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="desired-state-col"
-            />
-            <SortableHeader
-              column="ServiceName"
-              label="ServiceName"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="service-col"
-            />
-            <SortableHeader
-              column="Slot"
-              label="Slot"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="slot-col"
-            />
-            <SortableHeader
-              column="Stack"
-              label="Stack"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="stack-col"
-            />
-            <SortableHeader
-              column="NodeName"
-              label="Node"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="node-col"
-            />
-            <SortableHeader
-              column="Err"
-              label="Error"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-            />
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table>
+      <Card.Body className="p-0">
+        <Table
+          className="tasks-table mb-0"
+          variant={currentVariant}
+          striped
+          size={tableSize}
+        >
+          <thead>
+            <tr>
+              <th style={{ width: '25px' }}></th>
+              <SortableHeader
+                column="Timestamp"
+                label="Timestamp"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="timestamp-col"
+              />
+              <SortableHeader
+                column="State"
+                label="State"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="state-col"
+              />
+              <SortableHeader
+                column="DesiredState"
+                label="DesiredState"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="desired-state-col"
+              />
+              <SortableHeader
+                column="ServiceName"
+                label="ServiceName"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="service-col"
+              />
+              <SortableHeader
+                column="Slot"
+                label="Slot"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="slot-col"
+              />
+              <SortableHeader
+                column="Stack"
+                label="Stack"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="stack-col"
+              />
+              <SortableHeader
+                column="NodeName"
+                label="Node"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="node-col"
+              />
+              <SortableHeader
+                column="Err"
+                label="Error"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      </Card.Body>
     </Card>
   )
 }

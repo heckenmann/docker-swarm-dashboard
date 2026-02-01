@@ -483,6 +483,27 @@ app.get('/docker/tasks/:id', (req, res) => {
   sendResource(res, resource, 'tasks', req.params.id)
 })
 
+app.get('/docker/tasks/:id/metrics', (req, res) => {
+  const taskId = req.params.id
+  const task = findResource(db.data?.tasks, taskId)
+  
+  if (!task) {
+    res.status(404).json({ error: 'task not found' })
+    return
+  }
+  
+  // Return mock metrics for the task
+  res.json({
+    usage: 268435456, // 256 MB
+    workingSet: 201326592, // ~192 MB
+    limit: 536870912, // 512 MB
+    usagePercent: 50.0,
+    cpuUsage: 123.45,
+    cpuPercent: 45.0,
+    containerId: `docker://abc123def456ghi789jkl012mno345pqr678stu901vwx234yz${taskId.substring(0, 8)}`
+  })
+})
+
 app.get('/ui/services/:id', (req, res) => {
   const id = req.params.id
   const service = findResource(db.data?.services, id)
@@ -684,6 +705,52 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         usedPercent: 3.125
       },
       serverTime: Date.now() / 1000  // Current Unix timestamp
+    }
+  })
+})
+
+// Mock service metrics endpoint (cAdvisor)
+app.get('/docker/services/:id/metrics', (req, res) => {
+  const serviceId = req.params.id
+  
+  // Generate realistic container metrics for a service
+  const containerCount = Math.floor(Math.random() * 3) + 2 // 2-4 containers
+  const containers = []
+  
+  for (let i = 0; i < containerCount; i++) {
+    const usage = Math.floor(Math.random() * 400) * 1024 * 1024 + 100 * 1024 * 1024 // 100-500 MB
+    const limit = 512 * 1024 * 1024 // 512 MB limit
+    const workingSet = usage * 0.9 // Working set is typically ~90% of usage
+    const cpuUsage = Math.random() * 100 + 10 // 10-110 seconds of CPU time
+    
+    containers.push({
+      containerId: `/docker/${Math.random().toString(36).substring(2, 15)}`,
+      taskId: `task-${serviceId}-${i + 1}`,
+      taskName: `service.${i + 1}`,
+      usage: usage,
+      workingSet: workingSet,
+      limit: limit,
+      usagePercent: (usage / limit) * 100,
+      cpuUsage: cpuUsage,
+      cpuPercent: Math.random() * 50 + 5, // 5-55% CPU usage
+      serverTime: Date.now() / 1000
+    })
+  }
+  
+  const totalUsage = containers.reduce((sum, c) => sum + c.usage, 0)
+  const totalLimit = containers.reduce((sum, c) => sum + c.limit, 0)
+  const averageUsage = totalUsage / containers.length
+  const averagePercent = (totalUsage / totalLimit) * 100
+  
+  res.json({
+    available: true,
+    metrics: {
+      totalUsage: totalUsage,
+      totalLimit: totalLimit,
+      averageUsage: averageUsage,
+      averagePercent: averagePercent,
+      containers: containers,
+      serverTime: Date.now() / 1000
     }
   })
 })

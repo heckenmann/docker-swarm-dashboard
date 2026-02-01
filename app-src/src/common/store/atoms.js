@@ -10,6 +10,7 @@ import {
   servicesDetailId,
   nodesDetailId,
   tasksId,
+  tasksDetailId,
 } from '../navigationConstants'
 
 // Initial values
@@ -116,8 +117,9 @@ export const serviceDetailAtom = atom(async (get) => {
 })
 export const taskDetailAtom = atom(async (get) => {
   const view = get(viewAtom) || {}
-  // Only fetch task details when the active view is the tasks view (used as detail)
-  if (view.id !== tasksId) return null
+  // Only fetch task details when the active view is the tasks detail view
+  // Accept both the legacy `tasks` id and the more explicit `tasksDetail`
+  if (view.id !== tasksDetailId && view.id !== tasksId) return null
   const id = view['detail']
   if (!id) return null
   return (await fetch(get(baseUrlAtom) + 'docker/tasks/' + id)).json()

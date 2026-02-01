@@ -8,4 +8,18 @@ describe('DefaultDateTimeFormat', () => {
     const s2 = toDefaultDateTimeString(d, 'en-US', 'UTC')
     expect(typeof s2).toBe('string')
   })
+
+  test('returns dash for undefined, null, and invalid dates', () => {
+    expect(toDefaultDateTimeString(undefined)).toBe('-')
+    expect(toDefaultDateTimeString(null)).toBe('-')
+    // invalid string
+    expect(toDefaultDateTimeString('not-a-date')).toBe('-')
+  })
+
+  test('accepts ISO string input and returns formatted string', () => {
+    const iso = '2021-05-06T07:08:09Z'
+    const out = toDefaultDateTimeString(iso)
+    expect(typeof out).toBe('string')
+    expect(out).not.toBe('-')
+  })
 })

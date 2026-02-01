@@ -81,7 +81,7 @@ try {
 } catch {}
 
 // During Cypress tests, ignore React development warnings about non-primitive
-// `src` props on <img> elements which are benign in this mocked environment.
+// `src` props on <img> elements.
 try {
   if (typeof window !== 'undefined' && window.Cypress) {
     const origConsoleError = console.error.bind(console)

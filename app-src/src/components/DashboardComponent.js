@@ -9,7 +9,7 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { servicesDetailId } from '../common/navigationConstants'
+import { servicesDetailId, tasksDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
 import { Table, Badge, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -22,7 +22,7 @@ import { DashboardSettingsComponent } from './DashboardSettingsComponent'
  * DashboardComponent
  * Renders the main horizontal dashboard table showing nodes and services.
  * Keys are defensive: coerced to string with fallbacks to avoid duplicate or
- * [object Object] keys when mock data is malformed.
+ * malformed object keys.
  */
 function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
@@ -132,6 +132,14 @@ function DashboardComponent() {
                             `status-idx-${id}`,
                         )
                       : `status-idx-${id}`)
+                  }
+                  style={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    updateView({
+                      id: tasksDetailId,
+                      detail: task.ID,
+                      timestamp: Date.now(),
+                    })
                   }
                 >
                   <ServiceStatusBadge

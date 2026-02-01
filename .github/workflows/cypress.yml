@@ -51,7 +51,7 @@ jobs:
 
       # Update browserslist database
       - name: Update browserslist
-        run: npx update-browserslist-db@latest
+        run: NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest
 
       # Run Cypress tests
       - name: Cypress run

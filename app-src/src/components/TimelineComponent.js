@@ -35,7 +35,7 @@ function TimelineComponent() {
       stackNameFilter ? (task.Stack || '').includes(stackNameFilter) : true,
     )
     .map((task) => {
-      // normalize timestamp fields (mock data sometimes has typos)
+      // normalize timestamp fields
       const createdRaw =
         task.CreatedTimestamp ||
         task.createdTimestamp ||

@@ -37,6 +37,7 @@ This project implements a lightweight dashboard for Docker Swarm clusters. It is
   - Use `yarn` for frontend dev tasks; CI may use `npx`/`npm` for some update commands. Node engine requirement is >=22 (see `app-src/package.json` `engines`).
   - E2E stability: Many tests rely on hash‑based navigation and `atomWithHash`. Prefer deterministic navigation in tests: either set the URL hash directly and dispatch `hashchange` or use well‑scoped `aria-label` selectors (e.g., `input[aria-label="Toggle dark mode"]`).
   - UI styling: Prefer standard Bootstrap CSS classes and utility classes where possible. Avoid creating new global CSS rules unless necessary; keep component‑scoped styles minimal and colocated. This helps maintain consistent visuals and makes selectors in E2E tests more stable.
+   - UI styling: Use standard Bootstrap CSS classes and utility classes by default; this is the preferred and expected approach. Creating new custom CSS rules (especially global rules) is allowed only as a last resort — prefer Bootstrap utilities and component-scoped styles to keep visuals consistent and tests stable. Avoid global CSS unless absolutely necessary, and document any exceptions in the PR description.
   - JSDoc: Every JavaScript file should include up-to-date JSDoc comments for exported functions, components and non-trivial logic. Keep `@param`, `@returns` and brief descriptions current to help code readers and automated tools. Example:
     ```js
     /**
@@ -122,11 +123,58 @@ If coverage is below 90% for either the frontend or server code, add or fix test
 
 If anything in this summary is unclear or you want the agent to follow a stricter pull‑request template (reproduce → patch → local tests → CI run → PR), say so and I will add a short task template to this file.
 
+**Additional agent guidance**
+
+- **Branch naming**: prefer `feature/<short-desc>`, `fix/<short-desc>` or `chore/<area>` for new work. Avoid committing directly on `master`/`main`.
+- **Pull Request template (agent checklist)**: include a short reproduction, a one‑line summary of changes, which tests were run locally, coverage results, and any backward‑compatibility considerations. Example checklist:
+  - Reproduced issue locally: yes/no
+  - Changes made: brief summary
+  - Unit tests: `cd app-src && yarn test` ✅
+  - Coverage: `cd app-src && yarn test:coverage` (report attached) ✅
+  - Linters: `cd app-src && yarn lint && yarn run lint:css` and `cd server-src && golangci-lint run ./...` ✅
+  - E2E (if applicable): `cd app-src && yarn run cy:run --spec <spec> --browser electron` ✅
+- **Local test commands (quick reference)**:
+  - Start dev app + mock API: `cd app-src && yarn start`
+  - Unit tests: `cd app-src && yarn test`
+  - Coverage: `cd app-src && yarn test:coverage`
+  - Cypress (single spec): `cd app-src && yarn run cy:run --spec cypress/e2e/settings.cy.js --browser electron`
+  - Go tests: `cd server-src && go test ./...`
+- **Cypress tips**: prefer deterministic navigation (set URL hash or use `atomWithHash`), use `aria-label` selectors when possible, and collect screenshots/dumps on CI failures (`app-src/cypress/screenshots` and `app-src/cypress/dumps`).
+- **Dependency updates**: use `yarn upgrade-interactive --latest` and run the full test matrix afterwards. For the `update-browserslist-db` CI step, prefer `NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest` to avoid peer dependency failures.
+- **Secrets & config**: Never commit secrets or credentials. Use environment variables, `.env` files ignored by git, or your CI secret store. Document required env vars in the PR if any change depends on them.
+- **Flaky tests**: when a test is flaky, reproduce locally, add deterministic selectors or timeouts, and record failure artifacts. Avoid broad test changes — prefer targeted fixes.
+- **Coverage & commit rule reminder**: The agent must not alter CI thresholds. Always reach the coverage gates locally before committing and record the commands used in the PR description.
+
 **Agent conduct**
 
 Do not run `git commit` or `git push` unless the user explicitly requests it. Avoid repeatedly prompting the user to commit or push; suggestions about committing or pushing should be occasional and only when clearly helpful.
 
 Do not push changes directly to the `master` branch. Create a feature branch and open a pull request for review; the `master` branch is protected and requires CI/status checks.
+
+**Commit Policy (required)**
+
+- **Do not change test thresholds**: The agent must never independently modify or relax CI/test thresholds (for example, coverage percentages or branch thresholds). Any change to CI-enforced quality gates requires explicit approval from a repository maintainer.
+- **Coverage must be achieved and verified before committing**: After making code changes, the agent MUST run the coverage and verify that the JavaScript and Go coverage meet the repository thresholds (see "Test coverage requirement"). If coverage falls below the required threshold, the agent must add or update tests to bring coverage back up — do not change thresholds.
+- **Checks to run before commit**: Before creating a commit the agent MUST run the following and ensure they pass:
+  - JavaScript unit tests and coverage: `cd app-src && yarn test && yarn test:coverage`
+  - Cypress tests (single spec or full suite as appropriate): `cd app-src && yarn run cy:run --spec <spec> --browser electron` or `cd app-src && yarn run cy:run --browser electron`
+  - Linters: `cd app-src && yarn lint && yarn run lint:css` and `cd server-src && golangci-lint run ./...`
+- **Commit gating**: Only create a commit after all the above checks succeed. If any check fails, fix the failure (tests, lint errors or missing coverage) and re-run the checks; do not commit until all pass.
+ - **Commit gating**: Only create a commit after all the above checks succeed. If any check fails, fix the failure (tests, lint errors or missing coverage) and re-run the checks; do not commit until all pass.
+
+**No mocks or tests in production code**
+
+- **Rule:** Do not commit mocks, test-specific helpers, or test files into production package paths or into files that are shipped with production builds. Tests and mocks must remain in test directories or in clearly marked fixtures that are excluded from production artifacts.
+- **Mandatory pre-commit check:** Before creating any commit, run a check to ensure no staged files introduce test files or mock directories into production code. Example (run from repository root):
+
+```bash
+# Fail if any staged file looks like a Go test or is inside known mock folders
+git diff --name-only --cached | grep -E '(^server-src/.*_test\.go$|^app-src/.*(_test\.js$|__mocks__/|/mock/))' && (
+  echo "ERROR: staged changes contain tests or mocks in production paths" >&2; exit 1
+) || echo "No tests/mocks detected in staged production paths"
+```
+
+- **If the check fails:** do not commit. Move test files into appropriate test-only locations, exclude them from production bundles, or open a PR describing the exception and obtain explicit maintainer approval.
 
 **Research before changes**
 

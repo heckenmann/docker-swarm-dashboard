@@ -13,6 +13,7 @@ import {
   settingsId,
   stacksId,
   tasksId,
+  tasksDetailId,
   timelineId,
   versionUpdateId,
 } from '../common/navigationConstants'
@@ -29,6 +30,7 @@ import { PortsComponent } from './PortsComponent'
 import { NodesComponent } from './NodesComponent'
 import { DetailsNodeComponent } from './DetailsNodeComponent'
 import { TasksComponent } from './TasksComponent'
+import { DetailsTaskComponent } from './DetailsTaskComponent'
 import { AboutComponent } from './AboutComponent'
 import { SettingsComponent } from './SettingsComponent'
 import { LogsComponent } from './LogsComponent'
@@ -72,6 +74,7 @@ export function ContentRouter() {
     [nodesId]: <NodesComponent />,
     [nodesDetailId]: <DetailsNodeComponent />,
     [tasksId]: <TasksComponent />,
+    [tasksDetailId]: <DetailsTaskComponent />,
     [aboutId]: <AboutComponent />,
     [settingsId]: <SettingsComponent />,
     [logsId]: <LogsComponent />,
