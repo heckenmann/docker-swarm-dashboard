@@ -160,6 +160,21 @@ Do not push changes directly to the `master` branch. Create a feature branch and
   - Cypress tests (single spec or full suite as appropriate): `cd app-src && yarn run cy:run --spec <spec> --browser electron` or `cd app-src && yarn run cy:run --browser electron`
   - Linters: `cd app-src && yarn lint && yarn run lint:css` and `cd server-src && golangci-lint run ./...`
 - **Commit gating**: Only create a commit after all the above checks succeed. If any check fails, fix the failure (tests, lint errors or missing coverage) and re-run the checks; do not commit until all pass.
+ - **Commit gating**: Only create a commit after all the above checks succeed. If any check fails, fix the failure (tests, lint errors or missing coverage) and re-run the checks; do not commit until all pass.
+
+**No mocks or tests in production code**
+
+- **Rule:** Do not commit mocks, test-specific helpers, or test files into production package paths or into files that are shipped with production builds. Tests and mocks must remain in test directories or in clearly marked fixtures that are excluded from production artifacts.
+- **Mandatory pre-commit check:** Before creating any commit, run a check to ensure no staged files introduce test files or mock directories into production code. Example (run from repository root):
+
+```bash
+# Fail if any staged file looks like a Go test or is inside known mock folders
+git diff --name-only --cached | grep -E '(^server-src/.*_test\.go$|^app-src/.*(_test\.js$|__mocks__/|/mock/))' && (
+  echo "ERROR: staged changes contain tests or mocks in production paths" >&2; exit 1
+) || echo "No tests/mocks detected in staged production paths"
+```
+
+- **If the check fails:** do not commit. Move test files into appropriate test-only locations, exclude them from production bundles, or open a PR describing the exception and obtain explicit maintainer approval.
 
 **Research before changes**
 
