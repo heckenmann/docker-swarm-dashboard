@@ -219,7 +219,10 @@ function DetailsServiceComponent() {
         </h5>
       </Card.Header>
       <Card.Body style={{ overflowY: 'auto' }}>
-        <Tabs className="mb-3" defaultActiveKey="tasks">
+        <Tabs className="mb-3" defaultActiveKey="metrics">
+          <Tab eventKey="metrics" title="Metrics">
+            <ServiceMetricsComponent serviceId={serviceObj?.ID} />
+          </Tab>
           <Tab eventKey="tasks" title="Tasks">
             <Table striped bordered hover size="sm" variant={currentVariant}>
               <thead>
@@ -239,7 +242,9 @@ function DetailsServiceComponent() {
                     onSort={handleSort}
                   />
                   <th>Memory</th>
+                  <th>Working Set</th>
                   <th>CPU</th>
+                  <th>Container ID</th>
                   <SortableHeader
                     column="CreatedAt"
                     label="Created"
@@ -259,7 +264,7 @@ function DetailsServiceComponent() {
               <tbody>
                 {metricsLoading && (
                   <tr>
-                    <td colSpan="6" className="text-center">
+                    <td colSpan="8" className="text-center">
                       <Spinner animation="border" size="sm" /> Loading metrics...
                     </td>
                   </tr>
@@ -318,6 +323,13 @@ function DetailsServiceComponent() {
                           )}
                         </td>
                         <td>
+                          {metrics && metrics.workingSet ? (
+                            <span>{formatBytes(metrics.workingSet)}</span>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                        <td>
                           {metrics && metrics.cpuUsage !== undefined ? (
                             <span>
                               {metrics.cpuUsage.toFixed(1)}s
@@ -332,6 +344,17 @@ function DetailsServiceComponent() {
                             <span className="text-muted">-</span>
                           )}
                         </td>
+                        <td>
+                          {metrics && metrics.containerId ? (
+                            <small>
+                              <code>
+                                {metrics.containerId.split('/').pop().substring(0, 12)}
+                              </code>
+                            </small>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
                         <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
                         <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
                       </tr>
@@ -339,9 +362,6 @@ function DetailsServiceComponent() {
                   })}
               </tbody>
             </Table>
-          </Tab>
-          <Tab eventKey="metrics" title="Metrics">
-            <ServiceMetricsComponent serviceId={serviceObj?.ID} />
           </Tab>
           <Tab eventKey="table" title="Table">
             <JsonTable json={sanitizedService} variant={currentVariant} />

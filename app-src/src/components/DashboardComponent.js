@@ -22,7 +22,7 @@ import { DashboardSettingsComponent } from './DashboardSettingsComponent'
  * DashboardComponent
  * Renders the main horizontal dashboard table showing nodes and services.
  * Keys are defensive: coerced to string with fallbacks to avoid duplicate or
- * [object Object] keys when mock data is malformed.
+ * malformed object keys.
  */
 function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
