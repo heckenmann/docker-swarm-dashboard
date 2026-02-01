@@ -44,16 +44,16 @@ func loadCAdvisorLabelFromEnv() {
 
 // ContainerMemoryMetrics represents memory metrics for a single container/task
 type ContainerMemoryMetrics struct {
-	ContainerID   string  `json:"containerId"`
-	TaskID        string  `json:"taskId"`
-	TaskName      string  `json:"taskName"`
-	Usage         float64 `json:"usage"`
-	WorkingSet    float64 `json:"workingSet"`
-	Limit         float64 `json:"limit"`
-	UsagePercent  float64 `json:"usagePercent"`
-	CPUUsage      float64 `json:"cpuUsage"`      // Total CPU time in seconds
-	CPUPercent    float64 `json:"cpuPercent"`    // CPU usage percentage (if limits available)
-	ServerTime    float64 `json:"serverTime"`    // Unix timestamp
+	ContainerID  string  `json:"containerId"`
+	TaskID       string  `json:"taskId"`
+	TaskName     string  `json:"taskName"`
+	Usage        float64 `json:"usage"`
+	WorkingSet   float64 `json:"workingSet"`
+	Limit        float64 `json:"limit"`
+	UsagePercent float64 `json:"usagePercent"`
+	CPUUsage     float64 `json:"cpuUsage"`   // Total CPU time in seconds
+	CPUPercent   float64 `json:"cpuPercent"` // CPU usage percentage (if limits available)
+	ServerTime   float64 `json:"serverTime"` // Unix timestamp
 }
 
 // ServiceMemoryMetrics represents aggregated memory metrics for a service
