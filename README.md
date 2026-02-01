@@ -75,6 +75,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |
 | `DSD_PATH_PREFIX` | Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path. | `/` |
 | `DSD_NODE_EXPORTER_LABEL` | Docker service label to identify node-exporter service for metrics collection. | `dsd.node-exporter` |
+| `DSD_CADVISOR_LABEL` | Docker service label to identify cAdvisor service for container memory metrics. | `dsd.cadvisor` |
 | `LOCALE` | Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag. | (system) |
 | `TZ` | [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in. | (system) |
 | `DSD_VERSION_CHECK_ENABLED` | When `true`, the system will check for updates and notify in the UI if a new version is available. | `false` |
@@ -191,6 +192,51 @@ You can customize the label used to discover node-exporter by setting:
 environment:
   DSD_NODE_EXPORTER_LABEL: "my.custom.label"
 ```
+
+### Service Memory Metrics with cAdvisor
+Docker Swarm Dashboard can display service container memory metrics from [cAdvisor](https://github.com/google/cadvisor).
+
+#### Setup cAdvisor
+Deploy `cadvisor` as a global service with the label `dsd.cadvisor` and attach it to the same overlay network as the dashboard. In this configuration cAdvisor is only reachable from other containers on the overlay network (recommended).
+
+```yaml
+cadvisor:
+  image: gcr.io/cadvisor/cadvisor:latest
+  deploy:
+    mode: global
+    labels:
+      - "dsd.cadvisor=true"
+  networks:
+    - your-network-name
+  volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:ro
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    - /dev/disk/:/dev/disk:ro
+  command:
+    - '--docker_only=true'
+    - '--housekeeping_interval=30s'
+```
+
+#### Customize Label
+You can customize the label used to discover cAdvisor by setting:
+```yaml
+environment:
+  DSD_CADVISOR_LABEL: "my.custom.label"
+```
+
+#### What Metrics Are Displayed
+The service metrics tab displays:
+- **Total Memory Usage**: Aggregate memory usage across all containers in the service
+- **Memory Limits**: Configured memory limits for each container
+- **Per-Container Breakdown**: Memory usage for each task/container in the service
+- **Usage Percentage**: Memory usage as a percentage of the configured limit
+
+cAdvisor provides more detailed, per-container metrics compared to node-level metrics. This is particularly useful for:
+- Identifying memory-hungry containers within a service
+- Monitoring services approaching their memory limits
+- Detecting potential out-of-memory (OOM) situations before they occur
 
 ### logs-generator (for testing)
 ```
