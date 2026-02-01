@@ -89,7 +89,6 @@ describe('Service Metrics Tests', () => {
       // Verify Metrics tab is active (has 'active' class or is visible)
       cy.contains('button', 'Metrics', { timeout: 5000 })
         .should('be.visible')
-        .parent()
         .should('have.class', 'active')
     })
   })
