@@ -22,6 +22,13 @@ var (
 	cadvisorLabel = ""
 )
 
+const (
+	// onePiBInBytes represents 1 PiB (pebibyte) in bytes.
+	// cAdvisor may set extremely large values (e.g., 2^64-1) when no memory limit is configured.
+	// We treat values >= 1 PiB as "no limit" to distinguish from actual configured limits.
+	onePiBInBytes = 1125899906842624
+)
+
 func init() {
 	loadCAdvisorLabelFromEnv()
 }
@@ -252,8 +259,8 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 			}
 			limit := getMetricValue(metric)
 			// cAdvisor may set extremely large values when no limit is configured
-			// Treat values > 1PB as "no limit"
-			if limit < 1125899906842624 { // 1 PiB in bytes
+			// Treat values >= 1 PiB as "no limit"
+			if limit < onePiBInBytes {
 				containerMetrics[key].Limit = limit
 			}
 		}

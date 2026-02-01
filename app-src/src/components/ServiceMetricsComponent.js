@@ -95,6 +95,19 @@ function formatBytes(bytes, decimals = 2) {
 }
 
 /**
+ * Convert bytes to megabytes
+ * @param {number} bytes - Number of bytes
+ * @returns {number} Number of megabytes
+ */
+function bytesToMB(bytes) {
+  return (bytes / 1024 / 1024).toFixed(2)
+}
+
+// Constants
+const NO_LIMIT_TEXT = 'No Limit'
+const UNKNOWN_CONTAINER_TEXT = 'Container N/A'
+
+/**
  * Component to display service memory metrics from cAdvisor
  * @param {object} props - Component props
  * @param {string} props.serviceId - The ID of the service to fetch metrics for
@@ -232,7 +245,8 @@ function ServiceMetricsComponent({ serviceId }) {
             total: {
               show: true,
               label: 'Total Limit',
-              formatter: () => (totalLimit > 0 ? formatBytes(totalLimit) : 'No Limit'),
+              formatter: () =>
+                totalLimit > 0 ? formatBytes(totalLimit) : NO_LIMIT_TEXT,
             },
           },
         },
@@ -267,7 +281,8 @@ function ServiceMetricsComponent({ serviceId }) {
     xaxis: {
       ...commonOpts.xaxis,
       categories: containerMetrics.map(
-        (c) => c.taskName || c.containerId?.substring(0, 12) || 'Unknown',
+        (c) =>
+          c.taskName || c.containerId?.substring(0, 12) || UNKNOWN_CONTAINER_TEXT,
       ),
       title: {
         text: 'Memory (MB)',
@@ -282,12 +297,12 @@ function ServiceMetricsComponent({ serviceId }) {
   const containerMemoryChartSeries = [
     {
       name: 'Used',
-      data: containerMetrics.map((c) => (c.usage / 1024 / 1024).toFixed(2)),
+      data: containerMetrics.map((c) => bytesToMB(c.usage)),
     },
     {
       name: 'Available',
       data: containerMetrics.map((c) =>
-        c.limit > 0 ? ((c.limit - c.usage) / 1024 / 1024).toFixed(2) : 0,
+        c.limit > 0 ? bytesToMB(c.limit - c.usage) : 0,
       ),
     },
   ]
@@ -310,7 +325,7 @@ function ServiceMetricsComponent({ serviceId }) {
           </Col>
           <Col xs={12} md={6}>
             <strong>Total Limit:</strong>{' '}
-            {totalLimit > 0 ? formatBytes(totalLimit) : 'No Limit'}
+            {totalLimit > 0 ? formatBytes(totalLimit) : NO_LIMIT_TEXT}
           </Col>
         </Row>
         {averagePercent > 0 && (
@@ -387,7 +402,7 @@ function ServiceMetricsComponent({ serviceId }) {
                     <td>
                       {container.limit > 0
                         ? formatBytes(container.limit)
-                        : 'No Limit'}
+                        : NO_LIMIT_TEXT}
                     </td>
                     <td
                       className={
