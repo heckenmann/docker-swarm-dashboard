@@ -10,7 +10,6 @@ import {
   servicesDetailId,
   nodesDetailId,
   tasksDetailId,
-  tasksId,
 } from '../navigationConstants'
 
 // Initial values

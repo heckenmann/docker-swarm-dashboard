@@ -31,7 +31,7 @@ function DashboardVerticalComponent() {
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
-  const [view, setView] = useAtom(viewAtom)
+  const [, setView] = useAtom(viewAtom)
 
   const theads = []
   const trows = []

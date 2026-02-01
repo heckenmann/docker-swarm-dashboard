@@ -35,7 +35,7 @@ function formatBytes(bytes, decimals = 1) {
  * Shows task information, metrics from cAdvisor, and related data.
  */
 function DetailsTaskComponent() {
-  const currentVariant = useAtomValue(currentVariantAtom)
+  useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const baseURL = useAtomValue(baseUrlAtom)
   const view = useAtomValue(viewAtom)
