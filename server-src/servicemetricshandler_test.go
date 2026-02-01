@@ -511,7 +511,7 @@ func TestServiceMetricsHandler_TaskListError(t *testing.T) {
 			},
 		},
 	}
-	
+
 	cadvisorSvc := swarm.Service{
 		ID: "s-cadvisor",
 		Spec: swarm.ServiceSpec{
@@ -825,7 +825,7 @@ func TestGetCAdvisorEndpoint_NoNetworkAttachments(t *testing.T) {
 func TestFetchMetricsFromCAdvisor_InvalidURL(t *testing.T) {
 	// Use invalid URL
 	url := "http://[::1]:99999" // Invalid port
-	
+
 	data, err := fetchMetricsFromCAdvisor(url)
 	if err == nil {
 		t.Error("Expected error for invalid URL")
@@ -841,16 +841,16 @@ func TestParseCAdvisorMetrics_CPUMetric(t *testing.T) {
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 123.5
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 `
-	
+
 	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
-	
+
 	if len(result.ContainerMetrics) != 1 {
 		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
 	}
-	
+
 	container := result.ContainerMetrics[0]
 	if container.CPUUsage != 123.5 {
 		t.Errorf("Expected CPU usage 123.5, got %f", container.CPUUsage)
@@ -867,7 +867,7 @@ func TestServiceMetricsHandler_NoRunningTasks(t *testing.T) {
 			},
 		},
 	}
-	
+
 	cadvisorSvc := swarm.Service{
 		ID: "s-cadvisor",
 		Spec: swarm.ServiceSpec{
@@ -945,7 +945,7 @@ func TestServiceMetricsHandler_FetchMetricsError(t *testing.T) {
 			},
 		},
 	}
-	
+
 	// Create mock HTTP server that returns error for metrics
 	metricsServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/metrics" {
@@ -1049,12 +1049,12 @@ func TestServiceMetricsHandler_FetchMetricsError(t *testing.T) {
 func TestParseCAdvisorMetrics_MalformedData(t *testing.T) {
 	// Invalid metric line (missing value)
 	metricsData := `container_memory_usage_bytes{id="/docker/abc123"}`
-	
+
 	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
 	if err != nil {
 		t.Fatalf("Parser should handle malformed data gracefully, got error: %v", err)
 	}
-	
+
 	// Should return empty result
 	if len(result.ContainerMetrics) != 0 {
 		t.Errorf("Expected no containers for malformed data, got %d", len(result.ContainerMetrics))
@@ -1063,517 +1063,508 @@ func TestParseCAdvisorMetrics_MalformedData(t *testing.T) {
 
 // TestFindCAdvisorService_ListError tests error handling when service list fails
 func TestFindCAdvisorService_ListError(t *testing.T) {
-server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-if r.URL.Path == "/v1.35/services" {
-w.WriteHeader(http.StatusInternalServerError)
-_, _ = w.Write([]byte(`{"message":"service list error"}`))
-return
-}
-http.NotFound(w, r)
-}))
-defer server.Close()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"service list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
 
-defer ResetCli()
-SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
-found, err := findCAdvisorService(getCli())
-if err == nil {
-t.Error("Expected error when service list fails")
+	found, err := findCAdvisorService(getCli())
+	if err == nil {
+		t.Error("Expected error when service list fails")
+	}
+	if found != nil {
+		t.Error("Expected nil service on error")
+	}
 }
-if found != nil {
-t.Error("Expected nil service on error")
-}
-}
-
 
 // TestParseCAdvisorMetrics_WorkingSetMetric tests working set metrics parsing
 func TestParseCAdvisorMetrics_WorkingSetMetric(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_memory_working_set_bytes{id="/docker/xyz789",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.2"} 52428800
 container_memory_usage_bytes{id="/docker/xyz789",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.2"} 62914560
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-if container.WorkingSet != 52428800 {
-t.Errorf("Expected working set 52428800, got %f", container.WorkingSet)
-}
+	container := result.ContainerMetrics[0]
+	if container.WorkingSet != 52428800 {
+		t.Errorf("Expected working set 52428800, got %f", container.WorkingSet)
+	}
 }
 
 // TestParseCAdvisorMetrics_LimitMetric tests limit metrics parsing
 func TestParseCAdvisorMetrics_LimitMetric(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_spec_memory_limit_bytes{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.3"} 536870912
 container_memory_usage_bytes{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.3"} 268435456
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-if container.Limit != 536870912 {
-t.Errorf("Expected limit 536870912, got %f", container.Limit)
+	container := result.ContainerMetrics[0]
+	if container.Limit != 536870912 {
+		t.Errorf("Expected limit 536870912, got %f", container.Limit)
+	}
 }
-}
-
 
 // TestGetCAdvisorEndpoint_NilService tests error handling when service is nil
 func TestGetCAdvisorEndpoint_NilService(t *testing.T) {
-server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-http.NotFound(w, r)
-}))
-defer server.Close()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
 
-defer ResetCli()
-SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
-endpoint, err := getCAdvisorEndpoint(getCli(), nil, "node-1")
-if err == nil {
-t.Error("Expected error when service is nil")
-}
-if !strings.Contains(err.Error(), "service is nil") {
-t.Errorf("Expected error about nil service, got: %v", err)
-}
-if endpoint != "" {
-t.Error("Expected empty endpoint when service is nil")
-}
+	endpoint, err := getCAdvisorEndpoint(getCli(), nil, "node-1")
+	if err == nil {
+		t.Error("Expected error when service is nil")
+	}
+	if !strings.Contains(err.Error(), "service is nil") {
+		t.Errorf("Expected error about nil service, got: %v", err)
+	}
+	if endpoint != "" {
+		t.Error("Expected empty endpoint when service is nil")
+	}
 }
 
 // TestGetCAdvisorEndpoint_PublishedPort tests using published port when target port is 0
 func TestGetCAdvisorEndpoint_PublishedPort(t *testing.T) {
-cadvisorSvc := &swarm.Service{
-ID: "s-cadvisor",
-Spec: swarm.ServiceSpec{
-Annotations: swarm.Annotations{
-Name: "cadvisor",
-},
-},
-Endpoint: swarm.Endpoint{
-Ports: []swarm.PortConfig{{
-TargetPort: 0, // Target port is 0
-PublishedPort: 9090, // Should use this
-}},
-},
-}
+	cadvisorSvc := &swarm.Service{
+		ID: "s-cadvisor",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: "cadvisor",
+			},
+		},
+		Endpoint: swarm.Endpoint{
+			Ports: []swarm.PortConfig{{
+				TargetPort:    0,    // Target port is 0
+				PublishedPort: 9090, // Should use this
+			}},
+		},
+	}
 
-// Empty task list - will use DNS fallback
-bTasks, _ := json.Marshal([]swarm.Task{})
+	// Empty task list - will use DNS fallback
+	bTasks, _ := json.Marshal([]swarm.Task{})
 
-server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-if r.URL.Path == "/v1.35/tasks" {
-w.WriteHeader(http.StatusOK)
-_, _ = w.Write(bTasks)
-return
-}
-http.NotFound(w, r)
-}))
-defer server.Close()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTasks)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
 
-defer ResetCli()
-SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
-endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
+	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	// Should use published port 9090
+	if !strings.Contains(endpoint, ":9090") {
+		t.Errorf("Expected endpoint to use port 9090, got: %s", endpoint)
+	}
 }
-// Should use published port 9090
-if !strings.Contains(endpoint, ":9090") {
-t.Errorf("Expected endpoint to use port 9090, got: %s", endpoint)
-}
-}
-
 
 // TestGetCAdvisorEndpoint_NoServiceID tests fallback when service ID is empty
 func TestGetCAdvisorEndpoint_NoServiceID(t *testing.T) {
-cadvisorSvc := &swarm.Service{
-ID: "", // Empty ID
-Spec: swarm.ServiceSpec{
-Annotations: swarm.Annotations{
-Name: "cadvisor-service",
-},
-},
-Endpoint: swarm.Endpoint{
-Ports: []swarm.PortConfig{{
-TargetPort: 8080,
-}},
-},
-}
+	cadvisorSvc := &swarm.Service{
+		ID: "", // Empty ID
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: "cadvisor-service",
+			},
+		},
+		Endpoint: swarm.Endpoint{
+			Ports: []swarm.PortConfig{{
+				TargetPort: 8080,
+			}},
+		},
+	}
 
-server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-http.NotFound(w, r)
-}))
-defer server.Close()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
 
-defer ResetCli()
-SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
-endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
+	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	// Should use DNS name fallback
+	if !strings.Contains(endpoint, "cadvisor-service") {
+		t.Errorf("Expected endpoint to contain service name, got: %s", endpoint)
+	}
 }
-// Should use DNS name fallback
-if !strings.Contains(endpoint, "cadvisor-service") {
-t.Errorf("Expected endpoint to contain service name, got: %s", endpoint)
-}
-}
-
 
 // TestParseCAdvisorMetrics_MultipleContainers tests parsing multiple containers
 func TestParseCAdvisorMetrics_MultipleContainers(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_memory_usage_bytes{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.2"} 209715200
 container_spec_memory_limit_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 524288000
 container_spec_memory_limit_bytes{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.2"} 524288000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 2 {
-t.Fatalf("Expected 2 containers, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 2 {
+		t.Fatalf("Expected 2 containers, got %d", len(result.ContainerMetrics))
+	}
 
-// Check total usage is sum of both containers
-expectedTotal := float64(104857600 + 209715200)
-if result.TotalUsage != expectedTotal {
-t.Errorf("Expected total usage %f, got %f", expectedTotal, result.TotalUsage)
+	// Check total usage is sum of both containers
+	expectedTotal := float64(104857600 + 209715200)
+	if result.TotalUsage != expectedTotal {
+		t.Errorf("Expected total usage %f, got %f", expectedTotal, result.TotalUsage)
+	}
 }
-}
-
 
 // TestParseCAdvisorMetrics_ServerTime tests parsing server time
 func TestParseCAdvisorMetrics_ServerTime(t *testing.T) {
-metricsData := `
+	metricsData := `
 node_time_seconds 1700000000
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-if container.ServerTime == 0 {
-t.Error("Expected server time to be set")
-}
+	container := result.ContainerMetrics[0]
+	if container.ServerTime == 0 {
+		t.Error("Expected server time to be set")
+	}
 }
 
 // TestParseCAdvisorMetrics_InvalidMetricsText tests invalid prometheus format
 func TestParseCAdvisorMetrics_InvalidMetricsText(t *testing.T) {
-// Completely invalid prometheus format that will cause parsing error
-metricsData := "this is not valid prometheus format {{{{"
+	// Completely invalid prometheus format that will cause parsing error
+	metricsData := "this is not valid prometheus format {{{{"
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Parser should handle invalid format gracefully, got error: %v", err)
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Parser should handle invalid format gracefully, got error: %v", err)
+	}
+	// Should return empty result when format is invalid
+	if result == nil {
+		t.Fatal("Expected non-nil result")
+	}
+	if len(result.ContainerMetrics) != 0 {
+		t.Errorf("Expected no containers for invalid format, got %d", len(result.ContainerMetrics))
+	}
 }
-// Should return empty result when format is invalid
-if result == nil {
-t.Fatal("Expected non-nil result")
-}
-if len(result.ContainerMetrics) != 0 {
-t.Errorf("Expected no containers for invalid format, got %d", len(result.ContainerMetrics))
-}
-}
-
 
 // TestParseCAdvisorMetrics_FilterByServiceID tests filtering by service ID in container ID
 func TestParseCAdvisorMetrics_FilterByServiceID(t *testing.T) {
-// Metrics with service ID in container ID path
-metricsData := `
+	// Metrics with service ID in container ID path
+	metricsData := `
 container_memory_usage_bytes{id="/docker/s-test-abc123"} 104857600
 container_spec_memory_limit_bytes{id="/docker/s-test-abc123"} 524288000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "other-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "other-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-// Should find the container because service ID is in the container ID
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container (filtered by service ID), got %d", len(result.ContainerMetrics))
-}
+	// Should find the container because service ID is in the container ID
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container (filtered by service ID), got %d", len(result.ContainerMetrics))
+	}
 }
 
 // TestGetCAdvisorEndpoint_AddressWithCIDR tests address parsing with CIDR notation
 func TestGetCAdvisorEndpoint_AddressWithCIDR(t *testing.T) {
-u, _ := url.Parse("http://127.0.0.1:9999")
-host, portStr, _ := netSplitHostPort(u.Host)
+	u, _ := url.Parse("http://127.0.0.1:9999")
+	host, portStr, _ := netSplitHostPort(u.Host)
 
-cadvisorSvc := &swarm.Service{
-ID: "s-cadvisor",
-Spec: swarm.ServiceSpec{
-Annotations: swarm.Annotations{
-Name: "cadvisor",
-},
-},
-Endpoint: swarm.Endpoint{
-Ports: []swarm.PortConfig{{
-TargetPort: uint32(parsePort(t, portStr)),
-}},
-},
-}
+	cadvisorSvc := &swarm.Service{
+		ID: "s-cadvisor",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: "cadvisor",
+			},
+		},
+		Endpoint: swarm.Endpoint{
+			Ports: []swarm.PortConfig{{
+				TargetPort: uint32(parsePort(t, portStr)),
+			}},
+		},
+	}
 
-// Task with network address in CIDR notation
-task := swarm.Task{
-ID:        "t-cadvisor",
-ServiceID: "s-cadvisor",
-NodeID:    "node-1",
-Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
-NetworksAttachments: []swarm.NetworkAttachment{{
-Addresses: []string{host + "/24"}, // CIDR notation
-}},
-}
-bTasks, _ := json.Marshal([]swarm.Task{task})
+	// Task with network address in CIDR notation
+	task := swarm.Task{
+		ID:        "t-cadvisor",
+		ServiceID: "s-cadvisor",
+		NodeID:    "node-1",
+		Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+		NetworksAttachments: []swarm.NetworkAttachment{{
+			Addresses: []string{host + "/24"}, // CIDR notation
+		}},
+	}
+	bTasks, _ := json.Marshal([]swarm.Task{task})
 
-server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-if r.URL.Path == "/v1.35/tasks" {
-w.WriteHeader(http.StatusOK)
-_, _ = w.Write(bTasks)
-return
-}
-http.NotFound(w, r)
-}))
-defer server.Close()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTasks)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
 
-defer ResetCli()
-SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
-endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
+	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	// Should strip CIDR and use the IP
+	if !strings.Contains(endpoint, host) {
+		t.Errorf("Expected endpoint to contain host %s, got: %s", host, endpoint)
+	}
 }
-// Should strip CIDR and use the IP
-if !strings.Contains(endpoint, host) {
-t.Errorf("Expected endpoint to contain host %s, got: %s", host, endpoint)
-}
-}
-
 
 // TestParseCAdvisorMetrics_CPUPercentCalculation tests CPU percent calculation
 func TestParseCAdvisorMetrics_CPUPercentCalculation(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
 container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// CPU percent should be calculated from quota/period
-if container.CPUPercent == 0 {
-t.Error("Expected CPU percent to be calculated")
-}
+	container := result.ContainerMetrics[0]
+	// CPU percent should be calculated from quota/period
+	if container.CPUPercent == 0 {
+		t.Error("Expected CPU percent to be calculated")
+	}
 }
 
 // TestGetCAdvisorEndpoint_NonRunningTask tests skipping non-running tasks
 func TestGetCAdvisorEndpoint_NonRunningTask(t *testing.T) {
-cadvisorSvc := &swarm.Service{
-ID: "s-cadvisor",
-Spec: swarm.ServiceSpec{
-Annotations: swarm.Annotations{
-Name: "cadvisor",
-},
-},
-Endpoint: swarm.Endpoint{
-Ports: []swarm.PortConfig{{
-TargetPort: 8080,
-}},
-},
-}
+	cadvisorSvc := &swarm.Service{
+		ID: "s-cadvisor",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: "cadvisor",
+			},
+		},
+		Endpoint: swarm.Endpoint{
+			Ports: []swarm.PortConfig{{
+				TargetPort: 8080,
+			}},
+		},
+	}
 
-// Task that is not running
-task := swarm.Task{
-ID:                  "t-cadvisor",
-ServiceID:           "s-cadvisor",
-NodeID:              "node-1",
-Status:              swarm.TaskStatus{State: swarm.TaskStateFailed},
-NetworksAttachments: []swarm.NetworkAttachment{{
-Addresses: []string{"10.0.0.5/24"},
-}},
-}
-bTasks, _ := json.Marshal([]swarm.Task{task})
+	// Task that is not running
+	task := swarm.Task{
+		ID:        "t-cadvisor",
+		ServiceID: "s-cadvisor",
+		NodeID:    "node-1",
+		Status:    swarm.TaskStatus{State: swarm.TaskStateFailed},
+		NetworksAttachments: []swarm.NetworkAttachment{{
+			Addresses: []string{"10.0.0.5/24"},
+		}},
+	}
+	bTasks, _ := json.Marshal([]swarm.Task{task})
 
-server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-if r.URL.Path == "/v1.35/tasks" {
-w.WriteHeader(http.StatusOK)
-_, _ = w.Write(bTasks)
-return
-}
-http.NotFound(w, r)
-}))
-defer server.Close()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTasks)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
 
-defer ResetCli()
-SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
-endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
-if err != nil {
-t.Fatalf("Unexpected error (should use DNS fallback): %v", err)
+	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	if err != nil {
+		t.Fatalf("Unexpected error (should use DNS fallback): %v", err)
+	}
+	// Should use DNS fallback when no running tasks
+	if !strings.Contains(endpoint, "cadvisor") {
+		t.Errorf("Expected DNS fallback endpoint, got: %s", endpoint)
+	}
 }
-// Should use DNS fallback when no running tasks
-if !strings.Contains(endpoint, "cadvisor") {
-t.Errorf("Expected DNS fallback endpoint, got: %s", endpoint)
-}
-}
-
 
 // TestParseCAdvisorMetrics_EmptyContainerIDSkipped tests that empty container IDs are skipped
 func TestParseCAdvisorMetrics_EmptyContainerIDSkipped(t *testing.T) {
-// Metric with empty container ID (pod-level aggregate)
-metricsData := `
+	// Metric with empty container ID (pod-level aggregate)
+	metricsData := `
 container_memory_usage_bytes{id="",container_label_com_docker_swarm_service_name="test-service"} 104857600
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 52428800
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-// Should skip empty container ID and only count the real container
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container (empty IDs skipped), got %d", len(result.ContainerMetrics))
-}
+	// Should skip empty container ID and only count the real container
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container (empty IDs skipped), got %d", len(result.ContainerMetrics))
+	}
 
-if result.ContainerMetrics[0].ContainerID != "/docker/abc123" {
-t.Errorf("Expected real container, got: %s", result.ContainerMetrics[0].ContainerID)
-}
+	if result.ContainerMetrics[0].ContainerID != "/docker/abc123" {
+		t.Errorf("Expected real container, got: %s", result.ContainerMetrics[0].ContainerID)
+	}
 }
 
 // TestParseCAdvisorMetrics_UsagePercentCalculation tests usage percent calculation
 func TestParseCAdvisorMetrics_UsagePercentCalculation(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 262144000
 container_spec_memory_limit_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 524288000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// Should calculate usage percent as (usage/limit)*100 = (262144000/524288000)*100 = 50%
-expectedPercent := 50.0
-if container.UsagePercent < expectedPercent-0.1 || container.UsagePercent > expectedPercent+0.1 {
-t.Errorf("Expected usage percent around %.1f%%, got %.2f%%", expectedPercent, container.UsagePercent)
+	container := result.ContainerMetrics[0]
+	// Should calculate usage percent as (usage/limit)*100 = (262144000/524288000)*100 = 50%
+	expectedPercent := 50.0
+	if container.UsagePercent < expectedPercent-0.1 || container.UsagePercent > expectedPercent+0.1 {
+		t.Errorf("Expected usage percent around %.1f%%, got %.2f%%", expectedPercent, container.UsagePercent)
+	}
 }
-}
-
 
 // TestParseCAdvisorMetrics_CPUQuotaOnly tests CPU quota without period
 func TestParseCAdvisorMetrics_CPUQuotaOnly(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// CPU percent should not be calculated without period
-if container.CPUPercent != 0 {
-t.Error("Expected CPU percent to be 0 when period is missing")
-}
+	container := result.ContainerMetrics[0]
+	// CPU percent should not be calculated without period
+	if container.CPUPercent != 0 {
+		t.Error("Expected CPU percent to be 0 when period is missing")
+	}
 }
 
 // TestParseCAdvisorMetrics_CPUPeriodOnly tests CPU period without quota
 func TestParseCAdvisorMetrics_CPUPeriodOnly(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// CPU percent should not be calculated without quota
-if container.CPUPercent != 0 {
-t.Error("Expected CPU percent to be 0 when quota is missing")
-}
+	container := result.ContainerMetrics[0]
+	// CPU percent should not be calculated without quota
+	if container.CPUPercent != 0 {
+		t.Error("Expected CPU percent to be 0 when quota is missing")
+	}
 }
 
 // TestParseCAdvisorMetrics_CPUZeroPeriod tests handling of zero period
 func TestParseCAdvisorMetrics_CPUZeroPeriod(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
 container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 0
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// CPU percent should not be calculated when period is 0 (avoid division by zero)
-if container.CPUPercent != 0 {
-t.Error("Expected CPU percent to be 0 when period is 0")
-}
+	container := result.ContainerMetrics[0]
+	// CPU percent should not be calculated when period is 0 (avoid division by zero)
+	if container.CPUPercent != 0 {
+		t.Error("Expected CPU percent to be 0 when period is 0")
+	}
 }
 
 // TestParseCAdvisorMetrics_CPUQuotaPeriodFiltering tests filtering by service name in CPU metrics
 func TestParseCAdvisorMetrics_CPUQuotaPeriodFiltering(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
@@ -1582,31 +1573,31 @@ container_spec_cpu_quota{id="/docker/other123",container_label_com_docker_swarm_
 container_spec_cpu_period{id="/docker/other123",container_label_com_docker_swarm_service_name="other-service",container_label_com_docker_swarm_task_name="other-service.1"} 100000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-// Should only have one container (filtered by service name)
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	// Should only have one container (filtered by service name)
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// Verify it's the correct container
-if !strings.Contains(container.ContainerID, "abc123") {
-t.Errorf("Expected container abc123, got %s", container.ContainerID)
-}
-// CPU percent should be calculated
-expectedPercent := 50.0 // (50000/100000) * 100
-if container.CPUPercent < expectedPercent-0.1 || container.CPUPercent > expectedPercent+0.1 {
-t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
-}
+	container := result.ContainerMetrics[0]
+	// Verify it's the correct container
+	if !strings.Contains(container.ContainerID, "abc123") {
+		t.Errorf("Expected container abc123, got %s", container.ContainerID)
+	}
+	// CPU percent should be calculated
+	expectedPercent := 50.0 // (50000/100000) * 100
+	if container.CPUPercent < expectedPercent-0.1 || container.CPUPercent > expectedPercent+0.1 {
+		t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
+	}
 }
 
 // TestParseCAdvisorMetrics_EmptyContainerIDInCPUMetrics tests skipping empty container IDs in CPU metrics
 func TestParseCAdvisorMetrics_EmptyContainerIDInCPUMetrics(t *testing.T) {
-metricsData := `
+	metricsData := `
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
 container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
 container_spec_cpu_quota{id="",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
@@ -1615,19 +1606,19 @@ container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_se
 container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
 `
 
-result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err != nil {
-t.Fatalf("Unexpected error: %v", err)
-}
+	result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
 
-if len(result.ContainerMetrics) != 1 {
-t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
-}
+	if len(result.ContainerMetrics) != 1 {
+		t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+	}
 
-container := result.ContainerMetrics[0]
-// CPU percent should be calculated from the non-empty container ID metrics
-expectedPercent := 70.0 // (70000/100000) * 100
-if container.CPUPercent < expectedPercent-0.1 || container.CPUPercent > expectedPercent+0.1 {
-t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
-}
+	container := result.ContainerMetrics[0]
+	// CPU percent should be calculated from the non-empty container ID metrics
+	expectedPercent := 70.0 // (70000/100000) * 100
+	if container.CPUPercent < expectedPercent-0.1 || container.CPUPercent > expectedPercent+0.1 {
+		t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
+	}
 }
