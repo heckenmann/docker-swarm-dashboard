@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/gorilla/mux"
 )
@@ -88,8 +90,11 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch metrics from cAdvisor
-	metricsURL := fmt.Sprintf("http://%s/metrics", endpoint)
+	// Fetch metrics from cAdvisor. `endpoint` may already be a full URL
+	metricsURL := endpoint
+	if !strings.HasPrefix(endpoint, "http://") && !strings.HasPrefix(endpoint, "https://") {
+		metricsURL = fmt.Sprintf("http://%s/metrics", endpoint)
+	}
 	metricsText, err := fetchMetricsFromCAdvisor(metricsURL)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to fetch metrics: %v", err)
@@ -102,8 +107,18 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Try to determine the service name (helps parseCAdvisorMetrics filter by service)
+	serviceName := ""
+	if task.ServiceID != "" {
+		f := filters.NewArgs()
+		f.Add("id", task.ServiceID)
+		if svcs, serr := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: f}); serr == nil && len(svcs) > 0 {
+			serviceName = svcs[0].Spec.Name
+		}
+	}
+
 	// Parse the metrics
-	serviceMetrics, err := parseCAdvisorMetrics(metricsText, task.ServiceID, "")
+	serviceMetrics, err := parseCAdvisorMetrics(metricsText, task.ServiceID, serviceName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to parse metrics: %v", err)
 		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
