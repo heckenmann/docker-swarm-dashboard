@@ -95,11 +95,10 @@ function TasksComponent() {
     Err: 'string',
   }
 
-  // When no sorting is selected, default to reverse timestamp order (newest first)
   const sortedTasks = sortData(
     filteredTasks,
-    sortBy || 'Timestamp',
-    sortBy ? sortDirection : 'desc',
+    sortBy,
+    sortDirection,
     columnTypes,
   )
 
@@ -156,16 +155,21 @@ function TasksComponent() {
   ))
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header>
+    <Card border={currentVariant} className={currentVariantClasses}>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
+          <FontAwesomeIcon icon="tasks" className="me-2" />
+          <strong>Tasks</strong>
+        </div>
         <FilterComponent />
       </Card.Header>
-      <Table
-        className="tasks-table mt-2"
-        variant={currentVariant}
-        striped
-        size={tableSize}
-      >
+      <Card.Body className="p-0">
+        <Table
+          className="tasks-table mb-0"
+          variant={currentVariant}
+          striped
+          size={tableSize}
+        >
         <thead>
           <tr>
             <th style={{ width: '25px' }}></th>
@@ -237,6 +241,7 @@ function TasksComponent() {
         </thead>
         <tbody>{rows}</tbody>
       </Table>
+      </Card.Body>
     </Card>
   )
 }
