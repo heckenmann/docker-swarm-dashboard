@@ -1286,11 +1286,15 @@ func TestParseCAdvisorMetrics_InvalidMetricsText(t *testing.T) {
 metricsData := "this is not valid prometheus format {{{{"
 
 result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
-if err == nil {
-t.Error("Expected error for invalid metrics format")
+if err != nil {
+t.Fatalf("Parser should handle invalid format gracefully, got error: %v", err)
 }
-if result != nil {
-t.Error("Expected nil result on parsing error")
+// Should return empty result when format is invalid
+if result == nil {
+t.Fatal("Expected non-nil result")
+}
+if len(result.ContainerMetrics) != 0 {
+t.Errorf("Expected no containers for invalid format, got %d", len(result.ContainerMetrics))
 }
 }
 
@@ -1493,3 +1497,137 @@ t.Errorf("Expected usage percent around %.1f%%, got %.2f%%", expectedPercent, co
 }
 }
 
+
+// TestParseCAdvisorMetrics_CPUQuotaOnly tests CPU quota without period
+func TestParseCAdvisorMetrics_CPUQuotaOnly(t *testing.T) {
+metricsData := `
+container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
+container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
+container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
+`
+
+result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+if err != nil {
+t.Fatalf("Unexpected error: %v", err)
+}
+
+if len(result.ContainerMetrics) != 1 {
+t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+}
+
+container := result.ContainerMetrics[0]
+// CPU percent should not be calculated without period
+if container.CPUPercent != 0 {
+t.Error("Expected CPU percent to be 0 when period is missing")
+}
+}
+
+// TestParseCAdvisorMetrics_CPUPeriodOnly tests CPU period without quota
+func TestParseCAdvisorMetrics_CPUPeriodOnly(t *testing.T) {
+metricsData := `
+container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
+container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
+container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
+`
+
+result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+if err != nil {
+t.Fatalf("Unexpected error: %v", err)
+}
+
+if len(result.ContainerMetrics) != 1 {
+t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+}
+
+container := result.ContainerMetrics[0]
+// CPU percent should not be calculated without quota
+if container.CPUPercent != 0 {
+t.Error("Expected CPU percent to be 0 when quota is missing")
+}
+}
+
+// TestParseCAdvisorMetrics_CPUZeroPeriod tests handling of zero period
+func TestParseCAdvisorMetrics_CPUZeroPeriod(t *testing.T) {
+metricsData := `
+container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
+container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
+container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
+container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 0
+`
+
+result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+if err != nil {
+t.Fatalf("Unexpected error: %v", err)
+}
+
+if len(result.ContainerMetrics) != 1 {
+t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+}
+
+container := result.ContainerMetrics[0]
+// CPU percent should not be calculated when period is 0 (avoid division by zero)
+if container.CPUPercent != 0 {
+t.Error("Expected CPU percent to be 0 when period is 0")
+}
+}
+
+// TestParseCAdvisorMetrics_CPUQuotaPeriodFiltering tests filtering by service name in CPU metrics
+func TestParseCAdvisorMetrics_CPUQuotaPeriodFiltering(t *testing.T) {
+metricsData := `
+container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
+container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
+container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
+container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
+container_spec_cpu_quota{id="/docker/other123",container_label_com_docker_swarm_service_name="other-service",container_label_com_docker_swarm_task_name="other-service.1"} 80000
+container_spec_cpu_period{id="/docker/other123",container_label_com_docker_swarm_service_name="other-service",container_label_com_docker_swarm_task_name="other-service.1"} 100000
+`
+
+result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+if err != nil {
+t.Fatalf("Unexpected error: %v", err)
+}
+
+// Should only have one container (filtered by service name)
+if len(result.ContainerMetrics) != 1 {
+t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+}
+
+container := result.ContainerMetrics[0]
+// Verify it's the correct container
+if !strings.Contains(container.ContainerID, "abc123") {
+t.Errorf("Expected container abc123, got %s", container.ContainerID)
+}
+// CPU percent should be calculated
+expectedPercent := 50.0 // (50000/100000) * 100
+if container.CPUPercent < expectedPercent-0.1 || container.CPUPercent > expectedPercent+0.1 {
+t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
+}
+}
+
+// TestParseCAdvisorMetrics_EmptyContainerIDInCPUMetrics tests skipping empty container IDs in CPU metrics
+func TestParseCAdvisorMetrics_EmptyContainerIDInCPUMetrics(t *testing.T) {
+metricsData := `
+container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100
+container_memory_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 104857600
+container_spec_cpu_quota{id="",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 50000
+container_spec_cpu_period{id="",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
+container_spec_cpu_quota{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 70000
+container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_name="test-service.1"} 100000
+`
+
+result, err := parseCAdvisorMetrics(metricsData, "s-test", "test-service")
+if err != nil {
+t.Fatalf("Unexpected error: %v", err)
+}
+
+if len(result.ContainerMetrics) != 1 {
+t.Fatalf("Expected 1 container, got %d", len(result.ContainerMetrics))
+}
+
+container := result.ContainerMetrics[0]
+// CPU percent should be calculated from the non-empty container ID metrics
+expectedPercent := 70.0 // (70000/100000) * 100
+if container.CPUPercent < expectedPercent-0.1 || container.CPUPercent > expectedPercent+0.1 {
+t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
+}
+}

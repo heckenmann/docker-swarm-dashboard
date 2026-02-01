@@ -179,7 +179,10 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 	parser := expfmt.NewTextParser(model.LegacyValidation)
 	metricFamilies, err := parser.TextToMetricFamilies(strings.NewReader(metricsText))
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse metrics: %w", err)
+		// Handle malformed data gracefully by returning empty metrics instead of error
+		return &ServiceMemoryMetrics{
+			ContainerMetrics: []ContainerMemoryMetrics{},
+		}, nil
 	}
 
 	containerMetrics := make(map[string]*ContainerMemoryMetrics)
@@ -288,6 +291,47 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 				}
 			}
 			containerMetrics[key].CPUUsage = getMetricValue(metric)
+		}
+	}
+
+	// Extract CPU quota (for calculating CPU percent)
+	cpuQuota := make(map[string]float64)
+	if quota, ok := metricFamilies["container_spec_cpu_quota"]; ok {
+		for _, metric := range quota.GetMetric() {
+			containerID, _, _, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			cpuQuota[containerID] = getMetricValue(metric)
+		}
+	}
+
+	// Extract CPU period (for calculating CPU percent)
+	cpuPeriod := make(map[string]float64)
+	if period, ok := metricFamilies["container_spec_cpu_period"]; ok {
+		for _, metric := range period.GetMetric() {
+			containerID, _, _, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			cpuPeriod[containerID] = getMetricValue(metric)
+		}
+	}
+
+	// Calculate CPU percent from quota/period
+	for containerID, cm := range containerMetrics {
+		if quota, hasQuota := cpuQuota[containerID]; hasQuota {
+			if period, hasPeriod := cpuPeriod[containerID]; hasPeriod && period > 0 {
+				// CPU percent = (quota / period) * 100
+				// This represents the percentage of a single CPU core allocated
+				cm.CPUPercent = (quota / period) * 100
+			}
 		}
 	}
 
