@@ -135,7 +135,7 @@ function DashboardComponent() {
                   }
                   style={{ cursor: 'pointer' }}
                   onClick={() =>
-                    setView({
+                    updateView({
                       id: tasksDetailId,
                       detail: task.ID,
                       timestamp: Date.now(),
