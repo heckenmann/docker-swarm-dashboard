@@ -8,9 +8,11 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
+	dto "github.com/prometheus/client_model/go"
 	"github.com/docker/docker/api/types/swarm"
 	dockclient "github.com/docker/docker/client"
 	"github.com/gorilla/mux"
@@ -891,5 +893,322 @@ node_time_seconds 1706632800
 	}
 	if parsed.System.Interrupts != 987654321 {
 		t.Errorf("Expected interrupts 987654321, got %f", parsed.System.Interrupts)
+	}
+}
+
+func TestNodeMetricsHandler_FindServiceError(t *testing.T) {
+	// Mock server that returns error when listing services
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"internal error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/nodes/node123/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "node123"})
+	w := httptest.NewRecorder()
+
+	nodeMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var response nodeMetricsResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response.Available {
+		t.Error("Expected available to be false")
+	}
+	if response.Error == nil {
+		t.Error("Expected error message")
+	}
+}
+
+func TestNodeMetricsHandler_GetEndpointError(t *testing.T) {
+	// Mock server with node-exporter service but task list error
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			services := []swarm.Service{{
+				ID: "s-exporter",
+				Spec: swarm.ServiceSpec{
+					Annotations: swarm.Annotations{
+						Name: "node-exporter",
+						Labels: map[string]string{
+							"dsd.node-exporter": "true",
+						},
+					},
+				},
+			}}
+			json.NewEncoder(w).Encode(services)
+			return
+		}
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"message":"task list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/nodes/node123/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "node123"})
+	w := httptest.NewRecorder()
+
+	nodeMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var response nodeMetricsResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	// Should have an error (either from endpoint resolution or subsequent steps)
+	if response.Error == nil && response.Message == nil {
+		t.Error("Expected error or message")
+	}
+}
+
+func TestNodeMetricsHandler_FetchMetricsError(t *testing.T) {
+	// Mock server with service and tasks but metrics fetch will fail
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			services := []swarm.Service{{
+				ID: "s-exporter",
+				Spec: swarm.ServiceSpec{
+					Annotations: swarm.Annotations{
+						Name: "node-exporter",
+						Labels: map[string]string{
+							"dsd.node-exporter": "true",
+						},
+					},
+					EndpointSpec: &swarm.EndpointSpec{
+						Ports: []swarm.PortConfig{{
+							PublishedPort: 9100,
+							TargetPort:    9100,
+						}},
+					},
+				},
+			}}
+			json.NewEncoder(w).Encode(services)
+			return
+		}
+		if r.URL.Path == "/v1.35/tasks" {
+			tasks := []swarm.Task{{
+				ID:        "task1",
+				ServiceID: "s-exporter",
+				NodeID:    "node123",
+				Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+				NetworksAttachments: []swarm.NetworkAttachment{{
+					Network: swarm.Network{ID: "net1"},
+					Addresses: []string{"10.0.0.5/24"},
+				}},
+			}}
+			json.NewEncoder(w).Encode(tasks)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/nodes/node123/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "node123"})
+	w := httptest.NewRecorder()
+
+	nodeMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var response nodeMetricsResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	// Either available=true with error (can't reach endpoint) or available=false
+	// The key is we get an error message
+	if response.Error == nil && response.Message == nil {
+		t.Error("Expected error or message about metrics fetch failure")
+	}
+}
+
+func TestNodeMetricsHandler_ParseMetricsError(t *testing.T) {
+	// Create a mock node-exporter that returns invalid metrics
+	mockExporter := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/metrics" {
+			w.WriteHeader(http.StatusOK)
+			// Invalid prometheus format
+			w.Write([]byte("this is not valid prometheus format!!!"))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer mockExporter.Close()
+
+	u, _ := url.Parse(mockExporter.URL)
+	host, portStr, _ := netSplitHostPort(u.Host)
+
+	// Mock Docker API
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			port, _ := strconv.Atoi(portStr)
+			services := []swarm.Service{{
+				ID: "s-exporter",
+				Spec: swarm.ServiceSpec{
+					Annotations: swarm.Annotations{
+						Name: "node-exporter",
+						Labels: map[string]string{
+							"dsd.node-exporter": "true",
+						},
+					},
+					EndpointSpec: &swarm.EndpointSpec{
+						Ports: []swarm.PortConfig{{
+							PublishedPort: uint32(port),
+							TargetPort:    uint32(port),
+						}},
+					},
+				},
+			}}
+			json.NewEncoder(w).Encode(services)
+			return
+		}
+		if r.URL.Path == "/v1.35/tasks" {
+			tasks := []swarm.Task{{
+				ID:        "task1",
+				ServiceID: "s-exporter",
+				NodeID:    "node123",
+				Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+				NetworksAttachments: []swarm.NetworkAttachment{{
+					Network: swarm.Network{ID: "net1"},
+					Addresses: []string{host + "/24"},
+				}},
+				Spec: swarm.TaskSpec{
+					ContainerSpec: &swarm.ContainerSpec{},
+				},
+			}}
+			json.NewEncoder(w).Encode(tasks)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/nodes/node123/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "node123"})
+	w := httptest.NewRecorder()
+
+	nodeMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var response nodeMetricsResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	// Should get an error about parsing metrics but service is available
+	if !response.Available {
+		t.Error("Expected available to be true (service exists)")
+	}
+	if response.Error == nil {
+		t.Error("Expected error message about parsing")
+	}
+}
+
+func TestGetMetricValue(t *testing.T) {
+	// Test with gauge
+	gaugeVal := 42.5
+	gauge := &dto.Metric{
+		Gauge: &dto.Gauge{Value: &gaugeVal},
+	}
+	if val := getMetricValue(gauge); val != 42.5 {
+		t.Errorf("Expected 42.5, got %f", val)
+	}
+
+	// Test with counter
+	counterVal := 100.0
+	counter := &dto.Metric{
+		Counter: &dto.Counter{Value: &counterVal},
+	}
+	if val := getMetricValue(counter); val != 100.0 {
+		t.Errorf("Expected 100.0, got %f", val)
+	}
+
+	// Test with untyped
+	untypedVal := 50.0
+	untyped := &dto.Metric{
+		Untyped: &dto.Untyped{Value: &untypedVal},
+	}
+	if val := getMetricValue(untyped); val != 50.0 {
+		t.Errorf("Expected 50.0, got %f", val)
+	}
+
+	// Test with nil metric
+	nilMetric := &dto.Metric{}
+	if val := getMetricValue(nilMetric); val != 0 {
+		t.Errorf("Expected 0 for nil metric, got %f", val)
+	}
+}
+
+func TestGetNetworkInterface(t *testing.T) {
+	// Test normal case
+	deviceName := "device"
+	eth0Value := "eth0"
+	metric := &dto.Metric{
+		Label: []*dto.LabelPair{{
+			Name:  &deviceName,
+			Value: &eth0Value,
+		}},
+	}
+	if iface := getNetworkInterface(metric); iface != "eth0" {
+		t.Errorf("Expected eth0, got %s", iface)
+	}
+
+	// Test missing device label
+	emptyMetric := &dto.Metric{
+		Label: []*dto.LabelPair{},
+	}
+	if iface := getNetworkInterface(emptyMetric); iface != "" {
+		t.Errorf("Expected empty string, got %s", iface)
+	}
+}
+
+func TestGetDiskDevice(t *testing.T) {
+	// Test normal case
+	deviceName := "device"
+	sda1Value := "sda1"
+	metric := &dto.Metric{
+		Label: []*dto.LabelPair{{
+			Name:  &deviceName,
+			Value: &sda1Value,
+		}},
+	}
+	if dev := getDiskDevice(metric); dev != "sda1" {
+		t.Errorf("Expected sda1, got %s", dev)
+	}
+
+	// Test missing device label
+	emptyMetric := &dto.Metric{
+		Label: []*dto.LabelPair{},
+	}
+	if dev := getDiskDevice(emptyMetric); dev != "" {
+		t.Errorf("Expected empty string, got %s", dev)
 	}
 }
