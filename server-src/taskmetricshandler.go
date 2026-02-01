@@ -12,10 +12,10 @@ import (
 
 // taskMetricsResponse represents the response structure for task metrics endpoint
 type taskMetricsResponse struct {
-	Available bool                     `json:"available"`
-	Metrics   *ContainerMemoryMetrics  `json:"metrics,omitempty"`
-	Error     *string                  `json:"error,omitempty"`
-	Message   *string                  `json:"message,omitempty"`
+	Available bool                    `json:"available"`
+	Metrics   *ContainerMemoryMetrics `json:"metrics,omitempty"`
+	Error     *string                 `json:"error,omitempty"`
+	Message   *string                 `json:"message,omitempty"`
 }
 
 // taskMetricsHandler returns memory and CPU metrics for a specific task from cAdvisor
@@ -30,20 +30,24 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	task, _, err := cli.TaskInspectWithRaw(context.Background(), taskID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to inspect task: %v", err)
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Error:     &errMsg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
 	// Only provide metrics for running tasks
 	if task.Status.State != swarm.TaskStateRunning {
 		msg := "Task is not running"
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Message:   &msg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -51,19 +55,23 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	cadvisorService, err := findCAdvisorService(cli)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to find cAdvisor service: %v", err)
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Error:     &errMsg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
 	if cadvisorService == nil {
 		msg := fmt.Sprintf("cAdvisor not found. Deploy with label '%s'", cadvisorLabel)
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Message:   &msg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -71,10 +79,12 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	endpoint, err := getCAdvisorEndpoint(cli, cadvisorService, task.NodeID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to get cAdvisor endpoint: %v", err)
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Error:     &errMsg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -83,10 +93,12 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricsText, err := fetchMetricsFromCAdvisor(metricsURL)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to fetch metrics: %v", err)
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Error:     &errMsg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -94,10 +106,12 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	serviceMetrics, err := parseCAdvisorMetrics(metricsText, task.ServiceID, "")
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to parse metrics: %v", err)
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Error:     &errMsg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -114,15 +128,19 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if taskMetrics == nil {
 		msg := "Metrics not available for this task"
-		json.NewEncoder(w).Encode(taskMetricsResponse{
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 			Available: false,
 			Message:   &msg,
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
-	json.NewEncoder(w).Encode(taskMetricsResponse{
+	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
 		Available: true,
 		Metrics:   taskMetrics,
-	})
+	}); err != nil {
+		http.Error(w, fmt.Sprintf("encoding response failed: %v", err), http.StatusInternalServerError)
+	}
 }

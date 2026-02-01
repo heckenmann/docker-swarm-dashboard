@@ -12,10 +12,10 @@ import (
 	"strings"
 	"testing"
 
-	dto "github.com/prometheus/client_model/go"
 	"github.com/docker/docker/api/types/swarm"
 	dockclient "github.com/docker/docker/client"
 	"github.com/gorilla/mux"
+	dto "github.com/prometheus/client_model/go"
 )
 
 // TestNodeMetricsHandler_Success verifies the full handler flow: resolve task IP, fetch metrics and parse them
@@ -901,7 +901,9 @@ func TestNodeMetricsHandler_FindServiceError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/services" {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`{"message":"internal error"}`))
+			if _, err := w.Write([]byte(`{"message":"internal error"}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -922,7 +924,9 @@ func TestNodeMetricsHandler_FindServiceError(t *testing.T) {
 	}
 
 	var response nodeMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	if response.Available {
 		t.Error("Expected available to be false")
@@ -947,12 +951,16 @@ func TestNodeMetricsHandler_GetEndpointError(t *testing.T) {
 					},
 				},
 			}}
-			json.NewEncoder(w).Encode(services)
+			if err := json.NewEncoder(w).Encode(services); err != nil {
+				t.Fatalf("failed to encode services: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/tasks" {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`{"message":"task list error"}`))
+			if _, err := w.Write([]byte(`{"message":"task list error"}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -973,7 +981,9 @@ func TestNodeMetricsHandler_GetEndpointError(t *testing.T) {
 	}
 
 	var response nodeMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	// Should have an error (either from endpoint resolution or subsequent steps)
 	if response.Error == nil && response.Message == nil {
@@ -1002,7 +1012,9 @@ func TestNodeMetricsHandler_FetchMetricsError(t *testing.T) {
 					},
 				},
 			}}
-			json.NewEncoder(w).Encode(services)
+			if err := json.NewEncoder(w).Encode(services); err != nil {
+				t.Fatalf("failed to encode services: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/tasks" {
@@ -1012,11 +1024,13 @@ func TestNodeMetricsHandler_FetchMetricsError(t *testing.T) {
 				NodeID:    "node123",
 				Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
 				NetworksAttachments: []swarm.NetworkAttachment{{
-					Network: swarm.Network{ID: "net1"},
+					Network:   swarm.Network{ID: "net1"},
 					Addresses: []string{"10.0.0.5/24"},
 				}},
 			}}
-			json.NewEncoder(w).Encode(tasks)
+			if err := json.NewEncoder(w).Encode(tasks); err != nil {
+				t.Fatalf("failed to encode tasks: %v", err)
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -1037,7 +1051,9 @@ func TestNodeMetricsHandler_FetchMetricsError(t *testing.T) {
 	}
 
 	var response nodeMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	// Either available=true with error (can't reach endpoint) or available=false
 	// The key is we get an error message
@@ -1052,7 +1068,9 @@ func TestNodeMetricsHandler_ParseMetricsError(t *testing.T) {
 		if r.URL.Path == "/metrics" {
 			w.WriteHeader(http.StatusOK)
 			// Invalid prometheus format
-			w.Write([]byte("this is not valid prometheus format!!!"))
+			if _, err := w.Write([]byte("this is not valid prometheus format!!!")); err != nil {
+				t.Fatalf("failed to write invalid metrics: %v", err)
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -1083,7 +1101,9 @@ func TestNodeMetricsHandler_ParseMetricsError(t *testing.T) {
 					},
 				},
 			}}
-			json.NewEncoder(w).Encode(services)
+			if err := json.NewEncoder(w).Encode(services); err != nil {
+				t.Fatalf("failed to encode services: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/tasks" {
@@ -1093,14 +1113,16 @@ func TestNodeMetricsHandler_ParseMetricsError(t *testing.T) {
 				NodeID:    "node123",
 				Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
 				NetworksAttachments: []swarm.NetworkAttachment{{
-					Network: swarm.Network{ID: "net1"},
+					Network:   swarm.Network{ID: "net1"},
 					Addresses: []string{host + "/24"},
 				}},
 				Spec: swarm.TaskSpec{
 					ContainerSpec: &swarm.ContainerSpec{},
 				},
 			}}
-			json.NewEncoder(w).Encode(tasks)
+			if err := json.NewEncoder(w).Encode(tasks); err != nil {
+				t.Fatalf("failed to encode tasks: %v", err)
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -1121,7 +1143,9 @@ func TestNodeMetricsHandler_ParseMetricsError(t *testing.T) {
 	}
 
 	var response nodeMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	// Should get an error about parsing metrics but service is available
 	if !response.Available {

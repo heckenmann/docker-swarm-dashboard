@@ -14,11 +14,15 @@ func TestTaskMetricsHandler_TaskNotFound(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks/nonexistent" {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{"message":"task not found"}`))
+			if _, err := w.Write([]byte(`{"message":"task not found"}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -36,7 +40,9 @@ func TestTaskMetricsHandler_TaskNotFound(t *testing.T) {
 	}
 
 	var response taskMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	if response.Available {
 		t.Error("Expected available to be false for non-existent task")
@@ -51,16 +57,20 @@ func TestTaskMetricsHandler_TaskNotRunning(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks/task123" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			if _, err := w.Write([]byte(`{
 				"ID": "task123",
 				"ServiceID": "service123",
 				"NodeID": "node123",
 				"Status": {"State": "shutdown"}
-			}`))
+			}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -78,7 +88,9 @@ func TestTaskMetricsHandler_TaskNotRunning(t *testing.T) {
 	}
 
 	var response taskMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	if response.Available {
 		t.Error("Expected available to be false for non-running task")
@@ -93,22 +105,28 @@ func TestTaskMetricsHandler_CAdvisorNotFound(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks/task123" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			if _, err := w.Write([]byte(`{
 				"ID": "task123",
 				"ServiceID": "service123",
 				"NodeID": "node123",
 				"Status": {"State": "running"}
-			}`))
+			}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/services" {
 			// Return empty services list - no cAdvisor
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[]`))
+			if _, err := w.Write([]byte(`[]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -126,7 +144,9 @@ func TestTaskMetricsHandler_CAdvisorNotFound(t *testing.T) {
 	}
 
 	var response taskMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	if response.Available {
 		t.Error("Expected available to be false when cAdvisor not found")
@@ -155,7 +175,7 @@ container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name=
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks/task123" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			if _, err := w.Write([]byte(`{
 				"ID": "task123",
 				"ServiceID": "service123",
 				"NodeID": "node123",
@@ -164,25 +184,29 @@ container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name=
 					"Network": {"ID": "net123"},
 					"Addresses": ["10.0.0.5/24"]
 				}]
-			}`))
+			}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/services" {
 			// Return cAdvisor service
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[{
+			if _, err := w.Write([]byte(`[{
 				"ID": "cadvisor123",
 				"Spec": {
 					"Name": "cadvisor",
 					"Labels": {"dsd.cadvisor": "true"}
 				}
-			}]`))
+			}]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/tasks" {
 			// Return cAdvisor tasks on the same node
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[{
+			if _, err := w.Write([]byte(`[{
 				"ID": "cadvisor-task",
 				"ServiceID": "cadvisor123",
 				"NodeID": "node123",
@@ -191,18 +215,24 @@ container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name=
 					"Network": {"ID": "net123"},
 					"Addresses": ["10.0.0.10/24"]
 				}]
-			}]`))
+			}]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
 	// Mock cAdvisor metrics endpoint
 	metricsServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(cadvisorMetrics))
+		if _, err := w.Write([]byte(cadvisorMetrics)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer metricsServer.Close()
 
@@ -220,7 +250,9 @@ container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name=
 	}
 
 	var response taskMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	// Note: This test won't actually succeed without mocking the HTTP client
 	// for fetching cAdvisor metrics, but it covers more of the handler code path
@@ -235,35 +267,43 @@ func TestTaskMetricsHandler_NoNetworkAttachments(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks/task123" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			if _, err := w.Write([]byte(`{
 				"ID": "task123",
 				"ServiceID": "service123",
 				"NodeID": "node123",
 				"Status": {"State": "running"},
 				"NetworksAttachments": []
-			}`))
+			}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/services" {
 			// Return cAdvisor service
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[{
+			if _, err := w.Write([]byte(`[{
 				"ID": "cadvisor123",
 				"Spec": {
 					"Name": "cadvisor",
 					"Labels": {"dsd.cadvisor": "true"}
 				}
-			}]`))
+			}]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/tasks" {
 			// Return cAdvisor tasks
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[]`))
+			if _, err := w.Write([]byte(`[]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -281,7 +321,9 @@ func TestTaskMetricsHandler_NoNetworkAttachments(t *testing.T) {
 	}
 
 	var response taskMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	// Should gracefully handle no network attachments
 	if response.Available {
@@ -298,14 +340,16 @@ container_memory_usage_bytes{container_label_com_docker_swarm_service_name="othe
 
 	metricsServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(cadvisorMetrics))
+		if _, err := w.Write([]byte(cadvisorMetrics)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer metricsServer.Close()
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks/task123" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			if _, err := w.Write([]byte(`{
 				"ID": "task123",
 				"ServiceID": "service123",
 				"NodeID": "node123",
@@ -314,23 +358,27 @@ container_memory_usage_bytes{container_label_com_docker_swarm_service_name="othe
 					"Network": {"ID": "net123"},
 					"Addresses": ["10.0.0.5/24"]
 				}]
-			}`))
+			}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/services" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[{
+			if _, err := w.Write([]byte(`[{
 				"ID": "cadvisor123",
 				"Spec": {
 					"Name": "cadvisor",
 					"Labels": {"dsd.cadvisor": "true"}
 				}
-			}]`))
+			}]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		if r.URL.Path == "/v1.35/tasks" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`[{
+			if _, err := w.Write([]byte(`[{
 				"ID": "cadvisor-task",
 				"ServiceID": "cadvisor123",
 				"NodeID": "node123",
@@ -339,11 +387,15 @@ container_memory_usage_bytes{container_label_com_docker_swarm_service_name="othe
 					"Network": {"ID": "net123"},
 					"Addresses": ["10.0.0.10/24"]
 				}]
-			}]`))
+			}]`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -358,12 +410,12 @@ container_memory_usage_bytes{container_label_com_docker_swarm_service_name="othe
 
 	// This will fail to connect to the mock metrics server, but covers the code path
 	var response taskMetricsResponse
-	json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
 
 	// Either gets an error or finds no matching metrics
 	if response.Available && response.Metrics != nil {
 		t.Error("Should not find metrics for non-matching task")
 	}
 }
-
-
