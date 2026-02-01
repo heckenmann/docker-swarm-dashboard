@@ -11,15 +11,28 @@ const DEFAULT_DATE_TIME_FORMAT = {
   second: '2-digit',
 }
 /**
- * Converts a Date object to a string using the default date-time format.
+ * Converts a Date object or date string to a string using the default date-time format.
  *
- * @param {Date} date - The date to format.
+ * @param {Date|string} date - The date to format (Date object or ISO string).
  * @param {string} [locale] - Optional locale string for formatting.
  * @param {string} [timeZone] - Optional time zone string for formatting.
- * @returns {string} The formatted date-time string.
+ * @returns {string} The formatted date-time string, or '-' if date is undefined/null.
  */
 export const toDefaultDateTimeString = (date, locale, timeZone) => {
-  return date.toLocaleString(
+  // Handle undefined, null, or empty values
+  if (!date) {
+    return '-'
+  }
+
+  // Convert string dates to Date objects
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+
+  // Check if valid Date object
+  if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+    return '-'
+  }
+
+  return dateObj.toLocaleString(
     locale ? locale : undefined,
     timeZone ? { timeZone: timeZone } : DEFAULT_DATE_TIME_FORMAT,
   )
