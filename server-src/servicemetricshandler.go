@@ -51,7 +51,9 @@ type ContainerMemoryMetrics struct {
 	WorkingSet    float64 `json:"workingSet"`
 	Limit         float64 `json:"limit"`
 	UsagePercent  float64 `json:"usagePercent"`
-	ServerTime    float64 `json:"serverTime"` // Unix timestamp
+	CPUUsage      float64 `json:"cpuUsage"`      // Total CPU time in seconds
+	CPUPercent    float64 `json:"cpuPercent"`    // CPU usage percentage (if limits available)
+	ServerTime    float64 `json:"serverTime"`    // Unix timestamp
 }
 
 // ServiceMemoryMetrics represents aggregated memory metrics for a service
@@ -263,6 +265,29 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 			if limit < onePiBInBytes {
 				containerMetrics[key].Limit = limit
 			}
+		}
+	}
+
+	// Extract CPU usage
+	if cpuUsage, ok := metricFamilies["container_cpu_usage_seconds_total"]; ok {
+		for _, metric := range cpuUsage.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].CPUUsage = getMetricValue(metric)
 		}
 	}
 

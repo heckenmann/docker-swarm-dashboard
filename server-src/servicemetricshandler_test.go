@@ -425,6 +425,10 @@ container_memory_working_set_bytes{id="/docker/def456",container_label_com_docke
 # TYPE container_spec_memory_limit_bytes gauge
 container_spec_memory_limit_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 524288000
 container_spec_memory_limit_bytes{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task2",container_label_com_docker_swarm_task_name="test-service.2"} 524288000
+# HELP container_cpu_usage_seconds_total Cumulative cpu time consumed in seconds.
+# TYPE container_cpu_usage_seconds_total counter
+container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 123.45
+container_cpu_usage_seconds_total{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task2",container_label_com_docker_swarm_task_name="test-service.2"} 234.56
 # HELP node_time_seconds System time in seconds since epoch (1970).
 # TYPE node_time_seconds gauge
 node_time_seconds 1706632800.123
@@ -462,6 +466,18 @@ node_time_seconds 1706632800.123
 	expectedTime := 1706632800.123
 	if parsed.ServerTime < expectedTime-0.01 || parsed.ServerTime > expectedTime+0.01 {
 		t.Errorf("Expected server time %f, got %f", expectedTime, parsed.ServerTime)
+	}
+
+	// Verify CPU metrics are present
+	hasCPU := false
+	for _, cm := range parsed.ContainerMetrics {
+		if cm.CPUUsage > 0 {
+			hasCPU = true
+			break
+		}
+	}
+	if !hasCPU {
+		t.Error("Expected at least one container to have CPU usage > 0")
 	}
 }
 

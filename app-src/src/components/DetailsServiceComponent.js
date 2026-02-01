@@ -3,17 +3,34 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   serviceDetailAtom,
+  baseUrlAtom,
+  viewAtom,
 } from '../common/store/atoms'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { Card, Tabs, Tab, Table } from 'react-bootstrap'
+import { Card, Tabs, Tab, Table, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from './JsonTable'
 import { NodeName } from './names/NodeName'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { SortableHeader } from './SortableHeader'
 import { sortData } from '../common/sortUtils'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ServiceMetricsComponent } from './ServiceMetricsComponent'
+
+/**
+ * Format bytes to human-readable format
+ * @param {number} bytes - Number of bytes
+ * @param {number} decimals - Number of decimal places
+ * @returns {string} Formatted string
+ */
+function formatBytes(bytes, decimals = 1) {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+}
 
 /**
  * Component to display the details of a service.
@@ -23,12 +40,64 @@ import { ServiceMetricsComponent } from './ServiceMetricsComponent'
 function DetailsServiceComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const baseURL = useAtomValue(baseUrlAtom)
+  const view = useAtomValue(viewAtom)
 
   const currentService = useAtomValue(serviceDetailAtom)
 
   // Local sorting state for task table
   const [sortBy, setSortBy] = useState(null)
   const [sortDirection, setSortDirection] = useState('asc')
+
+  // State for task metrics
+  const [taskMetrics, setTaskMetrics] = useState(null)
+  const [metricsLoading, setMetricsLoading] = useState(false)
+
+  // Fetch task metrics
+  useEffect(() => {
+    let mounted = true
+
+    const fetchMetrics = async () => {
+      if (!currentService?.service?.ID) return
+
+      try {
+        setMetricsLoading(true)
+        const response = await fetch(
+          `${baseURL}docker/services/${currentService.service.ID}/metrics`,
+        )
+        const data = await response.json()
+
+        if (!mounted) return
+
+        if (data.available && data.metrics && data.metrics.containers) {
+          // Create a map of task metrics by taskName or taskId
+          const metricsMap = {}
+          data.metrics.containers.forEach((container) => {
+            const key = container.taskName || container.taskId
+            if (key) {
+              metricsMap[key] = container
+            }
+          })
+          setTaskMetrics(metricsMap)
+        } else {
+          setTaskMetrics(null)
+        }
+      } catch (err) {
+        console.error('Failed to fetch task metrics:', err)
+        setTaskMetrics(null)
+      } finally {
+        if (mounted) {
+          setMetricsLoading(false)
+        }
+      }
+    }
+
+    fetchMetrics()
+
+    return () => {
+      mounted = false
+    }
+  }, [baseURL, currentService?.service?.ID, view?.timestamp])
 
   /**
    * Handle sorting when a column header is clicked
@@ -126,118 +195,171 @@ function DetailsServiceComponent() {
     columnTypes,
   )
 
+  // Helper function to get task metrics
+  const getTaskMetrics = (task) => {
+    if (!taskMetrics) return null
+    // Try to match by task name first (from Spec.Name or derived name)
+    const taskName = task.Spec?.Name || task.Name
+    if (taskName && taskMetrics[taskName]) {
+      return taskMetrics[taskName]
+    }
+    // Fall back to task ID
+    if (task.ID && taskMetrics[task.ID]) {
+      return taskMetrics[task.ID]
+    }
+    return null
+  }
+
   return (
-    <div
-      style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}
-    >
-      <Card className={currentVariantClasses}>
-        <Card.Header>
-          <h5>
-            <FontAwesomeIcon icon="folder" /> Service "
-            {serviceObj?.Spec?.Name || serviceObj?.Name || 'unknown'}"
-          </h5>
-        </Card.Header>
-        <Card.Body style={{ overflowY: 'auto' }}>
-          <Tabs className="mb-3" defaultActiveKey="metrics">
-            <Tab eventKey="metrics" title="Metrics">
-              <ServiceMetricsComponent serviceId={serviceObj?.ID} />
-            </Tab>
-            <Tab eventKey="table" title="Table">
-              <JsonTable json={sanitizedService} variant={currentVariant} />
-            </Tab>
-            <Tab eventKey="json" title="JSON">
-              <pre
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                }}
-              >
-                <code>{JSON.stringify(sanitizedService, null, '\t')}</code>
-              </pre>
-            </Tab>
-          </Tabs>
-        </Card.Body>
-      </Card>
-      <Card className={currentVariantClasses}>
-        <Card.Header>
-          <h5>
-            <FontAwesomeIcon icon="tasks" /> Tasks for this Service
-          </h5>
-        </Card.Header>
-        <Table striped bordered hover size="sm" variant={currentVariant}>
-          <thead>
-            <tr>
-              <SortableHeader
-                column="NodeName"
-                label="Node"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="State"
-                label="State"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="DesiredState"
-                label="Desired State"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="CreatedAt"
-                label="Created"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="UpdatedAt"
-                label="Updated"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-            </tr>
-          </thead>
-          <tbody>
-            {sortedTasks &&
-              sortedTasks.map((task, idx) => (
-                <tr
-                  key={
-                    (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
-                    `-${idx}`
-                  }
-                >
-                  <td>
-                    {/* Prefer full node object if present, otherwise fall back to NodeName/NodeID */}
-                    <NodeName
-                      name={task.NodeName}
-                      id={
-                        task.Node && task.Node.ID ? task.Node.ID : task.NodeID
-                      }
-                    />
-                  </td>
-                  <td>
-                    <ServiceStatusBadge
-                      id={task.ID}
-                      serviceState={task.Status?.State || task.State}
-                    />
-                  </td>
-                  <td>{task.DesiredState}</td>
-                  <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
-                  <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+    <Card className={currentVariantClasses}>
+      <Card.Header>
+        <h5>
+          <FontAwesomeIcon icon="folder" /> Service &quot;
+          {serviceObj?.Spec?.Name || serviceObj?.Name || 'unknown'}&quot;
+        </h5>
+      </Card.Header>
+      <Card.Body style={{ overflowY: 'auto' }}>
+        <Tabs className="mb-3" defaultActiveKey="tasks">
+          <Tab eventKey="tasks" title="Tasks">
+            <Table striped bordered hover size="sm" variant={currentVariant}>
+              <thead>
+                <tr>
+                  <SortableHeader
+                    column="NodeName"
+                    label="Node"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableHeader
+                    column="State"
+                    label="State"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <th>Memory</th>
+                  <th>CPU</th>
+                  <SortableHeader
+                    column="CreatedAt"
+                    label="Created"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableHeader
+                    column="UpdatedAt"
+                    label="Updated"
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
                 </tr>
-              ))}
-          </tbody>
-        </Table>
-      </Card>
-    </div>
+              </thead>
+              <tbody>
+                {metricsLoading && (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      <Spinner animation="border" size="sm" /> Loading metrics...
+                    </td>
+                  </tr>
+                )}
+                {!metricsLoading &&
+                  sortedTasks &&
+                  sortedTasks.map((task, idx) => {
+                    const metrics = getTaskMetrics(task)
+                    return (
+                      <tr
+                        key={
+                          (task && task.ID
+                            ? String(task.ID)
+                            : `task-idx-${idx}`) + `-${idx}`
+                        }
+                      >
+                        <td>
+                          <NodeName
+                            name={task.NodeName}
+                            id={
+                              task.Node && task.Node.ID
+                                ? task.Node.ID
+                                : task.NodeID
+                            }
+                          />
+                        </td>
+                        <td>
+                          <ServiceStatusBadge
+                            id={task.ID}
+                            serviceState={task.Status?.State || task.State}
+                          />
+                        </td>
+                        <td>
+                          {metrics ? (
+                            <span
+                              className={
+                                metrics.usagePercent > 90
+                                  ? 'text-danger'
+                                  : metrics.usagePercent > 75
+                                    ? 'text-warning'
+                                    : ''
+                              }
+                            >
+                              {formatBytes(metrics.usage)}
+                              {metrics.limit > 0 &&
+                                ` / ${formatBytes(metrics.limit)}`}
+                              {metrics.limit > 0 && (
+                                <small className="text-muted">
+                                  {' '}
+                                  ({metrics.usagePercent.toFixed(0)}%)
+                                </small>
+                              )}
+                            </span>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                        <td>
+                          {metrics && metrics.cpuUsage !== undefined ? (
+                            <span>
+                              {metrics.cpuUsage.toFixed(1)}s
+                              {metrics.cpuPercent !== undefined && (
+                                <small className="text-muted">
+                                  {' '}
+                                  ({metrics.cpuPercent.toFixed(0)}%)
+                                </small>
+                              )}
+                            </span>
+                          ) : (
+                            <span className="text-muted">-</span>
+                          )}
+                        </td>
+                        <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
+                        <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </Table>
+          </Tab>
+          <Tab eventKey="metrics" title="Metrics">
+            <ServiceMetricsComponent serviceId={serviceObj?.ID} />
+          </Tab>
+          <Tab eventKey="table" title="Table">
+            <JsonTable json={sanitizedService} variant={currentVariant} />
+          </Tab>
+          <Tab eventKey="json" title="JSON">
+            <pre
+              style={{
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'monospace',
+                fontSize: 12,
+              }}
+            >
+              <code>{JSON.stringify(sanitizedService, null, '\t')}</code>
+            </pre>
+          </Tab>
+        </Tabs>
+      </Card.Body>
+    </Card>
   )
 }
 

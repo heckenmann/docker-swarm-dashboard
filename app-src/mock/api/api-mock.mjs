@@ -700,6 +700,7 @@ app.get('/docker/services/:id/metrics', (req, res) => {
     const usage = Math.floor(Math.random() * 400) * 1024 * 1024 + 100 * 1024 * 1024 // 100-500 MB
     const limit = 512 * 1024 * 1024 // 512 MB limit
     const workingSet = usage * 0.9 // Working set is typically ~90% of usage
+    const cpuUsage = Math.random() * 100 + 10 // 10-110 seconds of CPU time
     
     containers.push({
       containerId: `/docker/${Math.random().toString(36).substring(2, 15)}`,
@@ -709,6 +710,8 @@ app.get('/docker/services/:id/metrics', (req, res) => {
       workingSet: workingSet,
       limit: limit,
       usagePercent: (usage / limit) * 100,
+      cpuUsage: cpuUsage,
+      cpuPercent: Math.random() * 50 + 5, // 5-55% CPU usage
       serverTime: Date.now() / 1000
     })
   }
