@@ -12,7 +12,7 @@ import {
 } from '../common/store/atoms'
 
 // Add missing UI and internal component imports
-import { Card, Table } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { ServiceName } from './names/ServiceName'
@@ -22,6 +22,7 @@ import { FilterComponent } from './FilterComponent'
 import { SortableHeader } from './SortableHeader'
 import { sortData } from '../common/sortUtils'
 import { useCallback } from 'react'
+import { tasksDetailId } from '../common/navigationConstants'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks
@@ -138,6 +139,18 @@ function TasksComponent() {
         <NodeName name={task.NodeName} id={task.NodeID} />
       </td>
       <td>{task.Err}</td>
+      <td>
+        <Button
+          size="sm"
+          variant="outline-primary"
+          onClick={() =>
+            setView({ id: tasksDetailId, detail: task.ID, timestamp: Date.now() })
+          }
+        >
+          <FontAwesomeIcon icon="info-circle" className="me-1" />
+          Details
+        </Button>
+      </td>
     </tr>
   ))
 
@@ -218,6 +231,7 @@ function TasksComponent() {
               sortDirection={sortDirection}
               onSort={handleSort}
             />
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>

@@ -6,8 +6,9 @@ import {
   serviceNameFilterAtom,
   stackNameFilterAtom,
   tableSizeAtom,
+  viewAtom,
 } from '../common/store/atoms'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { serviceFilter } from '../common/utils'
 import { Table, Card } from 'react-bootstrap'
 import { NodeName } from './names/NodeName'
@@ -15,6 +16,7 @@ import { ServiceName } from './names/ServiceName'
 import { StackName } from './names/StackName'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { DashboardSettingsComponent } from './DashboardSettingsComponent'
+import { tasksDetailId } from '../common/navigationConstants'
 
 /**
  * DashboardVerticalComponent is a React functional component that renders
@@ -29,6 +31,7 @@ function DashboardVerticalComponent() {
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
+  const [view, setView] = useAtom(viewAtom)
 
   const theads = []
   const trows = []
@@ -97,6 +100,14 @@ function DashboardVerticalComponent() {
                             `status-idx-${id}`,
                         )
                       : `status-idx-${id}`)
+                  }
+                  style={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    setView({
+                      id: tasksDetailId,
+                      detail: task.ID,
+                      timestamp: Date.now(),
+                    })
                   }
                 >
                   <ServiceStatusBadge

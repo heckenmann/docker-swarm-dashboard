@@ -51,6 +51,7 @@ func buildHandler() http.Handler {
 	apiRouter.HandleFunc("/docker/nodes/{id}/metrics", nodeMetricsHandler)
 	apiRouter.HandleFunc("/docker/tasks", dockerTasksHandler)
 	apiRouter.HandleFunc("/docker/tasks/{id}", dockerTasksDetailsHandler)
+	apiRouter.HandleFunc("/docker/tasks/{id}/metrics", taskMetricsHandler)
 	if handlingLogs {
 		apiRouter.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
 	}

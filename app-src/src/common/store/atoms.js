@@ -9,6 +9,7 @@ import {
   dashboardVId,
   servicesDetailId,
   nodesDetailId,
+  tasksDetailId,
   tasksId,
 } from '../navigationConstants'
 
@@ -116,8 +117,8 @@ export const serviceDetailAtom = atom(async (get) => {
 })
 export const taskDetailAtom = atom(async (get) => {
   const view = get(viewAtom) || {}
-  // Only fetch task details when the active view is the tasks view (used as detail)
-  if (view.id !== tasksId) return null
+  // Only fetch task details when the active view is the tasks detail view
+  if (view.id !== tasksDetailId) return null
   const id = view['detail']
   if (!id) return null
   return (await fetch(get(baseUrlAtom) + 'docker/tasks/' + id)).json()

@@ -9,7 +9,7 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { servicesDetailId } from '../common/navigationConstants'
+import { servicesDetailId, tasksDetailId } from '../common/navigationConstants'
 import { serviceFilter } from '../common/utils'
 import { Table, Badge, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -132,6 +132,14 @@ function DashboardComponent() {
                             `status-idx-${id}`,
                         )
                       : `status-idx-${id}`)
+                  }
+                  style={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    setView({
+                      id: tasksDetailId,
+                      detail: task.ID,
+                      timestamp: Date.now(),
+                    })
                   }
                 >
                   <ServiceStatusBadge
