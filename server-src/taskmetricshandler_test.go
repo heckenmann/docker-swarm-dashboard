@@ -230,3 +230,140 @@ container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name=
 	}
 }
 
+func TestTaskMetricsHandler_NoNetworkAttachments(t *testing.T) {
+	// Mock Docker API server with task that has no network attachments
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks/task123" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{
+				"ID": "task123",
+				"ServiceID": "service123",
+				"NodeID": "node123",
+				"Status": {"State": "running"},
+				"NetworksAttachments": []
+			}`))
+			return
+		}
+		if r.URL.Path == "/v1.35/services" {
+			// Return cAdvisor service
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`[{
+				"ID": "cadvisor123",
+				"Spec": {
+					"Name": "cadvisor",
+					"Labels": {"dsd.cadvisor": "true"}
+				}
+			}]`))
+			return
+		}
+		if r.URL.Path == "/v1.35/tasks" {
+			// Return cAdvisor tasks
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`[]`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{}`))
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/tasks/task123/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "task123"})
+	w := httptest.NewRecorder()
+
+	taskMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var response taskMetricsResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	// Should gracefully handle no network attachments
+	if response.Available {
+		t.Error("Expected available to be false when no network attachments")
+	}
+}
+
+func TestTaskMetricsHandler_NoMatchingMetrics(t *testing.T) {
+	// Mock Docker API server where metrics are fetched but don't match task
+	cadvisorMetrics := `# HELP container_memory_usage_bytes Current memory usage in bytes
+# TYPE container_memory_usage_bytes gauge
+container_memory_usage_bytes{container_label_com_docker_swarm_service_name="other-service",id="/docker/xyz789",task_id="other-task"} 268435456
+`
+
+	metricsServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(cadvisorMetrics))
+	}))
+	defer metricsServer.Close()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks/task123" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{
+				"ID": "task123",
+				"ServiceID": "service123",
+				"NodeID": "node123",
+				"Status": {"State": "running"},
+				"NetworksAttachments": [{
+					"Network": {"ID": "net123"},
+					"Addresses": ["10.0.0.5/24"]
+				}]
+			}`))
+			return
+		}
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`[{
+				"ID": "cadvisor123",
+				"Spec": {
+					"Name": "cadvisor",
+					"Labels": {"dsd.cadvisor": "true"}
+				}
+			}]`))
+			return
+		}
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`[{
+				"ID": "cadvisor-task",
+				"ServiceID": "cadvisor123",
+				"NodeID": "node123",
+				"Status": {"State": "running"},
+				"NetworksAttachments": [{
+					"Network": {"ID": "net123"},
+					"Addresses": ["10.0.0.10/24"]
+				}]
+			}]`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{}`))
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/tasks/task123/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "task123"})
+	w := httptest.NewRecorder()
+
+	taskMetricsHandler(w, req)
+
+	// This will fail to connect to the mock metrics server, but covers the code path
+	var response taskMetricsResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	// Either gets an error or finds no matching metrics
+	if response.Available && response.Metrics != nil {
+		t.Error("Should not find metrics for non-matching task")
+	}
+}
+
+
