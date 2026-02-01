@@ -166,6 +166,21 @@ function DetailsServiceComponent() {
 
   const sanitizedService = sanitizeAttrs(serviceObj || {})
 
+  // Helper function to get task metrics
+  const getTaskMetrics = (task) => {
+    if (!taskMetrics) return null
+    // Try to match by task name first (from Spec.Name or derived name)
+    const taskName = task.Spec?.Name || task.Name
+    if (taskName && taskMetrics[taskName]) {
+      return taskMetrics[taskName]
+    }
+    // Fall back to task ID
+    if (task.ID && taskMetrics[task.ID]) {
+      return taskMetrics[task.ID]
+    }
+    return null
+  }
+
   // Prepare tasks with sortable fields
   const tasksWithSortableFields = tasksForService.map((task) => {
     const metrics = getTaskMetrics(task)
@@ -208,21 +223,6 @@ function DetailsServiceComponent() {
     sortDirection,
     columnTypes,
   )
-
-  // Helper function to get task metrics
-  const getTaskMetrics = (task) => {
-    if (!taskMetrics) return null
-    // Try to match by task name first (from Spec.Name or derived name)
-    const taskName = task.Spec?.Name || task.Name
-    if (taskName && taskMetrics[taskName]) {
-      return taskMetrics[taskName]
-    }
-    // Fall back to task ID
-    if (task.ID && taskMetrics[task.ID]) {
-      return taskMetrics[task.ID]
-    }
-    return null
-  }
 
   return (
     <Card className={currentVariantClasses}>
