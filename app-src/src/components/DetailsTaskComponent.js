@@ -96,7 +96,7 @@ function DetailsTaskComponent() {
 
   return (
     <div>
-      <Card border={currentVariant} className={currentVariantClasses}>
+      <Card className={currentVariantClasses}>
         <Card.Header className="d-flex justify-content-between align-items-center">
           <div>
             <FontAwesomeIcon icon="tasks" className="me-2" />
