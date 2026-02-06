@@ -62,7 +62,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.1.0",
     "@fortawesome/free-regular-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
-    "@fortawesome/react-fontawesome": "^3.1.1",
+    "@fortawesome/react-fontawesome": "^3.2.0",
     "@popperjs/core": "^2.11.8",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/dom": "^10.4.1",
