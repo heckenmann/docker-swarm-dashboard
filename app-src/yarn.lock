@@ -6279,10 +6279,10 @@ json-schema@0.4.0:
   resolved "https://registry.npmjs.org/json-schema/-/json-schema-0.4.0.tgz"
   integrity sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==
 
-json-server@1.0.0-beta.9:
-  version "1.0.0-beta.9"
-  resolved "https://registry.yarnpkg.com/json-server/-/json-server-1.0.0-beta.9.tgz#f48e232e08dbb18bfb83114496dcebf8005776de"
-  integrity sha512-TCboGyNyne4reRrrLZ5tRSWd9SW5rIceHPAxL47S7PUSg/3cZm8nsYLiFNojJ8Ls8YWPmn0l8PLGpJASFLr01g==
+json-server@1.0.0-beta.10:
+  version "1.0.0-beta.10"
+  resolved "https://registry.yarnpkg.com/json-server/-/json-server-1.0.0-beta.10.tgz#f9ed2c939d007c6d8ce451c7a878bd07fac56909"
+  integrity sha512-5KstASQGIbt+yrikYIRr+xcoLOUCabbU2ZhXlZYpEmyuu+mC8E/GjKIr1Ew0Rrwafn1vkweXDkj974VhDO871w==
   dependencies:
     "@tinyhttp/app" "^3.0.1"
     "@tinyhttp/cors" "^2.0.1"
