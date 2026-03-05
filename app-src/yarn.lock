@@ -7328,10 +7328,10 @@ raw-body@~2.5.3:
     iconv-lite "~0.4.24"
     unpipe "~1.0.0"
 
-react-apexcharts@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-apexcharts/-/react-apexcharts-2.0.1.tgz#547ab44bd3f19579ed5c488f4238d85281092225"
-  integrity sha512-AN9u5C0kDAkQyMyJP6yXORexiuiaTa0GaxR5dOaF075vWLTTbQxxtYF/kXyvUo4jjtBEIe4lLoCZTo/kB3bRoA==
+react-apexcharts@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/react-apexcharts/-/react-apexcharts-2.1.0.tgz#74f05b4bf1ad24114ed53c35823b62396c55a51f"
+  integrity sha512-xrmeTKRKHh3cvvLc8SasqFjlOgIqGpyHc81qjnRtcjUM0Fu7qEjgVRWGPokGFjqhwRZVgEym8zmuEyYr5LMYIg==
   dependencies:
     prop-types "^15.8.1"
 
