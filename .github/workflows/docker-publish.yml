@@ -11,6 +11,10 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Environment variables for the Docker registry and image name
 env:
   REGISTRY: ghcr.io

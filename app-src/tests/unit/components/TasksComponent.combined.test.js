@@ -22,7 +22,7 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-const modTasks = require('../../../src/components/TasksComponent')
+const modTasks = require('../../../src/components/tasks/TasksComponent')
 const TasksComponent = modTasks.TasksComponent || modTasks.default || modTasks
 
 describe('TasksComponent (combined)', () => {

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { getStyleClassForState } from '../Helper'
+import { getStyleClassForState } from '../common/utils/taskStateUtils'
 import PropTypes from 'prop-types'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
 import { useAtomValue } from 'jotai'

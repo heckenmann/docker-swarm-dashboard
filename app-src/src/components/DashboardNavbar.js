@@ -1,4 +1,4 @@
-import logo from '../files/docker.png'
+import logo from '../assets/docker.png'
 import { useEffect } from 'react'
 import { RefreshIntervalToggleReducer } from '../common/store/reducers'
 import {

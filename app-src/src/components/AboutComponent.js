@@ -5,9 +5,9 @@ import {
   versionAtom,
   viewAtom,
 } from '../common/store/atoms'
-import JbSquare from '../files/jb_square.svg'
-import GoLandIcon from '../files/GoLand_icon.svg'
-import WebStormIcon from '../files/WebStorm_icon.svg'
+import JbSquare from '../assets/jb_square.svg'
+import GoLandIcon from '../assets/GoLand_icon.svg'
+import WebStormIcon from '../assets/WebStorm_icon.svg'
 import { debugId } from '../common/navigationConstants'
 import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

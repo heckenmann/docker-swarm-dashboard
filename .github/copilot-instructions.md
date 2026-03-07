@@ -14,9 +14,12 @@ This project implements a lightweight dashboard for Docker Swarm clusters. It is
 
 - Key files & where to look first
   - `app-src/package.json` — scripts, Cypress commands, dependencies (use `yarn`). Important scripts: `start`, `start-dev-server`, `start-api-mock`, `cy:run`.
-  - `app-src/src/` — React components. Settings UI: `app-src/src/components/SettingsComponent.js` and state persistence in `app-src/src/common/store/atoms.js` (uses `atomWithHash`).
+  - `app-src/src/` — React components. Settings UI: `app-src/src/components/settings/SettingsComponent.js` and state persistence in `app-src/src/common/store/atoms.js` (uses `atomWithHash`).
+  - `app-src/src/components/` — organised in **feature folders**: `layout/`, `dashboard/`, `services/`, `nodes/`, `tasks/`, `stacks/`, `ports/`, `logs/`, `settings/`, `shared/`, `timeline/`, `misc/`. See "Frontend folder structure" below for the full map.
+  - `app-src/src/common/` — organised into `constants/`, `hooks/`, `utils/` and `store/`. Legacy shim files at the old top-level paths re-export from the new locations (marked `@deprecated`).
   - `app-src/cypress/e2e/` — E2E specs (notably `settings.cy.js` which is currently fragile). Dumps and screenshots useful for debugging live failures are in `app-src/cypress/dumps/` and `app-src/cypress/screenshots/`.
-  - `server-src/` — Go HTTP handlers (handlers for nodes, services, tasks, logs, etc.) and unit tests. `server-src/go.mod` shows Docker‑related dependencies (`github.com/docker/docker`) and gorilla packages.
+  - `server-src/` — Go HTTP handlers (snake_case file names, e.g. `docker_nodes_handler.go`) and unit tests. `server-src/go.mod` shows Docker‑related dependencies (`github.com/docker/docker`) and gorilla packages.
+  - `server-src/internal/` — extracted Go sub-packages: `internal/docker` (Docker client wrapper) and `internal/version` (version checker with caching).
   - `.github/workflows/cypress.yml` — CI flow for running Cypress; note the `Update browserslist` step which has caused `npm` peer‑dependency issues in the past.
   - `.devcontainer/` — devcontainer config; `devcontainer.json` and `init.sh` contain development‑only setup (bash completions added here). Prefer modifying `init.sh` or `postCreateCommand` for developer-only changes instead of the application `Dockerfile`.
 
@@ -78,6 +81,87 @@ Document the impact analysis and test decisions in the PR description so reviewe
   - Settings toggle selector: `input[aria-label="Toggle dark mode"]` (used in `app-src/src/components/SettingsComponent.js`).
   - E2E helper wrapper: `app-src/cypress/e2e/spec.cy.js` defines visit helpers and shared timeouts.
   - CI browserslist step: `.github/workflows/cypress.yml` — consider `NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest` if CI fails with peer errors.
+
+---
+
+**Frontend folder structure**
+
+Components live in feature-based sub-folders under `app-src/src/components/`:
+
+```
+components/
+  layout/       – ContentRouter, DashboardNavbar, LoadingBar, LoadingComponent
+  dashboard/    – DashboardComponent, DashboardVerticalComponent, DashboardSettingsComponent
+  services/     – DetailsServiceComponent, ServiceMetricsComponent, ServiceStatusBadge
+    details/    – ServiceTasksTab
+  nodes/        – NodesComponent, DetailsNodeComponent, NodeMetricsComponent
+    details/    – NodeTasksTab
+    metrics/    – NodeCpuSection, NodeDiskIOSection, NodeFilesystemNetworkSection,
+                  NodeInfoHeader, NodeMemorySection, NodeSystemSection
+  tasks/        – TasksComponent, DetailsTaskComponent
+    details/    – TaskInfoTable, TaskMetricsContent
+  stacks/       – StacksComponent
+  ports/        – PortsComponent
+  logs/         – LogsComponent, LogsActiveControls, LogsOutput, LogsSetupForm, SinceInput, logsUtils
+  settings/     – SettingsComponent
+  shared/       – FilterComponent, JsonTable, SortableHeader, WelcomeMessageComponent
+    names/      – EntityName, NameActions, NodeName, ServiceName, StackName
+  timeline/     – TimelineComponent
+  misc/         – AboutComponent, DebugComponent, VersionUpdateComponent
+```
+
+Shared utilities are in `app-src/src/common/`:
+
+```
+common/
+  constants/    – dockerTaskStates.js, navigationConstants.js, DefaultDateTimeFormat.js
+  hooks/        – useEntityActions.js
+  utils/        – chartUtils.js, formatUtils.js, sortUtils.js, taskStateUtils.js, utils.js
+  store/        – atoms.js (Jotai atom definitions)
+  actions/      – entityActions.js (@deprecated re-export shim)
+```
+
+Static assets (images, SVGs) are in `app-src/src/assets/` (downloaded via `postinstall` / `download-files.js`).
+
+**Backend folder structure**
+
+Go source files in `server-src/` use **snake_case** naming:
+
+```
+server-src/
+  main.go                             – entry point, HTTP router, Docker client wiring
+  docker_nodes_handler.go             – /docker/nodes endpoint
+  docker_services_handler.go          – /docker/services endpoint
+  docker_service_logs_handler.go      – /docker/logs (websocket)
+  docker_tasks_handler.go             – /docker/tasks endpoint
+  …                                   – other handlers follow the same pattern
+  services_helper.go                  – shared helpers (e.g. extractReplicationFromService)
+  version_handler.go                  – /version endpoint (delegates to internal/version)
+  version_checker.go                  – thin shim, see internal/version/checker.go
+  internal/
+    docker/
+      client.go                       – GetCli / SetCli / ResetCli (Docker SDK wrapper)
+    version/
+      checker.go                      – CheckVersion with cache, semver comparison
+      checker_test.go                 – full coverage tests for version logic
+```
+
+Naming convention: `<domain>_<resource>_handler.go` for handlers, `<domain>_<resource>_handler_test.go` for tests. All test files sit next to their source in the same directory.
+
+**Migration & refactoring patterns**
+
+- **Re-export shims for backwards compatibility**: When moving a module to a new path, the old file is replaced with a `@deprecated` re-export shim (e.g. `export * from '../hooks/useEntityActions'`). This keeps existing imports working while consumers are migrated. Remove shims once all references point directly to the new paths.
+- **Always use `git mv`**: When moving or renaming files, always use `git mv` so git tracks the operation as a rename. Never use plain `mv`/`cp` followed by manual delete — this loses git history and makes reviews harder.
+- **Import depth changes**: Moving a component one level deeper (e.g. `components/X.js` → `components/feature/X.js`) means its relative imports to `common/` change from `../common/` to `../../common/`. Update all relative imports inside the moved file. Also update any test files that reference the moved component.
+- **Combined test file ordering**: The project uses `*.combined.test.js` files that `require()` multiple test modules. **Order matters**: modules that import real library exports (e.g. `createStore` from `jotai`) must be required **before** modules with top-level `jest.mock('jotai', ...)`, because `jest.mock` hoisting contaminates the module registry for all subsequent `require()` calls in the same file.
+- **jest.spyOn must target the actual module**: When a component imports from path A, spying on a re-export shim at path B will fail with "Cannot redefine property". Always `require()` the same module the component under test actually imports from.
+
+**Known gotchas discovered during refactoring**
+
+- **Prettier vs long import lines**: When a refactoring changes import paths to be longer, Prettier may require line-breaking the import. Run `yarn lint` after any path changes and fix formatting errors before committing.
+- **LogsComponent re-export path**: `LogsComponent.js` re-exports `isValidSince` from `./logsUtils`. If the logs files are rearranged, this relative path must be updated — it previously pointed at `./logs/logsUtils` which was invalid after the merge into the `logs/` folder.
+- **Go internal/ package access**: Only code within the `server-src/` module can import `internal/` packages. The main package delegates to `internal/docker` and `internal/version` via thin wrapper functions. Test helpers that previously tested unexported functions in `package main` (e.g. `getLocalVersion`, `getCacheTimeout`) must be moved into the corresponding `internal/` package test files.
+- **Go coverage across sub-packages**: `go test -coverprofile` only covers the package being tested. Use `go test ./... -coverprofile=coverage.out` and check `go tool cover -func=coverage.out | tail -1` for the aggregate. The `internal/docker` package may show 0% (no test files) — this is acceptable as it contains only trivial getter/setter wrappers.
 
 ---
 

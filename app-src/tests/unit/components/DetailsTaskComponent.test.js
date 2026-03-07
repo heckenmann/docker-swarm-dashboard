@@ -13,19 +13,19 @@ jest.mock('../../../src/common/store/atoms', () => ({
 }))
 
 // Mock components used inside DetailsTaskComponent
-jest.mock('../../../src/components/JsonTable', () => ({
+jest.mock('../../../src/components/shared/JsonTable', () => ({
   JsonTable: () => <div data-testid="json-table">JsonTable Mock</div>,
 }))
 
-jest.mock('../../../src/components/names/NodeName', () => ({
+jest.mock('../../../src/components/shared/names/NodeName', () => ({
   NodeName: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
 }))
 
-jest.mock('../../../src/components/names/ServiceName', () => ({
+jest.mock('../../../src/components/shared/names/ServiceName', () => ({
   ServiceName: ({ name, id }) => <span data-testid="service-name">{name || id}</span>,
 }))
 
-jest.mock('../../../src/components/ServiceStatusBadge', () => ({
+jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
   __esModule: true,
   default: ({ serviceState }) => <span data-testid="status-badge">{serviceState}</span>,
 }))
@@ -42,7 +42,7 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-const mod = require('../../../src/components/DetailsTaskComponent')
+const mod = require('../../../src/components/tasks/DetailsTaskComponent')
 const DetailsTaskComponent =
   mod.DetailsTaskComponent || mod.default || mod
 
@@ -63,7 +63,9 @@ const mkTask = (id = 'task-1') => ({
   ID: id,
   Spec: { Name: `service.1` },
   ServiceID: 'svc-1',
+  ServiceName: 'my-service',
   NodeID: 'node-1',
+  NodeName: 'my-node',
   Status: {
     State: 'running',
     ContainerStatus: { ContainerID: 'abc123' },
@@ -117,6 +119,28 @@ describe('DetailsTaskComponent', () => {
 
     await act(async () => render(<DetailsTaskComponent />))
     expect(screen.getByText(/Task Information/i)).toBeInTheDocument()
+  })
+
+  test('ServiceName and NodeName receive correct name+id props and render names', async () => {
+    mockUseAtomValue.mockImplementation(baseAtomValues(mkTask()))
+    global.fetch.mockResolvedValue({ json: async () => mkMetrics() })
+
+    await act(async () => render(<DetailsTaskComponent />))
+    // ServiceName mock renders `name || id`; name='my-service'
+    expect(screen.getByTestId('service-name')).toHaveTextContent('my-service')
+    // NodeName mock renders `name || id`; name='my-node'
+    expect(screen.getByTestId('node-name')).toHaveTextContent('my-node')
+  })
+
+  test('ServiceStatusBadge receives serviceState prop and renders state text', async () => {
+    mockUseAtomValue.mockImplementation(baseAtomValues(mkTask()))
+    global.fetch.mockResolvedValue({ json: async () => mkMetrics() })
+
+    await act(async () => render(<DetailsTaskComponent />))
+    // Both the card header badge and the table badge should show 'running'
+    const badges = screen.getAllByTestId('status-badge')
+    expect(badges.length).toBeGreaterThanOrEqual(1)
+    badges.forEach((badge) => expect(badge).toHaveTextContent('running'))
   })
 
   test('shows loading text while metrics are loading', async () => {

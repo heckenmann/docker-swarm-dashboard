@@ -5,7 +5,7 @@ import * as atoms from '../../../src/common/store/atoms'
 
 describe('ServiceName and NameActions logs button', () => {
   test('NameActions exposes logs button and calls onLogs', () => {
-    const NameActions = require('../../../src/components/names/NameActions')
+    const NameActions = require('../../../src/components/shared/names/NameActions')
       .NameActions
     const onLogs = jest.fn()
     render(
@@ -24,7 +24,7 @@ describe('ServiceName and NameActions logs button', () => {
   })
 
   test('ServiceName clicking logs sets logs atoms and updates view', async () => {
-    const ServiceName = require('../../../src/components/names/ServiceName')
+    const ServiceName = require('../../../src/components/shared/names/ServiceName')
       .ServiceName
 
     const initial = [

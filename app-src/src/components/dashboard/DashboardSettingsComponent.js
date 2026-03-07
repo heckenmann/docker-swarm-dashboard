@@ -1,0 +1,54 @@
+import { useAtom } from 'jotai'
+import { dashboardHId, dashboardVId } from '../../common/navigationConstants'
+import {
+  currentVariantAtom,
+  dashboardSettingsDefaultLayoutViewIdAtom,
+  viewAtom,
+} from '../../common/store/atoms'
+import { useAtomValue } from 'jotai'
+import { Row, Col, Form, ButtonGroup, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FilterComponent } from '../shared/FilterComponent'
+
+/**
+ * DashboardSettingsComponent is a React functional component that renders
+ * the settings for the dashboard, including layout options and a filter component.
+ */
+function DashboardSettingsComponent() {
+  const [view, updateViewId] = useAtom(viewAtom)
+  const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
+  const variant = useAtomValue(currentVariantAtom)
+
+  const vertical =
+    view?.id === dashboardVId || (!view?.id && defaultLayout === dashboardVId)
+
+  return (
+    <>
+      <Row className="align-items-start">
+        <Col xs="auto">
+          <Form className="mb-2" data-bs-theme={variant}>
+            <ButtonGroup>
+              <Button
+                variant={`${vertical ? 'outline-' : ''}secondary`}
+                onClick={() => updateViewId({ id: dashboardHId })}
+              >
+                <FontAwesomeIcon icon="grip" />
+              </Button>
+              <Button
+                variant={`${vertical ? '' : 'outline-'}secondary`}
+                onClick={() => updateViewId({ id: dashboardVId })}
+              >
+                <FontAwesomeIcon icon="grip-vertical" />
+              </Button>
+            </ButtonGroup>
+          </Form>
+        </Col>
+        <Col xs={7}>
+          <FilterComponent />
+        </Col>
+      </Row>
+    </>
+  )
+}
+
+export { DashboardSettingsComponent }
