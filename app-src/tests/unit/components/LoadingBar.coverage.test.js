@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, act, waitFor } from '@testing-library/react'
 import { Provider } from 'jotai'
-import LoadingBar from '../../../src/components/LoadingBar'
+import LoadingBar from '../../../src/components/layout/LoadingBar'
 import * as atoms from '../../../src/common/store/atoms'
 
 jest.useFakeTimers()

@@ -42,7 +42,7 @@ jest.mock('react-use-websocket', () => {
 })
 
 // Require the component under test so JSX <LogsComponent /> resolves
-const modLogs = require('../../../src/components/LogsComponent')
+const modLogs = require('../../../src/components/logs/LogsComponent')
 const LogsComponent = modLogs.LogsComponent || modLogs.default || modLogs
 
 function Pusher({ message }) {

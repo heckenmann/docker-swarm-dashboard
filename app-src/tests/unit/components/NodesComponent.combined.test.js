@@ -17,7 +17,7 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-const modNodes = require('../../../src/components/NodesComponent')
+const modNodes = require('../../../src/components/nodes/NodesComponent')
 const NodesComponent = modNodes.NodesComponent || modNodes.default || modNodes
 
 describe('NodesComponent (combined)', () => {

@@ -1,7 +1,7 @@
 // Combined tests for PortsComponent
 import { render, screen, fireEvent } from '@testing-library/react'
 
-const modPorts = require('../../../src/components/PortsComponent')
+const modPorts = require('../../../src/components/ports/PortsComponent')
 const PortsComponent = modPorts.PortsComponent || modPorts.default || modPorts
 
 jest.mock('../../../src/common/store/atoms', () => ({

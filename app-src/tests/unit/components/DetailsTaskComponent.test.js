@@ -13,19 +13,19 @@ jest.mock('../../../src/common/store/atoms', () => ({
 }))
 
 // Mock components used inside DetailsTaskComponent
-jest.mock('../../../src/components/JsonTable', () => ({
+jest.mock('../../../src/components/shared/JsonTable', () => ({
   JsonTable: () => <div data-testid="json-table">JsonTable Mock</div>,
 }))
 
-jest.mock('../../../src/components/names/NodeName', () => ({
+jest.mock('../../../src/components/shared/names/NodeName', () => ({
   NodeName: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
 }))
 
-jest.mock('../../../src/components/names/ServiceName', () => ({
+jest.mock('../../../src/components/shared/names/ServiceName', () => ({
   ServiceName: ({ name, id }) => <span data-testid="service-name">{name || id}</span>,
 }))
 
-jest.mock('../../../src/components/ServiceStatusBadge', () => ({
+jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
   __esModule: true,
   default: ({ serviceState }) => <span data-testid="status-badge">{serviceState}</span>,
 }))
@@ -42,7 +42,7 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-const mod = require('../../../src/components/DetailsTaskComponent')
+const mod = require('../../../src/components/tasks/DetailsTaskComponent')
 const DetailsTaskComponent =
   mod.DetailsTaskComponent || mod.default || mod
 

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-const modFilter = require('../../../src/components/FilterComponent')
+const modFilter = require('../../../src/components/shared/FilterComponent')
 const FilterComponent =
   modFilter.FilterComponent || modFilter.default || modFilter
 

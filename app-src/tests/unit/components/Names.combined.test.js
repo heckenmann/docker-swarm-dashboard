@@ -3,13 +3,13 @@ import { render, screen, fireEvent } from '@testing-library/react'
 
 describe('Name-related components combined', () => {
   test('StackName renders and calls onFilter', () => {
-    const entityActions = require('../../../src/common/actions/entityActions')
+    const entityActions = require('../../../src/common/hooks/useEntityActions')
     const onFilter = jest.fn()
     jest
       .spyOn(entityActions, 'useEntityActions')
       .mockReturnValue({ onOpen: jest.fn(), onFilter })
     const StackName =
-      require('../../../src/components/names/StackName').StackName
+      require('../../../src/components/shared/names/StackName').StackName
     render(React.createElement(StackName, { name: 'stackA' }))
     expect(screen.getByText('stackA')).toBeInTheDocument()
     const filterBtn = screen.getByTitle('Filter stack: stackA')
@@ -20,7 +20,7 @@ describe('Name-related components combined', () => {
 
   test('ServiceName renders and supports overlay/hide behavior', () => {
     const ServiceName =
-      require('../../../src/components/names/ServiceName').ServiceName
+      require('../../../src/components/shared/names/ServiceName').ServiceName
     const { queryByTitle, rerender } = render(
       React.createElement(ServiceName, { name: 'svc1', id: 'id1' }),
     )
@@ -40,12 +40,12 @@ describe('Name-related components combined', () => {
   })
 
   test('NodeName renders and calls onOpen', () => {
-    const entityActions = require('../../../src/common/actions/entityActions')
+    const entityActions = require('../../../src/common/hooks/useEntityActions')
     const onOpen = jest.fn()
     jest
       .spyOn(entityActions, 'useEntityActions')
       .mockReturnValue({ onOpen, onFilter: jest.fn() })
-    const NodeName = require('../../../src/components/names/NodeName').NodeName
+    const NodeName = require('../../../src/components/shared/names/NodeName').NodeName
     render(React.createElement(NodeName, { name: 'node1', id: 'nid' }))
     expect(screen.getByText('node1')).toBeInTheDocument()
     const openBtn = screen.getByTitle('Open node: node1')
@@ -55,14 +55,14 @@ describe('Name-related components combined', () => {
   })
 
   test('NodeName returns null when name is empty', () => {
-    const NodeName = require('../../../src/components/names/NodeName').NodeName
+    const NodeName = require('../../../src/components/shared/names/NodeName').NodeName
     const { container } = render(React.createElement(NodeName, { name: '' }))
     expect(container.firstChild).toBeNull()
   })
 
   test('NameActions renders buttons and supports entityType', () => {
     const NameActions =
-      require('../../../src/components/names/NameActions').NameActions
+      require('../../../src/components/shared/names/NameActions').NameActions
     const onOpen = jest.fn()
     const onFilter = jest.fn()
     render(
@@ -103,7 +103,7 @@ describe('Name-related components combined', () => {
 
   test('EntityName composes name and actions and calls handlers', () => {
     const EntityName =
-      require('../../../src/components/names/EntityName').EntityName
+      require('../../../src/components/shared/names/EntityName').EntityName
     const onOpen = jest.fn()
     const onFilter = jest.fn()
     render(
@@ -124,7 +124,7 @@ describe('Name-related components combined', () => {
   })
 
   test('EntityName renders provided nameNode and uses ms-0 when no actions requested', () => {
-    const EntityName = require('../../../src/components/names/EntityName').EntityName
+    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
     const nameNode = React.createElement('span', {}, 'CUSTOM')
     const { container } = render(
       React.createElement(EntityName, {
@@ -144,7 +144,7 @@ describe('Name-related components combined', () => {
   })
 
   test('ms-1 used when any action is enabled (showLogs)', () => {
-    const EntityName = require('../../../src/components/names/EntityName').EntityName
+    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
     const { container } = render(
       React.createElement(EntityName, {
         name: 'e3',

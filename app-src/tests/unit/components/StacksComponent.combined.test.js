@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-const modStacks = require('../../../src/components/StacksComponent')
+const modStacks = require('../../../src/components/stacks/StacksComponent')
 const StacksComponent =
   modStacks.StacksComponent || modStacks.default || modStacks
 
