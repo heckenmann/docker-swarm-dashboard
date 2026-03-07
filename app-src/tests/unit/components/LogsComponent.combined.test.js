@@ -502,6 +502,51 @@ describe('LogsComponent (combined)', () => {
     expect(screen.getByText(/something failed/)).toBeInTheDocument()
   })
 
+  test('search keyword with regex metacharacters does not throw and matches literally', async () => {
+    function MetacharSetter() {
+      const [, setShowLogs] = useAtom(atoms.logsShowLogsAtom)
+      const [, setConfig] = useAtom(atoms.logsConfigAtom)
+      const [, setServiceId] = useAtom(atoms.logsFormServiceIdAtom)
+      const [, setLines] = useAtom(atoms.logsLinesAtom)
+      useEffect(() => {
+        setServiceId('s1')
+        setConfig({ serviceId: 's1', serviceName: 'svc', tail: '20', since: '1h', follow: false })
+        // Line contains literal brackets and asterisk that are RegExp metacharacters
+        setLines(['INFO: value=[42] count=*3', 'INFO: unrelated line'])
+        setShowLogs(true)
+      }, [setShowLogs, setConfig, setServiceId, setLines])
+      return null
+    }
+
+    render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+          ]}
+        >
+          <MetacharSetter />
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Log output')).toBeInTheDocument(),
+    )
+
+    const input = screen.getByLabelText('Search log lines')
+    // typing '[42]' — the '[' is a RegExp metacharacter that previously threw SyntaxError
+    fireEvent.change(input, { target: { value: '[42]' } })
+
+    // Matching line must still be visible; unrelated line hidden; no throw
+    await waitFor(() =>
+      expect(screen.queryByText('INFO: unrelated line')).not.toBeInTheDocument(),
+    )
+    expect(screen.getByLabelText('Log output')).toBeInTheDocument()
+  })
+
   test('clear button removes keyword and shows all lines again', async () => {
     function ShowLogsSetter() {
       const [, setShowLogs] = useAtom(atoms.logsShowLogsAtom)

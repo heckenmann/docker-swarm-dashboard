@@ -11,6 +11,16 @@ import {
 } from '../../common/store/atoms'
 
 /**
+ * Escape all RegExp metacharacters in a string so it can be used as a
+ * literal pattern inside `new RegExp()`.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
  * LogsOutput renders the live log display: filtered and highlighted log lines,
  * a match counter when a keyword is active, and Copy / Download actions.
  * Reads Jotai atoms directly; no props required.
@@ -51,7 +61,7 @@ function LogsOutput() {
           const isErr = /stderr|error|ERROR/.test(l)
           const highlightedLine =
             keyword && l.toLowerCase().includes(keyword)
-              ? l.split(new RegExp(`(${keyword})`, 'gi')).map((part, pi) =>
+              ? l.split(new RegExp(`(${escapeRegExp(keyword)})`, 'gi')).map((part, pi) =>
                   part.toLowerCase() === keyword ? (
                     <mark key={pi} className="bg-warning px-0">
                       {part}
