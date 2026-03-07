@@ -50,7 +50,7 @@ jobs:
 
       # Set up Docker Buildx for multi-platform builds
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # Install cosign for signing images, skip on pull requests
       - name: Install cosign
