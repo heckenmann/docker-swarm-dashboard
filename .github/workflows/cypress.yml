@@ -1,59 +1,92 @@
-# Workflow to run Cypress tests on multiple architectures, Node.js versions, and browsers
+# Workflow to run Cypress tests on multiple architectures and browsers
 name: Cypress
 
-# Environment variables for working directory
 env:
   WORKING_DIRECTORY: ./app-src
+  NODE_VERSION: '22'
 
 # Trigger the workflow on pull request or manual dispatch
 on:
   workflow_dispatch:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # Job to run Cypress tests
-  cypress-run:
-    # Use matrix-defined runners, Node versions, and browsers
+  # Install dependencies and update browserslist once per runner architecture,
+  # then cache the result for all matrix browser jobs to share.
+  prep:
+    name: Install & update browserslist (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
-    # Define matrix for parallel execution
     strategy:
-      # Continue other jobs if one fails
-      fail-fast: false
       matrix:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        node-version: ['24']
-        browser: ['firefox', 'electron']
-        include:
-          - runner: ubuntu-24.04
-            browser: chromium
-            node-version: '24'
-          - runner: ubuntu-24.04
-            browser: edge
-            node-version: '24'
-    # Set default working directory for all run steps
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIRECTORY }}
     steps:
-      # Check out the repository code
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
 
-      # Install global dependencies
-      - name: Install global dependencies
-        run: yarn global add concurrently
+      - name: Cache node modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.yarn/cache
+            **/node_modules
+          key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
 
-      # Update browserslist database
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
       - name: Update browserslist
         run: NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest
 
-      # Run Cypress tests
+  # Run Cypress tests across all browsers; restore the cache written by prep.
+  cypress-run:
+    needs: prep
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        browser: ['firefox', 'electron']
+        include:
+          - runner: ubuntu-24.04
+            browser: chromium
+          - runner: ubuntu-24.04
+            browser: edge
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node modules cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.yarn/cache
+            **/node_modules
+          key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
+
       - name: Cypress run
         uses: cypress-io/github-action@v7
         with:
@@ -62,9 +95,17 @@ jobs:
           install-command: yarn --frozen-lockfile
           command: yarn run cy:run --browser ${{ matrix.browser }}
           wait-on: 'http://localhost:3000'
-  
+
+  # Gate job for Required Status Checks – always runs so branch protection
+  # never stalls when cypress-run is skipped.
   cypress-tests-passed:
     needs: cypress-run
     runs-on: ubuntu-latest
+    if: always()
     steps:
-      - run: echo "All cypress-tests jobs completed successfully"
+      - name: Check Cypress results
+        run: |
+          if [[ "${{ needs.cypress-run.result }}" == "failure" ]]; then
+            echo "Cypress tests failed" && exit 1
+          fi
+          echo "Cypress tests passed"
