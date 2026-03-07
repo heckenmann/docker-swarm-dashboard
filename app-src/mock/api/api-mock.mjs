@@ -492,15 +492,26 @@ app.get('/docker/tasks/:id/metrics', (req, res) => {
     return
   }
   
-  // Return mock metrics for the task
+  // Return mock metrics for the task (wrapped in {available, metrics})
   res.json({
-    usage: 268435456, // 256 MB
-    workingSet: 201326592, // ~192 MB
-    limit: 536870912, // 512 MB
-    usagePercent: 50.0,
-    cpuUsage: 123.45,
-    cpuPercent: 45.0,
-    containerId: `docker://abc123def456ghi789jkl012mno345pqr678stu901vwx234yz${taskId.substring(0, 8)}`
+    available: true,
+    metrics: {
+      usage: 268435456,           // 256 MB
+      workingSet: 201326592,      // ~192 MB
+      memoryCache: 20971520,      // 20 MB page cache
+      limit: 536870912,           // 512 MB
+      usagePercent: 50.0,
+      cpuUsage: 123.45,
+      cpuUserSeconds: 88.12,
+      cpuSystemSeconds: 35.33,
+      cpuPercent: 45.0,
+      networkRxBytes: 123456789,
+      networkTxBytes: 98765432,
+      fsUsage: 524288000,         // ~500 MB used
+      fsLimit: 10737418240,       // 10 GB limit
+      containerId: `docker://abc123def456ghi789jkl012mno345pqr678stu901vwx234yz${taskId.substring(0, 8)}`,
+      serverTime: Date.now() / 1000
+    }
   })
 })
 
@@ -610,6 +621,8 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         total: 8589934592,        // 8GB
         free: 2147483648,         // 2GB
         available: 4294967296,    // 4GB
+        buffers: 134217728,       // 128 MB buffers
+        cached: 1073741824,       // 1 GB cached
         swapTotal: 2147483648,    // 2GB swap
         swapFree: 1073741824,     // 1GB free
         swapUsed: 1073741824,     // 1GB used
@@ -691,7 +704,10 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         contextSwitches: 123456789,
         interrupts: 987654321,
         procsRunning: 3,
-        procsBlocked: 0
+        procsBlocked: 0,
+        entropyAvailBits: 3584,
+        pageFaults: 12345678,
+        majorPageFaults: 42
       },
       tcp: {
         alloc: 512,
@@ -732,7 +748,14 @@ app.get('/docker/services/:id/metrics', (req, res) => {
       limit: limit,
       usagePercent: (usage / limit) * 100,
       cpuUsage: cpuUsage,
+      cpuUserSeconds: cpuUsage * 0.71,
+      cpuSystemSeconds: cpuUsage * 0.29,
       cpuPercent: Math.random() * 50 + 5, // 5-55% CPU usage
+      memoryCache: usage * 0.08,
+      networkRxBytes: Math.floor(Math.random() * 500000000) + 50000000,
+      networkTxBytes: Math.floor(Math.random() * 300000000) + 20000000,
+      fsUsage: Math.floor(Math.random() * 2) * 1024 * 1024 * 1024 + 256 * 1024 * 1024,
+      fsLimit: 10 * 1024 * 1024 * 1024,
       serverTime: Date.now() / 1000
     })
   }

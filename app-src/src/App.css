@@ -400,8 +400,14 @@ ul li {
 .name-open-btn:focus,
 .name-logs-btn:hover,
 .name-logs-btn:focus {
+  /* Explicitly override Bootstrap's .btn-primary:hover which injects color:#fff
+     and a blue border. --text resolves to the body text colour in both light
+     (≈#212529) and dark (≈#e6eef8) modes, keeping the icon readable. */
+  color: var(--text, #495057);
   text-decoration: none;
   background: transparent;
+  border-color: transparent;
+  box-shadow: none;
   opacity: 1;
 }
 
