@@ -2,8 +2,9 @@ name: Go - test server-src
 
 on:
   push:
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
