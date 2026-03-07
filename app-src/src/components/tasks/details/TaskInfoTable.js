@@ -41,7 +41,10 @@ function TaskInfoTable({ taskObj }) {
               <strong>State</strong>
             </td>
             <td>
-              <ServiceStatusBadge serviceState={taskObj.Status?.State} />
+              <ServiceStatusBadge
+                id={taskObj.ID}
+                serviceState={taskObj.Status?.State}
+              />
             </td>
           </tr>
           <tr>
