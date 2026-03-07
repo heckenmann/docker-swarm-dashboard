@@ -1483,7 +1483,7 @@ func TestFetchMetricsFromNodeExporter_BodyReadError(t *testing.T) {
 			return
 		}
 		// Send HTTP 200 with Content-Length of 1000 but close without sending body
-		conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: 1000\r\n\r\n"))
+		_, _ = conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: 1000\r\n\r\n"))
 		conn.Close()
 	}()
 
