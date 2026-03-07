@@ -100,7 +100,7 @@ jobs:
       # Build and push platform-specific Docker image
       - name: Build and push Docker image
         id: build-and-push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           # Push only for non-pull-request events
