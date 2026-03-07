@@ -110,7 +110,7 @@ function DashboardComponent() {
               {node['Tasks'][service['ID']].map((task, id) => (
                 <li
                   key={
-                    'li-' +
+                    'badge-' +
                     (task && task.NodeID
                       ? String(task.NodeID)
                       : `node-idx-${id}`) +
@@ -119,12 +119,10 @@ function DashboardComponent() {
                       ? String(task.ServiceID)
                       : `svc-idx-${id}`) +
                     '-' +
-                    // include the map index to guarantee uniqueness even if ID repeats
                     (task && task.ID
                       ? String(task.ID) + `-${id}`
                       : `task-idx-${id}`) +
                     '-' +
-                    // prefer a primitive status marker; fall back to index
                     (task && task.Status
                       ? String(
                           task.Status?.Timestamp ??

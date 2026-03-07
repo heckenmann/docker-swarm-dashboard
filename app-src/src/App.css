@@ -102,6 +102,9 @@
   white-space: nowrap;
 }
 
+/* Vertical dashboard layout uses the same svc-index* classes as the
+   horizontal dashboard; no special-case centering rules are required. */
+
 /* Ensure the replication column keeps a reasonable min width so it doesn't collide */
 .dashboard-table [style] {
   min-width: 120px;
@@ -355,22 +358,6 @@ ul li {
   padding: 0;
 }
 
-/* Make any badges inside table body fill the entire cell width */
-.dashboard-table td .badge,
-.dashboard-table td .badge.w-100 {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  padding-right: .25rem;
-  padding-left: .25rem;
-  margin: 0;
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 /* Center content in service columns vertically */
 .dashboard-table tbody [class*="svc-index-"] {
   text-align: center;
@@ -426,7 +413,7 @@ ul li {
 /* Body-specific offsets if needed may be added here later. Shared rules above
     apply to both header and body buttons for consistent styling. */
 
-/* Override Bootstrap fade transition for longer animation */
+
 .fade {
   opacity: 0;
   transition: opacity .2s ease-in;
