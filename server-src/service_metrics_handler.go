@@ -120,9 +120,9 @@ func getCAdvisorEndpoint(cli *client.Client, service *swarm.Service, nodeID stri
 
 	// Try to find a task for this service running on the requested node and read its network address
 	serviceID := service.ID
-	if serviceID == "" && service.Spec.Annotations.Name != "" {
+	if serviceID == "" && service.Spec.Name != "" {
 		// Fallback to service name DNS when ID is not available (tests)
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 	}
 
 	f := filters.NewArgs()
@@ -133,8 +133,8 @@ func getCAdvisorEndpoint(cli *client.Client, service *swarm.Service, nodeID stri
 
 	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
 	if err != nil {
-		if service.Spec.Annotations.Name != "" {
-			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+		if service.Spec.Name != "" {
+			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 		}
 		return "", fmt.Errorf("failed to list tasks: %w", err)
 	}
@@ -154,8 +154,8 @@ func getCAdvisorEndpoint(cli *client.Client, service *swarm.Service, nodeID stri
 		}
 	}
 
-	if service.Spec.Annotations.Name != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+	if service.Spec.Name != "" {
+		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 	}
 
 	return "", fmt.Errorf("no task address found for service %s on node %s", serviceID, nodeID)
