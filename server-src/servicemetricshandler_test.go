@@ -421,6 +421,10 @@ container_memory_usage_bytes{id="/docker/def456",container_label_com_docker_swar
 # TYPE container_memory_working_set_bytes gauge
 container_memory_working_set_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 94371840
 container_memory_working_set_bytes{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task2",container_label_com_docker_swarm_task_name="test-service.2"} 188743680
+# HELP container_memory_cache Page cache memory
+# TYPE container_memory_cache gauge
+container_memory_cache{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 10485760
+container_memory_cache{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task2",container_label_com_docker_swarm_task_name="test-service.2"} 20971520
 # HELP container_spec_memory_limit_bytes Memory limit for the container
 # TYPE container_spec_memory_limit_bytes gauge
 container_spec_memory_limit_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 524288000
@@ -429,6 +433,24 @@ container_spec_memory_limit_bytes{id="/docker/def456",container_label_com_docker
 # TYPE container_cpu_usage_seconds_total counter
 container_cpu_usage_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 123.45
 container_cpu_usage_seconds_total{id="/docker/def456",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task2",container_label_com_docker_swarm_task_name="test-service.2"} 234.56
+# HELP container_cpu_user_seconds_total Cumulative user cpu time consumed in seconds.
+# TYPE container_cpu_user_seconds_total counter
+container_cpu_user_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 88.12
+# HELP container_cpu_system_seconds_total Cumulative system cpu time consumed in seconds.
+# TYPE container_cpu_system_seconds_total counter
+container_cpu_system_seconds_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1"} 35.33
+# HELP container_network_receive_bytes_total Cumulative count of bytes received
+# TYPE container_network_receive_bytes_total counter
+container_network_receive_bytes_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1",interface="eth0"} 123456789
+# HELP container_network_transmit_bytes_total Cumulative count of bytes transmitted
+# TYPE container_network_transmit_bytes_total counter
+container_network_transmit_bytes_total{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1",interface="eth0"} 98765432
+# HELP container_fs_usage_bytes Number of bytes that are consumed by the container on this filesystem
+# TYPE container_fs_usage_bytes gauge
+container_fs_usage_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1",device="/dev/sda"} 524288000
+# HELP container_fs_limit_bytes Number of bytes that can be consumed by the container on this filesystem
+# TYPE container_fs_limit_bytes gauge
+container_fs_limit_bytes{id="/docker/abc123",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task1",container_label_com_docker_swarm_task_name="test-service.1",device="/dev/sda"} 10737418240
 # HELP node_time_seconds System time in seconds since epoch (1970).
 # TYPE node_time_seconds gauge
 node_time_seconds 1706632800.123
@@ -478,6 +500,39 @@ node_time_seconds 1706632800.123
 	}
 	if !hasCPU {
 		t.Error("Expected at least one container to have CPU usage > 0")
+	}
+
+	// Verify new fields: find container abc123
+	var abc123 *ContainerMemoryMetrics
+	for i := range parsed.ContainerMetrics {
+		if strings.Contains(parsed.ContainerMetrics[i].ContainerID, "abc123") {
+			abc123 = &parsed.ContainerMetrics[i]
+			break
+		}
+	}
+	if abc123 == nil {
+		t.Fatal("Expected to find container abc123 in parsed metrics")
+	}
+	if abc123.MemoryCache == 0 {
+		t.Error("Expected MemoryCache > 0 for abc123")
+	}
+	if abc123.CPUUserSeconds == 0 {
+		t.Error("Expected CPUUserSeconds > 0 for abc123")
+	}
+	if abc123.CPUSystemSeconds == 0 {
+		t.Error("Expected CPUSystemSeconds > 0 for abc123")
+	}
+	if abc123.NetworkRxBytes == 0 {
+		t.Error("Expected NetworkRxBytes > 0 for abc123")
+	}
+	if abc123.NetworkTxBytes == 0 {
+		t.Error("Expected NetworkTxBytes > 0 for abc123")
+	}
+	if abc123.FSUsage == 0 {
+		t.Error("Expected FSUsage > 0 for abc123")
+	}
+	if abc123.FSLimit == 0 {
+		t.Error("Expected FSLimit > 0 for abc123")
 	}
 }
 

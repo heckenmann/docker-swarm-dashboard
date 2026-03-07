@@ -46,6 +46,8 @@ type MemoryMetrics struct {
 	Total           float64 `json:"total"`
 	Free            float64 `json:"free"`
 	Available       float64 `json:"available"`
+	Buffers         float64 `json:"buffers"`  // Kernel buffer memory
+	Cached          float64 `json:"cached"`   // Page cache (reclaimable)
 	SwapTotal       float64 `json:"swapTotal"`
 	SwapFree        float64 `json:"swapFree"`
 	SwapUsed        float64 `json:"swapUsed"`
@@ -94,16 +96,19 @@ type NTPMetrics struct {
 
 // SystemMetrics represents system-level metrics
 type SystemMetrics struct {
-	Load1           float64 `json:"load1"`
-	Load5           float64 `json:"load5"`
-	Load15          float64 `json:"load15"`
-	BootTime        float64 `json:"bootTime"`
-	UptimeSeconds   float64 `json:"uptimeSeconds"`
-	NumCPUs         int     `json:"numCPUs"`
-	ContextSwitches float64 `json:"contextSwitches"`
-	Interrupts      float64 `json:"interrupts"`
-	ProcsRunning    float64 `json:"procsRunning"`
-	ProcsBlocked    float64 `json:"procsBlocked"`
+	Load1            float64 `json:"load1"`
+	Load5            float64 `json:"load5"`
+	Load15           float64 `json:"load15"`
+	BootTime         float64 `json:"bootTime"`
+	UptimeSeconds    float64 `json:"uptimeSeconds"`
+	NumCPUs          int     `json:"numCPUs"`
+	ContextSwitches  float64 `json:"contextSwitches"`
+	Interrupts       float64 `json:"interrupts"`
+	ProcsRunning     float64 `json:"procsRunning"`
+	ProcsBlocked     float64 `json:"procsBlocked"`
+	EntropyAvailBits float64 `json:"entropyAvailBits"` // Kernel entropy pool (instantaneous gauge)
+	PageFaults       float64 `json:"pageFaults"`       // Total page faults since boot
+	MajorPageFaults  float64 `json:"majorPageFaults"`  // Total major page faults since boot
 }
 
 // TCPMetrics represents TCP connection metrics
@@ -328,6 +333,18 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	if parsed.Memory.SwapTotal > 0 {
 		parsed.Memory.SwapUsed = parsed.Memory.SwapTotal - parsed.Memory.SwapFree
 		parsed.Memory.SwapUsedPercent = (parsed.Memory.SwapUsed / parsed.Memory.SwapTotal) * 100
+	}
+
+	// Extract buffer and page-cache memory (both are reclaimable)
+	if memBuffers, ok := metricFamilies["node_memory_Buffers_bytes"]; ok {
+		if len(memBuffers.GetMetric()) > 0 {
+			parsed.Memory.Buffers = getMetricValue(memBuffers.GetMetric()[0])
+		}
+	}
+	if memCached, ok := metricFamilies["node_memory_Cached_bytes"]; ok {
+		if len(memCached.GetMetric()) > 0 {
+			parsed.Memory.Cached = getMetricValue(memCached.GetMetric()[0])
+		}
 	}
 
 	// Extract filesystem metrics
@@ -609,6 +626,25 @@ func parsePrometheusMetrics(metricsText string) (*ParsedMetrics, error) {
 	if interrupts, ok := metricFamilies["node_intr_total"]; ok {
 		if len(interrupts.GetMetric()) > 0 {
 			parsed.System.Interrupts = getMetricValue(interrupts.GetMetric()[0])
+		}
+	}
+
+	// Extract entropy available bits (instantaneous gauge, useful for cryptography health)
+	if entropy, ok := metricFamilies["node_entropy_available_bits"]; ok {
+		if len(entropy.GetMetric()) > 0 {
+			parsed.System.EntropyAvailBits = getMetricValue(entropy.GetMetric()[0])
+		}
+	}
+
+	// Extract page fault counters (cumulative since boot)
+	if pgFault, ok := metricFamilies["node_vmstat_pgfault"]; ok {
+		if len(pgFault.GetMetric()) > 0 {
+			parsed.System.PageFaults = getMetricValue(pgFault.GetMetric()[0])
+		}
+	}
+	if pgMajFault, ok := metricFamilies["node_vmstat_pgmajfault"]; ok {
+		if len(pgMajFault.GetMetric()) > 0 {
+			parsed.System.MajorPageFaults = getMetricValue(pgMajFault.GetMetric()[0])
 		}
 	}
 

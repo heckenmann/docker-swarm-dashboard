@@ -775,6 +775,11 @@ node_procs_running 3
 node_procs_blocked 0
 node_context_switches_total 123456789
 node_intr_total 987654321
+node_entropy_available_bits 3584
+node_vmstat_pgfault 12345678
+node_vmstat_pgmajfault 42
+node_memory_Buffers_bytes 134217728
+node_memory_Cached_bytes 1073741824
 node_time_seconds 1706632800
 `
 
@@ -893,6 +898,23 @@ node_time_seconds 1706632800
 	}
 	if parsed.System.Interrupts != 987654321 {
 		t.Errorf("Expected interrupts 987654321, got %f", parsed.System.Interrupts)
+	}
+
+	// Verify new fields: entropy, page faults, buffers, cached
+	if parsed.System.EntropyAvailBits != 3584 {
+		t.Errorf("Expected entropy 3584, got %f", parsed.System.EntropyAvailBits)
+	}
+	if parsed.System.PageFaults != 12345678 {
+		t.Errorf("Expected page faults 12345678, got %f", parsed.System.PageFaults)
+	}
+	if parsed.System.MajorPageFaults != 42 {
+		t.Errorf("Expected major page faults 42, got %f", parsed.System.MajorPageFaults)
+	}
+	if parsed.Memory.Buffers != 134217728 {
+		t.Errorf("Expected buffers 134217728, got %f", parsed.Memory.Buffers)
+	}
+	if parsed.Memory.Cached != 1073741824 {
+		t.Errorf("Expected cached 1073741824, got %f", parsed.Memory.Cached)
 	}
 }
 

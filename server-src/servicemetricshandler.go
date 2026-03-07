@@ -44,16 +44,23 @@ func loadCAdvisorLabelFromEnv() {
 
 // ContainerMemoryMetrics represents memory metrics for a single container/task
 type ContainerMemoryMetrics struct {
-	ContainerID  string  `json:"containerId"`
-	TaskID       string  `json:"taskId"`
-	TaskName     string  `json:"taskName"`
-	Usage        float64 `json:"usage"`
-	WorkingSet   float64 `json:"workingSet"`
-	Limit        float64 `json:"limit"`
-	UsagePercent float64 `json:"usagePercent"`
-	CPUUsage     float64 `json:"cpuUsage"`   // Total CPU time in seconds
-	CPUPercent   float64 `json:"cpuPercent"` // CPU usage percentage (if limits available)
-	ServerTime   float64 `json:"serverTime"` // Unix timestamp
+	ContainerID      string  `json:"containerId"`
+	TaskID           string  `json:"taskId"`
+	TaskName         string  `json:"taskName"`
+	Usage            float64 `json:"usage"`
+	WorkingSet       float64 `json:"workingSet"`
+	MemoryCache      float64 `json:"memoryCache"`      // File-backed / cache pages
+	Limit            float64 `json:"limit"`
+	UsagePercent     float64 `json:"usagePercent"`
+	CPUUsage         float64 `json:"cpuUsage"`          // Total CPU time in seconds
+	CPUUserSeconds   float64 `json:"cpuUserSeconds"`    // User-space CPU time in seconds
+	CPUSystemSeconds float64 `json:"cpuSystemSeconds"`  // Kernel-space CPU time in seconds
+	CPUPercent       float64 `json:"cpuPercent"`        // CPU usage as % of quota
+	NetworkRxBytes   float64 `json:"networkRxBytes"`    // Total received bytes across all interfaces
+	NetworkTxBytes   float64 `json:"networkTxBytes"`    // Total transmitted bytes across all interfaces
+	FSUsage          float64 `json:"fsUsage"`           // Container filesystem usage in bytes
+	FSLimit          float64 `json:"fsLimit"`           // Container filesystem limit in bytes
+	ServerTime       float64 `json:"serverTime"`        // Unix timestamp
 }
 
 // ServiceMemoryMetrics represents aggregated memory metrics for a service
@@ -321,6 +328,160 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 				continue
 			}
 			cpuPeriod[containerID] = getMetricValue(metric)
+		}
+	}
+
+	// Extract memory cache (file-backed pages)
+	if memCache, ok := metricFamilies["container_memory_cache"]; ok {
+		for _, metric := range memCache.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].MemoryCache = getMetricValue(metric)
+		}
+	}
+
+	// Extract container network bytes received (sum across all interfaces)
+	if netRx, ok := metricFamilies["container_network_receive_bytes_total"]; ok {
+		for _, metric := range netRx.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].NetworkRxBytes += getMetricValue(metric)
+		}
+	}
+
+	// Extract container network bytes transmitted (sum across all interfaces)
+	if netTx, ok := metricFamilies["container_network_transmit_bytes_total"]; ok {
+		for _, metric := range netTx.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].NetworkTxBytes += getMetricValue(metric)
+		}
+	}
+
+	// Extract container CPU user time
+	if cpuUser, ok := metricFamilies["container_cpu_user_seconds_total"]; ok {
+		for _, metric := range cpuUser.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].CPUUserSeconds += getMetricValue(metric)
+		}
+	}
+
+	// Extract container CPU system time
+	if cpuSys, ok := metricFamilies["container_cpu_system_seconds_total"]; ok {
+		for _, metric := range cpuSys.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].CPUSystemSeconds += getMetricValue(metric)
+		}
+	}
+
+	// Extract container filesystem usage (sum all devices per container)
+	if fsUsage, ok := metricFamilies["container_fs_usage_bytes"]; ok {
+		for _, metric := range fsUsage.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].FSUsage += getMetricValue(metric)
+		}
+	}
+
+	// Extract container filesystem limit (sum all devices per container)
+	if fsLimit, ok := metricFamilies["container_fs_limit_bytes"]; ok {
+		for _, metric := range fsLimit.GetMetric() {
+			containerID, taskID, taskName, svcName := extractSwarmLabels(metric)
+			if svcName != serviceName && !strings.Contains(containerID, serviceID) {
+				continue
+			}
+			if containerID == "" {
+				continue
+			}
+			key := containerID
+			if containerMetrics[key] == nil {
+				containerMetrics[key] = &ContainerMemoryMetrics{
+					ContainerID: containerID,
+					TaskID:      taskID,
+					TaskName:    taskName,
+				}
+			}
+			containerMetrics[key].FSLimit += getMetricValue(metric)
 		}
 	}
 
