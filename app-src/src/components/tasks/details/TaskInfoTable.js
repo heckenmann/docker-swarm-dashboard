@@ -25,7 +25,7 @@ function TaskInfoTable({ taskObj }) {
               <strong>Service</strong>
             </td>
             <td>
-              <ServiceName serviceId={taskObj.ServiceID} />
+              <ServiceName name={taskObj.ServiceName} id={taskObj.ServiceID} />
             </td>
           </tr>
           <tr>
@@ -33,7 +33,7 @@ function TaskInfoTable({ taskObj }) {
               <strong>Node</strong>
             </td>
             <td>
-              <NodeName nodeId={taskObj.NodeID} />
+              <NodeName name={taskObj.NodeName} id={taskObj.NodeID} />
             </td>
           </tr>
           <tr>
@@ -41,7 +41,7 @@ function TaskInfoTable({ taskObj }) {
               <strong>State</strong>
             </td>
             <td>
-              <ServiceStatusBadge state={taskObj.Status?.State} />
+              <ServiceStatusBadge serviceState={taskObj.Status?.State} />
             </td>
           </tr>
           <tr>

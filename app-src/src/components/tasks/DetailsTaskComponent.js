@@ -71,7 +71,7 @@ function DetailsTaskComponent() {
             <FontAwesomeIcon icon="tasks" className="me-2" />
             <strong>Task Details</strong>
           </div>
-          <ServiceStatusBadge state={currentTask.Status?.State} />
+          <ServiceStatusBadge serviceState={currentTask.Status?.State} />
         </Card.Header>
         <Card.Body>
           <Tabs defaultActiveKey="metrics" className="mb-3">
