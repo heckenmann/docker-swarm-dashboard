@@ -8,13 +8,30 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+
+	dockerclient "heckenmann.de/docker-swarm-dashboard/v2/internal/docker"
 )
 
 var (
-	httpPort                  = getHTTPPort()
-	pathPrefix                = os.Getenv("DSD_PATH_PREFIX")
-	cli        *client.Client = nil
+	httpPort   = getHTTPPort()
+	pathPrefix = os.Getenv("DSD_PATH_PREFIX")
 )
+
+// getCli returns the shared Docker client.
+// Delegates to internal/docker so all handlers share the same instance.
+func getCli() *client.Client {
+	return dockerclient.GetCli()
+}
+
+// SetCli injects a custom Docker client. Used by tests.
+func SetCli(c *client.Client) {
+	dockerclient.SetCli(c)
+}
+
+// ResetCli clears the cached Docker client. Used by tests.
+func ResetCli() {
+	dockerclient.ResetCli()
+}
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
@@ -82,29 +99,7 @@ func buildHandler() http.Handler {
 	return handlers.CompressHandler(loggedRouter)
 }
 
-// Creates a client
-func getCli() *client.Client {
-	if cli == nil {
-		var err error
-		cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-		if err != nil {
-			panic(err)
-		}
-	}
-	return cli
-}
-
-// SetCli allows tests to inject a custom Docker client instance.
-func SetCli(c *client.Client) {
-	cli = c
-}
-
-// ResetCli clears the cached client so subsequent calls to getCli recreate it from env.
-func ResetCli() {
-	cli = nil
-}
-
-// getHTTPPort returns the configured HTTP port from the environment variable DSD_HTTP_PORT,
+// getHTTPPort returns the configured HTTP port from DSD_HTTP_PORT, defaulting to 8080.
 // or defaults to 8080 if the variable is not set.
 func getHTTPPort() string {
 	port := os.Getenv("DSD_HTTP_PORT")
