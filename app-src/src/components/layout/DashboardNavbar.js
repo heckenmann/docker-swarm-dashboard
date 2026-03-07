@@ -1,6 +1,6 @@
-import logo from '../assets/docker.png'
+import logo from '../../assets/docker.png'
 import { useEffect } from 'react'
-import { RefreshIntervalToggleReducer } from '../common/store/reducers'
+import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
 import {
   currentVariantAtom,
   dashboardSettingsAtom,
@@ -10,7 +10,7 @@ import {
   refreshIntervalAtom,
   versionAtom,
   viewAtom,
-} from '../common/store/atoms'
+} from '../../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   Navbar,
@@ -32,7 +32,7 @@ import {
   tasksId,
   timelineId,
   versionUpdateId,
-} from '../common/navigationConstants'
+} from '../../common/navigationConstants'
 
 /**
  * DashboardNavbar component renders the navigation bar for the dashboard.

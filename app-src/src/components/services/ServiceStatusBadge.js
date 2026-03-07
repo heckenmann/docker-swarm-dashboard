@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
-import { getStyleClassForState } from '../common/utils/taskStateUtils'
+import { getStyleClassForState } from '../../common/utils/taskStateUtils'
 import PropTypes from 'prop-types'
-import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
+import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import { useAtomValue } from 'jotai'
-import { dashboardSettingsAtom } from '../common/store/atoms'
+import { dashboardSettingsAtom } from '../../common/store/atoms'
 import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 /**

@@ -4,11 +4,11 @@ import {
   currentVariantClassesAtom,
   versionAtom,
   viewAtom,
-} from '../common/store/atoms'
-import JbSquare from '../assets/jb_square.svg'
-import GoLandIcon from '../assets/GoLand_icon.svg'
-import WebStormIcon from '../assets/WebStorm_icon.svg'
-import { debugId } from '../common/navigationConstants'
+} from '../../common/store/atoms'
+import JbSquare from '../../assets/jb_square.svg'
+import GoLandIcon from '../../assets/GoLand_icon.svg'
+import WebStormIcon from '../../assets/WebStorm_icon.svg'
+import { debugId } from '../../common/navigationConstants'
 import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
