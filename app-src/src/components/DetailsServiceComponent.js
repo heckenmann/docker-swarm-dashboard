@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useAtom } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -7,7 +7,7 @@ import {
   viewAtom,
 } from '../common/store/atoms'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
-import { Card, Tabs, Tab, Table, Spinner } from 'react-bootstrap'
+import { Card, Tabs, Tab, Table, Spinner, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from './JsonTable'
 import { NodeName } from './names/NodeName'
@@ -16,6 +16,7 @@ import { SortableHeader } from './SortableHeader'
 import { sortData } from '../common/sortUtils'
 import { useState, useCallback, useEffect } from 'react'
 import { ServiceMetricsComponent } from './ServiceMetricsComponent'
+import { tasksDetailId } from '../common/navigationConstants'
 
 /**
  * Format bytes to human-readable format
@@ -41,7 +42,7 @@ function DetailsServiceComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const baseURL = useAtomValue(baseUrlAtom)
-  const view = useAtomValue(viewAtom)
+  const [view, setView] = useAtom(viewAtom)
 
   const currentService = useAtomValue(serviceDetailAtom)
 
@@ -305,12 +306,13 @@ function DetailsServiceComponent() {
                     sortDirection={sortDirection}
                     onSort={handleSort}
                   />
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {metricsLoading && (
                   <tr>
-                    <td colSpan="10" className="text-center">
+                    <td colSpan="11" className="text-center">
                       <Spinner animation="border" size="sm" /> Loading
                       metrics...
                     </td>
@@ -411,6 +413,25 @@ function DetailsServiceComponent() {
                         </td>
                         <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
                         <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+                        <td>
+                          <Button
+                            size="sm"
+                            variant="outline-primary"
+                            onClick={() =>
+                              setView({
+                                id: tasksDetailId,
+                                detail: task.ID,
+                                timestamp: Date.now(),
+                              })
+                            }
+                          >
+                            <FontAwesomeIcon
+                              icon="info-circle"
+                              className="me-1"
+                            />
+                            Details
+                          </Button>
+                        </td>
                       </tr>
                     )
                   })}
