@@ -30,9 +30,9 @@ describe('Dashboard vertical Tests', () => {
   // assert known mock services exist and that filtering works
   cy.contains('td', 'backend_auth-service').should('exist')
   cy.contains('td', 'frontend_user-service').should('exist')
-  cy.get('input.w-75.form-control').type('backend_')
+  cy.get('input.flex-grow-1.form-control').type('backend_')
   cy.contains('td', 'backend_auth-service').should('exist')
-  cy.get('input.w-75.form-control').clear()
+  cy.get('input.flex-grow-1.form-control').clear()
     })
   })
 
@@ -40,8 +40,8 @@ describe('Dashboard vertical Tests', () => {
     visitBaseUrlAndTest(() => {
       cy.contains('a', 'Dashboard').click()
   cy.get('main').within(() => { cy.get('button').eq(1).click() })
-  cy.get('select.w-auto.form-select').select('stack')
-  cy.get('input.w-75.form-control').type('frontend')
+  cy.get('select.flex-grow-1.form-select').select('stack')
+  cy.get('input.flex-grow-1.form-control').type('frontend')
   cy.contains('td', 'frontend_user-service').should('exist')
     })
   })

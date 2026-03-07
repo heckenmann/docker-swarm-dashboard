@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react'
 import { getStyleClassForState } from '../Helper'
 import PropTypes from 'prop-types'
 import { toDefaultDateTimeString } from '../common/DefaultDateTimeFormat'
@@ -24,76 +25,97 @@ const ServiceStatusBadge = ({
   serviceError,
   hiddenStates = [],
 }) => {
-  if (hiddenStates.includes(serviceState)) {
-    return
-  }
   const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
-  if (createdAt || updatedAt || serviceError) {
-    return (
-      <OverlayTrigger
-        placement="top"
-        delay={100}
-        overlay={
-          <Tooltip
-            id={`tooltip-task-status-sate-${id}`}
-            className="service-status-tooltip"
-          >
-            {createdAt && (
-              <span>
-                Created at:{' '}
-                {toDefaultDateTimeString(
-                  new Date(createdAt),
-                  dashBoardSettings.locale,
-                  dashBoardSettings.timeZone,
-                )}
-                <br />
-              </span>
-            )}
-            {updatedAt && (
-              <span>
-                Updated at:{' '}
-                {toDefaultDateTimeString(
-                  new Date(updatedAt),
-                  dashBoardSettings.locale,
-                  dashBoardSettings.timeZone,
-                )}
-                <br />
-              </span>
-            )}
-            {serviceError && <span>{serviceError}</span>}
-          </Tooltip>
-        }
-      >
-        <Badge bg={getStyleClassForState(serviceState)} className="w-100">
-          {serviceState}
-        </Badge>
-      </OverlayTrigger>
-    )
+  const variant = useMemo(
+    () => getStyleClassForState(serviceState),
+    [serviceState],
+  )
+
+  const formattedCreated = useMemo(() => {
+    if (!createdAt) return null
+    try {
+      return toDefaultDateTimeString(
+        new Date(createdAt),
+        dashBoardSettings.locale,
+        dashBoardSettings.timeZone,
+      )
+    } catch {
+      return String(createdAt)
+    }
+  }, [createdAt, dashBoardSettings.locale, dashBoardSettings.timeZone])
+
+  const formattedUpdated = useMemo(() => {
+    if (!updatedAt) return null
+    try {
+      return toDefaultDateTimeString(
+        new Date(updatedAt),
+        dashBoardSettings.locale,
+        dashBoardSettings.timeZone,
+      )
+    } catch {
+      return String(updatedAt)
+    }
+  }, [updatedAt, dashBoardSettings.locale, dashBoardSettings.timeZone])
+
+  // Early return after all hooks
+  if (Array.isArray(hiddenStates) && hiddenStates.includes(serviceState)) {
+    return null
   }
-  return (
-    <Badge bg={getStyleClassForState(serviceState)} className="w-100">
+
+  const hasTooltipContent = formattedCreated || formattedUpdated || serviceError
+  const tooltipOverlay = hasTooltipContent ? (
+    <Tooltip
+      id={`tooltip-task-status-state-${id}`}
+      className="service-status-tooltip"
+    >
+      {formattedCreated && <div>Created at: {formattedCreated}</div>}
+      {formattedUpdated && <div>Updated at: {formattedUpdated}</div>}
+      {serviceError && <div>{serviceError}</div>}
+    </Tooltip>
+  ) : null
+
+  const ariaLabel = `Service state: ${serviceState}`
+
+  const badge = (
+    <Badge
+      bg={variant}
+      className="w-100"
+      pill
+      title={serviceState}
+      aria-label={ariaLabel}
+      role="status"
+    >
       {serviceState}
     </Badge>
   )
+
+  if (tooltipOverlay) {
+    return (
+      <OverlayTrigger placement="top" delay={100} overlay={tooltipOverlay}>
+        {badge}
+      </OverlayTrigger>
+    )
+  }
+
+  return badge
 }
 
 /**
  * PropTypes for the ServiceStatusBadge component.
  */
 ServiceStatusBadge.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   serviceState: PropTypes.string.isRequired,
-  createdAt: PropTypes.string,
-  updatedAt: PropTypes.string,
+  createdAt: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.instanceOf(Date),
+  ]),
+  updatedAt: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.instanceOf(Date),
+  ]),
   serviceError: PropTypes.string,
   hiddenStates: PropTypes.arrayOf(PropTypes.string),
 }
 
-/**
- * Default props for the ServiceStatusBadge component.
- */
-ServiceStatusBadge.defaultProps = {
-  hiddenStates: [],
-}
-
-export default ServiceStatusBadge
+export default React.memo(ServiceStatusBadge)

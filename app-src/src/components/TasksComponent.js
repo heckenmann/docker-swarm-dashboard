@@ -165,7 +165,9 @@ function TasksComponent() {
           <FontAwesomeIcon icon="tasks" className="me-2" />
           <strong>Tasks</strong>
         </div>
-        <FilterComponent />
+        <div className="d-flex align-items-center">
+          <FilterComponent />
+        </div>
       </Card.Header>
       <Card.Body className="p-0">
         <Table

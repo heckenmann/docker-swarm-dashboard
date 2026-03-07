@@ -64,9 +64,9 @@ function DashboardVerticalComponent() {
       serviceFilter(service, serviceNameFilter, stackNameFilter),
     )
     .forEach((service) => {
-      const dataCols = nodes.map((node) => (
+      const dataCols = nodes.map((node, idx) => (
         <td
-          className="align-middle"
+          className={`align-middle svc-index-${idx}`}
           key={
             'td-' +
             (node && node.ID ? String(node.ID) : 'node-unknown') +
@@ -80,7 +80,7 @@ function DashboardVerticalComponent() {
               {service['Tasks'][node['ID']].map((task, id) => (
                 <li
                   key={
-                    'li-' +
+                    'badge-' +
                     (task && task.NodeID
                       ? String(task.NodeID)
                       : `node-idx-${id}`) +

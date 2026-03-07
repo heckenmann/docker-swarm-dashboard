@@ -11,7 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { ErrorBoundary } from './common/ErrorBoundary'
-import LoadingComponent from './components/LoadingComponent'
+import LoadingBar from './components/LoadingBar'
 import { DashboardNavbar } from './components/DashboardNavbar'
 import { Container } from 'react-bootstrap'
 import { WelcomeMessageComponent } from './components/WelcomeMessageComponent'
@@ -41,14 +41,15 @@ const App = () => {
         alt=""
       />
       <ErrorBoundary>
-        <Suspense fallback={<LoadingComponent />}>
+        <Suspense fallback={null}>
           <DashboardNavbar />
         </Suspense>
       </ErrorBoundary>
+      <LoadingBar />
       <main role="main">
         <Container fluid className="overflow-auto">
           <ErrorBoundary>
-            <Suspense fallback={<LoadingComponent />}>
+            <Suspense fallback={null}>
               <WelcomeMessageComponent />
               <ContentRouter />
             </Suspense>

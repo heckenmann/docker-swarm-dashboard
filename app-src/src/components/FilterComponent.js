@@ -62,7 +62,7 @@ function FilterComponent() {
           <FontAwesomeIcon icon="filter" />
         </InputGroup.Text>
         <Form.Select
-          className="w-auto"
+          className="flex-grow-1 me-2"
           value={filterType}
           onChange={(event) => {
             changeFilterType(event.target.value)
@@ -72,7 +72,7 @@ function FilterComponent() {
           <option value="stack">Stack</option>
         </Form.Select>
         <Form.Control
-          className="w-75"
+          className="flex-grow-1"
           placeholder={`Filter services by ${filterType} name`}
           value={filterValue}
           onChange={(event) =>

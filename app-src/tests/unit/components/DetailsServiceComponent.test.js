@@ -49,8 +49,13 @@ jest.mock('../../../src/common/DefaultDateTimeFormat', () => ({
 global.fetch = jest.fn()
 
 const mockUseAtomValue = jest.fn()
+const mockSetView = jest.fn()
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtom: (atom) => {
+    if (atom === 'viewAtom') return [{ id: null, detail: null, timestamp: 0 }, mockSetView]
+    return [undefined, jest.fn()]
+  },
 }))
 
 const modDetails = require('../../../src/components/DetailsServiceComponent')

@@ -21,6 +21,7 @@ function DashboardSettingsComponent() {
 
   const vertical =
     view?.id === dashboardVId || (!view?.id && defaultLayout === dashboardVId)
+
   return (
     <>
       <Row className="align-items-start">

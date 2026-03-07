@@ -51,14 +51,14 @@ describe('Dashboard horizontal Tests', () => {
       cy.contains('a', 'Dashboard').click()
   // select Stack filter and type 'backend' to match mock-generated stack
   // select the Stack option by value to change filter mode
-  cy.get('select.w-auto.form-select').select('stack')
+  cy.get('select.flex-grow-1.form-select').select('stack')
   // type into the visible filter input (do not rely on placeholder text which
   // may not update instantly in all environments)
-  cy.get('input.w-75.form-control', { timeout: 3000 }).type('backend')
+  cy.get('input.flex-grow-1.form-control', { timeout: 3000 }).type('backend')
   // after filtering by stack, assert a known backend service exists
   cy.contains('th .service-name-text', 'backend_auth-service').should('exist')
-  cy.get('input.w-75.form-control').clear()
-      cy.get('input.w-75.form-control').clear()
+  cy.get('input.flex-grow-1.form-control').clear()
+      cy.get('input.flex-grow-1.form-control').clear()
     })
   })
 })
