@@ -76,7 +76,7 @@ jobs:
       # Extract metadata (tags, labels) for Docker images
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           # Add platform-specific suffix (e.g., -amd64, -arm64)
@@ -147,7 +147,7 @@ jobs:
       # Extract metadata for the final multi-arch image
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           # Add 'latest' tag only for release tags (*.*.*)
