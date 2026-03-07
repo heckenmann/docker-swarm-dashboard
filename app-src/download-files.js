@@ -11,7 +11,7 @@ if (packageJson.files && Array.isArray(packageJson.files)) {
   const files = packageJson.files
 
   // Create the directory if it doesn't exist
-  const targetDirectory = path.join(__dirname, 'src', 'files')
+  const targetDirectory = path.join(__dirname, 'src', 'assets')
   if (!fs.existsSync(targetDirectory)) {
     fs.mkdirSync(targetDirectory, { recursive: true })
   }
