@@ -41,6 +41,7 @@ jobs:
           path: |
             ~/.yarn/cache
             **/node_modules
+            ~/.cache/Cypress
           key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
@@ -83,6 +84,7 @@ jobs:
           path: |
             ~/.yarn/cache
             **/node_modules
+            ~/.cache/Cypress
           key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
