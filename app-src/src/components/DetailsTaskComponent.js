@@ -25,53 +25,11 @@ import { ServiceName } from './names/ServiceName'
 import ServiceStatusBadge from './ServiceStatusBadge'
 import { useState, useEffect } from 'react'
 import ReactApexChart from 'react-apexcharts'
-
-/**
- * Format bytes to human-readable format
- * @param {number} bytes - Number of bytes
- * @param {number} decimals - Number of decimal places
- * @returns {string} Formatted string
- */
-function formatBytes(bytes, decimals = 1) {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-}
-
-/**
- * Build common ApexCharts options respecting dark mode.
- * @param {boolean} isDarkMode - Whether dark mode is active
- * @returns {object} Shared chart option overrides
- */
-function getCommonChartOptions(isDarkMode) {
-  const textColor = isDarkMode ? '#e0e0e0' : '#373d3f'
-  const gridColor = isDarkMode ? '#444' : '#e0e0e0'
-  return {
-    theme: { mode: isDarkMode ? 'dark' : 'light' },
-    chart: {
-      foreColor: textColor,
-      background: 'transparent',
-      toolbar: { show: false },
-    },
-    grid: { borderColor: gridColor },
-    legend: { labels: { colors: textColor } },
-    tooltip: { theme: isDarkMode ? 'dark' : 'light' },
-  }
-}
-
-/**
- * Determine alert colour class based on a percentage value.
- * @param {number} pct - Percentage value 0-100
- * @returns {string} Bootstrap text-colour class
- */
-function pctClass(pct) {
-  if (pct > 90) return 'text-danger fw-bold'
-  if (pct > 75) return 'text-warning fw-bold'
-  return ''
-}
+import { getCommonChartOptions } from '../common/chartUtils'
+import {
+  formatBytesCompact as formatBytes,
+  pctClass,
+} from '../common/formatUtils'
 
 /**
  * Component to display details of a task.
@@ -314,7 +272,7 @@ function DetailsTaskComponent() {
   }
 
   // Pre-compute charts
-  const commonOpts = getCommonChartOptions(isDarkMode)
+  const commonOpts = getCommonChartOptions(isDarkMode, false)
   const memCharts = taskMetrics
     ? buildMemoryCharts(taskMetrics, commonOpts)
     : null

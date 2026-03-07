@@ -17,21 +17,7 @@ import { sortData } from '../common/sortUtils'
 import { useState, useCallback, useEffect } from 'react'
 import { ServiceMetricsComponent } from './ServiceMetricsComponent'
 import { tasksDetailId } from '../common/navigationConstants'
-
-/**
- * Format bytes to human-readable format
- * @param {number} bytes - Number of bytes
- * @param {number} decimals - Number of decimal places
- * @returns {string} Formatted string
- */
-function formatBytes(bytes, decimals = 1) {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-}
+import { formatBytesCompact as formatBytes } from '../common/formatUtils'
 
 /**
  * Component to display the details of a service.
