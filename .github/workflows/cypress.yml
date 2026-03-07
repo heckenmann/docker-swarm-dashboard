@@ -35,12 +35,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Cache node modules
+      - name: Cache yarn and Cypress binary
         uses: actions/cache@v5
         with:
           path: |
             ~/.yarn/cache
-            **/node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
@@ -78,12 +77,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Restore node modules cache
+      - name: Restore yarn and Cypress binary cache
         uses: actions/cache@v5
         with:
           path: |
             ~/.yarn/cache
-            **/node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
