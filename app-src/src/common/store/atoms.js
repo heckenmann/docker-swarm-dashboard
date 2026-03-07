@@ -152,6 +152,7 @@ export const logsFormTimestampsAtom = atomWithReset(false)
 export const logsFormStdoutAtom = atomWithReset(true)
 export const logsFormStderrAtom = atomWithReset(true)
 export const logsFormDetailsAtom = atomWithReset(false)
+export const logsSearchKeywordAtom = atomWithReset('')
 /**
  * Build the websocket URL used to fetch logs for the currently configured
  * `logsConfigAtom` value. Returns `null` when no logs config is set.

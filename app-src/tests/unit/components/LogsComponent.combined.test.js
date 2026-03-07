@@ -413,6 +413,179 @@ describe('LogsComponent (combined)', () => {
     ).toHaveClass('text-secondary')
   })
 
+  test('search keyword input is enabled and accepts input', async () => {
+    function ShowLogsSetter() {
+      const [, setShowLogs] = useAtom(atoms.logsShowLogsAtom)
+      const [, setConfig] = useAtom(atoms.logsConfigAtom)
+      const [, setServiceId] = useAtom(atoms.logsFormServiceIdAtom)
+      useEffect(() => {
+        setServiceId('s1')
+        setConfig({ serviceId: 's1', serviceName: 'svc', tail: '20', since: '1h', follow: false })
+        setShowLogs(true)
+      }, [setShowLogs, setConfig, setServiceId])
+      return null
+    }
+
+    render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+          ]}
+        >
+          <ShowLogsSetter />
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Search log lines')).toBeInTheDocument(),
+    )
+
+    const input = screen.getByLabelText('Search log lines')
+    expect(input).not.toBeDisabled()
+    fireEvent.change(input, { target: { value: 'error' } })
+    expect(input.value).toBe('error')
+  })
+
+  test('search keyword filters displayed log lines', async () => {
+    function ShowLogsSetter() {
+      const [, setShowLogs] = useAtom(atoms.logsShowLogsAtom)
+      const [, setConfig] = useAtom(atoms.logsConfigAtom)
+      const [, setServiceId] = useAtom(atoms.logsFormServiceIdAtom)
+      const [, setLines] = useAtom(atoms.logsLinesAtom)
+      useEffect(() => {
+        setServiceId('s1')
+        setConfig({ serviceId: 's1', serviceName: 'svc', tail: '20', since: '1h', follow: false })
+        setLines(['INFO: all good', 'ERROR: something failed', 'INFO: still fine'])
+        setShowLogs(true)
+      }, [setShowLogs, setConfig, setServiceId, setLines])
+      return null
+    }
+
+    render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+          ]}
+        >
+          <ShowLogsSetter />
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Log output')).toBeInTheDocument(),
+    )
+
+    // all lines visible before filtering
+    await waitFor(() =>
+      expect(screen.getByText('INFO: all good')).toBeInTheDocument(),
+    )
+    expect(screen.getByText(/something failed/)).toBeInTheDocument()
+    expect(screen.getByText('INFO: still fine')).toBeInTheDocument()
+
+    // type a keyword to filter — non-matching lines should disappear
+    const input = screen.getByLabelText('Search log lines')
+    fireEvent.change(input, { target: { value: 'error' } })
+
+    await waitFor(() =>
+      expect(screen.queryByText('INFO: all good')).not.toBeInTheDocument(),
+    )
+    expect(screen.queryByText('INFO: still fine')).not.toBeInTheDocument()
+    // matching line still visible
+    expect(screen.getByText(/something failed/)).toBeInTheDocument()
+  })
+
+  test('clear button removes keyword and shows all lines again', async () => {
+    function ShowLogsSetter() {
+      const [, setShowLogs] = useAtom(atoms.logsShowLogsAtom)
+      const [, setConfig] = useAtom(atoms.logsConfigAtom)
+      const [, setServiceId] = useAtom(atoms.logsFormServiceIdAtom)
+      const [, setLines] = useAtom(atoms.logsLinesAtom)
+      useEffect(() => {
+        setServiceId('s1')
+        setConfig({ serviceId: 's1', serviceName: 'svc', tail: '20', since: '1h', follow: false })
+        setLines(['INFO: one', 'ERROR: two'])
+        setShowLogs(true)
+      }, [setShowLogs, setConfig, setServiceId, setLines])
+      return null
+    }
+
+    render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 20],
+          ]}
+        >
+          <ShowLogsSetter />
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Log output')).toBeInTheDocument(),
+    )
+
+    const input = screen.getByLabelText('Search log lines')
+    fireEvent.change(input, { target: { value: 'error' } })
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Clear search keyword')).toBeInTheDocument(),
+    )
+
+    fireEvent.click(screen.getByLabelText('Clear search keyword'))
+
+    await waitFor(() => expect(input.value).toBe(''))
+    // both lines visible again
+    expect(screen.getByText('INFO: one')).toBeInTheDocument()
+    expect(screen.getByText('ERROR: two')).toBeInTheDocument()
+  })
+
+  test('clearForm resets search keyword', async () => {
+    function KeywordSetter() {
+      const [, setKeyword] = useAtom(atoms.logsSearchKeywordAtom)
+      useEffect(() => {
+        setKeyword('some-filter')
+      }, [setKeyword])
+      return null
+    }
+
+    render(
+      <Suspense fallback={<div>loading</div>}>
+        <Provider
+          initialValues={[
+            [atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]],
+            [atoms.logsNumberOfLinesAtom, 5],
+          ]}
+        >
+          <KeywordSetter />
+          <LogsComponent />
+        </Provider>
+      </Suspense>,
+    )
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Show logs/i })).toBeInTheDocument(),
+    )
+
+    const clearBtn = screen.getByRole('button', { name: /Clear/i })
+    fireEvent.click(clearBtn)
+
+    // After clear, tail should be reset to '20'
+    await waitFor(() =>
+      expect(screen.getByDisplayValue('20')).toBeInTheDocument(),
+    )
+  })
+
   test('Show logs button is enabled when services are provided', async () => {
     render(
       <Suspense fallback={<div>loading</div>}>
