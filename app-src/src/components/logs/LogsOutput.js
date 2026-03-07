@@ -61,15 +61,17 @@ function LogsOutput() {
           const isErr = /stderr|error|ERROR/.test(l)
           const highlightedLine =
             keyword && l.toLowerCase().includes(keyword)
-              ? l.split(new RegExp(`(${escapeRegExp(keyword)})`, 'gi')).map((part, pi) =>
-                  part.toLowerCase() === keyword ? (
-                    <mark key={pi} className="bg-warning px-0">
-                      {part}
-                    </mark>
-                  ) : (
-                    part
-                  ),
-                )
+              ? l
+                  .split(new RegExp(`(${escapeRegExp(keyword)})`, 'gi'))
+                  .map((part, pi) =>
+                    part.toLowerCase() === keyword ? (
+                      <mark key={pi} className="bg-warning px-0">
+                        {part}
+                      </mark>
+                    ) : (
+                      part
+                    ),
+                  )
               : l
           return (
             <div
