@@ -1,6 +1,6 @@
 ##############################################################################
 # Stage 1: Build the Go server
-FROM golang:1.25-alpine AS go
+FROM golang:1.26-alpine AS go
 # ENV GO111MODULE=off
 RUN apk -U add git libc-dev
 COPY server-src/ /tmp/server-src
