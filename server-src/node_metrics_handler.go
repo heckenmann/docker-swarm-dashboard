@@ -188,9 +188,9 @@ func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID 
 
 	// Try to find a task for this service running on the requested node and read its network address
 	serviceID := service.ID
-	if serviceID == "" && service.Spec.Annotations.Name != "" {
+	if serviceID == "" && service.Spec.Name != "" {
 		// Fallback to service name DNS when ID is not available (tests)
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 	}
 
 	f := filters.NewArgs()
@@ -201,8 +201,8 @@ func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID 
 
 	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
 	if err != nil {
-		if service.Spec.Annotations.Name != "" {
-			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+		if service.Spec.Name != "" {
+			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 		}
 		return "", fmt.Errorf("failed to list tasks: %w", err)
 	}
@@ -222,8 +222,8 @@ func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID 
 		}
 	}
 
-	if service.Spec.Annotations.Name != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Annotations.Name, port), nil
+	if service.Spec.Name != "" {
+		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 	}
 
 	return "", fmt.Errorf("no task address found for service %s on node %s", serviceID, nodeID)
@@ -235,7 +235,7 @@ func fetchMetricsFromNodeExporter(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("node-exporter returned status %d", resp.StatusCode)

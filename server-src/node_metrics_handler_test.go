@@ -146,15 +146,15 @@ func TestLoadNodeExporterLabelFromEnv(t *testing.T) {
 	defer func() { nodeExporterLabel = originalLabel }()
 
 	// Test default value
-	os.Unsetenv("DSD_NODE_EXPORTER_LABEL")
+	_ = os.Unsetenv("DSD_NODE_EXPORTER_LABEL")
 	loadNodeExporterLabelFromEnv()
 	if nodeExporterLabel != "dsd.node-exporter" {
 		t.Errorf("Expected default label 'dsd.node-exporter', got '%s'", nodeExporterLabel)
 	}
 
 	// Test custom value
-	os.Setenv("DSD_NODE_EXPORTER_LABEL", "custom.label")
-	defer os.Unsetenv("DSD_NODE_EXPORTER_LABEL")
+	_ = os.Setenv("DSD_NODE_EXPORTER_LABEL", "custom.label")
+	defer func() { _ = os.Unsetenv("DSD_NODE_EXPORTER_LABEL") }()
 	loadNodeExporterLabelFromEnv()
 	if nodeExporterLabel != "custom.label" {
 		t.Errorf("Expected custom label 'custom.label', got '%s'", nodeExporterLabel)
@@ -1473,7 +1473,7 @@ func TestFetchMetricsFromNodeExporter_BodyReadError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create listener: %v", err)
 	}
-	defer ln.Close()
+	defer func() { _ = ln.Close() }()
 
 	addr := ln.Addr().String()
 
@@ -1484,7 +1484,7 @@ func TestFetchMetricsFromNodeExporter_BodyReadError(t *testing.T) {
 		}
 		// Send HTTP 200 with Content-Length of 1000 but close without sending body
 		_, _ = conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: 1000\r\n\r\n"))
-		conn.Close()
+		_ = conn.Close()
 	}()
 
 	_, err = fetchMetricsFromNodeExporter("http://" + addr + "/metrics")

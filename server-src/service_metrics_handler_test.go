@@ -159,15 +159,15 @@ func TestLoadCAdvisorLabelFromEnv(t *testing.T) {
 	defer func() { cadvisorLabel = originalLabel }()
 
 	// Test default value
-	os.Unsetenv("DSD_CADVISOR_LABEL")
+	_ = os.Unsetenv("DSD_CADVISOR_LABEL")
 	loadCAdvisorLabelFromEnv()
 	if cadvisorLabel != "dsd.cadvisor" {
 		t.Errorf("Expected default label 'dsd.cadvisor', got '%s'", cadvisorLabel)
 	}
 
 	// Test custom value
-	os.Setenv("DSD_CADVISOR_LABEL", "custom.cadvisor")
-	defer os.Unsetenv("DSD_CADVISOR_LABEL")
+	_ = os.Setenv("DSD_CADVISOR_LABEL", "custom.cadvisor")
+	defer func() { _ = os.Unsetenv("DSD_CADVISOR_LABEL") }()
 	loadCAdvisorLabelFromEnv()
 	if cadvisorLabel != "custom.cadvisor" {
 		t.Errorf("Expected custom label 'custom.cadvisor', got '%s'", cadvisorLabel)
@@ -582,11 +582,11 @@ func TestServiceMetricsHandler_TaskListError(t *testing.T) {
 	bServices, _ := json.Marshal([]swarm.Service{testService, cadvisorSvc})
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case r.URL.Path == "/v1.35/services":
+		switch r.URL.Path {
+		case "/v1.35/services":
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(bServices)
-		case r.URL.Path == "/v1.35/tasks":
+		case "/v1.35/tasks":
 			// Simulate error when fetching tasks
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte(`{"message":"task list error"}`))
@@ -947,11 +947,11 @@ func TestServiceMetricsHandler_NoRunningTasks(t *testing.T) {
 	bTasks, _ := json.Marshal(tasks)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case r.URL.Path == "/v1.35/services":
+		switch r.URL.Path {
+		case "/v1.35/services":
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(bServices)
-		case r.URL.Path == "/v1.35/tasks":
+		case "/v1.35/tasks":
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(bTasks)
 		default:
