@@ -49,18 +49,18 @@ type ContainerMemoryMetrics struct {
 	TaskName         string  `json:"taskName"`
 	Usage            float64 `json:"usage"`
 	WorkingSet       float64 `json:"workingSet"`
-	MemoryCache      float64 `json:"memoryCache"`      // File-backed / cache pages
+	MemoryCache      float64 `json:"memoryCache"` // File-backed / cache pages
 	Limit            float64 `json:"limit"`
 	UsagePercent     float64 `json:"usagePercent"`
-	CPUUsage         float64 `json:"cpuUsage"`          // Total CPU time in seconds
-	CPUUserSeconds   float64 `json:"cpuUserSeconds"`    // User-space CPU time in seconds
-	CPUSystemSeconds float64 `json:"cpuSystemSeconds"`  // Kernel-space CPU time in seconds
-	CPUPercent       float64 `json:"cpuPercent"`        // CPU usage as % of quota
-	NetworkRxBytes   float64 `json:"networkRxBytes"`    // Total received bytes across all interfaces
-	NetworkTxBytes   float64 `json:"networkTxBytes"`    // Total transmitted bytes across all interfaces
-	FSUsage          float64 `json:"fsUsage"`           // Container filesystem usage in bytes
-	FSLimit          float64 `json:"fsLimit"`           // Container filesystem limit in bytes
-	ServerTime       float64 `json:"serverTime"`        // Unix timestamp
+	CPUUsage         float64 `json:"cpuUsage"`         // Total CPU time in seconds
+	CPUUserSeconds   float64 `json:"cpuUserSeconds"`   // User-space CPU time in seconds
+	CPUSystemSeconds float64 `json:"cpuSystemSeconds"` // Kernel-space CPU time in seconds
+	CPUPercent       float64 `json:"cpuPercent"`       // CPU usage as % of quota
+	NetworkRxBytes   float64 `json:"networkRxBytes"`   // Total received bytes across all interfaces
+	NetworkTxBytes   float64 `json:"networkTxBytes"`   // Total transmitted bytes across all interfaces
+	FSUsage          float64 `json:"fsUsage"`          // Container filesystem usage in bytes
+	FSLimit          float64 `json:"fsLimit"`          // Container filesystem limit in bytes
+	ServerTime       float64 `json:"serverTime"`       // Unix timestamp
 }
 
 // ServiceMemoryMetrics represents aggregated memory metrics for a service

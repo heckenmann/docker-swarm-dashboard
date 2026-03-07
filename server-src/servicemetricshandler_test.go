@@ -1677,3 +1677,382 @@ container_spec_cpu_period{id="/docker/abc123",container_label_com_docker_swarm_s
 		t.Errorf("Expected CPU percent around %.1f%%, got %.2f%%", expectedPercent, container.CPUPercent)
 	}
 }
+
+// TestParseCAdvisorMetrics_FilterBranches exercises the three filter/init code branches for all
+// secondary metric types:
+//   - Pattern A: svcName != serviceName AND containerID not matching serviceID → skipped via continue
+//   - Pattern B: containerID == "" (no id label) → skipped via continue
+//   - Pattern C: nil-init block triggered when secondary metric arrives for a container that has
+//     no prior container_memory_usage_bytes entry
+func TestParseCAdvisorMetrics_FilterBranches(t *testing.T) {
+	// Build metrics text with all three pattern triggers for every secondary metric type.
+	// "other-service" metrics with id="/docker/other-container" cover Pattern A (wrong service,
+	// ID does not contain "s-test").
+	// Metrics without an id label cover Pattern B (containerID="").
+	// "newcont" container has every secondary metric type but no container_memory_usage_bytes,
+	// which forces the nil-init block (Pattern C) for each secondary type.
+	metricsText := `
+# Pattern A: wrong service → filtered out for all metric types
+container_memory_usage_bytes{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service",container_label_com_docker_swarm_task_id="other-task"} 1
+container_memory_working_set_bytes{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service",container_label_com_docker_swarm_task_id="other-task"} 1
+container_spec_memory_limit_bytes{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_cpu_usage_seconds_total{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_spec_cpu_quota{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_spec_cpu_period{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_memory_cache{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_network_receive_bytes_total{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service",interface="eth0"} 1
+container_network_transmit_bytes_total{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service",interface="eth0"} 1
+container_cpu_user_seconds_total{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_cpu_system_seconds_total{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service"} 1
+container_fs_usage_bytes{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service",device="/dev/sda"} 1
+container_fs_limit_bytes{id="/docker/other-container",container_label_com_docker_swarm_service_name="other-service",device="/dev/sda"} 1
+
+# Pattern B: no id label → containerID="" → skipped for all metric types
+container_memory_usage_bytes{container_label_com_docker_swarm_service_name="test-service"} 1
+container_memory_working_set_bytes{container_label_com_docker_swarm_service_name="test-service"} 1
+container_spec_memory_limit_bytes{container_label_com_docker_swarm_service_name="test-service"} 1
+container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name="test-service"} 1
+container_spec_cpu_quota{container_label_com_docker_swarm_service_name="test-service"} 1
+container_spec_cpu_period{container_label_com_docker_swarm_service_name="test-service"} 1
+container_memory_cache{container_label_com_docker_swarm_service_name="test-service"} 1
+container_network_receive_bytes_total{container_label_com_docker_swarm_service_name="test-service",interface="eth0"} 1
+container_network_transmit_bytes_total{container_label_com_docker_swarm_service_name="test-service",interface="eth0"} 1
+container_cpu_user_seconds_total{container_label_com_docker_swarm_service_name="test-service"} 1
+container_cpu_system_seconds_total{container_label_com_docker_swarm_service_name="test-service"} 1
+container_fs_usage_bytes{container_label_com_docker_swarm_service_name="test-service",device="/dev/sda"} 1
+container_fs_limit_bytes{container_label_com_docker_swarm_service_name="test-service",device="/dev/sda"} 1
+
+# Pattern C: "newcont" has every secondary metric type but NO usage entry
+# This forces the nil-init block (containerMetrics[key] == nil) for each secondary type.
+container_memory_working_set_bytes{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 8388608
+container_spec_memory_limit_bytes{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 536870912
+container_cpu_usage_seconds_total{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 5.5
+container_spec_cpu_quota{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 50000
+container_spec_cpu_period{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 100000
+container_memory_cache{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 1048576
+container_network_receive_bytes_total{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3",interface="eth0"} 5000
+container_network_transmit_bytes_total{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3",interface="eth0"} 3000
+container_cpu_user_seconds_total{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 3.0
+container_cpu_system_seconds_total{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3"} 2.5
+container_fs_usage_bytes{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3",device="/dev/sda"} 100000000
+container_fs_limit_bytes{id="/docker/newcont",container_label_com_docker_swarm_service_name="test-service",container_label_com_docker_swarm_task_id="task-new",container_label_com_docker_swarm_task_name="test-service.3",device="/dev/sda"} 1000000000
+`
+
+	result, err := parseCAdvisorMetrics(metricsText, "s-test", "test-service")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Only "newcont" should appear (Pattern A and B metrics are filtered)
+	if len(result.ContainerMetrics) != 1 {
+		t.Errorf("expected 1 container (newcont only), got %d: IDs=%v",
+			len(result.ContainerMetrics),
+			func() []string {
+				var ids []string
+				for _, c := range result.ContainerMetrics {
+					ids = append(ids, c.ContainerID)
+				}
+				return ids
+			}())
+	}
+
+	if len(result.ContainerMetrics) == 0 {
+		t.Fatal("no container metrics returned, cannot verify Pattern C coverage")
+	}
+
+	cm := result.ContainerMetrics[0]
+	// Usage is zero (no container_memory_usage_bytes for newcont)
+	if cm.Usage != 0 {
+		t.Errorf("expected Usage=0 for newcont (no usage metric provided), got %f", cm.Usage)
+	}
+	// Secondary metrics should be populated via nil-init blocks (Pattern C)
+	if cm.WorkingSet == 0 {
+		t.Error("expected WorkingSet > 0 via nil-init block")
+	}
+	if cm.CPUUsage == 0 {
+		t.Error("expected CPUUsage > 0 via nil-init block")
+	}
+	if cm.MemoryCache == 0 {
+		t.Error("expected MemoryCache > 0 via nil-init block")
+	}
+	if cm.NetworkRxBytes == 0 {
+		t.Error("expected NetworkRxBytes > 0 via nil-init block")
+	}
+	if cm.NetworkTxBytes == 0 {
+		t.Error("expected NetworkTxBytes > 0 via nil-init block")
+	}
+	if cm.CPUUserSeconds == 0 {
+		t.Error("expected CPUUserSeconds > 0 via nil-init block")
+	}
+	if cm.CPUSystemSeconds == 0 {
+		t.Error("expected CPUSystemSeconds > 0 via nil-init block")
+	}
+	if cm.FSUsage == 0 {
+		t.Error("expected FSUsage > 0 via nil-init block")
+	}
+	if cm.FSLimit == 0 {
+		t.Error("expected FSLimit > 0 via nil-init block")
+	}
+}
+
+// TestGetCAdvisorEndpoint_TaskListErrorNoName verifies that getCAdvisorEndpoint returns an error
+// when the task list API fails and the service has no name (no DNS fallback available).
+func TestGetCAdvisorEndpoint_TaskListErrorNoName(t *testing.T) {
+	cadvisorSvc := &swarm.Service{
+		ID: "s-cadvisor-noname",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: "", // No name — DNS fallback unavailable
+			},
+		},
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"task list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	if err == nil {
+		t.Errorf("expected error when task list fails and no service name, got endpoint=%s", endpoint)
+	}
+	if endpoint != "" {
+		t.Error("expected empty endpoint on error")
+	}
+}
+
+// TestServiceMetricsHandler_FindCAdvisorServiceError verifies error handling when the Docker
+// services API fails while looking for the cAdvisor service.
+func TestServiceMetricsHandler_FindCAdvisorServiceError(t *testing.T) {
+	// First call (fetching the target service by ID filter) succeeds;
+	// second call (finding cAdvisor service, unfiltered) fails.
+	testService := swarm.Service{
+		ID:   "s-test2",
+		Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: "test-service2"}},
+	}
+	bTestService, _ := json.Marshal([]swarm.Service{testService})
+
+	callCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			callCount++
+			if callCount == 1 {
+				// First call: service lookup by filter → success
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(bTestService)
+				return
+			}
+			// Second call: findCAdvisorService → error
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"services error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/services/s-test2/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "s-test2"})
+	w := httptest.NewRecorder()
+	serviceMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	var resp serviceMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Error("expected available=false when findCAdvisorService fails")
+	}
+	if resp.Error == nil {
+		t.Error("expected error to be set")
+	}
+}
+
+// TestServiceMetricsHandler_GetEndpointError verifies error handling when getCAdvisorEndpoint
+// returns an error (cAdvisor has no name and no tasks with network addresses).
+func TestServiceMetricsHandler_GetEndpointError(t *testing.T) {
+	testService := swarm.Service{
+		ID:   "s-test3",
+		Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: "test-service3"}},
+	}
+	// cAdvisor service with no name → DNS fallback unavailable
+	cadvisorSvc := swarm.Service{
+		ID: "s-cad-noname",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name:   "",
+				Labels: map[string]string{cadvisorLabel: "true"},
+			},
+		},
+	}
+	// Service tasks list: one running task (so nodeID is found)
+	serviceTasks := []swarm.Task{{
+		ID:        "t-svc3",
+		ServiceID: "s-test3",
+		NodeID:    "node-3",
+		Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+	}}
+	// cAdvisor tasks: empty list → endpoint resolution fails (no IP, no name)
+	bTestService, _ := json.Marshal([]swarm.Service{testService})
+	bAllServices, _ := json.Marshal([]swarm.Service{testService, cadvisorSvc})
+	bServiceTasks, _ := json.Marshal(serviceTasks)
+	bCAdvisorTasks, _ := json.Marshal([]swarm.Task{})
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/v1.35/services" && strings.Contains(r.URL.RawQuery, "s-test3"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTestService)
+		case r.URL.Path == "/v1.35/services":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bAllServices)
+		case r.URL.Path == "/v1.35/tasks" && strings.Contains(r.URL.RawQuery, "s-test3"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bServiceTasks)
+		case r.URL.Path == "/v1.35/tasks":
+			// cAdvisor task list: empty
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bCAdvisorTasks)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/services/s-test3/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "s-test3"})
+	w := httptest.NewRecorder()
+	serviceMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	var resp serviceMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Error("expected available=false when endpoint resolution fails")
+	}
+	if resp.Error == nil {
+		t.Error("expected error to be set")
+	}
+}
+
+// TestServiceMetricsHandler_FetchFromCAdvisorError verifies error handling when cAdvisor returns
+// a non-200 HTTP status code.
+func TestServiceMetricsHandler_FetchFromCAdvisorError(t *testing.T) {
+	// Mock cAdvisor that always returns 500
+	mockCAdvisor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("cadvisor error"))
+	}))
+	defer mockCAdvisor.Close()
+
+	u, err := url.Parse(mockCAdvisor.URL)
+	if err != nil {
+		t.Fatalf("failed to parse mock URL: %v", err)
+	}
+	host, portStr, err := netSplitHostPort(u.Host)
+	if err != nil {
+		t.Fatalf("failed to split host:port: %v", err)
+	}
+
+	testService := swarm.Service{
+		ID:   "s-test4",
+		Spec: swarm.ServiceSpec{Annotations: swarm.Annotations{Name: "test-service4"}},
+	}
+	cadvisorSvc := swarm.Service{
+		ID: "s-cad4",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name:   "cadvisor4",
+				Labels: map[string]string{cadvisorLabel: "true"},
+			},
+		},
+		Endpoint: swarm.Endpoint{Ports: []swarm.PortConfig{{TargetPort: uint32(parsePort(t, portStr))}}},
+	}
+	serviceTasks := []swarm.Task{{
+		ID: "t-svc4", ServiceID: "s-test4", NodeID: "node-4",
+		Status: swarm.TaskStatus{State: swarm.TaskStateRunning},
+	}}
+	cadvisorTasks := []swarm.Task{{
+		ID: "t-cad4", ServiceID: "s-cad4", NodeID: "node-4",
+		Status:              swarm.TaskStatus{State: swarm.TaskStateRunning},
+		NetworksAttachments: []swarm.NetworkAttachment{{Addresses: []string{host + "/32"}}},
+	}}
+	bTestService, _ := json.Marshal([]swarm.Service{testService})
+	bAllServices, _ := json.Marshal([]swarm.Service{testService, cadvisorSvc})
+	bServiceTasks, _ := json.Marshal(serviceTasks)
+	bCAdvisorTasks, _ := json.Marshal(cadvisorTasks)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/v1.35/services" && strings.Contains(r.URL.RawQuery, "s-test4"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTestService)
+		case r.URL.Path == "/v1.35/services":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bAllServices)
+		case r.URL.Path == "/v1.35/tasks" && strings.Contains(r.URL.RawQuery, "s-test4"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bServiceTasks)
+		case r.URL.Path == "/v1.35/tasks" && strings.Contains(r.URL.RawQuery, "s-cad4"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bCAdvisorTasks)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/services/s-test4/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "s-test4"})
+	w := httptest.NewRecorder()
+	serviceMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	var resp serviceMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Error == nil {
+		t.Error("expected error to be set when cAdvisor returns 500")
+	}
+}
+
+// TestFetchMetricsFromCAdvisor_NonOKStatus verifies that fetchMetricsFromCAdvisor returns an
+// error when the server responds with a non-200 HTTP status code.
+func TestFetchMetricsFromCAdvisor_NonOKStatus(t *testing.T) {
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer mockServer.Close()
+
+	_, err := fetchMetricsFromCAdvisor(mockServer.URL + "/metrics")
+	if err == nil {
+		t.Error("expected error for non-200 status")
+	}
+}

@@ -359,3 +359,211 @@ func TestTaskMetricsHandler_ParseMetricsError(t *testing.T) {
 		t.Fatalf("expected error or message to be set when parse fails, got %+v", resp)
 	}
 }
+
+// TestTaskMetricsHandler_FindCAdvisorServiceError verifies error handling when the services list
+// API fails, preventing cAdvisor discovery.
+func TestTaskMetricsHandler_FindCAdvisorServiceError(t *testing.T) {
+	task := swarm.Task{
+		ID:     "t-svcerr",
+		Status: swarm.TaskStatus{State: swarm.TaskStateRunning},
+	}
+	bTask, _ := json.Marshal(task)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/v1.35/tasks/"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTask)
+			return
+		case r.URL.Path == "/v1.35/services":
+			// Simulate Docker API error when listing services
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"services list error"}`))
+			return
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/tasks/t-svcerr/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "t-svcerr"})
+	w := httptest.NewRecorder()
+
+	taskMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	var resp taskMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Fatal("expected available=false when services list fails")
+	}
+	if resp.Error == nil {
+		t.Fatal("expected error to be set when services list fails")
+	}
+}
+
+// TestTaskMetricsHandler_EndpointError verifies error handling when the cAdvisor endpoint
+// cannot be resolved (service has no name and no running tasks with addresses).
+func TestTaskMetricsHandler_EndpointError(t *testing.T) {
+	task := swarm.Task{
+		ID:        "t-epterr",
+		ServiceID: "s-test",
+		NodeID:    "node-1",
+		Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+	}
+	// cAdvisor service with no Name, so DNS fallback is unavailable
+	cadvisorSvc := swarm.Service{
+		ID: "s-cadvisor",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name:   "", // no name → endpoint error if tasks also unavailable
+				Labels: map[string]string{cadvisorLabel: "true"},
+			},
+		},
+	}
+	bTask, _ := json.Marshal(task)
+	bServices, _ := json.Marshal([]swarm.Service{cadvisorSvc})
+	// No running cAdvisor tasks returned
+	bCAdvisorTasks, _ := json.Marshal([]swarm.Task{})
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/v1.35/tasks/"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTask)
+			return
+		case r.URL.Path == "/v1.35/services":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bServices)
+			return
+		case r.URL.Path == "/v1.35/tasks":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bCAdvisorTasks)
+			return
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/tasks/t-epterr/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "t-epterr"})
+	w := httptest.NewRecorder()
+
+	taskMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	var resp taskMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Fatal("expected available=false when endpoint resolution fails")
+	}
+	if resp.Error == nil {
+		t.Fatal("expected error to be set when endpoint resolution fails")
+	}
+}
+
+// TestTaskMetricsHandler_FetchMetricsError verifies error handling when cAdvisor returns
+// a non-200 HTTP status code.
+func TestTaskMetricsHandler_FetchMetricsError(t *testing.T) {
+	// Mock cAdvisor that returns 500
+	mockCAdvisor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("internal error"))
+	}))
+	defer mockCAdvisor.Close()
+
+	u, err := url.Parse(mockCAdvisor.URL)
+	if err != nil {
+		t.Fatalf("failed to parse mock URL: %v", err)
+	}
+	host, portStr, err := netSplitHostPort(u.Host)
+	if err != nil {
+		t.Fatalf("failed to split host:port: %v", err)
+	}
+
+	task := swarm.Task{
+		ID:        "t-fetcherr",
+		ServiceID: "s-test",
+		NodeID:    "node-1",
+		Status:    swarm.TaskStatus{State: swarm.TaskStateRunning},
+	}
+	cadvisorSvc := swarm.Service{
+		ID: "s-cadvisor",
+		Spec: swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name:   "cadvisor",
+				Labels: map[string]string{cadvisorLabel: "true"},
+			},
+		},
+		Endpoint: swarm.Endpoint{Ports: []swarm.PortConfig{{TargetPort: uint32(parsePort(t, portStr))}}},
+	}
+	cadvisorTasks := []swarm.Task{{
+		ID:                  "t-cadvisor",
+		ServiceID:           "s-cadvisor",
+		NodeID:              "node-1",
+		Status:              swarm.TaskStatus{State: swarm.TaskStateRunning},
+		NetworksAttachments: []swarm.NetworkAttachment{{Addresses: []string{host + "/32"}}},
+	}}
+	bTask, _ := json.Marshal(task)
+	bServices, _ := json.Marshal([]swarm.Service{cadvisorSvc})
+	bCAdvisorTasks, _ := json.Marshal(cadvisorTasks)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/v1.35/tasks/"):
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bTask)
+			return
+		case r.URL.Path == "/v1.35/services":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bServices)
+			return
+		case r.URL.Path == "/v1.35/tasks":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bCAdvisorTasks)
+			return
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/tasks/t-fetcherr/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "t-fetcherr"})
+	w := httptest.NewRecorder()
+
+	taskMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	var resp taskMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Fatal("expected available=false when cAdvisor returns error status")
+	}
+	if resp.Error == nil {
+		t.Fatal("expected error to be set when fetch fails")
+	}
+}

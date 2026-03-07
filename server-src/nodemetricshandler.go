@@ -46,8 +46,8 @@ type MemoryMetrics struct {
 	Total           float64 `json:"total"`
 	Free            float64 `json:"free"`
 	Available       float64 `json:"available"`
-	Buffers         float64 `json:"buffers"`  // Kernel buffer memory
-	Cached          float64 `json:"cached"`   // Page cache (reclaimable)
+	Buffers         float64 `json:"buffers"` // Kernel buffer memory
+	Cached          float64 `json:"cached"`  // Page cache (reclaimable)
 	SwapTotal       float64 `json:"swapTotal"`
 	SwapFree        float64 `json:"swapFree"`
 	SwapUsed        float64 `json:"swapUsed"`
