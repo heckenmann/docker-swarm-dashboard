@@ -102,8 +102,9 @@ describe('Settings Tests', () => {
     cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
   })
 
-  // Verify that the main container now has Bootstrap's 'container' class (not container-fluid)
+  // Verify that main content and navbar both use Bootstrap's responsive container
   cy.get('main .container').should('exist')
+  cy.get('nav .container').should('exist')
     })
   })
 })

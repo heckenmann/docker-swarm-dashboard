@@ -7,6 +7,7 @@ import {
   dashboardSettingsDefaultLayoutViewIdAtom,
   logsConfigAtom,
   logsShowLogsAtom,
+  maxContentWidthAtom,
   refreshIntervalAtom,
   versionAtom,
   versionRefreshAtom,
@@ -51,6 +52,7 @@ function DashboardNavbar() {
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const maxContentWidth = useAtomValue(maxContentWidthAtom)
   const version = useAtomValue(versionAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
@@ -96,7 +98,7 @@ function DashboardNavbar() {
         variant={currentVariant}
         className="border-bottom"
       >
-        <Container fluid>
+        <Container fluid={maxContentWidth === 'fluid'}>
           <Navbar.Brand
             className="cursorPointer"
             onClick={() =>
