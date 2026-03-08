@@ -41,6 +41,7 @@ cd server-src && go test ./... -coverprofile=coverage.out && go tool cover -func
 
 **Conventions**
 
+- **Language: English only.** All commit messages, code comments, JSDoc, documentation, and PR descriptions must be written in English. No exceptions.
 - **Coverage gate: 90%** for both JS and Go. Never lower the threshold — add tests instead.
 - **Settings page test contract:** For every setting row in `SettingsComponent` (`app-src/src/components/settings/SettingsComponent.js`), `tests/unit/components/SettingsComponent.test.js` must contain all of the following:
   - Initial state: checkbox/input renders correctly for each meaningful atom value (checked/unchecked, correct input value).
