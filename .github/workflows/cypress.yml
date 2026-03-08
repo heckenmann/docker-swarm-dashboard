@@ -48,6 +48,12 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
 
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: app-src/node_modules
+          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
+
       - name: Update browserslist
         run: NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest
 
@@ -87,7 +93,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
 
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache@v5
+        with:
+          path: app-src/node_modules
+          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
+
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile
 
       - name: Cypress run
