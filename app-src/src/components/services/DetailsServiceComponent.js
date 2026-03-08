@@ -97,11 +97,14 @@ function DetailsServiceComponent() {
 
   return (
     <Card className={currentVariantClasses}>
-      <Card.Header>
-        <h5>
-          <FontAwesomeIcon icon="folder" /> Service &quot;
-          {serviceObj?.Spec?.Name || serviceObj?.Name || 'unknown'}&quot;
-        </h5>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
+          <FontAwesomeIcon icon="folder" className="me-2" />
+          <strong>
+            Service &quot;
+            {serviceObj?.Spec?.Name || serviceObj?.Name || 'unknown'}&quot;
+          </strong>
+        </div>
       </Card.Header>
       <Card.Body style={{ overflowY: 'auto' }}>
         <Tabs className="mb-3" defaultActiveKey="metrics">

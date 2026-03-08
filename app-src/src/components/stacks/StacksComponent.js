@@ -144,11 +144,13 @@ function StacksComponent() {
         className={currentVariantClasses + ' mb-3'}
         key={'card_' + stack['Name']}
       >
-        <Card.Header>
-          <h5>
-            <FontAwesomeIcon icon="cubes" />
-            <StackName name={stack['Name']} />
-          </h5>
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <div>
+            <FontAwesomeIcon icon="cubes" className="me-2" />
+            <strong>
+              <StackName name={stack['Name']} />
+            </strong>
+          </div>
         </Card.Header>
         <Table variant={currentVariant} size="sm" hover>
           <thead>

@@ -133,7 +133,6 @@ function NodesComponent() {
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header></Card.Header>
       <Table
         variant={currentVariant}
         key="nodesTable"

@@ -1,5 +1,6 @@
 import { useAtom, useAtomValue } from 'jotai'
 import { Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -77,13 +78,12 @@ function LogsComponent() {
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
       {!logsShowLogs && (
-        <Card.Header className={`mb-3 ${currentVariantClasses}`}>
-          <strong>Logs</strong>
-          <div
-            className={`small ${currentVariant === 'dark' ? 'text-secondary' : 'text-muted'}`}
-          >
-            Choose a service and options
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <div>
+            <FontAwesomeIcon icon="desktop" className="me-2" />
+            <strong>Logs</strong>
           </div>
+          <div className="small text-muted">Choose a service and options</div>
         </Card.Header>
       )}
       <Card.Body>

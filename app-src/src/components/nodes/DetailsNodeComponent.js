@@ -23,11 +23,13 @@ function DetailsNodeComponent() {
       <Row>
         <Col xs={12}>
           <Card className={currentVariantClasses}>
-            <Card.Header>
-              <h5>
-                <FontAwesomeIcon icon="server" /> Node &quot;
-                {currentNode.node?.Description?.Hostname}&quot;
-              </h5>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <div>
+                <FontAwesomeIcon icon="server" className="me-2" />
+                <strong>
+                  Node &quot;{currentNode.node?.Description?.Hostname}&quot;
+                </strong>
+              </div>
             </Card.Header>
             <Card.Body>
               <Tabs className="mb-3" defaultActiveKey="metrics">
