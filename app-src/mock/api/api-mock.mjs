@@ -436,6 +436,10 @@ await ensureNodeServiceDetails()
 const app = new App()
 app.use(cors())
 
+app.get('/health', (_req, res) => {
+  res.status(200).send('OK')
+})
+
 function findResource(resourceArray, id) {
   if (!Array.isArray(resourceArray)) return null
   return resourceArray.find((r) => String(r.ID) === String(id) || String(r.id) === String(id)) || null

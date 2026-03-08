@@ -6,6 +6,10 @@ export function visitBaseUrlAndTest(fn, path = '/') {
   // Use the legacy hash base the app expects (kept because the app reads the hash)
   cy.visit('#base="http%3A%2F%2Flocalhost%3A3001%2F"')
 
+  // Wait for the navbar to appear so we know the app has initialised and the
+  // API mock has responded successfully before running any assertions.
+  cy.get('nav', { timeout: 10000 }).should('be.visible')
+
   // Run the snippet that contains the test interaction/assertions
   fn()
 
