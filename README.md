@@ -2,8 +2,7 @@
 ![Docker](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/docker-publish.yml/badge.svg?branch=master)
 ![CodeQL](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/codeql.yml/badge.svg?branch=master)
 ![Cypress](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/cypress.yml/badge.svg?branch=master)
-![Frontend CI](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/node-test-app-src.yml/badge.svg?branch=master)
-![Lint](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-app-src.yml/badge.svg?branch=master)
+![Frontend CI](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/ci-frontend.yml/badge.svg?branch=master)
 ![Server Go CI](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/go-test-server-src.yml/badge.svg?branch=master)
 ![API Build & Healthcheck](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/api-test.yml/badge.svg?branch=master)
 [![Lint server-src](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-server-src.yml/badge.svg)](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-server-src.yml)
@@ -19,19 +18,10 @@ Don't expose this service to the world! The endpoints offer the configuration of
 If you like this project, please give a ⭐ on github.
 Feedback would be nice.
 
-- [Tools](#tools)
 - [Frameworks & Libraries](#frameworks--libraries)
 - [Screenshots](#screenshots)
 - [Getting started](#getting-started)
 - [Development](#development)
-
-
-## Tools
-Special thanks to JetBrains for supporting this project with <a href="https://www.jetbrains.com/community/opensource/#support" target="_blank">Open Source development licenses</a>.
-
-<a href="https://www.jetbrains.com/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.svg"  height="80px" alt="JetBrains Black Box Logo logo." /></a>
-                <a href="https://www.jetbrains.com/go/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/GoLand_icon.svg" height="80px" alt="GoLand logo." /></a>
-                <a href="https://www.jetbrains.com/webstorm/" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.svg" height="80px" alt="WebStorm logo." /></a>
 
 
 ## Frameworks & Libraries

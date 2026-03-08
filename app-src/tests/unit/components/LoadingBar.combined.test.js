@@ -10,7 +10,7 @@ describe('LoadingBar (combined)', () => {
   })
 
   test('shows when force=true and hides when unmounted', () => {
-    const mod = require('../../../src/components/LoadingBar')
+    const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container, unmount } = render(
       React.createElement(LoadingBar, { force: true }),
@@ -22,7 +22,7 @@ describe('LoadingBar (combined)', () => {
   })
 
   test('multiple start/end events do not produce negative counts', async () => {
-    const mod = require('../../../src/components/LoadingBar')
+    const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container } = render(React.createElement(LoadingBar))
     const bar = container.querySelector('.loading-bar')
@@ -42,7 +42,7 @@ describe('LoadingBar (combined)', () => {
   })
 
   test('shows on network-request-start and hides after network-request-end', async () => {
-    const mod = require('../../../src/components/LoadingBar')
+    const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container } = render(React.createElement(LoadingBar))
     const bar = container.querySelector('.loading-bar')
@@ -68,7 +68,7 @@ describe('LoadingBar (combined)', () => {
   // atom-driven case covered via network events in other tests; skip direct jotai mocking here to avoid hook isolation issues
   test('reacts to networkRequestsAtom changes when rendered inside Provider', async () => {
     // require module and render LoadingBar with a Provider
-    const mod = require('../../../src/components/LoadingBar')
+    const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container } = render(React.createElement(LoadingBar))
     const bar = container.querySelector('.loading-bar')
@@ -88,7 +88,7 @@ describe('LoadingBar (combined)', () => {
   })
 
   test('force true then false hides when toggled off', async () => {
-    const mod = require('../../../src/components/LoadingBar')
+    const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container } = render(
       React.createElement(LoadingBar, { force: true }),
@@ -104,7 +104,7 @@ describe('LoadingBar (combined)', () => {
 
   test('drives visibility from networkRequestsAtom via useAtomValue', async () => {
     jest.useFakeTimers()
-    const mod = require('../../../src/components/LoadingBar')
+    const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container } = render(React.createElement(LoadingBar))
     const bar = container.querySelector('.loading-bar')

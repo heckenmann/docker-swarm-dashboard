@@ -3,7 +3,7 @@ import { visitBaseUrlAndTest } from './spec.cy'
 describe('Settings controls', () => {
   it('toggles dark mode and refresh interval', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Settings').click()
+      cy.get('a[aria-label="Settings"]').click()
       // toggle dark mode (checkbox/button may vary) - look for dark mode control
       cy.get('input[type=checkbox], button').then((els) => {
         // try finding a dark mode checkbox

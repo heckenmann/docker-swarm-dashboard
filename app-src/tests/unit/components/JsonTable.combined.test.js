@@ -5,7 +5,7 @@ describe('JsonTable combined', () => {
   test('renders with empty data', () => {
     const { container } = render(
       React.createElement(
-        require('../../../src/components/JsonTable').JsonTable,
+        require('../../../src/components/shared/JsonTable').JsonTable,
         { json: {} },
       ),
     )
@@ -13,7 +13,7 @@ describe('JsonTable combined', () => {
   })
 
   test('renders table from json', () => {
-    const JsonTable = require('../../../src/components/JsonTable').JsonTable
+    const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
     const data = { x: { y: 'z' }, n: 1 }
     render(React.createElement(JsonTable, { json: data }))
     expect(screen.getByText('Key')).toBeInTheDocument()
@@ -53,7 +53,7 @@ describe('JsonTable combined', () => {
         return '{"ok":1}'
       }
 
-      const JsonTable = require('../../../src/components/JsonTable').JsonTable
+      const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
       render(React.createElement(JsonTable, { json: {} }))
 
       expect(screen.getByText('k.null')).toBeInTheDocument()

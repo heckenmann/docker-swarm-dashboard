@@ -23,18 +23,6 @@
     {
       "name": "docker.png",
       "url": "http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png"
-    },
-    {
-      "name": "jb_square.svg",
-      "url": "https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.svg"
-    },
-    {
-      "name": "GoLand_icon.svg",
-      "url": "https://resources.jetbrains.com/storage/products/company/brand/logos/GoLand_icon.svg"
-    },
-    {
-      "name": "WebStorm_icon.svg",
-      "url": "https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.svg"
     }
   ],
   "engines": {
@@ -73,6 +61,7 @@
     "babel-jest": "^30.2.0",
     "babel-loader": "^10.1.0",
     "bootstrap": "^5.3.8",
+    "concurrently": "^9.2.1",
     "cors": "^2.8.6",
     "css-loader": "^7.1.4",
     "cypress": "^15.11.0",

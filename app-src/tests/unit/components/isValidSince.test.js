@@ -1,4 +1,4 @@
-import { isValidSince } from '../../../src/components/LogsComponent'
+import { isValidSince } from '../../../src/components/logs/logsUtils'
 
 test('isValidSince handles duration, ISO and invalid inputs', () => {
   expect(isValidSince('5m')).toBe(true)

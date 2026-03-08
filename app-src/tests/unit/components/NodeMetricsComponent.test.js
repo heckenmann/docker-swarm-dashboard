@@ -17,7 +17,7 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-const mod = require('../../../src/components/NodeMetricsComponent')
+const mod = require('../../../src/components/nodes/NodeMetricsComponent')
 const NodeMetricsComponent = mod.NodeMetricsComponent || mod.default || mod
 
 // Helpers

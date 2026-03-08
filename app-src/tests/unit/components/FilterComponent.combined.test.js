@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-const modFilter = require('../../../src/components/FilterComponent')
+const modFilter = require('../../../src/components/shared/FilterComponent')
 const FilterComponent =
   modFilter.FilterComponent || modFilter.default || modFilter
 
@@ -18,264 +18,146 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
+/** Helper: mount FilterComponent with the given atom values. */
+function setupFilter({
+  serviceFilter = '',
+  stackFilter = '',
+  filterType = 'service',
+} = {}) {
+  mockUseAtomValue.mockImplementation((atom) => {
+    if (atom === 'currentVariantAtom') return 'light'
+    return ''
+  })
+
+  const mockSetService = jest.fn()
+  const mockSetStack = jest.fn()
+  const mockSetType = jest.fn()
+  mockUseAtom.mockImplementation((atom) => {
+    if (atom === 'serviceNameFilterAtom') return [serviceFilter, mockSetService]
+    if (atom === 'stackNameFilterAtom') return [stackFilter, mockSetStack]
+    if (atom === 'filterTypeAtom') return [filterType, mockSetType]
+    return [null, jest.fn()]
+  })
+
+  render(<FilterComponent />)
+  return { mockSetService, mockSetStack, mockSetType }
+}
+
 describe('FilterComponent (combined)', () => {
   beforeEach(() => {
     mockUseAtomValue.mockReset()
     mockUseAtom.mockReset()
   })
 
-  test('renders default with no filters and clear disabled', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'serviceNameFilterAtom':
-          return ''
-        case 'stackNameFilterAtom':
-          return ''
-        case 'filterTypeAtom':
-          return 'service'
-        default:
-          return ''
-      }
-    })
+  test('renders default with no filters: Service button active, input empty, clear not rendered', () => {
+    setupFilter()
 
-    const mockSetService = jest.fn()
-    const mockSetStack = jest.fn()
-    const mockSetType = jest.fn()
-    mockUseAtom.mockImplementation((atom) => {
-      switch (atom) {
-        case 'serviceNameFilterAtom':
-          return ['', mockSetService]
-        case 'stackNameFilterAtom':
-          return ['', mockSetStack]
-        case 'filterTypeAtom':
-          return ['service', mockSetType]
-        default:
-          return [null, jest.fn()]
-      }
-    })
+    expect(
+      screen.getByRole('button', { name: /filter by service/i }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(
+      screen.getByRole('button', { name: /filter by stack/i }),
+    ).toHaveAttribute('aria-pressed', 'false')
 
-    render(<FilterComponent />)
-
-    const select = screen.getByRole('combobox')
-    expect(select.value).toBe('service')
-    const input = screen.getByPlaceholderText(/Filter services by/i)
+    const input = screen.getByPlaceholderText('Filter…')
     expect(input.value).toBe('')
-    const btn = screen.getByRole('button')
-    expect(btn).toBeDisabled()
+
+    expect(
+      screen.queryByRole('button', { name: /clear filter/i }),
+    ).not.toBeInTheDocument()
   })
 
   test('typing in input calls setServiceNameFilter when filter type is service', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'serviceNameFilterAtom':
-          return ''
-        case 'stackNameFilterAtom':
-          return ''
-        case 'filterTypeAtom':
-          return 'service'
-        default:
-          return ''
-      }
-    })
+    const { mockSetService } = setupFilter()
 
-    const mockSetService = jest.fn()
-    const mockSetStack = jest.fn()
-    const mockSetType = jest.fn()
-    mockUseAtom.mockImplementation((atom) => {
-      switch (atom) {
-        case 'serviceNameFilterAtom':
-          return ['', mockSetService]
-        case 'stackNameFilterAtom':
-          return ['', mockSetStack]
-        case 'filterTypeAtom':
-          return ['service', mockSetType]
-        default:
-          return [null, jest.fn()]
-      }
-    })
-
-    render(<FilterComponent />)
-    const input = screen.getByPlaceholderText(/Filter services by/i)
+    const input = screen.getByPlaceholderText('Filter…')
     fireEvent.change(input, { target: { value: 'svc1' } })
     expect(mockSetService).toHaveBeenCalledWith('svc1')
   })
 
-  test('changing select to stack clears service filter and sets stack filter', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'serviceNameFilterAtom':
-          return 'svcX'
-        case 'stackNameFilterAtom':
-          return ''
-        case 'filterTypeAtom':
-          return 'service'
-        default:
-          return ''
-      }
+  test('clicking Stack button clears service filter and sets stack filter', () => {
+    const { mockSetService, mockSetStack, mockSetType } = setupFilter({
+      serviceFilter: 'svcX',
+      filterType: 'service',
     })
 
-    const mockSetService = jest.fn()
-    const mockSetStack = jest.fn()
-    const mockSetType = jest.fn()
-    mockUseAtom.mockImplementation((atom) => {
-      switch (atom) {
-        case 'serviceNameFilterAtom':
-          return ['svcX', mockSetService]
-        case 'stackNameFilterAtom':
-          return ['', mockSetStack]
-        case 'filterTypeAtom':
-          return ['service', mockSetType]
-        default:
-          return [null, jest.fn()]
-      }
-    })
-
-    render(<FilterComponent />)
-    const select = screen.getByRole('combobox')
-    fireEvent.change(select, { target: { value: 'stack' } })
+    fireEvent.click(screen.getByRole('button', { name: /filter by stack/i }))
     expect(mockSetType).toHaveBeenCalledWith('stack')
     expect(mockSetService).toHaveBeenCalledWith('')
     expect(mockSetStack).toHaveBeenCalledWith('svcX')
   })
 
-  test('clear button clears both filters when present', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'serviceNameFilterAtom':
-          return 'svcX'
-        case 'stackNameFilterAtom':
-          return 'stX'
-        case 'filterTypeAtom':
-          return 'service'
-        default:
-          return ''
-      }
+  test('clear button is rendered and enabled when filter is active, clicking it clears filters', () => {
+    const { mockSetService, mockSetStack } = setupFilter({
+      serviceFilter: 'svcX',
+      filterType: 'service',
     })
 
-    const mockSetService = jest.fn()
-    const mockSetStack = jest.fn()
-    const mockSetType = jest.fn()
-    mockUseAtom.mockImplementation((atom) => {
-      switch (atom) {
-        case 'serviceNameFilterAtom':
-          return ['svcX', mockSetService]
-        case 'stackNameFilterAtom':
-          return ['stX', mockSetStack]
-        case 'filterTypeAtom':
-          return ['service', mockSetType]
-        default:
-          return [null, jest.fn()]
-      }
-    })
-
-    render(<FilterComponent />)
-    const buttons = screen.getAllByRole('button')
-    const clearBtn =
-      buttons.find((b) => b.className && b.className.includes('btn-danger')) ||
-      buttons[0]
+    const clearBtn = screen.getByRole('button', { name: /clear filter/i })
+    expect(clearBtn).toBeInTheDocument()
     expect(clearBtn).toBeEnabled()
     fireEvent.click(clearBtn)
     expect(mockSetService).toHaveBeenCalledWith('')
     expect(mockSetStack).toHaveBeenCalledWith('')
-    expect(mockSetType).toHaveBeenCalledWith('service')
   })
 
-  test('filterTypeAtom external change updates select value', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'serviceNameFilterAtom':
-          return ''
-        case 'stackNameFilterAtom':
-          return ''
-        case 'filterTypeAtom':
-          return 'stack'
-        default:
-          return ''
-      }
-    })
+  test('Stack button has aria-pressed true when filterType is stack', () => {
+    setupFilter({ filterType: 'stack' })
 
-    mockUseAtom.mockImplementation((atom) => {
-      switch (atom) {
-        case 'serviceNameFilterAtom':
-          return ['', jest.fn()]
-        case 'stackNameFilterAtom':
-          return ['', jest.fn()]
-        case 'filterTypeAtom':
-          return ['stack', jest.fn()]
-        default:
-          return [null, jest.fn()]
-      }
-    })
-
-    render(<FilterComponent />)
-    const select = screen.getByRole('combobox')
-    expect(select.value).toBe('stack')
+    expect(
+      screen.getByRole('button', { name: /filter by stack/i }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(
+      screen.getByRole('button', { name: /filter by service/i }),
+    ).toHaveAttribute('aria-pressed', 'false')
   })
 
-  test('shows programmatic service filter and clear button toggles', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      if (atom === 'currentVariantAtom') return 'light'
-      if (atom === 'serviceNameFilterAtom') return 'svcA'
-      if (atom === 'stackNameFilterAtom') return ''
-      if (atom === 'filterTypeAtom') return 'service'
-      return ''
-    })
+  test('shows programmatic service filter value in input, clear button rendered', () => {
+    setupFilter({ serviceFilter: 'svcA', filterType: 'service' })
 
-    const mockSetService = jest.fn()
-    const mockSetStack = jest.fn()
-    const mockSetType = jest.fn()
-    mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'serviceNameFilterAtom') return ['svcA', mockSetService]
-      if (atom === 'stackNameFilterAtom') return ['', mockSetStack]
-      if (atom === 'filterTypeAtom') return ['service', mockSetType]
-      return [null, jest.fn()]
-    })
-
-    render(<FilterComponent />)
-
-    const input = screen.getByPlaceholderText(
-      /Filter services by service name/i,
-    )
+    const input = screen.getByPlaceholderText('Filter…')
     expect(input.value).toBe('svcA')
 
-    const clearBtn = screen.getByRole('button')
+    expect(
+      screen.getByRole('button', { name: /clear filter/i }),
+    ).toBeInTheDocument()
+  })
+
+  test('clear button calls setter when clicked while filter active', () => {
+    const { mockSetService } = setupFilter({
+      serviceFilter: 'svcA',
+      filterType: 'service',
+    })
+
+    const clearBtn = screen.getByRole('button', { name: /clear filter/i })
     fireEvent.click(clearBtn)
     expect(mockSetService).toHaveBeenCalledWith('')
   })
 
-  test('selecting stack and entering value sets stack and clears service', () => {
-    mockUseAtomValue.mockImplementation((atom) => {
-      if (atom === 'currentVariantAtom') return 'light'
-      if (atom === 'serviceNameFilterAtom') return ''
-      if (atom === 'stackNameFilterAtom') return ''
-      if (atom === 'filterTypeAtom') return 'service'
-      return ''
-    })
+  test('entering value with stack type sets stack filter and clears service', () => {
+    const { mockSetService, mockSetStack } = setupFilter({ filterType: 'stack' })
 
-    const mockSetService = jest.fn()
-    const mockSetStack = jest.fn()
-    const mockSetType = jest.fn()
-    mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'serviceNameFilterAtom') return ['', mockSetService]
-      if (atom === 'stackNameFilterAtom') return ['', mockSetStack]
-      if (atom === 'filterTypeAtom') return ['stack', mockSetType]
-      return [null, jest.fn()]
-    })
-
-    render(<FilterComponent />)
     const input = screen.getByRole('textbox')
     fireEvent.change(input, { target: { value: 'myStack' } })
     expect(mockSetStack).toHaveBeenCalledWith('myStack')
     expect(mockSetService).toHaveBeenCalledWith('')
+  })
+
+  test('clearing value does not reset filterType to service', () => {
+    // Start with Stack selected and a filter value
+    const { mockSetType } = setupFilter({
+      stackFilter: 'myStack',
+      filterType: 'stack',
+    })
+
+    // Reset after mount-time useEffect calls (effect syncs type during initial render)
+    mockSetType.mockClear()
+
+    // Clear the filter value via the clear button
+    const clearBtn = screen.getByRole('button', { name: /clear filter/i })
+    fireEvent.click(clearBtn)
+
+    // setFilterType must NOT have been called during the clear interaction
+    expect(mockSetType).not.toHaveBeenCalled()
   })
 })

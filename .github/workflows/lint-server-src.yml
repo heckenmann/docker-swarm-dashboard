@@ -1,9 +1,12 @@
 name: Lint server-src
 
 on:
-  push:
   pull_request:
     branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   golangci-lint:
@@ -18,25 +21,8 @@ jobs:
         with:
           go-version: '1.25'
 
-      - name: Cache Go modules
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-
-      - name: Build server packages (generate export data)
-        run: |
-          cd server-src
-          go test ./...
-
-      - name: Install golangci-lint (build with repo Go)
-        run: |
-          GO111MODULE=on go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
       - name: Run golangci-lint
-        run: |
-          cd server-src
-          golangci-lint run ./...
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.11
+          working-directory: server-src

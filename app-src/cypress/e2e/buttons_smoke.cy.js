@@ -3,7 +3,7 @@ import { visitBaseUrlAndTest } from './spec.cy'
 // Smoke test: visit each main page, click visible buttons and assert no console errors
 const pages = [
   { nav: 'Dashboard' },
-  { nav: 'Dashboard', extra: () => cy.contains('a', 'Dashboard').click() },
+  { nav: 'Dashboard', extra: () => cy.get('a[aria-label="Dashboard"]').click() },
   { nav: 'Nodes' },
   { nav: 'Ports' },
   { nav: 'Stacks' },
@@ -18,7 +18,7 @@ describe('Buttons smoke tests', () => {
     it(`visit page and click buttons - ${p.nav}`, () => {
       visitBaseUrlAndTest(() => {
         // navigate to page via navbar
-        cy.contains('a', p.nav).click()
+        cy.get(`a[aria-label="${p.nav}"]`).click()
 
         // ensure page loaded
         cy.document().its('body').should('exist')

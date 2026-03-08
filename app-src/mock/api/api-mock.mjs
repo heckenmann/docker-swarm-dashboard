@@ -599,6 +599,15 @@ app.get('/ui/dashboard-settings', (req, res) => {
   res.json(resources)
 })
 
+app.get('/ui/version', (req, res) => {
+  res.json({
+    version: '0.0.0-mock',
+    remoteVersion: '99.0.0',
+    updateAvailable: true,
+    lastChecked: new Date().toISOString(),
+  })
+})
+
 // Mock node metrics endpoint
 app.get('/docker/nodes/:id/metrics', (req, res) => {
   const nodeId = req.params.id

@@ -11,23 +11,25 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { ErrorBoundary } from './common/ErrorBoundary'
-import LoadingBar from './components/LoadingBar'
-import { DashboardNavbar } from './components/DashboardNavbar'
+import LoadingBar from './components/layout/LoadingBar'
+import { DashboardNavbar } from './components/layout/DashboardNavbar'
 import { Container } from 'react-bootstrap'
-import { WelcomeMessageComponent } from './components/WelcomeMessageComponent'
-import { ContentRouter } from './components/ContentRouter'
+import { WelcomeMessageComponent } from './components/shared/WelcomeMessageComponent'
+import { ContentRouter } from './components/layout/ContentRouter'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  maxContentWidthAtom,
 } from './common/store/atoms'
 import './App.css'
-import bgLogo from './files/docker.png'
+import bgLogo from './assets/docker.png'
 
 library.add(fab, fas, far)
 
 const App = () => {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const maxContentWidth = useAtomValue(maxContentWidthAtom)
 
   return (
     <div
@@ -47,7 +49,10 @@ const App = () => {
       </ErrorBoundary>
       <LoadingBar />
       <main role="main">
-        <Container fluid className="overflow-auto">
+        <Container
+          fluid={maxContentWidth === 'fluid'}
+          className="overflow-auto"
+        >
           <ErrorBoundary>
             <Suspense fallback={null}>
               <WelcomeMessageComponent />

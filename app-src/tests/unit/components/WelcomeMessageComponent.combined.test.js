@@ -46,7 +46,7 @@ describe('WelcomeMessageComponent (combined)', () => {
         FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
       }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       render(React.createElement(Comp))
       expect(screen.getByText('hello')).toBeInTheDocument()
@@ -94,7 +94,7 @@ describe('WelcomeMessageComponent (combined)', () => {
         FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
       }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       render(React.createElement(Comp))
       const msg = screen.getByText('hi')
@@ -141,7 +141,7 @@ describe('WelcomeMessageComponent (combined)', () => {
         FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
       }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       const { container } = render(React.createElement(Comp))
       // simulate onHide by clicking the container which calls onHide
@@ -186,7 +186,7 @@ describe('WelcomeMessageComponent (combined)', () => {
       }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       const { queryByText } = render(React.createElement(Comp))
       expect(queryByText('x')).toBeNull()
@@ -227,7 +227,7 @@ describe('WelcomeMessageComponent (combined)', () => {
       }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       const { queryByText } = render(React.createElement(Comp))
       expect(queryByText(/Close/i)).toBeNull()
@@ -279,7 +279,7 @@ describe('WelcomeMessageComponent (combined)', () => {
       }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       const { container } = render(React.createElement(Comp))
       expect(container.querySelector('.my-variant')).toBeTruthy()
@@ -327,7 +327,7 @@ describe('WelcomeMessageComponent (combined)', () => {
         FontAwesomeIcon: () => React.createElement('span', null, 'ICON'),
       }))
 
-      const mod = require('../../../src/components/WelcomeMessageComponent')
+      const mod = require('../../../src/components/shared/WelcomeMessageComponent')
       const Comp = mod.WelcomeMessageComponent || mod.default || mod
       render(React.createElement(Comp))
       const btn = screen.getByText(/Close/i)

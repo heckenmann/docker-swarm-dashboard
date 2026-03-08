@@ -152,6 +152,7 @@ export const logsFormTimestampsAtom = atomWithReset(false)
 export const logsFormStdoutAtom = atomWithReset(true)
 export const logsFormStderrAtom = atomWithReset(true)
 export const logsFormDetailsAtom = atomWithReset(false)
+export const logsSearchKeywordAtom = atomWithReset('')
 /**
  * Build the websocket URL used to fetch logs for the currently configured
  * `logsConfigAtom` value. Returns `null` when no logs config is set.
@@ -217,6 +218,13 @@ export const currentVariantClassesAtom = atom((get) =>
 // UI preferences
 // Control whether action buttons next to entity names are shown
 export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
+// Show text labels next to icons in the navigation bar.
+// When false, labels are hidden and tooltips appear on hover instead.
+export const showNavLabelsAtom = atomWithHash('showNavLabels', false)
+// Maximum content width for wide-screen displays.
+// 'fluid' = full-width (container-fluid), 'centered' = standard responsive
+// Bootstrap container (auto max-width based on breakpoint, centred).
+export const maxContentWidthAtom = atomWithHash('maxContentWidth', 'fluid')
 
 // Track outstanding network requests (number)
 export const networkRequestsAtom = atom(0)
@@ -230,8 +238,24 @@ export const dashboardSettingsAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
 
+// Incrementing this atom triggers a re-fetch of versionAtom without causing
+// a full-page Suspense re-render on every navigation (unlike viewAtom).
+export const versionRefreshAtom = atom(0)
+
 export const versionAtom = atom(async (get) => {
-  return (await fetch(get(baseUrlAtom) + 'ui/version')).json()
+  // Only re-fetch when the user explicitly triggers a refresh, not on navigation.
+  get(versionRefreshAtom)
+  try {
+    return await (await fetch(get(baseUrlAtom) + 'ui/version')).json()
+  } catch {
+    // Return a safe fallback so the UI does not crash on network errors.
+    return {
+      version: '',
+      remoteVersion: '',
+      updateAvailable: false,
+      lastChecked: '',
+    }
+  }
 })
 
 export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>

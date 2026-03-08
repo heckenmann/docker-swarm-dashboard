@@ -12,17 +12,17 @@ jest.mock('../../../src/common/store/atoms', () => ({
 }))
 
 // Mock components
-jest.mock('../../../src/components/JsonTable', () => ({
+jest.mock('../../../src/components/shared/JsonTable', () => ({
   JsonTable: () => <div data-testid="json-table">JsonTable Mock</div>,
 }))
 
-jest.mock('../../../src/components/ServiceMetricsComponent', () => ({
+jest.mock('../../../src/components/services/ServiceMetricsComponent', () => ({
   ServiceMetricsComponent: ({ serviceId }) => (
     <div data-testid="service-metrics">ServiceMetrics: {serviceId}</div>
   ),
 }))
 
-jest.mock('../../../src/components/names/NodeName', () => ({
+jest.mock('../../../src/components/shared/names/NodeName', () => ({
   NodeName: ({ name, id }) => (
     <span data-testid="node-name">
       {name || id}
@@ -30,14 +30,14 @@ jest.mock('../../../src/components/names/NodeName', () => ({
   ),
 }))
 
-jest.mock('../../../src/components/ServiceStatusBadge', () => ({
+jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
   __esModule: true,
   default: ({ serviceState }) => (
     <span data-testid="status-badge">{serviceState}</span>
   ),
 }))
 
-jest.mock('../../../src/components/SortableHeader', () => ({
+jest.mock('../../../src/components/shared/SortableHeader', () => ({
   SortableHeader: ({ label, column }) => <th data-testid={`header-${column}`}>{label}</th>,
 }))
 
@@ -58,7 +58,7 @@ jest.mock('jotai', () => ({
   },
 }))
 
-const modDetails = require('../../../src/components/DetailsServiceComponent')
+const modDetails = require('../../../src/components/services/DetailsServiceComponent')
 const DetailsServiceComponent =
   modDetails.DetailsServiceComponent || modDetails.default || modDetails
 

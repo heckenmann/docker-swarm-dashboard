@@ -30,7 +30,7 @@ function assertToggled($el) {
 describe('Settings Tests', () => {
   it('Load page and toggle settings', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Settings').click()
+      cy.get('a[aria-label="Settings"]').click()
   // previously dumped DOM to cypress/results for debugging; removed to avoid test artifacts
 
       // Toggle helper that tries labeled input first, then falls back to positional input
@@ -94,6 +94,24 @@ describe('Settings Tests', () => {
     cy.get('input[type="checkbox"]').check({ force: true })
     cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
   })
+
+  // Toggle centered layout and verify the switch state
+  cy.contains('tr', 'Centered layout').within(() => {
+    cy.get('input[type="checkbox"]').should('not.be.checked')
+    cy.get('input[type="checkbox"]').check({ force: true })
+    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
+  })
+
+  // Toggle show navigation labels (default: unchecked/false — labels hidden)
+  cy.contains('tr', 'Show navigation labels').within(() => {
+    cy.get('input[type="checkbox"]').should('not.be.checked')
+    cy.get('input[type="checkbox"]').check({ force: true })
+    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
+  })
+
+  // Verify that main content and navbar both use Bootstrap's responsive container
+  cy.get('main .container').should('exist')
+  cy.get('nav .container').should('exist')
     })
   })
 })
