@@ -20,12 +20,12 @@ jobs:
         with:
           go-version: '1.25'
 
-      - name: Run tests for server-src and enforce 90% coverage
+      - name: Run tests for server-src and enforce 90% coverage (with race detector)
         working-directory: ./server-src
         run: |
           set -euo pipefail
-          # Run tests and write coverage report
-          go test ./... -coverprofile=coverage.out -v
+          # Run tests with race detector and write coverage report
+          go test -race ./... -coverprofile=coverage.out -v
           echo "Coverage report:"
           go tool cover -func=coverage.out
 

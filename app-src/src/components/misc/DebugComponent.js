@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { Card } from 'react-bootstrap'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
