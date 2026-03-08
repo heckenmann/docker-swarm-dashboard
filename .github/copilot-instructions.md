@@ -42,6 +42,18 @@ cd server-src && go test ./... -coverprofile=coverage.out && go tool cover -func
 **Conventions**
 
 - **Coverage gate: 90%** for both JS and Go. Never lower the threshold — add tests instead.
+- **Settings page test contract:** For every setting row in `SettingsComponent` (`app-src/src/components/settings/SettingsComponent.js`), `tests/unit/components/SettingsComponent.test.js` must contain all of the following:
+  - Initial state: checkbox/input renders correctly for each meaningful atom value (checked/unchecked, correct input value).
+  - Toggle both directions: clicking/changing calls the atom setter with the correct value in each direction (e.g. `true→false` and `false→true`).
+  - Reset: "Reset to defaults" test asserts every setter is called with its default value.
+  Adding a new setting without all three test cases, or removing a test case, is not allowed.
+- **Settings effect test contract:** For every setting atom, there must also be a test that verifies the rendered output of the consuming component changes correctly. Required coverage per atom:
+  - `tableSizeAtom` → table has `table-sm` class when `'sm'` and not when `'lg'` — covered in `NodesComponent.combined.test.js`, `TasksComponent.combined.test.js`, `PortsComponent.combined.test.js`, `JsonTable.combined.test.js`.
+  - `showNamesButtonsAtom` → action buttons in `EntityName` are shown/hidden — covered in `Names.combined.test.js`.
+  - `showNavLabelsAtom` → nav link text labels visible/hidden in `DashboardNavbar` — covered in `DashboardNavbar.combined.test.js`.
+  - `maxContentWidthAtom` → `.container-fluid` vs `.container` in `DashboardNavbar` — covered in `DashboardNavbar.combined.test.js`.
+  - `isDarkModeAtom` → `currentVariantAtom`/`currentVariantClassesAtom` correctly derived (`'dark'`/`'light'`) — covered in `atoms.test.js`; Navbar dark/light background class — covered in `DashboardNavbar.combined.test.js`.
+  When adding a new setting, add both the SettingsComponent tests AND a component-effect test before merging.
 - **No commit without:** JS tests + coverage ✅, Cypress ✅, linters ✅.
 - **No direct push to `master`** — use feature/fix/chore branches and PRs.
 - **No `git commit` / `git push`** unless the user explicitly asks.
