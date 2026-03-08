@@ -189,8 +189,8 @@ describe('fetch-based atoms (all combined)', () => {
     // atomWithHash is mocked to return its default value directly
     expect(atoms.maxContentWidthAtom).toBe('fluid')
   })
-  test('showNavLabelsAtom defaults to true', () => {
+  test('showNavLabelsAtom defaults to false', () => {
     const atoms = require('../../../src/common/store/atoms')
-    expect(atoms.showNavLabelsAtom).toBe(true)
+    expect(atoms.showNavLabelsAtom).toBe(false)
   })
 })

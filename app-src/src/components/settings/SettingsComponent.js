@@ -56,7 +56,7 @@ function SettingsComponent() {
     setIsDarkMode(false)
     setTableSize('sm')
     setShowNamesButtons(true)
-    setShowNavLabels(true)
+    setShowNavLabels(false)
     setMaxContentWidth('fluid')
   }
 
@@ -243,7 +243,7 @@ function SettingsComponent() {
                 aria-label="Toggle navigation labels"
               />
             </td>
-            <td className="small text-muted">true</td>
+            <td className="small text-muted">false</td>
           </tr>
           <tr>
             <td>

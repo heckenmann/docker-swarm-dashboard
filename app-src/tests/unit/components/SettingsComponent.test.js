@@ -57,7 +57,7 @@ function setup(overrides = {}) {
     isDarkMode: false,
     tableSize: 'sm',
     showNamesButtons: true,
-    showNavLabels: true,
+    showNavLabels: false,
     maxContentWidth: 'fluid',
     refreshInterval: false,
   }
@@ -193,18 +193,18 @@ test('reset to defaults calls all setters with default values', () => {
   expect(setIsDarkMode).toHaveBeenCalledWith(false)
   expect(setTableSize).toHaveBeenCalledWith('sm')
   expect(setShowNamesButtons).toHaveBeenCalledWith(true)
-  expect(setShowNavLabels).toHaveBeenCalledWith(true)
+  expect(setShowNavLabels).toHaveBeenCalledWith(false)
   expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
 })
 
-test('showNavLabels switch is checked by default', () => {
+test('showNavLabels switch is unchecked by default', () => {
   setup()
   render(<SettingsComponent />)
 
   const toggle = screen.getByRole('checkbox', {
     name: 'Toggle navigation labels',
   })
-  expect(toggle).toBeChecked()
+  expect(toggle).not.toBeChecked()
 })
 
 test('toggling showNavLabels switch calls setter with false when currently true', () => {
