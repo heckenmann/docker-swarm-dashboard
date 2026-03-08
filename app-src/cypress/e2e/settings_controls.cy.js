@@ -4,17 +4,12 @@ describe('Settings controls', () => {
   it('toggles dark mode and refresh interval', () => {
     visitBaseUrlAndTest(() => {
       cy.get('a[aria-label="Settings"]').click()
-      // toggle dark mode (checkbox/button may vary) - look for dark mode control
-      cy.get('input[type=checkbox], button').then((els) => {
-        // try finding a dark mode checkbox
-        const dark = els.toArray().find((e) => e.title && e.title.toLowerCase().includes('dark'))
-        if (dark) {
-          cy.wrap(dark).click({ force: true })
-        } else {
-          // fallback: click the first button in the settings page
-          cy.get('button').first().click({ force: true })
-        }
-      })
+      // Toggle dark mode using its aria-label
+      cy.get('input[aria-label="Toggle dark mode"]').check({ force: true })
+      cy.get('input[aria-label="Toggle dark mode"]').should('be.checked')
+      // Toggle it back off
+      cy.get('input[aria-label="Toggle dark mode"]').uncheck({ force: true })
+      cy.get('input[aria-label="Toggle dark mode"]').should('not.be.checked')
     })
   })
 })

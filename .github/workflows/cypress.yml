@@ -111,7 +111,7 @@ jobs:
           start: yarn run start:servers
           install: false
           command: yarn run cy:run --browser ${{ matrix.browser }}
-          wait-on: 'http://localhost:3000'
+          wait-on: 'http://localhost:3000, http://localhost:3001'
 
   # Gate job for Required Status Checks – always runs so branch protection
   # never stalls when cypress-run is skipped.
