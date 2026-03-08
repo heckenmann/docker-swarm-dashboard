@@ -74,6 +74,11 @@
   height: auto;
 }
 
+/* Prevent line breaks in all table headers across the app */
+thead th {
+  white-space: nowrap;
+}
+
 /* (removed unused rotated header styles) */
 
 .dashboard-table {
