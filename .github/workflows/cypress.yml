@@ -104,6 +104,9 @@ jobs:
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile
 
+      - name: Download assets
+        run: node download-files.js
+
       - name: Cypress run
         uses: cypress-io/github-action@v7
         with:
