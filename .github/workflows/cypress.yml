@@ -34,16 +34,16 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: app-src/yarn.lock
 
-      - name: Cache yarn and Cypress binary
+      - name: Cache Cypress binary
         uses: actions/cache@v5
         with:
-          path: |
-            ~/.yarn/cache
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ runner.arch }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
+            ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
@@ -76,16 +76,16 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: app-src/yarn.lock
 
-      - name: Restore yarn and Cypress binary cache
+      - name: Restore Cypress binary cache
         uses: actions/cache@v5
         with:
-          path: |
-            ~/.yarn/cache
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ runner.arch }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
+            ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
