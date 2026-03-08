@@ -19,6 +19,7 @@ import { ContentRouter } from './components/layout/ContentRouter'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
+  maxContentWidthAtom,
 } from './common/store/atoms'
 import './App.css'
 import bgLogo from './assets/docker.png'
@@ -28,6 +29,7 @@ library.add(fab, fas, far)
 const App = () => {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const maxContentWidth = useAtomValue(maxContentWidthAtom)
 
   return (
     <div
@@ -47,7 +49,10 @@ const App = () => {
       </ErrorBoundary>
       <LoadingBar />
       <main role="main">
-        <Container fluid className="overflow-auto">
+        <Container
+          fluid={maxContentWidth === 'fluid'}
+          className="overflow-auto"
+        >
           <ErrorBoundary>
             <Suspense fallback={null}>
               <WelcomeMessageComponent />

@@ -4,6 +4,7 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   isDarkModeAtom,
+  maxContentWidthAtom,
   refreshIntervalAtom,
   tableSizeAtom,
   showNamesButtonsAtom,
@@ -27,6 +28,7 @@ function SettingsComponent() {
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
   const [tableSize, setTableSize] = useAtom(tableSizeAtom)
   const [showNamesButtons, setShowNamesButtons] = useAtom(showNamesButtonsAtom)
+  const [maxContentWidth, setMaxContentWidth] = useAtom(maxContentWidthAtom)
   const [baseUrl, setBaseUrl] = useAtom(baseUrlAtom)
 
   const toggleRefreshAndNotifyUser = () => {
@@ -52,6 +54,7 @@ function SettingsComponent() {
     setIsDarkMode(false)
     setTableSize('sm')
     setShowNamesButtons(true)
+    setMaxContentWidth('fluid')
   }
 
   return (
@@ -182,6 +185,36 @@ function SettingsComponent() {
               />
             </td>
             <td className="small text-muted">sm</td>
+          </tr>
+          <tr>
+            <td>
+              <span
+                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
+                aria-hidden
+              >
+                <FontAwesomeIcon icon="ruler-horizontal" />
+              </span>
+            </td>
+            <td>
+              Centered layout
+              <div className="small text-muted">
+                Constrain and centre the content using Bootstrap&apos;s
+                responsive container instead of full viewport width.
+              </div>
+            </td>
+            <td>
+              <FormCheck
+                type="switch"
+                checked={maxContentWidth === 'centered'}
+                onChange={() =>
+                  setMaxContentWidth(
+                    maxContentWidth === 'centered' ? 'fluid' : 'centered',
+                  )
+                }
+                aria-label="Toggle centered content width"
+              />
+            </td>
+            <td className="small text-muted">Full width</td>
           </tr>
           <tr>
             <td>

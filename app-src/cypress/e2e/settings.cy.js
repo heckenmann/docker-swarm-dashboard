@@ -94,6 +94,16 @@ describe('Settings Tests', () => {
     cy.get('input[type="checkbox"]').check({ force: true })
     cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
   })
+
+  // Toggle centered layout and verify the switch state
+  cy.contains('tr', 'Centered layout').within(() => {
+    cy.get('input[type="checkbox"]').should('not.be.checked')
+    cy.get('input[type="checkbox"]').check({ force: true })
+    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
+  })
+
+  // Verify that the main container now has Bootstrap's 'container' class (not container-fluid)
+  cy.get('main .container').should('exist')
     })
   })
 })

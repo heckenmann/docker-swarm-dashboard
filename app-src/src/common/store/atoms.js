@@ -218,6 +218,10 @@ export const currentVariantClassesAtom = atom((get) =>
 // UI preferences
 // Control whether action buttons next to entity names are shown
 export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
+// Maximum content width for wide-screen displays.
+// 'fluid' = full-width (container-fluid), 'centered' = standard responsive
+// Bootstrap container (auto max-width based on breakpoint, centred).
+export const maxContentWidthAtom = atomWithHash('maxContentWidth', 'fluid')
 
 // Track outstanding network requests (number)
 export const networkRequestsAtom = atom(0)

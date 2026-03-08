@@ -255,4 +255,8 @@ describe('fetch-based atoms (combined)', () => {
     const t = await atoms.taskDetailAtom(getTask)
     expect(t).toEqual({ ok: true })
   })
-})
+  test('maxContentWidthAtom defaults to fluid', () => {
+    const atoms = require('../../../src/common/store/atoms')
+    // atomWithHash is mocked to return its default value directly
+    expect(atoms.maxContentWidthAtom).toBe('fluid')
+  })})
