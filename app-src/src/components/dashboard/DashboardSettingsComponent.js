@@ -6,13 +6,14 @@ import {
   viewAtom,
 } from '../../common/store/atoms'
 import { useAtomValue } from 'jotai'
-import { Row, Col, Form, ButtonGroup, Button } from 'react-bootstrap'
+import { ButtonGroup, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FilterComponent } from '../shared/FilterComponent'
 
 /**
- * DashboardSettingsComponent is a React functional component that renders
- * the settings for the dashboard, including layout options and a filter component.
+ * DashboardSettingsComponent renders layout toggle buttons on the left
+ * and the shared FilterComponent flush-right, matching the standard
+ * Card.Header pattern used across the dashboard.
  */
 function DashboardSettingsComponent() {
   const [view, updateViewId] = useAtom(viewAtom)
@@ -23,31 +24,35 @@ function DashboardSettingsComponent() {
     view?.id === dashboardVId || (!view?.id && defaultLayout === dashboardVId)
 
   return (
-    <>
-      <Row className="align-items-start">
-        <Col xs="auto">
-          <Form className="mb-2" data-bs-theme={variant}>
-            <ButtonGroup>
-              <Button
-                variant={`${vertical ? 'outline-' : ''}secondary`}
-                onClick={() => updateViewId({ id: dashboardHId })}
-              >
-                <FontAwesomeIcon icon="grip" />
-              </Button>
-              <Button
-                variant={`${vertical ? '' : 'outline-'}secondary`}
-                onClick={() => updateViewId({ id: dashboardVId })}
-              >
-                <FontAwesomeIcon icon="grip-vertical" />
-              </Button>
-            </ButtonGroup>
-          </Form>
-        </Col>
-        <Col xs={7}>
-          <FilterComponent />
-        </Col>
-      </Row>
-    </>
+    <div
+      className="d-flex justify-content-between align-items-center w-100"
+      data-bs-theme={variant}
+    >
+      <div className="d-flex align-items-center gap-2">
+        <div>
+          <FontAwesomeIcon
+            icon={vertical ? 'grip-vertical' : 'grip'}
+            className="me-2"
+          />
+          <strong>Dashboard</strong>
+        </div>
+        <ButtonGroup>
+          <Button
+            variant={`${vertical ? 'outline-' : ''}secondary`}
+            onClick={() => updateViewId({ id: dashboardHId })}
+          >
+            <FontAwesomeIcon icon="grip" />
+          </Button>
+          <Button
+            variant={`${vertical ? '' : 'outline-'}secondary`}
+            onClick={() => updateViewId({ id: dashboardVId })}
+          >
+            <FontAwesomeIcon icon="grip-vertical" />
+          </Button>
+        </ButtonGroup>
+      </div>
+      <FilterComponent />
+    </div>
   )
 }
 

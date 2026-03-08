@@ -8,6 +8,7 @@ import {
   timelineAtom,
 } from '../../common/store/atoms'
 import { Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FilterComponent } from '../shared/FilterComponent'
 import ReactApexChart from 'react-apexcharts'
 
@@ -197,7 +198,11 @@ function TimelineComponent() {
   return (
     <>
       <Card bg={currentVariant} className={currentVariantClasses}>
-        <Card.Header>
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <div>
+            <FontAwesomeIcon icon="timeline" className="me-2" />
+            <strong>Timeline</strong>
+          </div>
           <FilterComponent />
         </Card.Header>
         {optionsValidation.ok ? (

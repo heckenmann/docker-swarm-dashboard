@@ -83,7 +83,7 @@ function LogsComponent() {
             <FontAwesomeIcon icon="desktop" className="me-2" />
             <strong>Logs</strong>
           </div>
-          <div className="small text-muted">Choose a service and options</div>
+          <div className="text-muted">Choose a service and options</div>
         </Card.Header>
       )}
       <Card.Body>

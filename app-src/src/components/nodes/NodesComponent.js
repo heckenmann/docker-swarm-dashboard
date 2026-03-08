@@ -133,6 +133,12 @@ function NodesComponent() {
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
+          <FontAwesomeIcon icon="server" className="me-2" />
+          <strong>Nodes</strong>
+        </div>
+      </Card.Header>
       <Table
         variant={currentVariant}
         key="nodesTable"

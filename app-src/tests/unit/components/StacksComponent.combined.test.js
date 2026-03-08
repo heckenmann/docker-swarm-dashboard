@@ -28,6 +28,28 @@ describe('StacksComponent (combined)', () => {
     mockUseAtom.mockReset()
   })
 
+  test('renders filter card with Stacks title', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'dashboardSettingsAtom') return { locale: 'en', timeZone: 'UTC' }
+      if (atom === 'serviceNameFilterAtom') return ''
+      if (atom === 'stackNameFilterAtom') return ''
+      if (atom === 'stacksAtom') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return ''
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    render(<StacksComponent />)
+    expect(screen.getByText('Stacks')).toBeInTheDocument()
+  })
+
   test('shows service when serviceNameFilter matches (normalized)', () => {
     const stacks = [
       {

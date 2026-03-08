@@ -233,7 +233,7 @@ function DashboardComponent() {
 
   return (
     <Card>
-      <Card.Header>
+      <Card.Header className="d-flex justify-content-between align-items-center">
         <DashboardSettingsComponent />
       </Card.Header>
       <Card.Body>

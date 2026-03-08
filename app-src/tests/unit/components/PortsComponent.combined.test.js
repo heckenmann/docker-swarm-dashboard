@@ -28,6 +28,27 @@ describe('PortsComponent (combined)', () => {
     mockUseAtomValue.mockReset()
     mockUseAtom.mockReset()
   })
+  test('renders Card.Header with Ports title', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'portsAtom') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return ''
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'viewAtom') return [null, jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    render(<PortsComponent />)
+    expect(screen.getByText('Ports')).toBeInTheDocument()
+  })
+
   test('renders port row with service open and filter', () => {
     const ports = [
       {

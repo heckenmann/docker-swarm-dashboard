@@ -117,7 +117,11 @@ function PortsComponent() {
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
+          <FontAwesomeIcon icon="building" className="me-2" />
+          <strong>Ports</strong>
+        </div>
         <FilterComponent />
       </Card.Header>
       <Table

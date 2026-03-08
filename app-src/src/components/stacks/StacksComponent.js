@@ -196,7 +196,11 @@ function StacksComponent() {
   return (
     <>
       <Card className={currentVariantClasses + ' mb-3'} key={'card_filter'}>
-        <Card.Header>
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <div>
+            <FontAwesomeIcon icon="cubes" className="me-2" />
+            <strong>Stacks</strong>
+          </div>
           <FilterComponent />
         </Card.Header>
       </Card>

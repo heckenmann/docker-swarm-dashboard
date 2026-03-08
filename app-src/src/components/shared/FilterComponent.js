@@ -8,11 +8,21 @@ import {
 } from '../../common/store/atoms'
 
 // UI imports
-import { Form, InputGroup, Button } from 'react-bootstrap'
+import {
+  Form,
+  InputGroup,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
- * FilterComponent is a React functional component that provides a UI for filtering services or stacks.
+ * FilterComponent provides a UI for filtering services or stacks.
+ *
+ * The active filter type is toggled via icon-only buttons (folder = Service,
+ * cubes = Stack) with tooltips. The text input shows an inline ×-clear button
+ * that is only rendered when a filter is active.
  */
 function FilterComponent() {
   const variant = useAtomValue(currentVariantAtom)
@@ -23,7 +33,7 @@ function FilterComponent() {
     `${serviceFilter}${stackFilter}`,
   )
 
-  // Keep local UI state in sync when atoms change externally (e.g. clicking the magnifier sets stack filter)
+  // Keep local UI state in sync when atoms change externally
   useEffect(() => {
     if (serviceFilter) {
       setFilterType('service')
@@ -32,62 +42,65 @@ function FilterComponent() {
       setFilterType('stack')
       setFilterValue(stackFilter)
     } else {
-      // no filter
       setFilterValue('')
-      setFilterType('service')
     }
     // we only want to run when atoms change
   }, [serviceFilter, stackFilter])
 
-  const changeFilterType = (filterType) => {
-    setFilterType(filterType)
-    changeFilterValue(filterType, filterValue)
+  const changeFilterType = (type) => {
+    setFilterType(type)
+    changeFilterValue(type, filterValue)
   }
 
-  const changeFilterValue = (filterType, filterValue) => {
-    setFilterValue(filterValue)
-    if (filterType === 'service') {
+  const changeFilterValue = (type, value) => {
+    setFilterValue(value)
+    if (type === 'service') {
       setStackNameFilter('')
-      setServiceNameFilter(filterValue)
-    } else if (filterType === 'stack') {
+      setServiceNameFilter(value)
+    } else if (type === 'stack') {
       setServiceNameFilter('')
-      setStackNameFilter(filterValue)
+      setStackNameFilter(value)
     }
   }
 
   return (
-    <Form className="mb-2" data-bs-theme={variant}>
-      <InputGroup className="d-flex flex-nowrap">
-        <InputGroup.Text>
-          <FontAwesomeIcon icon="filter" />
-        </InputGroup.Text>
-        <Form.Select
-          className="flex-grow-1 me-2"
-          value={filterType}
-          onChange={(event) => {
-            changeFilterType(event.target.value)
-          }}
-        >
-          <option value="service">Service</option>
-          <option value="stack">Stack</option>
-        </Form.Select>
-        <Form.Control
-          className="flex-grow-1"
-          placeholder={`Filter services by ${filterType} name`}
-          value={filterValue}
-          onChange={(event) =>
-            changeFilterValue(filterType, event.target.value)
-          }
-        />
+    <InputGroup style={{ maxWidth: '22rem' }} data-bs-theme={variant}>
+      <OverlayTrigger overlay={<Tooltip>Service</Tooltip>}>
         <Button
-          variant={filterValue ? 'danger' : 'outline-secondary'}
+          variant={filterType === 'service' ? 'secondary' : 'outline-secondary'}
+          onClick={() => changeFilterType('service')}
+          aria-label="Filter by service"
+          aria-pressed={filterType === 'service'}
+        >
+          <FontAwesomeIcon icon="folder" />
+        </Button>
+      </OverlayTrigger>
+      <OverlayTrigger overlay={<Tooltip>Stack</Tooltip>}>
+        <Button
+          variant={filterType === 'stack' ? 'secondary' : 'outline-secondary'}
+          onClick={() => changeFilterType('stack')}
+          aria-label="Filter by stack"
+          aria-pressed={filterType === 'stack'}
+        >
+          <FontAwesomeIcon icon="cubes" />
+        </Button>
+      </OverlayTrigger>
+      <Form.Control
+        placeholder="Filter…"
+        value={filterValue}
+        onChange={(event) => changeFilterValue(filterType, event.target.value)}
+        aria-label={`Filter by ${filterType} name`}
+      />
+      {filterValue && (
+        <Button
+          variant="outline-secondary"
           onClick={() => changeFilterValue(filterType, '')}
-          disabled={!filterValue}
+          aria-label="Clear filter"
         >
           <FontAwesomeIcon icon="times" />
         </Button>
-      </InputGroup>
-    </Form>
+      )}
+    </InputGroup>
   )
 }
 

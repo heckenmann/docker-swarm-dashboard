@@ -127,6 +127,24 @@ describe('NodesComponent (combined)', () => {
     expect(screen.getByText('3.3.3.3')).toBeInTheDocument()
   })
 
+  test('renders Card.Header with Nodes title', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'nodesAtomNew') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return null
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    render(<NodesComponent />)
+    expect(screen.getByText('Nodes')).toBeInTheDocument()
+  })
+
   test('clicking column headers triggers sorting with 3-click cycle', () => {
     const nodes = [
       {
