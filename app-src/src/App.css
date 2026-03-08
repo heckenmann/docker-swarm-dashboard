@@ -69,10 +69,9 @@
   min-width: 0;
 }
 
-/* keep headers naturally sized; prevent line breaks in dashboard table headers (scoped to avoid overflow on small screens) */
+/* keep headers naturally sized in dashboard table */
 .dashboard-table thead th {
   height: auto;
-  white-space: nowrap;
 }
 
 /* (removed unused rotated header styles) */

@@ -42,7 +42,7 @@ export function SortableHeader({
       aria-sort={sortState}
       aria-label={`Sort by ${label}, currently ${sortState === 'none' ? 'unsorted' : sortState}`}
       style={{ ...style, cursor: 'pointer' }}
-      className={className}
+      className={['text-nowrap', className].filter(Boolean).join(' ')}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
