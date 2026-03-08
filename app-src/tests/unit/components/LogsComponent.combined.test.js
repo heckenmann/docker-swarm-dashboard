@@ -341,8 +341,8 @@ describe('LogsComponent (combined)', () => {
         screen.getByRole('button', { name: /Show logs/i }),
       ).toBeInTheDocument(),
     )
-    const opts = container.querySelectorAll('option')
-    expect(opts.length).toBe(1)
+    // ListGroup shows a placeholder when no services are available
+    expect(screen.getByText('No services available')).toBeInTheDocument()
     // and the Show logs button should remain disabled
     const showBtn = screen.getByRole('button', { name: /Show logs/i })
     expect(showBtn).toBeDisabled()
@@ -2063,6 +2063,12 @@ describe('LogsComponent (combined)', () => {
   })
 
   test('Select shows Name (ID) and Show logs enables/disables accordingly', async () => {
+    function ServiceSetter() {
+      const [, setId] = useAtom(atoms.logsFormServiceIdAtom)
+      const [, setName] = useAtom(atoms.logsFormServiceNameAtom)
+      useEffect(() => { setId('s1'); setName('svc') }, [setId, setName])
+      return null
+    }
     const { container } = render(
       <Suspense fallback={<div>loading</div>}>
         <Provider
@@ -2071,21 +2077,20 @@ describe('LogsComponent (combined)', () => {
             [atoms.logsNumberOfLinesAtom, 5],
           ]}
         >
+          <ServiceSetter />
           <LogsComponent />
         </Provider>
       </Suspense>,
     )
 
     const showBtn = screen.getByRole('button', { name: /Show logs/i })
-    expect(showBtn).toBeDisabled()
+    // Wait for ServiceSetter to pre-set the service via atom
+    await waitFor(() => expect(showBtn).not.toBeDisabled())
 
-    const select = screen.getByLabelText(/Select service/i)
-    // selecting a known service id may enable the Show logs button in normal usage;
-    // in this test render environment ensure selection changes don't throw and
-    // that clearing the selection keeps the button disabled
-    fireEvent.change(select, { target: { value: 's1' } })
-    // clear selection
-    fireEvent.change(select, { target: { value: '' } })
+    // Type in search input to deselect the service
+    fireEvent.change(screen.getByLabelText('Search services'), {
+      target: { value: 'x' },
+    })
     await waitFor(() => expect(showBtn).toBeDisabled())
   })
 
@@ -2190,15 +2195,22 @@ describe('LogsComponent (combined)', () => {
   })
 
   test('shows validation error for invalid duration since input (merged)', async () => {
+    function ServiceSetter() {
+      const [, setId] = useAtom(atoms.logsFormServiceIdAtom)
+      const [, setName] = useAtom(atoms.logsFormServiceNameAtom)
+      useEffect(() => { setId('s1'); setName('svc') }, [setId, setName])
+      return null
+    }
     const { container } = render(
       <Provider
         initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5]]}
       >
+        <ServiceSetter />
         <LogsComponent />
       </Provider>,
     )
 
-    fireEvent.change(screen.getByLabelText('Select service'), { target: { value: 's1' } })
+    await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).not.toBeDisabled())
     const sinceAmount = screen.getByLabelText('Since amount')
     fireEvent.change(sinceAmount, { target: { value: '' } })
     fireEvent.submit(container.querySelector('form'))
@@ -2217,19 +2229,24 @@ describe('LogsComponent (combined)', () => {
   // Legacy/extra tests merged from separate files
   describe('LogsComponent legacy tests', () => {
     test('Since ISO toggle shows validation error then accepts valid ISO', async () => {
+      function ServiceSetter() {
+        const [, setId] = useAtom(atoms.logsFormServiceIdAtom)
+        const [, setName] = useAtom(atoms.logsFormServiceNameAtom)
+        useEffect(() => { setId('s1'); setName('svc') }, [setId, setName])
+        return null
+      }
       const { container } = render(
         <Suspense fallback={<div>loading</div>}>
           <Provider
             initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5]]}
           >
+            <ServiceSetter />
             <LogsComponent />
           </Provider>
         </Suspense>,
       )
 
-      await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).toBeInTheDocument())
-
-      fireEvent.change(screen.getByLabelText('Select service'), { target: { value: 's1' } })
+      await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).not.toBeDisabled())
 
       const isoBtn = screen.getByLabelText('Switch to ISO')
       fireEvent.click(isoBtn)
@@ -2247,15 +2264,22 @@ describe('LogsComponent (combined)', () => {
     })
 
     test('since units and presets update since state (legacy)', async () => {
+      function ServiceSetter() {
+        const [, setId] = useAtom(atoms.logsFormServiceIdAtom)
+        const [, setName] = useAtom(atoms.logsFormServiceNameAtom)
+        useEffect(() => { setId('s1'); setName('svc') }, [setId, setName])
+        return null
+      }
       const { container } = render(
         <Provider
           initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5]]}
         >
+          <ServiceSetter />
           <LogsComponent />
         </Provider>,
       )
 
-      fireEvent.change(screen.getByLabelText('Select service'), { target: { value: 's1' } })
+      await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).not.toBeDisabled())
 
       const minBtn = screen.getByRole('button', { name: /m \(minutes\)/i })
       fireEvent.click(minBtn)
@@ -2270,15 +2294,22 @@ describe('LogsComponent (combined)', () => {
     })
 
     test('click all since unit and preset buttons (legacy)', async () => {
+      function ServiceSetter() {
+        const [, setId] = useAtom(atoms.logsFormServiceIdAtom)
+        const [, setName] = useAtom(atoms.logsFormServiceNameAtom)
+        useEffect(() => { setId('s1'); setName('svc') }, [setId, setName])
+        return null
+      }
       render(
         <Provider
           initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5]]}
         >
+          <ServiceSetter />
           <LogsComponent />
         </Provider>,
       )
 
-      fireEvent.change(screen.getByLabelText('Select service'), { target: { value: 's1' } })
+      await waitFor(() => expect(screen.getByRole('button', { name: /Show logs/i })).not.toBeDisabled())
 
       const units = screen.getAllByRole('button').filter((b) => /(seconds|minutes|hours|days)/i.test(b.textContent))
       units.forEach((b) => fireEvent.click(b))
@@ -2300,10 +2331,17 @@ describe('LogsComponent (combined)', () => {
       URL.revokeObjectURL = jest.fn()
       Object.defineProperty(navigator, 'clipboard', { value: { writeText: jest.fn() }, configurable: true })
 
+      function ServiceSetter() {
+        const [, setId] = useAtom(atoms.logsFormServiceIdAtom)
+        const [, setName] = useAtom(atoms.logsFormServiceNameAtom)
+        useEffect(() => { setId('s1'); setName('svc') }, [setId, setName])
+        return null
+      }
       const { container } = render(
         <Provider
           initialValues={[[atoms.logsServicesAtom, [{ ID: 's1', Name: 'svc' }]], [atoms.logsNumberOfLinesAtom, 5], [atoms.logsLinesAtom, []], [atoms.logsShowLogsAtom, false], [atoms.logsConfigAtom, null]]}
         >
+          <ServiceSetter />
           <LogsComponent />
         </Provider>,
       )
@@ -2315,7 +2353,7 @@ describe('LogsComponent (combined)', () => {
       fireEvent.blur(isoInput)
       await waitFor(() => expect(screen.queryByText(/Invalid ISO timestamp|Invalid value/)).toBeInTheDocument())
 
-      fireEvent.change(screen.getByLabelText('Select service'), { target: { value: 's1' } })
+      // Service is pre-set via ServiceSetter; submit with invalid ISO should not show logs
       fireEvent.submit(container.querySelector('form'))
       await waitFor(() => expect(screen.queryByLabelText('Log output')).not.toBeInTheDocument())
 
