@@ -9,6 +9,7 @@
     "start-dev-server": "BROWSER=none webpack serve",
     "open-browser": "open http://localhost:3000#base=\"http%3A%2F%2Flocalhost%3A3001%2F\"",
     "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\" \"sleep 2 && yarn run open-browser\"",
+    "start:servers": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\"",
     "format": "prettier --write src/**/*.js",
     "postinstall": "node download-files.js",
     "lint": "eslint src",

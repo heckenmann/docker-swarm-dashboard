@@ -34,19 +34,25 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: app-src/yarn.lock
 
-      - name: Cache yarn and Cypress binary
+      - name: Cache Cypress binary
         uses: actions/cache@v5
         with:
-          path: |
-            ~/.yarn/cache
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ runner.arch }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
+            ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
+
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: app-src/node_modules
+          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
 
       - name: Update browserslist
         run: NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest
@@ -76,28 +82,39 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: app-src/yarn.lock
 
-      - name: Restore yarn and Cypress binary cache
+      - name: Restore Cypress binary cache
         uses: actions/cache@v5
         with:
-          path: |
-            ~/.yarn/cache
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-${{ hashFiles('**/app-src/yarn.lock') }}
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ runner.arch }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cypress-yarn-
+            ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
+
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache@v5
+        with:
+          path: app-src/node_modules
+          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
 
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile
+
+      - name: Download assets
+        run: node download-files.js
 
       - name: Cypress run
         uses: cypress-io/github-action@v7
         with:
           working-directory: ${{ env.WORKING_DIRECTORY }}
-          start: yarn run start
+          start: yarn run start:servers
           install: false
           command: yarn run cy:run --browser ${{ matrix.browser }}
-          wait-on: 'http://localhost:3000'
+          wait-on: 'http://localhost:3000, http://localhost:3001/health'
 
   # Gate job for Required Status Checks – always runs so branch protection
   # never stalls when cypress-run is skipped.
