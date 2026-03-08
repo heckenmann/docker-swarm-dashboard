@@ -8,7 +8,6 @@ import {
 import { Card, Tabs, Tab } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from '../shared/JsonTable'
-import ServiceStatusBadge from '../services/ServiceStatusBadge'
 import { useState, useEffect } from 'react'
 import { TaskInfoTable } from './details/TaskInfoTable'
 import { TaskMetricsContent } from './details/TaskMetricsContent'
@@ -66,15 +65,9 @@ function DetailsTaskComponent() {
   return (
     <div>
       <Card className={currentVariantClasses}>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <div>
-            <FontAwesomeIcon icon="tasks" className="me-2" />
-            <strong>Task Details</strong>
-          </div>
-          <ServiceStatusBadge
-            id={currentTask.ID}
-            serviceState={currentTask.Status?.State}
-          />
+        <Card.Header>
+          <FontAwesomeIcon icon="tasks" className="me-2" />
+          <strong>Task Details</strong>
         </Card.Header>
         <Card.Body>
           <Tabs defaultActiveKey="metrics" className="mb-3">

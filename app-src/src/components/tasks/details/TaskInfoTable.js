@@ -2,8 +2,7 @@ import { useAtomValue } from 'jotai'
 import { currentVariantClassesAtom } from '../../../common/store/atoms'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 import { Table } from 'react-bootstrap'
-import { NodeName } from '../../shared/names/NodeName'
-import { ServiceName } from '../../shared/names/ServiceName'
+import { EntityName } from '../../shared/names/EntityName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 
 /**
@@ -25,14 +24,11 @@ function TaskInfoTable({ taskObj }) {
               <strong>Service</strong>
             </td>
             <td>
-              {taskObj.ServiceName ? (
-                <ServiceName
-                  name={taskObj.ServiceName}
-                  id={taskObj.ServiceID}
-                />
-              ) : (
-                taskObj.ServiceID
-              )}
+              <EntityName
+                name={taskObj.ServiceName || taskObj.ServiceID}
+                id={taskObj.ServiceID}
+                entityType="service"
+              />
             </td>
           </tr>
           <tr>
@@ -40,11 +36,12 @@ function TaskInfoTable({ taskObj }) {
               <strong>Node</strong>
             </td>
             <td>
-              {taskObj.NodeName ? (
-                <NodeName name={taskObj.NodeName} id={taskObj.NodeID} />
-              ) : (
-                taskObj.NodeID
-              )}
+              <EntityName
+                name={taskObj.NodeName || taskObj.NodeID}
+                id={taskObj.NodeID}
+                entityType="node"
+                showFilter={false}
+              />
             </td>
           </tr>
           <tr>
