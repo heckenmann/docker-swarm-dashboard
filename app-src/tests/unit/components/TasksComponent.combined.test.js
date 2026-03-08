@@ -571,4 +571,59 @@ describe('TasksComponent (combined)', () => {
     const result3 = updater3({ sortBy: 'ServiceName', sortDirection: 'desc' })
     expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
+
+  // ---- tableSizeAtom effect ----
+  test('tasks table has table-sm class when tableSizeAtom is sm', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom': return 'light'
+        case 'currentVariantClassesAtom': return ''
+        case 'tableSizeAtom': return 'sm'
+        case 'dashboardSettingsAtom': return { locale: 'en', timeZone: 'UTC' }
+        case 'serviceNameFilterAtom': return ''
+        case 'stackNameFilterAtom': return ''
+        case 'tasksAtomNew': return []
+        case 'showNamesButtonsAtom': return false
+        default: return ''
+      }
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'viewAtom') return [null, jest.fn()]
+      return [null, jest.fn()]
+    })
+    const { container } = render(<TasksComponent />)
+    const table = container.querySelector('table.tasks-table')
+    expect(table).toBeTruthy()
+    expect(table.className).toContain('table-sm')
+  })
+
+  test('tasks table does not have table-sm class when tableSizeAtom is lg', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom': return 'light'
+        case 'currentVariantClassesAtom': return ''
+        case 'tableSizeAtom': return 'lg'
+        case 'dashboardSettingsAtom': return { locale: 'en', timeZone: 'UTC' }
+        case 'serviceNameFilterAtom': return ''
+        case 'stackNameFilterAtom': return ''
+        case 'tasksAtomNew': return []
+        case 'showNamesButtonsAtom': return false
+        default: return ''
+      }
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'viewAtom') return [null, jest.fn()]
+      return [null, jest.fn()]
+    })
+    const { container } = render(<TasksComponent />)
+    const table = container.querySelector('table.tasks-table')
+    expect(table).toBeTruthy()
+    expect(table.className).not.toContain('table-sm')
+  })
 })

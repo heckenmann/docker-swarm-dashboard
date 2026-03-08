@@ -68,4 +68,58 @@ describe('JsonTable combined', () => {
       JSON.stringify = origStringify
     })
   })
+
+  // ---- tableSizeAtom effect ----
+  test('table has table-sm class when tableSizeAtom is sm', () => {
+    jest.isolateModules(() => {
+      jest.doMock('jotai', () => ({ atom: (v) => v, useAtomValue: () => 'sm' }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
+      jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
+      // Mock Table to translate size prop into the Bootstrap CSS class without needing React context
+      jest.doMock('react-bootstrap', () => ({
+        Table: ({ size, children }) =>
+          React.createElement(
+            'table',
+            { className: ['table', size ? `table-${size}` : ''].filter(Boolean).join(' ') },
+            children,
+          ),
+      }))
+      const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
+      const { container } = render(React.createElement(JsonTable, { json: { a: 1 } }))
+      const table = container.querySelector('table')
+      expect(table).toBeTruthy()
+      expect(table.className).toContain('table-sm')
+    })
+  })
+
+  test('table does not have table-sm class when tableSizeAtom is lg', () => {
+    jest.isolateModules(() => {
+      jest.doMock('jotai', () => ({ atom: (v) => v, useAtomValue: () => 'lg' }))
+      jest.doMock('jotai/utils', () => ({
+        atomWithReducer: (v) => v,
+        atomWithReset: (v) => v,
+        selectAtom: (a) => a,
+        atomWithHash: (k, def) => def,
+      }))
+      jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
+      jest.doMock('react-bootstrap', () => ({
+        Table: ({ size, children }) =>
+          React.createElement(
+            'table',
+            { className: ['table', size ? `table-${size}` : ''].filter(Boolean).join(' ') },
+            children,
+          ),
+      }))
+      const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
+      const { container } = render(React.createElement(JsonTable, { json: { a: 1 } }))
+      const table = container.querySelector('table')
+      expect(table).toBeTruthy()
+      expect(table.className).not.toContain('table-sm')
+    })
+  })
 })
