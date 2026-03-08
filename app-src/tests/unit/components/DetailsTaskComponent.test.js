@@ -233,6 +233,7 @@ describe('DetailsTaskComponent', () => {
   })
 
   test('shows fetch error alert on network failure', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
     mockUseAtomValue.mockImplementation(baseAtomValues(mkTask()))
     global.fetch.mockRejectedValue(new Error('network down'))
 
@@ -240,6 +241,7 @@ describe('DetailsTaskComponent', () => {
     await waitFor(() => {
       expect(screen.getByText(/failed to fetch metrics/i)).toBeInTheDocument()
     })
+    consoleErrorSpy.mockRestore()
   })
 
   test('renders dark mode charts without crashing', async () => {
