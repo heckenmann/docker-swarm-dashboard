@@ -231,8 +231,24 @@ export const dashboardSettingsAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
 
+// Incrementing this atom triggers a re-fetch of versionAtom without causing
+// a full-page Suspense re-render on every navigation (unlike viewAtom).
+export const versionRefreshAtom = atom(0)
+
 export const versionAtom = atom(async (get) => {
-  return (await fetch(get(baseUrlAtom) + 'ui/version')).json()
+  // Only re-fetch when the user explicitly triggers a refresh, not on navigation.
+  get(versionRefreshAtom)
+  try {
+    return await (await fetch(get(baseUrlAtom) + 'ui/version')).json()
+  } catch {
+    // Return a safe fallback so the UI does not crash on network errors.
+    return {
+      version: '',
+      remoteVersion: '',
+      updateAvailable: false,
+      lastChecked: '',
+    }
+  }
 })
 
 export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>

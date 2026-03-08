@@ -100,6 +100,7 @@ describe('fetch-based atoms (all combined)', () => {
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
       if (req === atoms.baseUrlAtom) return '/'
+      if (req === atoms.versionRefreshAtom) return 0
       if (req === atoms.dashboardSettingsAtom) return { defaultLayout: 'row' }
       return null
     }
@@ -107,6 +108,23 @@ describe('fetch-based atoms (all combined)', () => {
     const layoutId = await atoms.dashboardSettingsDefaultLayoutViewIdAtom(get)
     expect(ver).toEqual({ v: '1.2.3' })
     expect(typeof layoutId).toBe('string')
+  })
+
+  test('versionAtom returns safe fallback on fetch error', async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error('network error'))
+    const atoms = require('../../../src/common/store/atoms')
+    const get = (req) => {
+      if (req === atoms.baseUrlAtom) return '/'
+      if (req === atoms.versionRefreshAtom) return 0
+      return null
+    }
+    const ver = await atoms.versionAtom(get)
+    expect(ver).toEqual({
+      version: '',
+      remoteVersion: '',
+      updateAvailable: false,
+      lastChecked: '',
+    })
   })
 
   test('dashboardSettingsAtom fetch rejection propagates', async () => {

@@ -9,6 +9,7 @@ import {
   logsShowLogsAtom,
   refreshIntervalAtom,
   versionAtom,
+  versionRefreshAtom,
   viewAtom,
 } from '../../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
@@ -46,6 +47,7 @@ function DashboardNavbar() {
   // messageReducer removed — do not show toast on manual refresh
   const currentVariant = useAtomValue(currentVariantAtom)
   const [view, updateView] = useAtom(viewAtom)
+  const [, incrementVersionRefresh] = useAtom(versionRefreshAtom)
   const logsShowLogs = useAtomValue(logsShowLogsAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
@@ -54,6 +56,7 @@ function DashboardNavbar() {
 
   const reloadData = () => {
     updateView((prev) => ({ ...prev, timestamp: new Date() }))
+    incrementVersionRefresh((n) => n + 1)
   }
 
   // Automatic refresh interval using useEffect
@@ -202,17 +205,28 @@ function DashboardNavbar() {
                 <FontAwesomeIcon icon="sync" />
               </Button>
               <Button
+                aria-label="Version update"
                 variant={
                   dashboardSettings.versionCheckEnabled &&
                   version.updateAvailable
                     ? 'info'
                     : 'secondary'
                 }
+                className="position-relative"
                 onClick={() =>
                   updateView((prev) => ({ ...prev, id: versionUpdateId }))
                 }
               >
                 <FontAwesomeIcon icon="cloud-download-alt" />
+                {dashboardSettings.versionCheckEnabled &&
+                  version.updateAvailable && (
+                    <span
+                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger version-update-badge"
+                      aria-label="Update available"
+                    >
+                      !
+                    </span>
+                  )}
               </Button>
             </ButtonGroup>
           </Navbar.Collapse>
