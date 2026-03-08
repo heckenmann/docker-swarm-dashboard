@@ -17,6 +17,16 @@ func TestGetLatestRemoteVersion_NoURL(t *testing.T) {
 	}
 }
 
+// TestLastCheckTime_InitiallyZero ensures LastCheckTime returns the zero value before any check.
+func TestLastCheckTime_InitiallyZero(t *testing.T) {
+	mu.Lock()
+	lastCheckTime = time.Time{}
+	mu.Unlock()
+	if !LastCheckTime().IsZero() {
+		t.Fatalf("expected zero time before any check")
+	}
+}
+
 // TestGetLatestRemoteVersion_Success verifies parsing of remote release tag.
 func TestGetLatestRemoteVersion_Success(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +59,38 @@ func TestGetCacheTimeout_Valid(t *testing.T) {
 		t.Fatalf("expected 5m, got %v", d)
 	}
 }
+
+// TestGetLocalVersion_BuildVersionFallback ensures getLocalVersion falls back to
+// the compile-time BuildVersion when DSD_VERSION is not set.
+func TestGetLocalVersion_BuildVersionFallback(t *testing.T) {
+	_ = os.Unsetenv("DSD_VERSION")
+	BuildVersion = "4.5.6"
+	defer func() { BuildVersion = "" }()
+	v, err := getLocalVersion()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if v != "4.5.6" {
+		t.Fatalf("expected 4.5.6, got %s", v)
+	}
+}
+
+// TestGetLocalVersion_EnvVarTakesPrecedence ensures DSD_VERSION takes precedence
+// over the compile-time BuildVersion.
+func TestGetLocalVersion_EnvVarTakesPrecedence(t *testing.T) {
+	_ = os.Setenv("DSD_VERSION", "9.9.9")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	BuildVersion = "1.0.0"
+	defer func() { BuildVersion = "" }()
+	v, err := getLocalVersion()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if v != "9.9.9" {
+		t.Fatalf("expected DSD_VERSION=9.9.9 to take precedence, got %s", v)
+	}
+}
+
 
 // TestGetLocalVersion_Success ensures getLocalVersion reads the env variable.
 func TestGetLocalVersion_Success(t *testing.T) {
@@ -95,6 +137,8 @@ func TestCheckVersion_RemoteNonSemver(t *testing.T) {
 // TestCheckVersion_NoLocal ensures checkVersion returns false when no local version set.
 func TestCheckVersion_NoLocal(t *testing.T) {
 	_ = os.Unsetenv("DSD_VERSION")
+	BuildVersion = ""
+	defer func() { BuildVersion = "" }()
 	_, _, ok := CheckVersion()
 	if ok {
 		t.Fatalf("expected ok false when no local version")
@@ -251,8 +295,8 @@ func TestCheckVersion_CachePanicWithInvalidRemoteSemver(t *testing.T) {
 }
 
 // TestCheckVersion_CacheInvalidLocalSemver ensures that when the cache path is
-// taken but the local version is invalid semver, checkVersion returns false
-// without attempting a remote fetch.
+// taken but the local version is invalid semver, checkVersion returns the local
+// version string and cached remote version, but no update flag.
 func TestCheckVersion_CacheInvalidLocalSemver(t *testing.T) {
 	_ = os.Setenv("DSD_VERSION", "not-a-semver")
 	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
@@ -264,7 +308,7 @@ func TestCheckVersion_CacheInvalidLocalSemver(t *testing.T) {
 	lastCheckTime = time.Now()
 
 	local, remote, ok := CheckVersion()
-	if local != "" || remote != "" || ok {
-		t.Fatalf("expected empty versions and ok=false when local semver invalid in cache path, got %v %v %v", local, remote, ok)
+	if local != "not-a-semver" || remote != "2.0.0" || ok {
+		t.Fatalf("expected local=not-a-semver, remote=2.0.0, ok=false in cache path, got %v %v %v", local, remote, ok)
 	}
 }

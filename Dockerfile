@@ -5,7 +5,8 @@ FROM golang:1.26-alpine AS go
 RUN apk -U add git libc-dev
 COPY server-src/ /tmp/server-src
 WORKDIR /tmp/server-src
-RUN go build -o docker-swarm-dashboard
+ARG VERSION=0.0.0
+RUN go build -ldflags "-X heckenmann.de/docker-swarm-dashboard/v2/internal/version.BuildVersion=${VERSION}" -o docker-swarm-dashboard
 
 ##############################################################################
 # Stage 2: Build the Node.js application

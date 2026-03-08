@@ -20,6 +20,10 @@ type gitHubRelease struct {
 	TagName string `json:"tag_name"`
 }
 
+// BuildVersion is the application version embedded at compile time via -ldflags.
+// It is used as a fallback when the DSD_VERSION environment variable is not set.
+var BuildVersion string
+
 var (
 	mu                  sync.RWMutex
 	lastCheckTime       time.Time
@@ -34,9 +38,14 @@ func LastCheckTime() time.Time {
 	return lastCheckTime
 }
 
-// getLocalVersion reads the running version from the DSD_VERSION environment variable.
+// getLocalVersion returns the running version.
+// It prefers the DSD_VERSION environment variable (runtime override) and falls
+// back to the BuildVersion value embedded at compile time via -ldflags.
 func getLocalVersion() (string, error) {
 	version := os.Getenv("DSD_VERSION")
+	if version == "" {
+		version = BuildVersion
+	}
 	if version == "" {
 		return "", fmt.Errorf("local version not set")
 	}
@@ -103,7 +112,7 @@ func CheckVersion() (string, string, bool) {
 	if cacheAge < getCacheTimeout() {
 		localSemver, err := semver.Make(localVersion)
 		if err != nil {
-			return "", "", false
+			return localVersion, cachedRemote, false
 		}
 		remoteSemver, err := semver.Make(cachedRemote)
 		if err != nil {
