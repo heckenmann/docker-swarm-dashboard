@@ -10,6 +10,10 @@ jest.mock('../../../src/common/store/atoms', () => ({
   baseUrlAtom: 'baseUrlAtom',
   isDarkModeAtom: 'isDarkModeAtom',
   viewAtom: 'viewAtom',
+  serviceNameFilterAtom: 'serviceNameFilterAtom',
+  stackNameFilterAtom: 'stackNameFilterAtom',
+  filterTypeAtom: 'filterTypeAtom',
+  showNamesButtonsAtom: 'showNamesButtonsAtom',
 }))
 
 // Mock components used inside DetailsTaskComponent
@@ -17,12 +21,10 @@ jest.mock('../../../src/components/shared/JsonTable', () => ({
   JsonTable: () => <div data-testid="json-table">JsonTable Mock</div>,
 }))
 
-jest.mock('../../../src/components/shared/names/NodeName', () => ({
-  NodeName: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
-}))
-
-jest.mock('../../../src/components/shared/names/ServiceName', () => ({
-  ServiceName: ({ name, id }) => <span data-testid="service-name">{name || id}</span>,
+jest.mock('../../../src/components/shared/names/EntityName', () => ({
+  EntityName: ({ name, id, entityType }) => (
+    <span data-testid={entityType === 'node' ? 'node-name' : 'service-name'}>{name || id}</span>
+  ),
 }))
 
 jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
@@ -38,8 +40,10 @@ jest.mock('../../../src/common/DefaultDateTimeFormat', () => ({
 global.fetch = jest.fn()
 
 const mockUseAtomValue = jest.fn()
+const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtom: (...args) => mockUseAtom(...args),
 }))
 
 const mod = require('../../../src/components/tasks/DetailsTaskComponent')
@@ -102,6 +106,8 @@ const mkMetrics = (overrides = {}) => ({
 describe('DetailsTaskComponent', () => {
   beforeEach(() => {
     mockUseAtomValue.mockReset()
+    mockUseAtom.mockReset()
+    mockUseAtom.mockReturnValue([null, jest.fn()])
     global.fetch.mockReset()
     jest.clearAllMocks()
     ReactApexChartMock.clearCaptured()
