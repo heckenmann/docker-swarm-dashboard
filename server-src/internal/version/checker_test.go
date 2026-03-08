@@ -176,6 +176,80 @@ func TestCheckVersion_InvalidLocalSemver(t *testing.T) {
 	}
 }
 
+// TestCheckVersion_RaceCondition detects concurrent read/write races on the
+// package-level cache variables (lastCheckTime, cachedRemoteVersion).
+//
+// The bug: both variables are plain package-level vars with no mutex. When
+// multiple HTTP requests call CheckVersion() simultaneously – which is the
+// normal production scenario – the Go race detector reports a data race on
+// every concurrent read+write pair.
+//
+// Run with: go test -race ./internal/version/ -run TestCheckVersion_RaceCondition
+func TestCheckVersion_RaceCondition(t *testing.T) {
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	defer func() { _ = os.Unsetenv("DSD_VERSION_CHECK_ENABLED") }()
+	_ = os.Setenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES", "0") // always expire
+	defer func() { _ = os.Unsetenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES") }()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]string{"tag_name": "2.0.0"})
+	}))
+	defer srv.Close()
+	_ = os.Setenv("DSD_VERSION_RELEASE_URL", srv.URL)
+	defer func() { _ = os.Unsetenv("DSD_VERSION_RELEASE_URL") }()
+
+	// Reset cache so every goroutine triggers a real fetch + write cycle.
+	lastCheckTime = time.Time{}
+	cachedRemoteVersion = ""
+
+	// Launch several goroutines that all call CheckVersion concurrently.
+	// Without a mutex, the race detector will report a DATA RACE on
+	// lastCheckTime / cachedRemoteVersion.
+	const goroutines = 10
+	done := make(chan struct{}, goroutines)
+	for i := 0; i < goroutines; i++ {
+		go func() {
+			_, _, _ = CheckVersion()
+			done <- struct{}{}
+		}()
+	}
+	for i := 0; i < goroutines; i++ {
+		<-done
+	}
+}
+
+// TestCheckVersion_CachePanicWithInvalidRemoteSemver reproduces the panic that
+// occurs when the cache is primed with a non-semver remote version string and
+// CheckVersion is called again within the cache window.
+//
+// The bug: after a successful fetch that returned a non-semver remote tag,
+// lastCheckTime is updated and cachedRemoteVersion holds the invalid string.
+// The next call within the cache timeout enters the cache path and calls
+// semver.MustParse(cachedRemoteVersion), which panics on invalid input.
+func TestCheckVersion_CachePanicWithInvalidRemoteSemver(t *testing.T) {
+	_ = os.Setenv("DSD_VERSION", "1.0.0")
+	defer func() { _ = os.Unsetenv("DSD_VERSION") }()
+	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
+	defer func() { _ = os.Unsetenv("DSD_VERSION_CHECK_ENABLED") }()
+
+	// Simulate a previously cached non-semver remote version with a fresh cache.
+	// This state is reachable: a prior call fetched "not-a-semver" from the remote,
+	// set lastCheckTime = time.Now() and cachedRemoteVersion = "not-a-semver".
+	lastCheckTime = time.Now()
+	cachedRemoteVersion = "not-a-semver"
+
+	// Before the fix, this panics inside the cache path via semver.MustParse.
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("CheckVersion panicked with cached invalid remote semver: %v", r)
+		}
+	}()
+
+	_, _, _ = CheckVersion()
+}
+
 // TestCheckVersion_CacheInvalidLocalSemver ensures that when the cache path is
 // taken but the local version is invalid semver, checkVersion returns false
 // without attempting a remote fetch.

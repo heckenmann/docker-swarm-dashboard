@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/blang/semver"
@@ -20,9 +21,18 @@ type gitHubRelease struct {
 }
 
 var (
+	mu                  sync.RWMutex
 	lastCheckTime       time.Time
 	cachedRemoteVersion string
 )
+
+// LastCheckTime returns the time of the most recent successful remote version fetch.
+// Returns the zero value if no check has been performed yet.
+func LastCheckTime() time.Time {
+	mu.RLock()
+	defer mu.RUnlock()
+	return lastCheckTime
+}
 
 // getLocalVersion reads the running version from the DSD_VERSION environment variable.
 func getLocalVersion() (string, error) {
@@ -73,6 +83,7 @@ func getCacheTimeout() time.Duration {
 
 // CheckVersion returns (localVersion, remoteVersion, updateAvailable).
 // It respects the DSD_VERSION_CHECK_ENABLED flag and caches remote lookups.
+// Safe for concurrent use.
 func CheckVersion() (string, string, bool) {
 	localVersion, err := getLocalVersion()
 	if err != nil {
@@ -83,13 +94,24 @@ func CheckVersion() (string, string, bool) {
 		return localVersion, "", false
 	}
 
-	// Return cached result if still fresh
-	if time.Since(lastCheckTime) < getCacheTimeout() {
+	// Check whether the cached result is still fresh (read-locked).
+	mu.RLock()
+	cacheAge := time.Since(lastCheckTime)
+	cachedRemote := cachedRemoteVersion
+	mu.RUnlock()
+
+	if cacheAge < getCacheTimeout() {
 		localSemver, err := semver.Make(localVersion)
 		if err != nil {
 			return "", "", false
 		}
-		return localVersion, cachedRemoteVersion, localSemver.LT(semver.MustParse(cachedRemoteVersion))
+		remoteSemver, err := semver.Make(cachedRemote)
+		if err != nil {
+			// cachedRemote is not valid semver (e.g. a pre-release tag):
+			// return the cached string but do not claim an update is available.
+			return localVersion, cachedRemote, false
+		}
+		return localVersion, cachedRemote, localSemver.LT(remoteSemver)
 	}
 
 	remoteVersion, err := getLatestRemoteVersion()
@@ -97,8 +119,11 @@ func CheckVersion() (string, string, bool) {
 		return localVersion, "", false
 	}
 
+	// Write-lock only for the cache update.
+	mu.Lock()
 	lastCheckTime = time.Now()
 	cachedRemoteVersion = remoteVersion
+	mu.Unlock()
 
 	localSemver, err := semver.Make(localVersion)
 	if err != nil {
