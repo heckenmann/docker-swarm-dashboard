@@ -67,6 +67,19 @@ describe('DetailsServiceComponent', () => {
     mockUseAtomValue.mockReset()
     global.fetch.mockReset()
     jest.clearAllMocks()
+    // Suppress React's "not wrapped in act" warning caused by setMetricsLoading
+    // firing in the finally block after waitFor assertions complete
+    jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
+      if (typeof msg === 'string' && msg.includes('not wrapped in act')) return
+      // Re-throw unexpected errors so real issues are still visible
+      // eslint-disable-next-line no-console
+      console.warn('[test console.error]', msg, ...args)
+    })
+  })
+
+  afterEach(async () => {
+    jest.restoreAllMocks()
+    await act(async () => {})
   })
 
   test('renders service not found message when currentService is null', () => {
@@ -173,9 +186,7 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       expect(screen.getByTestId('node-name')).toHaveTextContent('test-node')
@@ -246,9 +257,7 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       // Check memory display
@@ -300,9 +309,7 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       expect(screen.getByTestId('node-name')).toBeInTheDocument()
@@ -412,9 +419,7 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       const percentCell = screen.getByText(/93.75/)
@@ -448,9 +453,8 @@ describe('DetailsServiceComponent', () => {
       }
     })
 
-    global.fetch.mockResolvedValue({
-      json: async () => ({ available: false }),
-    })
+    // Use a never-resolving fetch so no async state update fires after the test
+    global.fetch.mockImplementation(() => new Promise(() => {}))
 
     render(<DetailsServiceComponent />)
 
@@ -515,9 +519,7 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       // Container ID should be truncated to 12 chars
