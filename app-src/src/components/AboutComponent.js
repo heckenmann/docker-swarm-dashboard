@@ -5,9 +5,6 @@ import {
   versionAtom,
   viewAtom,
 } from '../common/store/atoms'
-import JbSquare from '../assets/jb_square.svg'
-import GoLandIcon from '../assets/GoLand_icon.svg'
-import WebStormIcon from '../assets/WebStorm_icon.svg'
 import { debugId } from '../common/navigationConstants'
 import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -56,34 +53,6 @@ function AboutComponent() {
             </tr>
           </tbody>
         </Table>
-        <h2>Tools</h2>
-        <p>
-          Special thanks to JetBrains for supporting this project with{' '}
-          <a
-            href="https://www.jetbrains.com/community/opensource/#support"
-            target="_blank"
-          >
-            Open Source development licenses
-          </a>
-          .
-        </p>
-        <a href="https://www.jetbrains.com/" target="_blank" rel="noreferrer">
-          <JbSquare height="80px" aria-label="JetBrains logo" />
-        </a>
-        <a
-          href="https://www.jetbrains.com/go/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <GoLandIcon height="80px" aria-label="GoLand logo" />
-        </a>
-        <a
-          href="https://www.jetbrains.com/webstorm/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <WebStormIcon height="80px" aria-label="WebStorm logo" />
-        </a>
         <h2>Frameworks & Libraries</h2>
         <ul>
           <li>
