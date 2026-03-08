@@ -1,7 +1,7 @@
 // Combined tests for DashboardNavbar
 // Verifies that showNavLabelsAtom, maxContentWidthAtom, and currentVariantAtom
 // (driven by isDarkModeAtom) correctly affect the rendered output.
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 jest.mock('../../../src/common/store/atoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
@@ -59,9 +59,10 @@ const DashboardNavbar = modNav.DashboardNavbar || modNav.default || modNav
  * @param {'fluid'|'centered'} [opts.maxContentWidth='fluid']
  * @param {boolean} [opts.showNavLabels=false]
  * @param {string} [opts.currentVariant='light']
- * @returns {{ container: HTMLElement }}
+ * @param {number|null} [opts.refreshInterval=null]
+ * @returns {{ container: HTMLElement, mockUpdateView: jest.Mock, mockIncrVer: jest.Mock }}
  */
-function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVariant = 'light' } = {}) {
+function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVariant = 'light', refreshInterval = null } = {}) {
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return currentVariant
     if (atom === 'maxContentWidthAtom') return maxContentWidth
@@ -73,13 +74,20 @@ function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVarian
     if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return 'dashboardH'
     return null
   })
+  // Functional mocks: call updater callbacks so nested (prev) => (...) arrows are also covered.
+  const mockUpdateView = jest.fn((updater) => {
+    if (typeof updater === 'function') updater({ id: 'dashboardH' })
+  })
+  const mockIncrVer = jest.fn((updater) => {
+    if (typeof updater === 'function') updater(0)
+  })
   mockUseAtom.mockImplementation((atom) => {
-    if (atom === 'refreshIntervalAtom') return [null, jest.fn()]
-    if (atom === 'viewAtom') return [{ id: 'dashboardH' }, jest.fn()]
-    if (atom === 'versionRefreshAtom') return [0, jest.fn()]
+    if (atom === 'refreshIntervalAtom') return [refreshInterval, jest.fn()]
+    if (atom === 'viewAtom') return [{ id: 'dashboardH' }, mockUpdateView]
+    if (atom === 'versionRefreshAtom') return [0, mockIncrVer]
     return [null, jest.fn()]
   })
-  return render(<DashboardNavbar />)
+  return { ...render(<DashboardNavbar />), mockUpdateView, mockIncrVer }
 }
 
 describe('DashboardNavbar (combined)', () => {
@@ -144,5 +152,46 @@ describe('DashboardNavbar (combined)', () => {
     const { container } = setup({ currentVariant: 'light' })
     const nav = container.querySelector('nav')
     expect(nav.className).toContain('bg-light')
+  })
+
+  // ---- onClick handler coverage ----
+
+  test('clicking Dashboard nav link calls updateView', () => {
+    const { mockUpdateView } = setup()
+    fireEvent.click(screen.getByRole('button', { name: 'Dashboard' }))
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking Timeline nav link calls updateView with timelineId', () => {
+    const { mockUpdateView } = setup()
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }))
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking Stacks nav link calls updateView with stacksId', () => {
+    const { mockUpdateView } = setup()
+    fireEvent.click(screen.getByRole('button', { name: 'Stacks' }))
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking Nodes nav link calls updateView with nodesId', () => {
+    const { mockUpdateView } = setup()
+    fireEvent.click(screen.getByRole('button', { name: 'Nodes' }))
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking Version update button calls updateView', () => {
+    const { mockUpdateView } = setup()
+    fireEvent.click(screen.getByRole('button', { name: 'Version update' }))
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking refresh button calls reloadData (updateView + incrementVersionRefresh)', () => {
+    const { mockUpdateView, mockIncrVer } = setup()
+    // The refresh button is the first button inside .btn-group (no aria-label)
+    const refreshBtn = document.querySelector('.btn-group button')
+    fireEvent.click(refreshBtn)
+    expect(mockUpdateView).toHaveBeenCalled()
+    expect(mockIncrVer).toHaveBeenCalled()
   })
 })

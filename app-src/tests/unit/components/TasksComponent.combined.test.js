@@ -626,4 +626,48 @@ describe('TasksComponent (combined)', () => {
     expect(table).toBeTruthy()
     expect(table.className).not.toContain('table-sm')
   })
+
+  test('Details button click calls setView with task id and detail route', () => {
+    const tasks = [
+      {
+        ID: 'task-xyz',
+        ServiceID: 's1',
+        ServiceName: 'svc1',
+        Stack: '',
+        NodeID: 'n1',
+        NodeName: 'node1',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+        Slot: 1,
+        Err: '',
+      },
+    ]
+    const mockSetView = jest.fn()
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom': return 'light'
+        case 'currentVariantClassesAtom': return ''
+        case 'tableSizeAtom': return 'sm'
+        case 'dashboardSettingsAtom': return { locale: 'en', timeZone: 'UTC' }
+        case 'serviceNameFilterAtom': return ''
+        case 'stackNameFilterAtom': return ''
+        case 'tasksAtomNew': return tasks
+        case 'showNamesButtonsAtom': return false
+        default: return ''
+      }
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'viewAtom') return [null, mockSetView]
+      return [null, jest.fn()]
+    })
+    render(<TasksComponent />)
+    const detailsBtn = screen.getByRole('button', { name: /details/i })
+    fireEvent.click(detailsBtn)
+    expect(mockSetView).toHaveBeenCalledWith(
+      expect.objectContaining({ detail: 'task-xyz' }),
+    )
+  })
 })
