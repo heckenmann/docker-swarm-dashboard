@@ -6,7 +6,7 @@ const DATA_TIMEOUT = 10000
 describe('Debug Tests', () => {
   it('Navigate to debug page via About button and verify content', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'About').click()
+      cy.get('a[aria-label="About"]').click()
 
       // Wait for the About page to fully render before clicking Debug
       cy.contains('h1, h2, h3', 'Docker Swarm Dashboard').should('be.visible')

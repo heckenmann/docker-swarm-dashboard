@@ -21,6 +21,8 @@ import {
   Container,
   ButtonGroup,
   Button,
+  OverlayTrigger,
+  Tooltip,
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -118,64 +120,105 @@ function DashboardNavbar() {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-left">
             <Nav className="mr-auto">
-              <Nav.Link
-                onClick={() =>
-                  updateView((prev) => ({ ...prev, id: defaultLayout }))
-                }
-                active={view?.id === defaultLayout}
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-dashboard">Dashboard</Tooltip>}
               >
-                <FontAwesomeIcon
-                  icon={
-                    defaultLayout === dashboardHId ? 'grip' : 'grip-vertical'
-                  }
-                />
-                &nbsp;Dashboard
-              </Nav.Link>
-              <Nav.Link
-                onClick={() =>
-                  updateView((prev) => ({ ...prev, id: timelineId }))
-                }
-                active={view?.id === timelineId}
-              >
-                <FontAwesomeIcon icon="timeline" /> Timeline
-              </Nav.Link>
-              <Nav.Link
-                onClick={() =>
-                  updateView((prev) => ({ ...prev, id: stacksId }))
-                }
-                active={view?.id === stacksId}
-              >
-                <FontAwesomeIcon icon="cubes" /> Stacks
-              </Nav.Link>
-              <Nav.Link
-                onClick={() => updateView((prev) => ({ ...prev, id: nodesId }))}
-                active={view?.id === nodesId}
-              >
-                <FontAwesomeIcon icon="server" /> Nodes
-              </Nav.Link>
-              <Nav.Link
-                onClick={() => updateView((prev) => ({ ...prev, id: tasksId }))}
-                active={view?.id === tasksId}
-              >
-                <FontAwesomeIcon icon="tasks" /> Tasks
-              </Nav.Link>
-              <Nav.Link
-                onClick={() => updateView((prev) => ({ ...prev, id: portsId }))}
-                active={view?.id === portsId}
-              >
-                <FontAwesomeIcon icon="building" /> Ports
-              </Nav.Link>
-              {dashboardSettings.showLogsButton && (
                 <Nav.Link
                   onClick={() =>
-                    updateView((prev) => ({ ...prev, id: logsId }))
+                    updateView((prev) => ({ ...prev, id: defaultLayout }))
                   }
-                  active={view?.id === logsId}
-                  className="warning"
+                  active={view?.id === defaultLayout}
                 >
-                  <FontAwesomeIcon icon="desktop" /> Logs
-                  {readingLogsWarning}
+                  <FontAwesomeIcon
+                    icon={
+                      defaultLayout === dashboardHId ? 'grip' : 'grip-vertical'
+                    }
+                  />
+                  &nbsp;Dashboard
                 </Nav.Link>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-timeline">Timeline</Tooltip>}
+              >
+                <Nav.Link
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: timelineId }))
+                  }
+                  active={view?.id === timelineId}
+                >
+                  <FontAwesomeIcon icon="timeline" /> Timeline
+                </Nav.Link>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-stacks">Stacks</Tooltip>}
+              >
+                <Nav.Link
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: stacksId }))
+                  }
+                  active={view?.id === stacksId}
+                >
+                  <FontAwesomeIcon icon="cubes" /> Stacks
+                </Nav.Link>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-nodes">Nodes</Tooltip>}
+              >
+                <Nav.Link
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: nodesId }))
+                  }
+                  active={view?.id === nodesId}
+                >
+                  <FontAwesomeIcon icon="server" /> Nodes
+                </Nav.Link>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-tasks">Tasks</Tooltip>}
+              >
+                <Nav.Link
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: tasksId }))
+                  }
+                  active={view?.id === tasksId}
+                >
+                  <FontAwesomeIcon icon="tasks" /> Tasks
+                </Nav.Link>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-ports">Ports</Tooltip>}
+              >
+                <Nav.Link
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: portsId }))
+                  }
+                  active={view?.id === portsId}
+                >
+                  <FontAwesomeIcon icon="building" /> Ports
+                </Nav.Link>
+              </OverlayTrigger>
+              {dashboardSettings.showLogsButton && (
+                <OverlayTrigger
+                  placement="bottom"
+                  overlay={<Tooltip id="tt-logs">Logs</Tooltip>}
+                >
+                  <Nav.Link
+                    onClick={() =>
+                      updateView((prev) => ({ ...prev, id: logsId }))
+                    }
+                    active={view?.id === logsId}
+                    className="warning"
+                  >
+                    <FontAwesomeIcon icon="desktop" /> Logs
+                    {readingLogsWarning}
+                  </Nav.Link>
+                </OverlayTrigger>
               )}
             </Nav>
           </Navbar.Collapse>
@@ -184,52 +227,76 @@ function DashboardNavbar() {
             className="justify-content-end"
           >
             <Nav>
-              <Nav.Link
-                onClick={() => updateView((prev) => ({ ...prev, id: aboutId }))}
-                active={view?.id === aboutId}
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-about">About</Tooltip>}
               >
-                <FontAwesomeIcon icon="info-circle" /> About
-              </Nav.Link>
-              <Nav.Link
-                onClick={() =>
-                  updateView((prev) => ({ ...prev, id: settingsId }))
-                }
-                active={view?.id === settingsId}
+                <Nav.Link
+                  aria-label="About"
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: aboutId }))
+                  }
+                  active={view?.id === aboutId}
+                >
+                  <FontAwesomeIcon icon="info-circle" />
+                </Nav.Link>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-settings">Settings</Tooltip>}
               >
-                <FontAwesomeIcon icon="gear" /> Settings
-              </Nav.Link>
+                <Nav.Link
+                  aria-label="Settings"
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: settingsId }))
+                  }
+                  active={view?.id === settingsId}
+                >
+                  <FontAwesomeIcon icon="gear" />
+                </Nav.Link>
+              </OverlayTrigger>
             </Nav>
             <ButtonGroup>
-              <Button
-                variant={!refreshInterval ? 'outline-secondary' : 'warning'}
-                onClick={refreshAndNotifyUser}
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-refresh">Refresh</Tooltip>}
               >
-                <FontAwesomeIcon icon="sync" />
-              </Button>
-              <Button
-                aria-label="Version update"
-                variant={
-                  dashboardSettings.versionCheckEnabled &&
-                  version.updateAvailable
-                    ? 'info'
-                    : 'secondary'
-                }
-                className="position-relative"
-                onClick={() =>
-                  updateView((prev) => ({ ...prev, id: versionUpdateId }))
-                }
+                <Button
+                  variant={!refreshInterval ? 'outline-secondary' : 'warning'}
+                  onClick={refreshAndNotifyUser}
+                >
+                  <FontAwesomeIcon icon="sync" />
+                </Button>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip id="tt-version">Version</Tooltip>}
               >
-                <FontAwesomeIcon icon="cloud-download-alt" />
-                {dashboardSettings.versionCheckEnabled &&
-                  version.updateAvailable && (
-                    <span
-                      className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger version-update-badge"
-                      aria-label="Update available"
-                    >
-                      !
-                    </span>
-                  )}
-              </Button>
+                <Button
+                  aria-label="Version update"
+                  variant={
+                    dashboardSettings.versionCheckEnabled &&
+                    version.updateAvailable
+                      ? 'info'
+                      : 'secondary'
+                  }
+                  className="position-relative"
+                  onClick={() =>
+                    updateView((prev) => ({ ...prev, id: versionUpdateId }))
+                  }
+                >
+                  <FontAwesomeIcon icon="cloud-download-alt" />
+                  {dashboardSettings.versionCheckEnabled &&
+                    version.updateAvailable && (
+                      <span
+                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger version-update-badge"
+                        aria-label="Update available"
+                      >
+                        !
+                      </span>
+                    )}
+                </Button>
+              </OverlayTrigger>
             </ButtonGroup>
           </Navbar.Collapse>
         </Container>

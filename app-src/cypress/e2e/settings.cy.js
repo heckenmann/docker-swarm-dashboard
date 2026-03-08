@@ -30,7 +30,7 @@ function assertToggled($el) {
 describe('Settings Tests', () => {
   it('Load page and toggle settings', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Settings').click()
+      cy.get('a[aria-label="Settings"]').click()
   // previously dumped DOM to cypress/results for debugging; removed to avoid test artifacts
 
       // Toggle helper that tries labeled input first, then falls back to positional input
