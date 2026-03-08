@@ -69,13 +69,9 @@
   min-width: 0;
 }
 
-/* keep headers naturally sized (not extremely tall) so table looks like the original design */
+/* keep headers naturally sized; prevent line breaks in dashboard table headers (scoped to avoid overflow on small screens) */
 .dashboard-table thead th {
   height: auto;
-}
-
-/* Prevent line breaks in all table headers across the app */
-thead th {
   white-space: nowrap;
 }
 
