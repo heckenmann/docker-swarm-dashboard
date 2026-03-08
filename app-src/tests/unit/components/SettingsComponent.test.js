@@ -52,6 +52,7 @@ const { SettingsComponent } =
  * @param {object} overrides - atom values to override
  */
 function setup(overrides = {}) {
+
   const defaults = {
     baseUrl: 'http://localhost:3001/',
     isDarkMode: false,
@@ -79,6 +80,35 @@ function setup(overrides = {}) {
     if (atom === 'refreshIntervalAtom') return [vals.refreshInterval, jest.fn()]
     return [null, jest.fn()]
   })
+}
+
+/**
+ * Set up mocks for a toggle/change test, returning the setter mock for one
+ * specific atom so the test can assert it was called correctly.
+ *
+ * @param {string} atomName - The atom identifier to expose the setter for.
+ * @param {*} value - The current value for the atom under test.
+ * @returns {jest.Mock} The setter mock for the atom under test.
+ */
+function setupAtomToggle(atomName, value) {
+  const mockSet = jest.fn()
+  const atomDefaults = {
+    baseUrlAtom: ['http://localhost:3001/', jest.fn()],
+    isDarkModeAtom: [false, jest.fn()],
+    tableSizeAtom: ['sm', jest.fn()],
+    showNamesButtonsAtom: [true, jest.fn()],
+    showNavLabelsAtom: [false, jest.fn()],
+    maxContentWidthAtom: ['fluid', jest.fn()],
+    refreshIntervalAtom: [false, jest.fn()],
+  }
+  atomDefaults[atomName] = [value, mockSet]
+  mockUseAtomValue.mockImplementation((atom) => {
+    if (atom === 'currentVariantAtom') return 'light'
+    if (atom === 'currentVariantClassesAtom') return ''
+    return null
+  })
+  mockUseAtom.mockImplementation((atom) => atomDefaults[atom] || [null, jest.fn()])
+  return mockSet
 }
 
 beforeEach(() => {
@@ -195,6 +225,8 @@ test('reset to defaults calls all setters with default values', () => {
   expect(setShowNamesButtons).toHaveBeenCalledWith(true)
   expect(setShowNavLabels).toHaveBeenCalledWith(false)
   expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
+  // computeDefaultBase() falls back to window.location.pathname which is '/' in jsdom
+  expect(setBaseUrl).toHaveBeenCalledWith('/')
 })
 
 test('showNavLabels switch is unchecked by default', () => {
@@ -232,4 +264,194 @@ test('toggling showNavLabels switch calls setter with false when currently true'
   fireEvent.click(toggle)
 
   expect(mockSet).toHaveBeenCalledWith(false)
+})
+
+test('toggling showNavLabels switch calls setter with true when currently false', () => {
+  const mockSet = setupAtomToggle('showNavLabelsAtom', false)
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle navigation labels' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith(true)
+})
+
+test('showNavLabels switch is checked when showNavLabels is true', () => {
+  setup({ showNavLabels: true })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle navigation labels' })
+  expect(toggle).toBeChecked()
+})
+
+// ---- API URL ----
+
+test('API URL input renders with current baseUrl value', () => {
+  setup({ baseUrl: 'http://myhost:8080/' })
+  render(<SettingsComponent />)
+
+  const input = screen.getByRole('textbox', { name: 'API URL' })
+  expect(input).toHaveValue('http://myhost:8080/')
+})
+
+test('API URL onChange appends trailing slash when missing', () => {
+  const mockSet = setupAtomToggle('baseUrlAtom', 'http://localhost:3001/')
+  render(<SettingsComponent />)
+
+  const input = screen.getByRole('textbox', { name: 'API URL' })
+  fireEvent.change(input, { target: { value: 'http://newhost' } })
+
+  expect(mockSet).toHaveBeenCalledWith('http://newhost/')
+})
+
+test('API URL onChange preserves existing trailing slash', () => {
+  const mockSet = setupAtomToggle('baseUrlAtom', 'http://localhost:3001/')
+  render(<SettingsComponent />)
+
+  const input = screen.getByRole('textbox', { name: 'API URL' })
+  fireEvent.change(input, { target: { value: 'http://newhost/' } })
+
+  expect(mockSet).toHaveBeenCalledWith('http://newhost/')
+})
+
+// ---- Interval Refresh ----
+
+test('interval refresh switch is unchecked when refreshInterval is false', () => {
+  setup({ refreshInterval: false })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle auto refresh' })
+  expect(toggle).not.toBeChecked()
+})
+
+test('interval refresh switch is checked when refreshInterval is true', () => {
+  setup({ refreshInterval: true })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle auto refresh' })
+  expect(toggle).toBeChecked()
+})
+
+test('toggling interval refresh switch calls the toggle function', () => {
+  const mockToggle = setupAtomToggle('refreshIntervalAtom', false)
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle auto refresh' })
+  fireEvent.click(toggle)
+
+  expect(mockToggle).toHaveBeenCalled()
+})
+
+// ---- Dark Mode ----
+
+test('dark mode switch is unchecked when isDarkMode is false', () => {
+  setup({ isDarkMode: false })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle dark mode' })
+  expect(toggle).not.toBeChecked()
+})
+
+test('dark mode switch is checked when isDarkMode is true', () => {
+  setup({ isDarkMode: true })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle dark mode' })
+  expect(toggle).toBeChecked()
+})
+
+test('toggling dark mode switch calls setter with true when currently false', () => {
+  const mockSet = setupAtomToggle('isDarkModeAtom', false)
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle dark mode' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith(true)
+})
+
+test('toggling dark mode switch calls setter with false when currently true', () => {
+  const mockSet = setupAtomToggle('isDarkModeAtom', true)
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle dark mode' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith(false)
+})
+
+// ---- Small tables ----
+
+test('small tables switch is checked when tableSize is sm', () => {
+  setup({ tableSize: 'sm' })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
+  expect(toggle).toBeChecked()
+})
+
+test('small tables switch is unchecked when tableSize is lg', () => {
+  setup({ tableSize: 'lg' })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
+  expect(toggle).not.toBeChecked()
+})
+
+test('toggling small tables switch calls setter with lg when currently sm', () => {
+  const mockSet = setupAtomToggle('tableSizeAtom', 'sm')
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith('lg')
+})
+
+test('toggling small tables switch calls setter with sm when currently lg', () => {
+  const mockSet = setupAtomToggle('tableSizeAtom', 'lg')
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith('sm')
+})
+
+// ---- Show buttons in Names ----
+
+test('show buttons in names switch is checked when showNamesButtons is true', () => {
+  setup({ showNamesButtons: true })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle show buttons in names' })
+  expect(toggle).toBeChecked()
+})
+
+test('show buttons in names switch is unchecked when showNamesButtons is false', () => {
+  setup({ showNamesButtons: false })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle show buttons in names' })
+  expect(toggle).not.toBeChecked()
+})
+
+test('toggling show buttons in names calls setter with false when currently true', () => {
+  const mockSet = setupAtomToggle('showNamesButtonsAtom', true)
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle show buttons in names' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith(false)
+})
+
+test('toggling show buttons in names calls setter with true when currently false', () => {
+  const mockSet = setupAtomToggle('showNamesButtonsAtom', false)
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', { name: 'Toggle show buttons in names' })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith(true)
 })

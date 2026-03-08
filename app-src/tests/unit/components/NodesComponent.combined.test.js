@@ -229,4 +229,43 @@ describe('NodesComponent (combined)', () => {
     const result3 = updater3({ sortBy: 'Hostname', sortDirection: 'desc' })
     expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
+
+  // ---- tableSizeAtom effect ----
+  test('table has table-sm class when tableSizeAtom is sm', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return ''
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'nodesAtomNew') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return null
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, jest.fn()]
+      return [null, jest.fn()]
+    })
+    const { container } = render(<NodesComponent />)
+    const table = container.querySelector('table')
+    expect(table).toBeTruthy()
+    expect(table.className).toContain('table-sm')
+  })
+
+  test('table does not have table-sm class when tableSizeAtom is lg', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return ''
+      if (atom === 'tableSizeAtom') return 'lg'
+      if (atom === 'nodesAtomNew') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return null
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [{}, jest.fn()]
+      return [null, jest.fn()]
+    })
+    const { container } = render(<NodesComponent />)
+    const table = container.querySelector('table')
+    expect(table).toBeTruthy()
+    expect(table.className).not.toContain('table-sm')
+  })
 })

@@ -160,4 +160,14 @@ describe('FilterComponent (combined)', () => {
     // setFilterType must NOT have been called during the clear interaction
     expect(mockSetType).not.toHaveBeenCalled()
   })
+
+  test('clicking Service button when stack is active switches filter type to service', () => {
+    const { mockSetType } = setupFilter({ filterType: 'stack' })
+    mockSetType.mockClear()
+
+    const serviceBtn = screen.getByRole('button', { name: /filter by service/i })
+    fireEvent.click(serviceBtn)
+
+    expect(mockSetType).toHaveBeenCalledWith('service')
+  })
 })

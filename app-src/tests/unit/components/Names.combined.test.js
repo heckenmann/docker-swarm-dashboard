@@ -158,4 +158,33 @@ describe('Name-related components combined', () => {
     expect(wrapper).toBeTruthy()
     expect(wrapper.className.includes('ms-1')).toBe(true)
   })
+
+  // ---- showNamesButtonsAtom effect ----
+  test('EntityName hides action buttons when showNamesButtonsAtom is false', () => {
+    jest.isolateModules(() => {
+      jest.doMock('jotai', () => ({ useAtomValue: () => false, useAtom: () => [null, jest.fn()] }))
+      jest.doMock('../../../src/common/store/atoms', () => ({ showNamesButtonsAtom: 'showNamesButtonsAtom' }))
+      jest.doMock('../../../src/common/hooks/useEntityActions', () => ({
+        useEntityActions: () => ({ onOpen: jest.fn(), onFilter: jest.fn() }),
+      }))
+      // Mock react-bootstrap Button to avoid React instance conflicts when modules are freshly loaded
+      jest.doMock('react-bootstrap', () => ({
+        Button: (props) => React.createElement('button', { title: props.title, onClick: props.onClick }, props.children),
+      }))
+      const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
+      render(React.createElement(EntityName, { name: 'hidden', id: 'hid', onOpen: jest.fn(), onFilter: jest.fn() }))
+      expect(screen.getByText('hidden')).toBeInTheDocument()
+      expect(screen.queryByTitle(/Open service/i)).toBeNull()
+      expect(screen.queryByTitle(/Filter service/i)).toBeNull()
+    })
+  })
+
+  test('EntityName shows action buttons when showNamesButtonsAtom is true', () => {
+    // Real jotai: showNamesButtonsAtom defaults to true — buttons are shown without any mocking
+    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
+    render(React.createElement(EntityName, { name: 'visible', id: 'vid', onOpen: jest.fn(), onFilter: jest.fn() }))
+    expect(screen.getByText('visible')).toBeInTheDocument()
+    expect(screen.queryByTitle(/Open service: visible/i)).not.toBeNull()
+    expect(screen.queryByTitle(/Filter service: visible/i)).not.toBeNull()
+  })
 })

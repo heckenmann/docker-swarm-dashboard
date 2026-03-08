@@ -55,6 +55,29 @@ describe('atoms module', () => {
     expect(atoms.baseUrlAtom).toBeDefined()
     window.location.hash = origHash
   })
+
+  test('currentVariantAtom and currentVariantClassesAtom correctly derived from isDarkModeAtom', () => {
+    // Use real jotai via isolateModules to verify the derived atom logic
+    jest.isolateModules(() => {
+      jest.doMock('jotai', () => jest.requireActual('jotai'))
+      jest.doMock('jotai/utils', () => jest.requireActual('jotai/utils'))
+      jest.doMock('jotai-location', () => ({
+        atomWithHash: (_key, defaultVal) => jest.requireActual('jotai').atom(defaultVal),
+      }))
+      const { createStore } = require('jotai')
+      const { isDarkModeAtom, currentVariantAtom, currentVariantClassesAtom } =
+        require('../../../src/common/store/atoms')
+      const store = createStore()
+
+      store.set(isDarkModeAtom, true)
+      expect(store.get(currentVariantAtom)).toBe('dark')
+      expect(store.get(currentVariantClassesAtom)).toContain('bg-dark')
+
+      store.set(isDarkModeAtom, false)
+      expect(store.get(currentVariantAtom)).toBe('light')
+      expect(store.get(currentVariantClassesAtom)).toContain('bg-light')
+    })
+  })
 })
 
 describe('atoms hash parsing for baseUrlAtom', () => {

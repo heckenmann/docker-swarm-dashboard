@@ -498,4 +498,49 @@ describe('PortsComponent (combined)', () => {
     const result3 = updater3({ sortBy: 'PublishedPort', sortDirection: 'desc' })
     expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
+
+  // ---- tableSizeAtom effect ----
+  test('ports table has table-sm class when tableSizeAtom is sm', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return ''
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'portsAtom') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return ''
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'viewAtom') return [null, jest.fn()]
+      return [null, jest.fn()]
+    })
+    const { container } = render(<PortsComponent />)
+    const table = container.querySelector('#portsTable')
+    expect(table).toBeTruthy()
+    expect(table.className).toContain('table-sm')
+  })
+
+  test('ports table does not have table-sm class when tableSizeAtom is lg', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'currentVariantClassesAtom') return ''
+      if (atom === 'tableSizeAtom') return 'lg'
+      if (atom === 'portsAtom') return []
+      if (atom === 'showNamesButtonsAtom') return false
+      return ''
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atom === 'viewAtom') return [null, jest.fn()]
+      return [null, jest.fn()]
+    })
+    const { container } = render(<PortsComponent />)
+    const table = container.querySelector('#portsTable')
+    expect(table).toBeTruthy()
+    expect(table.className).not.toContain('table-sm')
+  })
 })
