@@ -3,7 +3,7 @@ import { visitBaseUrlAndTest } from './spec.cy'
 describe('Dashboard vertical Tests', () => {
   it('Load page', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       // switch to vertical layout using the small layout toggle (grip-vertical)
       // find the button that contains the grip-vertical SVG and click it
       cy.get('svg[data-icon="grip-vertical"]').closest('button').then(($b) => {
@@ -23,25 +23,25 @@ describe('Dashboard vertical Tests', () => {
 
   it('Filter by service name', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('main').within(() => {
         cy.get('button').eq(1).should('be.visible').click()
       })
   // assert known mock services exist and that filtering works
   cy.contains('td', 'backend_auth-service').should('exist')
   cy.contains('td', 'frontend_user-service').should('exist')
-  cy.get('input.flex-grow-1.form-control').type('backend_')
+  cy.get('input[aria-label="Filter by service name"]').type('backend_')
   cy.contains('td', 'backend_auth-service').should('exist')
-  cy.get('input.flex-grow-1.form-control').clear()
+  cy.get('input[aria-label="Filter by service name"]').clear()
     })
   })
 
   it('Filter by stack name', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
   cy.get('main').within(() => { cy.get('button').eq(1).click() })
-  cy.get('select.flex-grow-1.form-select').select('stack')
-  cy.get('input.flex-grow-1.form-control').type('frontend')
+  cy.get('button[aria-label="Filter by stack"]').click()
+  cy.get('input[aria-label="Filter by stack name"]').type('frontend')
   cy.contains('td', 'frontend_user-service').should('exist')
     })
   })

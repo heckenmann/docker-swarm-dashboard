@@ -4,7 +4,7 @@ describe('Task Details Tests', () => {
   it('opens task details from tasks table view details button', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Tasks page
-      cy.contains('a', 'Tasks').click()
+      cy.get('a[aria-label="Tasks"]').click()
       cy.get('.table', { timeout: 5000 }).should('exist')
 
       // Click the first "Details" button in the tasks table
@@ -23,7 +23,7 @@ describe('Task Details Tests', () => {
   it('opens task details by clicking task badge in h-dashboard', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Dashboard (horizontal)
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
       // Find and click a task badge if present, otherwise skip this interaction
@@ -80,7 +80,7 @@ describe('Task Details Tests', () => {
   it('displays task metrics in details view', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Tasks page
-      cy.contains('a', 'Tasks').click()
+      cy.get('a[aria-label="Tasks"]').click()
       cy.get('.table', { timeout: 5000 }).should('exist')
 
       // Click the first "Details" button
@@ -98,7 +98,7 @@ describe('Task Details Tests', () => {
   it('displays task information in Table tab', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Tasks page
-      cy.contains('a', 'Tasks').click()
+      cy.get('a[aria-label="Tasks"]').click()
       cy.get('.table', { timeout: 5000 }).should('exist')
 
       // Click the first "Details" button

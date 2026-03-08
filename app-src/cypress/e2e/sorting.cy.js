@@ -3,7 +3,7 @@ import { visitBaseUrlAndTest } from './spec.cy'
 describe('Table Sorting Tests', () => {
   it('Nodes table has light arrows and sorting works with 3-click cycle', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Nodes').click()
+      cy.get('a[aria-label="Nodes"]').click()
 
       // Before sorting, light arrows should be visible on all headers
       cy.get('#nodes-table thead th')
@@ -46,7 +46,7 @@ describe('Table Sorting Tests', () => {
 
   it('Tasks table sorting works with 3-click cycle', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Tasks').click()
+      cy.get('a[aria-label="Tasks"]').click()
 
       // Before sorting, light arrows should be visible
       cy.get('.tasks-table thead th')
@@ -89,7 +89,7 @@ describe('Table Sorting Tests', () => {
 
   it('Ports table sorting works with 3-click cycle', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Ports').click()
+      cy.get('a[aria-label="Ports"]').click()
 
       // Before sorting, light arrows should be visible
       cy.get('#portsTable thead th')
@@ -132,7 +132,7 @@ describe('Table Sorting Tests', () => {
 
   it('Sort state persists in URL hash', () => {
     visitBaseUrlAndTest(() => {
-      cy.contains('a', 'Nodes').click()
+      cy.get('a[aria-label="Nodes"]').click()
 
       // Click to sort by Hostname
       cy.get('#nodes-table thead th').contains('Node').click()

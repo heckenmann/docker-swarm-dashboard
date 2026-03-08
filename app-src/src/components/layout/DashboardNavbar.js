@@ -147,6 +147,7 @@ function DashboardNavbar() {
                 'tt-dashboard',
                 'Dashboard',
                 <Nav.Link
+                  aria-label="Dashboard"
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: defaultLayout }))
                   }
@@ -164,6 +165,7 @@ function DashboardNavbar() {
                 'tt-timeline',
                 'Timeline',
                 <Nav.Link
+                  aria-label="Timeline"
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: timelineId }))
                   }
@@ -177,6 +179,7 @@ function DashboardNavbar() {
                 'tt-stacks',
                 'Stacks',
                 <Nav.Link
+                  aria-label="Stacks"
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: stacksId }))
                   }
@@ -190,6 +193,7 @@ function DashboardNavbar() {
                 'tt-nodes',
                 'Nodes',
                 <Nav.Link
+                  aria-label="Nodes"
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: nodesId }))
                   }
@@ -203,6 +207,7 @@ function DashboardNavbar() {
                 'tt-tasks',
                 'Tasks',
                 <Nav.Link
+                  aria-label="Tasks"
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: tasksId }))
                   }
@@ -216,6 +221,7 @@ function DashboardNavbar() {
                 'tt-ports',
                 'Ports',
                 <Nav.Link
+                  aria-label="Ports"
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: portsId }))
                   }
@@ -230,6 +236,7 @@ function DashboardNavbar() {
                   'tt-logs',
                   'Logs',
                   <Nav.Link
+                    aria-label="Logs"
                     onClick={() =>
                       updateView((prev) => ({ ...prev, id: logsId }))
                     }

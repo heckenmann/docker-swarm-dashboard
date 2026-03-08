@@ -3,7 +3,7 @@ import { visitBaseUrlAndTest } from './spec.cy'
 describe('Ports Tests', () => {
   it('Load page', () => {
     visitBaseUrlAndTest(() => {
-  cy.contains('a', 'Ports').click()
+  cy.get('a[aria-label="Ports"]').click()
   // ensure the ports table contains at least one published port cell and a service name
   cy.get('#portsTable').should('exist')
   cy.get('#portsTable td').then(($tds) => {

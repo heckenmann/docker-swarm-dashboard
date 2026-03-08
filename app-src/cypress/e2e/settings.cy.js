@@ -102,11 +102,11 @@ describe('Settings Tests', () => {
     cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
   })
 
-  // Toggle show navigation labels (default: checked/true — labels visible)
+  // Toggle show navigation labels (default: unchecked/false — labels hidden)
   cy.contains('tr', 'Show navigation labels').within(() => {
-    cy.get('input[type="checkbox"]').should('be.checked')
-    cy.get('input[type="checkbox"]').uncheck({ force: true })
-    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('not.be.checked')
+    cy.get('input[type="checkbox"]').should('not.be.checked')
+    cy.get('input[type="checkbox"]').check({ force: true })
+    cy.get('input[type="checkbox"]', { timeout: 5000 }).should('be.checked')
   })
 
   // Verify that main content and navbar both use Bootstrap's responsive container

@@ -4,7 +4,7 @@ describe('Service Metrics Tests', () => {
   it('displays metrics tab in service details', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Dashboard
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
       // Find a service and click its open button
@@ -25,7 +25,7 @@ describe('Service Metrics Tests', () => {
   it('displays tasks table with sortable metric columns in service details', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Dashboard
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
       // Find a service and click its open button
@@ -51,7 +51,7 @@ describe('Service Metrics Tests', () => {
   it('allows sorting by metric columns in service tasks table', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Dashboard
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
       // Find a service and click its open button
@@ -76,7 +76,7 @@ describe('Service Metrics Tests', () => {
   it('metrics tab is the default/first tab in service details', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Dashboard
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
       // Find a service and click its open button
@@ -96,7 +96,7 @@ describe('Service Metrics Tests', () => {
   it('displays chart visualizations in metrics tab', () => {
     visitBaseUrlAndTest(() => {
       // Navigate to Dashboard
-      cy.contains('a', 'Dashboard').click()
+      cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
       // Find a service and click its open button
