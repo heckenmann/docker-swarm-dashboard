@@ -6,6 +6,7 @@ import {
   isDarkModeAtom,
   maxContentWidthAtom,
   refreshIntervalAtom,
+  showNavLabelsAtom,
   tableSizeAtom,
   showNamesButtonsAtom,
 } from '../../common/store/atoms'
@@ -28,6 +29,7 @@ function SettingsComponent() {
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
   const [tableSize, setTableSize] = useAtom(tableSizeAtom)
   const [showNamesButtons, setShowNamesButtons] = useAtom(showNamesButtonsAtom)
+  const [showNavLabels, setShowNavLabels] = useAtom(showNavLabelsAtom)
   const [maxContentWidth, setMaxContentWidth] = useAtom(maxContentWidthAtom)
   const [baseUrl, setBaseUrl] = useAtom(baseUrlAtom)
 
@@ -54,6 +56,7 @@ function SettingsComponent() {
     setIsDarkMode(false)
     setTableSize('sm')
     setShowNamesButtons(true)
+    setShowNavLabels(true)
     setMaxContentWidth('fluid')
   }
 
@@ -215,6 +218,32 @@ function SettingsComponent() {
               />
             </td>
             <td className="small text-muted">Full width</td>
+          </tr>
+          <tr>
+            <td>
+              <span
+                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
+                aria-hidden
+              >
+                <FontAwesomeIcon icon="font" />
+              </span>
+            </td>
+            <td>
+              Show navigation labels
+              <div className="small text-muted">
+                Show text labels next to icons in the navigation bar. When
+                disabled, tooltips appear on hover instead.
+              </div>
+            </td>
+            <td>
+              <FormCheck
+                type="switch"
+                checked={showNavLabels}
+                onChange={() => setShowNavLabels(!showNavLabels)}
+                aria-label="Toggle navigation labels"
+              />
+            </td>
+            <td className="small text-muted">true</td>
           </tr>
           <tr>
             <td>

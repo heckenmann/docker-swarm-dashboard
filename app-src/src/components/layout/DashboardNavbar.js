@@ -9,6 +9,7 @@ import {
   logsShowLogsAtom,
   maxContentWidthAtom,
   refreshIntervalAtom,
+  showNavLabelsAtom,
   versionAtom,
   versionRefreshAtom,
   viewAtom,
@@ -55,6 +56,7 @@ function DashboardNavbar() {
   const logsConfig = useAtomValue(logsConfigAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const maxContentWidth = useAtomValue(maxContentWidthAtom)
+  const showNavLabels = useAtomValue(showNavLabelsAtom)
   const version = useAtomValue(versionAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
@@ -91,6 +93,27 @@ function DashboardNavbar() {
       <></>
     )
 
+  /**
+   * Conditionally wraps a nav element in an OverlayTrigger tooltip.
+   * Tooltips are shown only when navigation labels are hidden.
+   *
+   * @param {string} id - Unique tooltip id
+   * @param {string} label - Tooltip text
+   * @param {React.ReactElement} el - The nav element to wrap
+   * @returns {React.ReactElement} The element, optionally wrapped in a tooltip
+   */
+  const navTip = (id, label, el) =>
+    showNavLabels ? (
+      el
+    ) : (
+      <OverlayTrigger
+        placement="bottom"
+        overlay={<Tooltip id={id}>{label}</Tooltip>}
+      >
+        {el}
+      </OverlayTrigger>
+    )
+
   return (
     <>
       <Navbar
@@ -120,10 +143,9 @@ function DashboardNavbar() {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-left">
             <Nav className="mr-auto">
-              <OverlayTrigger
-                placement="bottom"
-                overlay={<Tooltip id="tt-dashboard">Dashboard</Tooltip>}
-              >
+              {navTip(
+                'tt-dashboard',
+                'Dashboard',
                 <Nav.Link
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: defaultLayout }))
@@ -135,79 +157,78 @@ function DashboardNavbar() {
                       defaultLayout === dashboardHId ? 'grip' : 'grip-vertical'
                     }
                   />
-                  &nbsp;Dashboard
-                </Nav.Link>
-              </OverlayTrigger>
-              <OverlayTrigger
-                placement="bottom"
-                overlay={<Tooltip id="tt-timeline">Timeline</Tooltip>}
-              >
+                  {showNavLabels && <>&nbsp;Dashboard</>}
+                </Nav.Link>,
+              )}
+              {navTip(
+                'tt-timeline',
+                'Timeline',
                 <Nav.Link
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: timelineId }))
                   }
                   active={view?.id === timelineId}
                 >
-                  <FontAwesomeIcon icon="timeline" /> Timeline
-                </Nav.Link>
-              </OverlayTrigger>
-              <OverlayTrigger
-                placement="bottom"
-                overlay={<Tooltip id="tt-stacks">Stacks</Tooltip>}
-              >
+                  <FontAwesomeIcon icon="timeline" />
+                  {showNavLabels && ' Timeline'}
+                </Nav.Link>,
+              )}
+              {navTip(
+                'tt-stacks',
+                'Stacks',
                 <Nav.Link
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: stacksId }))
                   }
                   active={view?.id === stacksId}
                 >
-                  <FontAwesomeIcon icon="cubes" /> Stacks
-                </Nav.Link>
-              </OverlayTrigger>
-              <OverlayTrigger
-                placement="bottom"
-                overlay={<Tooltip id="tt-nodes">Nodes</Tooltip>}
-              >
+                  <FontAwesomeIcon icon="cubes" />
+                  {showNavLabels && ' Stacks'}
+                </Nav.Link>,
+              )}
+              {navTip(
+                'tt-nodes',
+                'Nodes',
                 <Nav.Link
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: nodesId }))
                   }
                   active={view?.id === nodesId}
                 >
-                  <FontAwesomeIcon icon="server" /> Nodes
-                </Nav.Link>
-              </OverlayTrigger>
-              <OverlayTrigger
-                placement="bottom"
-                overlay={<Tooltip id="tt-tasks">Tasks</Tooltip>}
-              >
+                  <FontAwesomeIcon icon="server" />
+                  {showNavLabels && ' Nodes'}
+                </Nav.Link>,
+              )}
+              {navTip(
+                'tt-tasks',
+                'Tasks',
                 <Nav.Link
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: tasksId }))
                   }
                   active={view?.id === tasksId}
                 >
-                  <FontAwesomeIcon icon="tasks" /> Tasks
-                </Nav.Link>
-              </OverlayTrigger>
-              <OverlayTrigger
-                placement="bottom"
-                overlay={<Tooltip id="tt-ports">Ports</Tooltip>}
-              >
+                  <FontAwesomeIcon icon="tasks" />
+                  {showNavLabels && ' Tasks'}
+                </Nav.Link>,
+              )}
+              {navTip(
+                'tt-ports',
+                'Ports',
                 <Nav.Link
                   onClick={() =>
                     updateView((prev) => ({ ...prev, id: portsId }))
                   }
                   active={view?.id === portsId}
                 >
-                  <FontAwesomeIcon icon="building" /> Ports
-                </Nav.Link>
-              </OverlayTrigger>
-              {dashboardSettings.showLogsButton && (
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={<Tooltip id="tt-logs">Logs</Tooltip>}
-                >
+                  <FontAwesomeIcon icon="building" />
+                  {showNavLabels && ' Ports'}
+                </Nav.Link>,
+              )}
+              {dashboardSettings.showLogsButton &&
+                navTip(
+                  'tt-logs',
+                  'Logs',
                   <Nav.Link
                     onClick={() =>
                       updateView((prev) => ({ ...prev, id: logsId }))
@@ -215,11 +236,11 @@ function DashboardNavbar() {
                     active={view?.id === logsId}
                     className="warning"
                   >
-                    <FontAwesomeIcon icon="desktop" /> Logs
+                    <FontAwesomeIcon icon="desktop" />
+                    {showNavLabels && ' Logs'}
                     {readingLogsWarning}
-                  </Nav.Link>
-                </OverlayTrigger>
-              )}
+                  </Nav.Link>,
+                )}
             </Nav>
           </Navbar.Collapse>
           <Navbar.Collapse

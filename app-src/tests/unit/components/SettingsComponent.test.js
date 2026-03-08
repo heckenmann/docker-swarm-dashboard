@@ -19,6 +19,7 @@ jest.mock('../../../src/common/store/atoms', () => ({
   isDarkModeAtom: 'isDarkModeAtom',
   maxContentWidthAtom: 'maxContentWidthAtom',
   refreshIntervalAtom: 'refreshIntervalAtom',
+  showNavLabelsAtom: 'showNavLabelsAtom',
   tableSizeAtom: 'tableSizeAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
 }))
@@ -56,6 +57,7 @@ function setup(overrides = {}) {
     isDarkMode: false,
     tableSize: 'sm',
     showNamesButtons: true,
+    showNavLabels: true,
     maxContentWidth: 'fluid',
     refreshInterval: false,
   }
@@ -72,6 +74,7 @@ function setup(overrides = {}) {
     if (atom === 'isDarkModeAtom') return [vals.isDarkMode, jest.fn()]
     if (atom === 'tableSizeAtom') return [vals.tableSize, jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [vals.showNamesButtons, jest.fn()]
+    if (atom === 'showNavLabelsAtom') return [vals.showNavLabels, jest.fn()]
     if (atom === 'maxContentWidthAtom') return [vals.maxContentWidth, jest.fn()]
     if (atom === 'refreshIntervalAtom') return [vals.refreshInterval, jest.fn()]
     return [null, jest.fn()]
@@ -93,6 +96,7 @@ test('renders all expected setting rows', () => {
   expect(screen.getByText('Small tables')).toBeInTheDocument()
   expect(screen.getByText('Show buttons in Names')).toBeInTheDocument()
   expect(screen.getByText('Centered layout')).toBeInTheDocument()
+  expect(screen.getByText('Show navigation labels')).toBeInTheDocument()
 })
 
 test('centered layout switch is unchecked when maxContentWidth is fluid', () => {
@@ -164,6 +168,7 @@ test('reset to defaults calls all setters with default values', () => {
   const setIsDarkMode = jest.fn()
   const setTableSize = jest.fn()
   const setShowNamesButtons = jest.fn()
+  const setShowNavLabels = jest.fn()
   const setBaseUrl = jest.fn()
 
   mockUseAtomValue.mockImplementation((atom) => {
@@ -176,6 +181,7 @@ test('reset to defaults calls all setters with default values', () => {
     if (atom === 'isDarkModeAtom') return [true, setIsDarkMode]
     if (atom === 'tableSizeAtom') return ['lg', setTableSize]
     if (atom === 'showNamesButtonsAtom') return [false, setShowNamesButtons]
+    if (atom === 'showNavLabelsAtom') return [false, setShowNavLabels]
     if (atom === 'baseUrlAtom') return ['http://custom/', setBaseUrl]
     if (atom === 'refreshIntervalAtom') return [true, jest.fn()]
     return [null, jest.fn()]
@@ -187,5 +193,43 @@ test('reset to defaults calls all setters with default values', () => {
   expect(setIsDarkMode).toHaveBeenCalledWith(false)
   expect(setTableSize).toHaveBeenCalledWith('sm')
   expect(setShowNamesButtons).toHaveBeenCalledWith(true)
+  expect(setShowNavLabels).toHaveBeenCalledWith(true)
   expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
+})
+
+test('showNavLabels switch is checked by default', () => {
+  setup()
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', {
+    name: 'Toggle navigation labels',
+  })
+  expect(toggle).toBeChecked()
+})
+
+test('toggling showNavLabels switch calls setter with false when currently true', () => {
+  const mockSet = jest.fn()
+  mockUseAtomValue.mockImplementation((atom) => {
+    if (atom === 'currentVariantAtom') return 'light'
+    if (atom === 'currentVariantClassesAtom') return ''
+    return null
+  })
+  mockUseAtom.mockImplementation((atom) => {
+    if (atom === 'showNavLabelsAtom') return [true, mockSet]
+    if (atom === 'baseUrlAtom') return ['http://localhost/', jest.fn()]
+    if (atom === 'isDarkModeAtom') return [false, jest.fn()]
+    if (atom === 'tableSizeAtom') return ['sm', jest.fn()]
+    if (atom === 'showNamesButtonsAtom') return [true, jest.fn()]
+    if (atom === 'maxContentWidthAtom') return ['fluid', jest.fn()]
+    if (atom === 'refreshIntervalAtom') return [false, jest.fn()]
+    return [null, jest.fn()]
+  })
+  render(<SettingsComponent />)
+
+  const toggle = screen.getByRole('checkbox', {
+    name: 'Toggle navigation labels',
+  })
+  fireEvent.click(toggle)
+
+  expect(mockSet).toHaveBeenCalledWith(false)
 })

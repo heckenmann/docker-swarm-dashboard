@@ -218,6 +218,9 @@ export const currentVariantClassesAtom = atom((get) =>
 // UI preferences
 // Control whether action buttons next to entity names are shown
 export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
+// Show text labels next to icons in the navigation bar.
+// When false, labels are hidden and tooltips appear on hover instead.
+export const showNavLabelsAtom = atomWithHash('showNavLabels', true)
 // Maximum content width for wide-screen displays.
 // 'fluid' = full-width (container-fluid), 'centered' = standard responsive
 // Bootstrap container (auto max-width based on breakpoint, centred).
