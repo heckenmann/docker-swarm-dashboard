@@ -60,7 +60,7 @@
     "apexcharts": "^5.10.3",
     "axios": "^1.13.6",
     "babel-jest": "^30.2.0",
-    "babel-loader": "^10.1.0",
+    "babel-loader": "^10.1.1",
     "bootstrap": "^5.3.8",
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
