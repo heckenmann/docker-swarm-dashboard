@@ -36,6 +36,9 @@ module.exports = [
   "jsx-a11y/aria-role": "error",
   "jsx-a11y/aria-unsupported-elements": "error",
   "jsx-a11y/label-has-associated-control": "error",
+  "jsx-a11y/role-has-required-aria-props": "error",
+  "jsx-a11y/anchor-is-valid": "error",
+  "jsx-a11y/interactive-supports-focus": "error",
     },
   },
 ];
