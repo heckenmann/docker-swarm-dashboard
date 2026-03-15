@@ -1,10 +1,11 @@
 /**
- * Reducer to toggle the refresh interval.
+ * Reducer to set the refresh interval.
  * @param {number|null} prev - The previous state of the refresh interval.
- * @returns {number|null} - Returns 3000 if the previous state was null, otherwise returns null.
+ * @param {number|null} newInterval - The new interval value to set.
+ * @returns {number|null} - Returns the new interval value.
  */
-export const RefreshIntervalToggleReducer = (prev) => {
-  return prev ? null : 3000
+export const RefreshIntervalToggleReducer = (prev, newInterval) => {
+  return newInterval
 }
 /**
  * Reducer to manage messages.

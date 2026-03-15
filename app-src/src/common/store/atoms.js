@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import { atomWithReducer, atomWithReset } from 'jotai/utils'
 const a11yDark = {}
 const a11yLight = {}
-import { MessageReducer, RefreshIntervalToggleReducer } from './reducers'
+import { MessageReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
 import {
   dashboardHId,
@@ -51,9 +51,9 @@ export const baseUrlAtom = atomWithHash(
     ? parsedHash.base.replaceAll('"', '')
     : window.location.pathname,
 )
-export const refreshIntervalAtom = atomWithReducer(
-  null,
-  RefreshIntervalToggleReducer,
+export const refreshIntervalAtom = atomWithHash('refreshInterval', null)
+export const refreshIntervalDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).refreshInterval ?? null,
 )
 export const viewAtom = atomWithHash('view', {})
 export const messagesAtom = atomWithReducer([], MessageReducer)
@@ -63,34 +63,27 @@ export const stackNameFilterAtom = atomWithHash('stackNameFilter', '')
 // Which type the filter UI currently uses: 'service' or 'stack'
 export const filterTypeAtom = atomWithHash('filterType', 'service')
 
-// New API
 export const dashboardHAtom = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/dashboardh')).json()
 })
 export const dashboardVAtom = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/dashboardv')).json()
 })
 export const stacksAtom = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/stacks')).json()
 })
 export const portsAtom = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/ports')).json()
 })
 export const nodesAtomNew = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/nodes')).json()
 })
 export const tasksAtomNew = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/tasks')).json()
 })
@@ -103,7 +96,6 @@ export const nodeDetailAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'docker/nodes/' + id)).json()
 })
 export const logsServicesAtom = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/logs/services')).json()
 })
@@ -126,7 +118,6 @@ export const taskDetailAtom = atom(async (get) => {
 })
 
 export const timelineAtom = atom(async (get) => {
-  // Reload when view changed
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/timeline')).json()
 })
@@ -134,14 +125,14 @@ export const timelineAtom = atom(async (get) => {
 // Logs
 export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
-export const logsNumberOfLinesAtom = atomWithReset(20)
+export const logsNumberOfLinesAtom = atomWithHash('logsNumberOfLines', 20)
 export const logsConfigAtom = atom()
-export const logsMessageMaxLenAtom = atomWithReset(10000)
+export const logsMessageMaxLenAtom = atomWithHash('logsMessageMaxLen', 10000)
 // Form-level atoms to persist logs form state across navigation
 export const logsFormServiceIdAtom = atomWithReset('')
 export const logsFormServiceNameAtom = atomWithReset('')
-export const logsFormTailAtom = atomWithReset('20')
-export const logsFormSinceAtom = atomWithReset('1h')
+export const logsFormTailAtom = atomWithHash('logsFormTail', '20')
+export const logsFormSinceAtom = atomWithHash('logsFormSince', '1h')
 export const logsFormSinceErrorAtom = atomWithReset(false)
 export const logsFormShowAdvancedAtom = atomWithReset(false)
 export const logsFormSinceAmountAtom = atomWithReset('1')
@@ -215,17 +206,6 @@ export const currentVariantClassesAtom = atom((get) =>
     : 'bg-light text-dark',
 )
 
-// UI preferences
-// Control whether action buttons next to entity names are shown
-export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
-// Show text labels next to icons in the navigation bar.
-// When false, labels are hidden and tooltips appear on hover instead.
-export const showNavLabelsAtom = atomWithHash('showNavLabels', false)
-// Maximum content width for wide-screen displays.
-// 'fluid' = full-width (container-fluid), 'centered' = standard responsive
-// Bootstrap container (auto max-width based on breakpoint, centred).
-export const maxContentWidthAtom = atomWithHash('maxContentWidth', 'fluid')
-
 // Track outstanding network requests (number)
 export const networkRequestsAtom = atom(0)
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
@@ -233,10 +213,45 @@ export const currentSyntaxHighlighterStyleAtom = atom((get) =>
   get(isDarkModeAtom) ? a11yDark : a11yLight,
 )
 
-// Dashboard settings
+// Dashboard settings from server
 export const dashboardSettingsAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'ui/dashboard-settings')).json()
 })
+
+// UI Settings with server defaults
+// These atoms use static defaults but can be overridden by URL hash
+// Note: tableSizeAtom, serviceNameFilterAtom, stackNameFilterAtom, filterTypeAtom are already defined above
+// Server defaults are available via *DefaultAtom variants
+export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
+export const showNamesButtonsDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).showNamesButtons ?? true,
+)
+export const showNavLabelsAtom = atomWithHash('showNavLabels', false)
+export const showNavLabelsDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).showNavLabels ?? false,
+)
+export const maxContentWidthAtom = atomWithHash('maxContentWidth', 'fluid')
+export const maxContentWidthDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).maxContentWidth ?? 'fluid',
+)
+
+// Additional settings with server defaults
+export const defaultLayoutAtom = atomWithHash('defaultLayout', 'row')
+export const defaultLayoutDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).defaultLayout ?? 'row',
+)
+export const hiddenServiceStatesAtom = atomWithHash('hiddenServiceStates', [])
+export const hiddenServiceStatesDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).hiddenServiceStates ?? [],
+)
+export const timeZoneAtom = atomWithHash('timeZone', '')
+export const timeZoneDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).timeZone ?? '',
+)
+export const localeAtom = atomWithHash('locale', '')
+export const localeDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).locale ?? '',
+)
 
 // Incrementing this atom triggers a re-fetch of versionAtom without causing
 // a full-page Suspense re-render on every navigation (unlike viewAtom).
@@ -258,10 +273,14 @@ export const versionAtom = atom(async (get) => {
   }
 })
 
-export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) =>
-  (await get(dashboardSettingsAtom)).defaultLayout === 'row'
-    ? dashboardHId
-    : dashboardVId,
-)
+export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) => {
+  const defaultLayout = await get(defaultLayoutAtom)
+  return defaultLayout === 'row' ? dashboardHId : dashboardVId
+})
 
 export const showWelcomeMessageAtom = atom(true)
+
+export const baseUrlDefaultAtom = atomWithHash(
+  'baseUrlDefault',
+  window.location.pathname,
+)

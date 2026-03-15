@@ -3,9 +3,11 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   stacksAtom,
-  dashboardSettingsAtom,
+  localeAtom,
+  timeZoneAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
+  tableSizeAtom,
 } from '../../common/store/atoms'
 import { useAtomValue } from 'jotai'
 import { useState, useCallback } from 'react'
@@ -27,10 +29,12 @@ import { sortData } from '../../common/sortUtils'
 function StacksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
+  const locale = useAtomValue(localeAtom)
+  const timeZone = useAtomValue(timeZoneAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const stacksData = useAtomValue(stacksAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
 
   // Shared sorting state for all stack tables
   const [sortBy, setSortBy] = useState(null)
@@ -119,15 +123,15 @@ function StacksComponent() {
         <td>
           {toDefaultDateTimeString(
             new Date(service['Created']),
-            dashBoardSettings.locale,
-            dashBoardSettings.timeZone,
+            locale,
+            timeZone,
           )}
         </td>
         <td>
           {toDefaultDateTimeString(
             new Date(service['Updated']),
-            dashBoardSettings.locale,
-            dashBoardSettings.timeZone,
+            locale,
+            timeZone,
           )}
         </td>
       </tr>
@@ -152,7 +156,7 @@ function StacksComponent() {
             </strong>
           </div>
         </Card.Header>
-        <Table variant={currentVariant} size="sm" hover>
+        <Table variant={currentVariant} size={tableSize} hover>
           <thead>
             <tr>
               <SortableHeader

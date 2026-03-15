@@ -5,7 +5,8 @@ import {
   currentVariantClassesAtom,
   tasksAtomNew,
   tableSizeAtom,
-  dashboardSettingsAtom,
+  localeAtom,
+  timeZoneAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
   viewAtom,
@@ -32,7 +33,8 @@ function TasksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
-  const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
+  const locale = useAtomValue(localeAtom)
+  const timeZone = useAtomValue(timeZoneAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const [view, setView] = useAtom(viewAtom)
@@ -114,11 +116,7 @@ function TasksComponent() {
         <FontAwesomeIcon icon="tasks" />
       </td>
       <td>
-        {toDefaultDateTimeString(
-          new Date(task['Timestamp']),
-          dashBoardSettings.locale,
-          dashBoardSettings.timeZone,
-        )}
+        {toDefaultDateTimeString(new Date(task['Timestamp']), locale, timeZone)}
       </td>
       <td>
         <ServiceStatusBadge

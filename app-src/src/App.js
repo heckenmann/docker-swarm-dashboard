@@ -43,9 +43,7 @@ const App = () => {
         alt=""
       />
       <ErrorBoundary>
-        <Suspense fallback={null}>
-          <DashboardNavbar />
-        </Suspense>
+        <DashboardNavbar />
       </ErrorBoundary>
       <LoadingBar />
       <main role="main">

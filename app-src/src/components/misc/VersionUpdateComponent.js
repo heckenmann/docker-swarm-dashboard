@@ -4,6 +4,7 @@ import {
   currentVariantClassesAtom,
   dashboardSettingsAtom,
   versionAtom,
+  tableSizeAtom,
 } from '../../common/store/atoms'
 import { Alert, Badge, Card, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -36,6 +37,7 @@ function VersionUpdateComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const version = useAtomValue(versionAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
 
   const dockerComposeExample = `services:
   dsd_docker-swarm-dashboard:
@@ -78,7 +80,12 @@ function VersionUpdateComponent() {
               </Alert>
             )}
 
-            <Table variant={currentVariant} bordered size="sm" className="mt-3">
+            <Table
+              variant={currentVariant}
+              bordered
+              size={tableSize}
+              className="mt-3"
+            >
               <tbody>
                 <tr>
                   <th className="w-50">Installed version</th>

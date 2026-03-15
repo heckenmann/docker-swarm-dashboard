@@ -1,7 +1,7 @@
 import {
   currentVariantAtom,
   dashboardHAtom,
-  dashboardSettingsAtom,
+  hiddenServiceStatesAtom,
   isDarkModeAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
@@ -33,7 +33,7 @@ function DashboardComponent() {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
-  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const hiddenServiceStates = useAtomValue(hiddenServiceStatesAtom)
   const [, updateView] = useAtom(viewAtom)
 
   const theads = []
@@ -149,7 +149,7 @@ function DashboardComponent() {
                     createdAt={task?.CreatedAt}
                     updatedAt={task?.UpdatedAt}
                     serviceError={task?.Status?.Err}
-                    hiddenStates={dashboardSettings.hiddenServiceStates}
+                    hiddenStates={hiddenServiceStates}
                   />
                 </li>
               ))}

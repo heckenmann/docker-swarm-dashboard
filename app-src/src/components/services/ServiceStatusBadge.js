@@ -3,7 +3,11 @@ import { getStyleClassForState } from '../../common/utils/taskStateUtils'
 import PropTypes from 'prop-types'
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import { useAtomValue } from 'jotai'
-import { dashboardSettingsAtom } from '../../common/store/atoms'
+import {
+  hiddenServiceStatesAtom,
+  timeZoneAtom,
+  localeAtom,
+} from '../../common/store/atoms'
 import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 /**
@@ -25,40 +29,43 @@ const ServiceStatusBadge = ({
   serviceError,
   hiddenStates = [],
 }) => {
-  const dashBoardSettings = useAtomValue(dashboardSettingsAtom)
+  const hiddenServiceStatesFromAtom = useAtomValue(hiddenServiceStatesAtom)
+  const timeZone = useAtomValue(timeZoneAtom)
+  const locale = useAtomValue(localeAtom)
   const variant = useMemo(
     () => getStyleClassForState(serviceState),
     [serviceState],
   )
 
+  // Use hiddenStates prop if provided, otherwise fall back to atom value
+  const effectiveHiddenStates =
+    Array.isArray(hiddenStates) && hiddenStates.length > 0
+      ? hiddenStates
+      : hiddenServiceStatesFromAtom
+
   const formattedCreated = useMemo(() => {
     if (!createdAt) return null
     try {
-      return toDefaultDateTimeString(
-        new Date(createdAt),
-        dashBoardSettings.locale,
-        dashBoardSettings.timeZone,
-      )
+      return toDefaultDateTimeString(new Date(createdAt), locale, timeZone)
     } catch {
       return String(createdAt)
     }
-  }, [createdAt, dashBoardSettings.locale, dashBoardSettings.timeZone])
+  }, [createdAt, locale, timeZone])
 
   const formattedUpdated = useMemo(() => {
     if (!updatedAt) return null
     try {
-      return toDefaultDateTimeString(
-        new Date(updatedAt),
-        dashBoardSettings.locale,
-        dashBoardSettings.timeZone,
-      )
+      return toDefaultDateTimeString(new Date(updatedAt), locale, timeZone)
     } catch {
       return String(updatedAt)
     }
-  }, [updatedAt, dashBoardSettings.locale, dashBoardSettings.timeZone])
+  }, [updatedAt, locale, timeZone])
 
   // Early return after all hooks
-  if (Array.isArray(hiddenStates) && hiddenStates.includes(serviceState)) {
+  if (
+    Array.isArray(effectiveHiddenStates) &&
+    effectiveHiddenStates.includes(serviceState)
+  ) {
     return null
   }
 

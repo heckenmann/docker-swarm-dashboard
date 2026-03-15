@@ -1,5 +1,8 @@
 import { useAtomValue } from 'jotai'
-import { currentVariantClassesAtom } from '../../../common/store/atoms'
+import {
+  currentVariantClassesAtom,
+  tableSizeAtom,
+} from '../../../common/store/atoms'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 import { Table } from 'react-bootstrap'
 import { EntityName } from '../../shared/names/EntityName'
@@ -13,11 +16,12 @@ import ServiceStatusBadge from '../../services/ServiceStatusBadge'
  */
 function TaskInfoTable({ taskObj }) {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
 
   return (
     <div className="mb-3">
       <h5>Task Information</h5>
-      <Table size="sm" bordered className={currentVariantClasses}>
+      <Table size={tableSize} bordered className={currentVariantClasses}>
         <tbody>
           <tr>
             <td>
