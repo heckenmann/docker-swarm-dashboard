@@ -4,15 +4,32 @@ import {
   currentVariantAtom,
   currentVariantClassesAtom,
   isDarkModeAtom,
-  maxContentWidthAtom,
-  refreshIntervalAtom,
-  showNavLabelsAtom,
   tableSizeAtom,
+  refreshIntervalAtom,
   showNamesButtonsAtom,
+  showNavLabelsAtom,
+  maxContentWidthAtom,
+  defaultLayoutAtom,
+  hiddenServiceStatesAtom,
+  timeZoneAtom,
+  localeAtom,
+  dashboardSettingsAtom,
 } from '../../common/store/atoms'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
-import { Card, Table, FormControl, FormCheck, Button } from 'react-bootstrap'
+import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { ApiUrlRow } from './rows/ApiUrlRow'
+import { RefreshIntervalRow } from './rows/RefreshIntervalRow'
+import { DarkModeRow } from './rows/DarkModeRow'
+import { TableSizeRow } from './rows/TableSizeRow'
+import { CenteredLayoutRow } from './rows/CenteredLayoutRow'
+import { ShowNavLabelsRow } from './rows/ShowNavLabelsRow'
+import { ShowNamesButtonsRow } from './rows/ShowNamesButtonsRow'
+import { DefaultLayoutRow } from './rows/DefaultLayoutRow'
+import { HiddenServiceStatesRow } from './rows/HiddenServiceStatesRow'
+import { TimeZoneRow } from './rows/TimeZoneRow'
+import { LocaleRow } from './rows/LocaleRow'
 
 /**
  * SettingsComponent is a React functional component that renders a settings panel.
@@ -22,20 +39,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 function SettingsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const [refreshInterval, toggleRefresh] = useAtom(
+  const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
+  const [tableSize, setTableSize] = useAtom(tableSizeAtom)
+  const [_refreshInterval, _toggleRefresh] = useAtom(
     refreshIntervalAtom,
     RefreshIntervalToggleReducer,
   )
-  const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
-  const [tableSize, setTableSize] = useAtom(tableSizeAtom)
-  const [showNamesButtons, setShowNamesButtons] = useAtom(showNamesButtonsAtom)
-  const [showNavLabels, setShowNavLabels] = useAtom(showNavLabelsAtom)
-  const [maxContentWidth, setMaxContentWidth] = useAtom(maxContentWidthAtom)
-  const [baseUrl, setBaseUrl] = useAtom(baseUrlAtom)
-
-  const toggleRefreshAndNotifyUser = () => {
-    toggleRefresh()
-  }
+  const [_showNamesButtons, setShowNamesButtons] = useAtom(showNamesButtonsAtom)
+  const [_showNavLabels, setShowNavLabels] = useAtom(showNavLabelsAtom)
+  const [_maxContentWidth, setMaxContentWidth] = useAtom(maxContentWidthAtom)
+  const [_defaultLayout, setDefaultLayout] = useAtom(defaultLayoutAtom)
+  const [_hiddenServiceStates, setHiddenServiceStates] = useAtom(
+    hiddenServiceStatesAtom,
+  )
+  const [_timeZone, setTimeZone] = useAtom(timeZoneAtom)
+  const [, setLocale] = useAtom(localeAtom)
+  const [, setBaseUrl] = useAtom(baseUrlAtom)
+  const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
   const computeDefaultBase = () => {
     try {
@@ -52,16 +72,48 @@ function SettingsComponent() {
 
   const resetDefaults = () => {
     setBaseUrl(computeDefaultBase())
-    // match defaults defined in atoms.js
-    setIsDarkMode(false)
-    setTableSize('sm')
-    setShowNamesButtons(true)
-    setShowNavLabels(false)
-    setMaxContentWidth('fluid')
+    // Reset to server defaults from dashboardSettingsAtom
+    setIsDarkMode(dashboardSettings.isDarkMode)
+    setTableSize(dashboardSettings.tableSize)
+    setShowNamesButtons(dashboardSettings.showNamesButtons)
+    setShowNavLabels(dashboardSettings.showNavLabels)
+    setMaxContentWidth(dashboardSettings.maxContentWidth)
+    setDefaultLayout(dashboardSettings.defaultLayout)
+    setHiddenServiceStates(dashboardSettings.hiddenServiceStates || [])
+    setTimeZone(dashboardSettings.timeZone || '')
+    setLocale(dashboardSettings.locale || '')
   }
 
   return (
     <Card bg={currentVariant} className={currentVariantClasses}>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
+          <FontAwesomeIcon icon="cog" className="me-2" />
+          <strong>Settings</strong>
+        </div>
+      </Card.Header>
+      <div className="p-3">
+        <p className="small text-muted mb-3">
+          Server-side defaults can be configured via environment variables in
+          docker-compose.yml:
+        </p>
+        <pre className="text-monospace" style={{ maxHeight: '200px' }}>
+          version: '3.8' services: dashboard: image:
+          docker-swarm-dashboard:latest ports: - '8080:8080' environment: # UI
+          Settings - DSD_TABLE_SIZE=sm - DSD_SERVICE_NAME_FILTER= -
+          DSD_STACK_NAME_FILTER= - DSD_FILTER_TYPE=service -
+          DSD_LOGS_NUMBER_OF_LINES=20 - DSD_LOGS_MESSAGE_MAX_LEN=10000 -
+          DSD_LOGS_FORM_TAIL=20 - DSD_LOGS_FORM_SINCE=1h -
+          DSD_LOGS_FORM_SINCE_AMOUNT=1 - DSD_LOGS_FORM_SINCE_UNIT=h -
+          DSD_LOGS_FORM_FOLLOW=false - DSD_LOGS_FORM_TIMESTAMPS=false -
+          DSD_LOGS_FORM_STDOUT=true - DSD_LOGS_FORM_STDERR=true -
+          DSD_LOGS_FORM_DETAILS=false - DSD_LOGS_SEARCH_KEYWORD= -
+          DSD_DARK_MODE=false - DSD_SHOW_NAMES_BUTTONS=true -
+          DSD_SHOW_NAV_LABELS=false - DSD_MAX_CONTENT_WIDTH=fluid -
+          DSD_DASHBOARD_LAYOUT=row - DSD_HIDE_SERVICE_STATES= - DSD_TIME_ZONE= -
+          DSD_LOCALE= - DSD_REFRESH_INTERVAL= restart: unless-stopped
+        </pre>
+      </div>
       <Table
         variant={isDarkMode ? currentVariant : null}
         striped
@@ -69,209 +121,25 @@ function SettingsComponent() {
       >
         <thead>
           <tr>
-            <th className="col-sm-1"></th>
+            <th></th>
             <th className="col-sm-5">Setting</th>
-            <th>Value</th>
-            <th>Default</th>
+            <th className="col-sm-4">Value</th>
+            <th className="col-sm-1">Default</th>
+            <th className="col-sm-1">Reset</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon icon="link" />
-              </span>
-            </td>
-            <td>
-              API URL
-              <div className="small text-muted">
-                Base URL for API requests. Trailing slash is added
-                automatically.
-              </div>
-            </td>
-            <td>
-              <FormControl
-                size="sm"
-                aria-label="API URL"
-                value={baseUrl}
-                onChange={(event) =>
-                  setBaseUrl(
-                    event.target.value.endsWith('/')
-                      ? event.target.value
-                      : event.target.value + '/',
-                  )
-                }
-              />
-            </td>
-            <td className="small text-muted">{computeDefaultBase()}</td>
-          </tr>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon
-                  icon={refreshInterval ? 'stop-circle' : 'play-circle'}
-                />
-              </span>
-            </td>
-            <td>
-              Interval Refresh (3000 ms)
-              <div className="small text-muted">
-                Toggle automatic data refresh at a fixed interval.
-              </div>
-            </td>
-            <td>
-              <FormCheck
-                type="switch"
-                variant={refreshInterval ? 'secondary' : 'outline-secondary'}
-                onChange={toggleRefreshAndNotifyUser}
-                checked={refreshInterval}
-                aria-label="Toggle auto refresh"
-              />
-            </td>
-            <td className="small text-muted">false</td>
-          </tr>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon icon="lightbulb" />
-              </span>
-            </td>
-            <td>
-              Dark Mode
-              <div className="small text-muted">
-                Switch between light and dark theme.
-              </div>
-            </td>
-            <td>
-              <FormCheck
-                type="switch"
-                variant={isDarkMode ? 'secondary' : 'outline-secondary'}
-                onChange={() => setIsDarkMode(!isDarkMode)}
-                value={isDarkMode}
-                checked={isDarkMode}
-                aria-label="Toggle dark mode"
-              />
-            </td>
-            <td className="small text-muted">false</td>
-          </tr>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon icon="table-cells" />
-              </span>
-            </td>
-            <td>
-              Small tables
-              <div className="small text-muted">
-                Make tables compact for a denser display.
-              </div>
-            </td>
-            <td>
-              <FormCheck
-                type="switch"
-                variant={tableSize ? 'secondary' : 'outline-secondary'}
-                onChange={() => setTableSize(tableSize === 'sm' ? 'lg' : 'sm')}
-                checked={tableSize === 'sm'}
-                aria-label="Toggle compact tables"
-              />
-            </td>
-            <td className="small text-muted">sm</td>
-          </tr>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon icon="ruler-horizontal" />
-              </span>
-            </td>
-            <td>
-              Centered layout
-              <div className="small text-muted">
-                Constrain and centre the content using Bootstrap&apos;s
-                responsive container instead of full viewport width.
-              </div>
-            </td>
-            <td>
-              <FormCheck
-                type="switch"
-                checked={maxContentWidth === 'centered'}
-                onChange={() =>
-                  setMaxContentWidth(
-                    maxContentWidth === 'centered' ? 'fluid' : 'centered',
-                  )
-                }
-                aria-label="Toggle centered content width"
-              />
-            </td>
-            <td className="small text-muted">Full width</td>
-          </tr>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon icon="font" />
-              </span>
-            </td>
-            <td>
-              Show navigation labels
-              <div className="small text-muted">
-                Show text labels next to icons in the navigation bar. When
-                disabled, tooltips appear on hover instead.
-              </div>
-            </td>
-            <td>
-              <FormCheck
-                type="switch"
-                checked={showNavLabels}
-                onChange={() => setShowNavLabels(!showNavLabels)}
-                aria-label="Toggle navigation labels"
-              />
-            </td>
-            <td className="small text-muted">false</td>
-          </tr>
-          <tr>
-            <td>
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded bg-secondary bg-opacity-10 p-2 me-2"
-                aria-hidden
-              >
-                <FontAwesomeIcon icon="list" />
-              </span>
-            </td>
-            <td>
-              Show buttons in Names
-              <div className="small text-muted">
-                Show action buttons next to entity names (services, stacks,
-                nodes), e.g. Logs or Details.
-              </div>
-            </td>
-            <td>
-              <FormCheck
-                type="switch"
-                variant={showNamesButtons ? 'secondary' : 'outline-secondary'}
-                onChange={() => setShowNamesButtons(!showNamesButtons)}
-                checked={showNamesButtons}
-                aria-label="Toggle show buttons in names"
-              />
-            </td>
-            <td className="small text-muted">true</td>
-          </tr>
+          <ApiUrlRow />
+          <RefreshIntervalRow />
+          <DarkModeRow />
+          <TableSizeRow />
+          <CenteredLayoutRow />
+          <ShowNavLabelsRow />
+          <ShowNamesButtonsRow />
+          <DefaultLayoutRow />
+          <HiddenServiceStatesRow />
+          <TimeZoneRow />
+          <LocaleRow />
         </tbody>
       </Table>
       <div className="p-2 d-flex justify-content-end">
