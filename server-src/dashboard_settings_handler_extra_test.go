@@ -60,6 +60,7 @@ func TestLoadDashboardSettingsFromEnv_AllVars(t *testing.T) {
 	_ = os.Setenv("DSD_VERSION_CHECK_ENABLED", "true")
 	_ = os.Setenv("DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES", "15")
 	_ = os.Setenv("DSD_WELCOME_MESSAGE", "hello")
+	_ = os.Setenv("DSD_REFRESH_INTERVAL", "5000")
 
 	// call loader
 	loadDashboardSettingsFromEnv()
@@ -88,5 +89,8 @@ func TestLoadDashboardSettingsFromEnv_AllVars(t *testing.T) {
 	}
 	if welcomeMessage == nil || *welcomeMessage != "hello" {
 		t.Fatalf("expected welcomeMessage=hello got %v", welcomeMessage)
+	}
+	if refreshInterval == nil || *refreshInterval != 5000 {
+		t.Fatalf("expected refreshInterval=5000 got %v", refreshInterval)
 	}
 }
