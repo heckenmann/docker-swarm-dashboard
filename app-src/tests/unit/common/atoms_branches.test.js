@@ -431,14 +431,14 @@ describe('detail atoms guards and fetch', () => {
     const atoms = require('../../../src/common/store/atoms')
     // row -> dashboardHId
     const getRow = (a) =>
-      a === atoms.dashboardSettingsAtom ? { defaultLayout: 'row' } : '/'
+      a === atoms.defaultLayoutAtom ? 'row' : '/'
     const idRow = await atoms.dashboardSettingsDefaultLayoutViewIdAtom(getRow)
     const nav = require('../../../src/common/navigationConstants')
     expect(idRow).toBe(nav.dashboardHId)
 
     // column -> dashboardVId
     const getCol = (a) =>
-      a === atoms.dashboardSettingsAtom ? { defaultLayout: 'column' } : '/'
+      a === atoms.defaultLayoutAtom ? 'column' : '/'
     const idCol = await atoms.dashboardSettingsDefaultLayoutViewIdAtom(getCol)
     expect(idCol).toBe(nav.dashboardVId)
   })

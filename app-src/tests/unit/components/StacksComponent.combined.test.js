@@ -6,13 +6,15 @@ const StacksComponent =
 jest.mock('../../../src/common/store/atoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
   currentVariantClassesAtom: 'currentVariantClassesAtom',
-  dashboardSettingsAtom: 'dashboardSettingsAtom',
+  localeAtom: 'localeAtom',
+  timeZoneAtom: 'timeZoneAtom',
   serviceNameFilterAtom: 'serviceNameFilterAtom',
   stackNameFilterAtom: 'stackNameFilterAtom',
   filterTypeAtom: 'filterTypeAtom',
   viewAtom: 'viewAtom',
   stacksAtom: 'stacksAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+  tableSizeAtom: 'tableSizeAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
@@ -32,11 +34,13 @@ describe('StacksComponent (combined)', () => {
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'currentVariantAtom') return 'light'
       if (atom === 'currentVariantClassesAtom') return 'classes'
-      if (atom === 'dashboardSettingsAtom') return { locale: 'en', timeZone: 'UTC' }
+      if (atom === 'localeAtom') return 'en'
+      if (atom === 'timeZoneAtom') return 'UTC'
       if (atom === 'serviceNameFilterAtom') return ''
       if (atom === 'stackNameFilterAtom') return ''
       if (atom === 'stacksAtom') return []
       if (atom === 'showNamesButtonsAtom') return false
+      if (atom === 'tableSizeAtom') return 'lg'
       return ''
     })
     mockUseAtom.mockImplementation((atom) => {
@@ -67,15 +71,17 @@ describe('StacksComponent (combined)', () => {
       },
     ]
 
-    // atoms: currentVariant, currentVariantClasses, dashboardSettings, serviceNameFilter, stackNameFilter, stacksAtom
+    // atoms: currentVariant, currentVariantClasses, localeAtom, timeZoneAtom, serviceNameFilter, stackNameFilter, stacksAtom, filterTypeAtom
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
         case 'currentVariantAtom':
           return 'light'
         case 'currentVariantClassesAtom':
           return 'classes'
-        case 'dashboardSettingsAtom':
-          return { locale: 'en', timeZone: 'UTC' }
+        case 'localeAtom':
+          return 'en'
+        case 'timeZoneAtom':
+          return 'UTC'
         case 'serviceNameFilterAtom':
           return 'myservice'
         case 'stackNameFilterAtom':
@@ -84,6 +90,10 @@ describe('StacksComponent (combined)', () => {
           return stacks
         case 'showNamesButtonsAtom':
           return true
+        case 'tableSizeAtom':
+          return 'sm'
+        case 'filterTypeAtom':
+          return 'service'
         default:
           return ''
       }
@@ -142,17 +152,19 @@ describe('StacksComponent (combined)', () => {
       },
     ]
 
-    // useAtomValue is called for currentVariant, currentVariantClasses, dashboardSettings, service filters and stacks
+    // useAtomValue is called for currentVariant, currentVariantClasses, localeAtom, timeZoneAtom, service filters and stacks
     const values = [
       'light',
       'classes',
-      { locale: 'en', timeZone: 'UTC' },
+      'en',
+      'UTC',
       'svc-short',
       '',
       stacks,
     ]
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'showNamesButtonsAtom') return true
+      if (atom === 'tableSizeAtom') return 'sm'
       return values.shift()
     })
 
@@ -201,7 +213,8 @@ describe('StacksComponent (combined)', () => {
     const values = [
       'light',
       'classes',
-      { locale: 'en', timeZone: 'UTC' },
+      'en',
+      'UTC',
       '',
       '',
       stacks,
@@ -253,8 +266,10 @@ describe('StacksComponent (combined)', () => {
           return 'light'
         case 'currentVariantClassesAtom':
           return 'classes'
-        case 'dashboardSettingsAtom':
-          return { locale: 'en', timeZone: 'UTC' }
+        case 'localeAtom':
+          return 'en'
+        case 'timeZoneAtom':
+          return 'UTC'
         case 'serviceNameFilterAtom':
           return 'myservicename'
         case 'stackNameFilterAtom':
@@ -263,6 +278,8 @@ describe('StacksComponent (combined)', () => {
           return stacks
         case 'showNamesButtonsAtom':
           return true
+        case 'tableSizeAtom':
+          return 'sm'
         default:
           return ''
       }
@@ -392,5 +409,108 @@ describe('StacksComponent (combined)', () => {
     expect(mockSetStack).toHaveBeenCalledWith('stackY')
     expect(mockSetService).toHaveBeenCalledWith('')
     expect(mockSetType).toHaveBeenCalledWith('stack')
+  })
+
+  test('tableSizeAtom controls table-sm class', () => {
+    // Test with 'sm' size
+    mockUseAtomValue.mockImplementation((atom) => {
+      const atomKey = atom?.debugLabel || atom
+      switch (atomKey) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'classes'
+        case 'localeAtom':
+          return 'en'
+        case 'timeZoneAtom':
+          return 'UTC'
+        case 'tableSizeAtom':
+          return 'sm'
+        case 'serviceNameFilterAtom':
+          return ''
+        case 'stackNameFilterAtom':
+          return ''
+        case 'stacksAtom':
+          return [{
+            Name: 'test-stack',
+            Services: [{
+              ID: 'svc1',
+              ServiceName: 'test-service',
+              ShortName: 'test-service',
+              Replication: '1/1',
+              Created: '2024-01-01T00:00:00Z',
+              Updated: '2024-01-01T00:00:00Z'
+            }]
+          }]
+        case 'showNamesButtonsAtom':
+          return false
+        default:
+          return ''
+      }
+    })
+
+    // Mock useAtom for tableSizeAtom
+    const mockSetTableSize = jest.fn()
+    mockUseAtom.mockImplementation((atom) => {
+      const atomKey = atom?.debugLabel || atom
+      if (atomKey === 'tableSizeAtom') return ['sm', mockSetTableSize]
+      if (atomKey === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atomKey === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atomKey === 'filterTypeAtom') return ['', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    const { rerender, container } = render(<StacksComponent />)
+    const table = container.querySelector('table')
+    expect(table).toHaveClass('table-sm')
+
+    // Test with 'lg' size
+    mockUseAtomValue.mockImplementation((atom) => {
+      const atomKey = atom?.debugLabel || atom
+      switch (atomKey) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'classes'
+        case 'dashboardSettingsAtom':
+          return { locale: 'en', timeZone: 'UTC' }
+        case 'tableSizeAtom':
+          return 'lg'
+        case 'serviceNameFilterAtom':
+          return ''
+        case 'stackNameFilterAtom':
+          return ''
+        case 'stacksAtom':
+          return [{
+            Name: 'test-stack',
+            Services: [{
+              ID: 'svc1',
+              ServiceName: 'test-service',
+              ShortName: 'test-service',
+              Replication: '1/1',
+              Created: '2024-01-01T00:00:00Z',
+              Updated: '2024-01-01T00:00:00Z'
+            }]
+          }]
+        case 'showNamesButtonsAtom':
+          return false
+        default:
+          return ''
+      }
+    })
+
+    // Mock useAtom for tableSizeAtom with 'lg'
+    const mockSetTableSizeLg = jest.fn()
+    mockUseAtom.mockImplementation((atom) => {
+      const atomKey = atom?.debugLabel || atom
+      if (atomKey === 'tableSizeAtom') return ['lg', mockSetTableSizeLg]
+      if (atomKey === 'serviceNameFilterAtom') return ['', jest.fn()]
+      if (atomKey === 'stackNameFilterAtom') return ['', jest.fn()]
+      if (atomKey === 'filterTypeAtom') return ['', jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    rerender(<StacksComponent />)
+    expect(table).not.toHaveClass('table-sm')
   })
 })

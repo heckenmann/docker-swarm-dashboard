@@ -60,9 +60,10 @@ const DashboardNavbar = modNav.DashboardNavbar || modNav.default || modNav
  * @param {boolean} [opts.showNavLabels=false]
  * @param {string} [opts.currentVariant='light']
  * @param {number|null} [opts.refreshInterval=null]
+ * @param {string} [opts.defaultLayout='dashboardH']
  * @returns {{ container: HTMLElement, mockUpdateView: jest.Mock, mockIncrVer: jest.Mock }}
  */
-function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVariant = 'light', refreshInterval = null } = {}) {
+function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVariant = 'light', refreshInterval = null, defaultLayout = 'dashboardH' } = {}) {
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return currentVariant
     if (atom === 'maxContentWidthAtom') return maxContentWidth
@@ -71,7 +72,7 @@ function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVarian
     if (atom === 'logsShowLogsAtom') return false
     if (atom === 'logsConfigAtom') return { follow: false }
     if (atom === 'dashboardSettingsAtom') return { showLogsButton: false, versionCheckEnabled: false }
-    if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return 'dashboardH'
+    if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return defaultLayout
     return null
   })
   // Functional mocks: call updater callbacks so nested (prev) => (...) arrows are also covered.
@@ -156,10 +157,15 @@ describe('DashboardNavbar (combined)', () => {
 
   // ---- onClick handler coverage ----
 
-  test('clicking Dashboard nav link calls updateView', () => {
-    const { mockUpdateView } = setup()
+  test('clicking Dashboard nav link calls updateView with defaultLayout', () => {
+    const { mockUpdateView } = setup({ defaultLayout: 'dashboardV' })
     fireEvent.click(screen.getByRole('button', { name: 'Dashboard' }))
     expect(mockUpdateView).toHaveBeenCalledTimes(1)
+    expect(mockUpdateView).toHaveBeenCalledWith(expect.any(Function))
+    // Verify the updater function returns the defaultLayout
+    const updater = mockUpdateView.mock.calls[0][0]
+    const result = updater({ id: 'dashboardH' })
+    expect(result.id).toBe('dashboardV')
   })
 
   test('clicking Timeline nav link calls updateView with timelineId', () => {

@@ -5,7 +5,18 @@ jest.mock('jotai/utils', () => ({
   atomWithReset: (v) => v,
   selectAtom: (a) => a,
 }))
-jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
+// Mock jotai-location to return the default value directly for simple atoms
+// For async atoms, return the function so it can be called with a mock store
+jest.mock('jotai-location', () => ({
+  atomWithHash: (key, defaultValue) => {
+    if (typeof defaultValue === 'function') {
+      // For async default values, return the function
+      return defaultValue
+    }
+    // For sync default values, return the value directly
+    return defaultValue
+  },
+}))
 
 describe('fetch-based atoms (all combined)', () => {
   const realFetch = global.fetch
@@ -184,13 +195,33 @@ describe('fetch-based atoms (all combined)', () => {
     expect(global.fetch).toHaveBeenCalledTimes(2)
   })
 
-  test('maxContentWidthAtom defaults to fluid', () => {
+  test('maxContentWidthAtom defaults to fluid', async () => {
     const atoms = require('../../../src/common/store/atoms')
-    // atomWithHash is mocked to return its default value directly
-    expect(atoms.maxContentWidthAtom).toBe('fluid')
+    // atomWithHash now uses static default value
+    const defaultValue = atoms.maxContentWidthAtom
+    expect(defaultValue).toBe('fluid')
+    // The *DefaultAtom should return 'fluid' from server settings
+    const mockGet = (atom) => {
+      if (atom === atoms.dashboardSettingsAtom) {
+        return { maxContentWidth: 'fluid' }
+      }
+      return null
+    }
+    const serverDefault = await atoms.maxContentWidthDefaultAtom(mockGet)
+    expect(serverDefault).toBe('fluid')
   })
-  test('showNavLabelsAtom defaults to false', () => {
+  test('showNavLabelsAtom defaults to false', async () => {
     const atoms = require('../../../src/common/store/atoms')
-    expect(atoms.showNavLabelsAtom).toBe(false)
+    const defaultValue = atoms.showNavLabelsAtom
+    expect(defaultValue).toBe(false)
+    // The *DefaultAtom should return false from server settings
+    const mockGet = (atom) => {
+      if (atom === atoms.dashboardSettingsAtom) {
+        return { showNavLabels: false }
+      }
+      return null
+    }
+    const serverDefault = await atoms.showNavLabelsDefaultAtom(mockGet)
+    expect(serverDefault).toBe(false)
   })
 })
