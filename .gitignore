@@ -34,9 +34,11 @@ coverage/
 **/coverage/
 app-src/coverage/
 coverage-final.json
+clover.xml
 lcov.info
 *.lcov
 .nyc_output/
+lcov-report/
 
 # npm/yarn logs
 npm-debug.log*
