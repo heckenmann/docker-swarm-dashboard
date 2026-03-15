@@ -21,7 +21,7 @@ module.exports = {
 // Enforce a minimum global coverage threshold to ensure project-wide test quality.
 module.exports.coverageThreshold = {
   global: {
-    branches: 85,
+    branches: 90,
     functions: 90,
     lines: 90,
     statements: 90,
