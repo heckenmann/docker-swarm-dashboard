@@ -18,6 +18,7 @@ import {
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
 import { Card, Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useState } from 'react'
 
 import { ApiUrlRow } from './rows/ApiUrlRow'
 import { RefreshIntervalRow } from './rows/RefreshIntervalRow'
@@ -56,6 +57,7 @@ function SettingsComponent() {
   const [, setLocale] = useAtom(localeAtom)
   const [, setBaseUrl] = useAtom(baseUrlAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
+  const [showYaml, setShowYaml] = useState(false)
 
   const computeDefaultBase = () => {
     try {
@@ -93,26 +95,65 @@ function SettingsComponent() {
         </div>
       </Card.Header>
       <div className="p-3">
-        <p className="small text-muted mb-3">
-          Server-side defaults can be configured via environment variables in
-          docker-compose.yml:
-        </p>
-        <pre className="text-monospace" style={{ maxHeight: '200px' }}>
-          version: '3.8' services: dashboard: image:
-          docker-swarm-dashboard:latest ports: - '8080:8080' environment: # UI
-          Settings - DSD_TABLE_SIZE=sm - DSD_SERVICE_NAME_FILTER= -
-          DSD_STACK_NAME_FILTER= - DSD_FILTER_TYPE=service -
-          DSD_LOGS_NUMBER_OF_LINES=20 - DSD_LOGS_MESSAGE_MAX_LEN=10000 -
-          DSD_LOGS_FORM_TAIL=20 - DSD_LOGS_FORM_SINCE=1h -
-          DSD_LOGS_FORM_SINCE_AMOUNT=1 - DSD_LOGS_FORM_SINCE_UNIT=h -
-          DSD_LOGS_FORM_FOLLOW=false - DSD_LOGS_FORM_TIMESTAMPS=false -
-          DSD_LOGS_FORM_STDOUT=true - DSD_LOGS_FORM_STDERR=true -
-          DSD_LOGS_FORM_DETAILS=false - DSD_LOGS_SEARCH_KEYWORD= -
-          DSD_DARK_MODE=false - DSD_SHOW_NAMES_BUTTONS=true -
-          DSD_SHOW_NAV_LABELS=false - DSD_MAX_CONTENT_WIDTH=fluid -
-          DSD_DASHBOARD_LAYOUT=row - DSD_HIDE_SERVICE_STATES= - DSD_TIME_ZONE= -
-          DSD_LOCALE= - DSD_REFRESH_INTERVAL= restart: unless-stopped
-        </pre>
+        <Button
+          variant="link"
+          size="sm"
+          onClick={() => setShowYaml(!showYaml)}
+          aria-expanded={showYaml}
+          aria-controls="yaml-example"
+          className="p-0 mb-2"
+        >
+          <FontAwesomeIcon icon="info-circle" className="me-1" />
+          <FontAwesomeIcon icon={showYaml ? 'chevron-down' : 'chevron-right'} className="me-1" />
+          Server-side defaults (docker-compose.yml)
+        </Button>
+        {showYaml && (
+          <pre
+            id="yaml-example"
+            className="text-monospace small mb-0"
+            style={{
+              maxHeight: '300px',
+              overflow: 'auto',
+              fontSize: '0.75rem',
+              lineHeight: '1.3',
+            }}
+          >
+{`version: '3.8'
+services:
+  dashboard:
+    image: ghcr.io/heckenmann/docker-swarm-dashboard:latest
+    ports:
+      - '8080:8080'
+    environment:
+      # UI Settings
+      - DSD_TABLE_SIZE=sm
+      - DSD_SERVICE_NAME_FILTER=
+      - DSD_STACK_NAME_FILTER=
+      - DSD_FILTER_TYPE=service
+      - DSD_LOGS_NUMBER_OF_LINES=20
+      - DSD_LOGS_MESSAGE_MAX_LEN=10000
+      - DSD_LOGS_FORM_TAIL=20
+      - DSD_LOGS_FORM_SINCE=1h
+      - DSD_LOGS_FORM_SINCE_AMOUNT=1
+      - DSD_LOGS_FORM_SINCE_UNIT=h
+      - DSD_LOGS_FORM_FOLLOW=false
+      - DSD_LOGS_FORM_TIMESTAMPS=false
+      - DSD_LOGS_FORM_STDOUT=true
+      - DSD_LOGS_FORM_STDERR=true
+      - DSD_LOGS_FORM_DETAILS=false
+      - DSD_LOGS_SEARCH_KEYWORD=
+      - DSD_DARK_MODE=false
+      - DSD_SHOW_NAMES_BUTTONS=true
+      - DSD_SHOW_NAV_LABELS=false
+      - DSD_MAX_CONTENT_WIDTH=fluid
+      - DSD_DASHBOARD_LAYOUT=row
+      - DSD_HIDE_SERVICE_STATES=
+      - DSD_TIME_ZONE=
+      - DSD_LOCALE=
+      - DSD_REFRESH_INTERVAL=
+    restart: unless-stopped`}
+          </pre>
+        )}
       </div>
       <Table
         variant={isDarkMode ? currentVariant : null}
