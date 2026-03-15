@@ -26,18 +26,23 @@ describe('LoadingBar (combined)', () => {
     const LoadingBar = mod.default || mod
     const { container } = render(React.createElement(LoadingBar))
     const bar = container.querySelector('.loading-bar')
+    
+    // Start with 2 requests
     act(() => {
       window.dispatchEvent(new Event('network-request-start'))
       window.dispatchEvent(new Event('network-request-start'))
     })
-    // the element should be present; class may be toggled by timers — assert presence
-    await waitFor(() => expect(bar).toBeTruthy())
+    await waitFor(() => expect(bar.classList.contains('visible')).toBe(true))
+    
+    // End with 3 requests (more ends than starts)
     act(() => {
       window.dispatchEvent(new Event('network-request-end'))
       window.dispatchEvent(new Event('network-request-end'))
       window.dispatchEvent(new Event('network-request-end'))
       jest.advanceTimersByTime(300)
     })
+    
+    // Bar should hide because requestsRef cannot go below 0
     await waitFor(() => expect(bar.classList.contains('visible')).toBe(false))
   })
 
@@ -90,16 +95,18 @@ describe('LoadingBar (combined)', () => {
   test('force true then false hides when toggled off', async () => {
     const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
-    const { container } = render(
+    const { container, rerender } = render(
       React.createElement(LoadingBar, { force: true }),
     )
     const bar = container.querySelector('.loading-bar')
     expect(bar.classList.contains('visible')).toBe(true)
-    // toggle force off
+    
+    // Toggle force off - bar should hide after timeout
+    rerender(React.createElement(LoadingBar, { force: false }))
     act(() => {
       jest.advanceTimersByTime(200)
     })
-    await waitFor(() => expect(bar.getAttribute('aria-hidden')).toBe('true'))
+    await waitFor(() => expect(bar.classList.contains('visible')).toBe(false))
   })
 
   test('drives visibility from networkRequestsAtom via useAtomValue', async () => {

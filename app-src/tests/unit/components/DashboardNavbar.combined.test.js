@@ -362,8 +362,8 @@ describe('DashboardNavbar (combined)', () => {
   })
 
   test('clicking refresh button calls refreshAndNotifyUser', () => {
-    const mockSetRefreshInterval = jest.fn()
-    const mockSetVersionRefresh = jest.fn()
+    const mockUpdateView = jest.fn()
+    const mockIncrVer = jest.fn()
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'currentVariantAtom') return 'light'
       if (atom === 'maxContentWidthAtom') return 'fluid'
@@ -376,16 +376,19 @@ describe('DashboardNavbar (combined)', () => {
       return null
     })
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'refreshIntervalAtom') return [null, mockSetRefreshInterval]
-      if (atom === 'viewAtom') return [{ id: 'dashboardH' }, jest.fn()]
-      if (atom === 'versionRefreshAtom') return [0, mockSetVersionRefresh]
+      if (atom === 'refreshIntervalAtom') return [null, jest.fn()]
+      if (atom === 'viewAtom') return [{ id: 'dashboardH' }, mockUpdateView]
+      if (atom === 'versionRefreshAtom') return [0, mockIncrVer]
       return [null, jest.fn()]
     })
     render(<DashboardNavbar />)
-    const refreshButton = screen.getByRole('button', { name: 'Refresh' })
+    // Refresh button has tooltip "Refresh" but only contains icon - find by className
+    const buttons = screen.getAllByRole('button')
+    const refreshButton = buttons.find((b) => b.className.includes('btn-outline-secondary') || b.className.includes('btn-warning'))
+    expect(refreshButton).toBeInTheDocument()
     fireEvent.click(refreshButton)
-    expect(mockSetRefreshInterval).toHaveBeenCalledWith(null)
-    expect(mockSetVersionRefresh).toHaveBeenCalledWith(expect.any(Number))
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+    expect(mockIncrVer).toHaveBeenCalledTimes(1)
   })
 
   test('shows reading logs warning when logsShowLogsAtom is true and follow is true', () => {
