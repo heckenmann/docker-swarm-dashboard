@@ -104,7 +104,10 @@ function SettingsComponent() {
           className="p-0 mb-2"
         >
           <FontAwesomeIcon icon="info-circle" className="me-1" />
-          <FontAwesomeIcon icon={showYaml ? 'chevron-down' : 'chevron-right'} className="me-1" />
+          <FontAwesomeIcon
+            icon={showYaml ? 'chevron-down' : 'chevron-right'}
+            className="me-1"
+          />
           Server-side defaults (docker-compose.yml)
         </Button>
         {showYaml && (
@@ -118,7 +121,7 @@ function SettingsComponent() {
               lineHeight: '1.3',
             }}
           >
-{`version: '3.8'
+            {`version: '3.8'
 services:
   dashboard:
     image: ghcr.io/heckenmann/docker-swarm-dashboard:latest
