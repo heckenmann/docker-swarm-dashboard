@@ -57,7 +57,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "apexcharts": "^5.10.3",
+    "apexcharts": "^5.10.4",
     "axios": "^1.13.6",
     "babel-jest": "^30.3.0",
     "babel-loader": "^10.1.1",
