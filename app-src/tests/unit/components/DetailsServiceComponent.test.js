@@ -1,6 +1,5 @@
 // Combined tests for DetailsServiceComponent
-import { render, screen, waitFor } from '@testing-library/react'
-import { act } from 'react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 
 // Mock atoms
 jest.mock('../../../src/common/store/atoms', () => ({
@@ -77,9 +76,8 @@ describe('DetailsServiceComponent', () => {
     })
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     jest.restoreAllMocks()
-    await act(async () => {})
   })
 
   test('renders service not found message when currentService is null', () => {
@@ -350,9 +348,7 @@ describe('DetailsServiceComponent', () => {
 
     global.fetch.mockRejectedValue(new Error('Network error'))
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -563,9 +559,7 @@ describe('DetailsServiceComponent', () => {
     render(<DetailsServiceComponent />)
 
     // Click on Table tab to see sanitized output
-    await act(async () => {
-      screen.getByText('Table').click()
-    })
+    screen.getByText('Table').click()
 
     // The component should render without error
     expect(screen.getByText('Table')).toBeInTheDocument()
@@ -605,9 +599,7 @@ describe('DetailsServiceComponent', () => {
 
     render(<DetailsServiceComponent />)
 
-    await act(async () => {
-      screen.getByText('Table').click()
-    })
+    screen.getByText('Table').click()
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -645,9 +637,7 @@ describe('DetailsServiceComponent', () => {
 
     render(<DetailsServiceComponent />)
 
-    await act(async () => {
-      screen.getByText('Table').click()
-    })
+    screen.getByText('Table').click()
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -689,9 +679,7 @@ describe('DetailsServiceComponent', () => {
 
     render(<DetailsServiceComponent />)
 
-    await act(async () => {
-      screen.getByText('Table').click()
-    })
+    screen.getByText('Table').click()
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -733,9 +721,7 @@ describe('DetailsServiceComponent', () => {
 
     render(<DetailsServiceComponent />)
 
-    await act(async () => {
-      screen.getByText('Table').click()
-    })
+    screen.getByText('Table').click()
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
