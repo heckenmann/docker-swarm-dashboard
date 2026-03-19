@@ -1,5 +1,5 @@
 // Combined tests for DetailsServiceComponent
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 
 // Mock atoms
 jest.mock('../../../src/common/store/atoms', () => ({
@@ -22,11 +22,7 @@ jest.mock('../../../src/components/services/ServiceMetricsComponent', () => ({
 }))
 
 jest.mock('../../../src/components/shared/names/NodeName', () => ({
-  NodeName: ({ name, id }) => (
-    <span data-testid="node-name">
-      {name || id}
-    </span>
-  ),
+  NodeName: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
 }))
 
 jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
@@ -37,7 +33,9 @@ jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
 }))
 
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
-  SortableHeader: ({ label, column }) => <th data-testid={`header-${column}`}>{label}</th>,
+  SortableHeader: ({ label, column }) => (
+    <th data-testid={`header-${column}`}>{label}</th>
+  ),
 }))
 
 jest.mock('../../../src/common/DefaultDateTimeFormat', () => ({
@@ -52,7 +50,8 @@ const mockSetView = jest.fn()
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (atom) => {
-    if (atom === 'viewAtom') return [{ id: null, detail: null, timestamp: 0 }, mockSetView]
+    if (atom === 'viewAtom')
+      return [{ id: null, detail: null, timestamp: 0 }, mockSetView]
     return [undefined, jest.fn()]
   },
 }))
@@ -71,7 +70,7 @@ describe('DetailsServiceComponent', () => {
     jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
       if (typeof msg === 'string' && msg.includes('not wrapped in act')) return
       // Re-throw unexpected errors so real issues are still visible
-      // eslint-disable-next-line no-console
+
       console.warn('[test console.error]', msg, ...args)
     })
   })
@@ -689,11 +688,7 @@ describe('DetailsServiceComponent', () => {
       service: {
         ID: 'service-1',
         Spec: { Name: 'test-service' },
-        Items: [
-          { image: 'img1.png' },
-          { image: null },
-          { other: 'value' },
-        ],
+        Items: [{ image: 'img1.png' }, { image: null }, { other: 'value' }],
       },
       tasks: [],
     }

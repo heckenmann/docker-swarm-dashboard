@@ -31,7 +31,8 @@ function setup({ viewId = null, defaultLayout = 'dashboardH' } = {}) {
   const mockUpdateView = jest.fn()
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return 'light'
-    if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return defaultLayout
+    if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom')
+      return defaultLayout
     return ''
   })
   mockUseAtom.mockImplementation((atom) => {
