@@ -12,7 +12,7 @@ import {
   statsEnabledAtom,
   intervalAtom,
   settingsVisibleAtom,
-} from '../../../../src/common/store/atoms'
+} from '../../../src/common/store/atoms'
 
 describe('atoms.js exports', () => {
   it('exports showApiVersionAtom', () => {
