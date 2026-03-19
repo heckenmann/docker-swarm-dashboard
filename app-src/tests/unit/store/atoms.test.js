@@ -3,64 +3,111 @@
  */
 
 import {
-  showApiVersionAtom,
-  dashboardSettingsAtom,
-  serviceListAtom,
-  serviceStatsAtom,
-  selectedServiceIdAtom,
+  baseUrlAtom,
+  refreshIntervalAtom,
+  viewAtom,
+  messagesAtom,
+  tableSizeAtom,
+  serviceNameFilterAtom,
+  stackNameFilterAtom,
+  filterTypeAtom,
+  logsLinesAtom,
+  logsShowLogsAtom,
+  logsNumberOfLinesAtom,
+  isDarkModeAtom,
+  networkRequestsAtom,
+  showNamesButtonsAtom,
   showNavLabelsAtom,
-  statsEnabledAtom,
-  intervalAtom,
-  settingsVisibleAtom,
+  maxContentWidthAtom,
+  defaultLayoutAtom,
+  hiddenServiceStatesAtom,
+  timeZoneAtom,
+  localeAtom,
+  showWelcomeMessageAtom,
 } from '../../../src/common/store/atoms'
 
 describe('atoms.js exports', () => {
-  it('exports showApiVersionAtom', () => {
-    expect(showApiVersionAtom).toBeDefined()
-    expect(showApiVersionAtom.init).toBe(false)
+  it('exports baseUrlAtom', () => {
+    expect(baseUrlAtom).toBeDefined()
   })
 
-  it('exports dashboardSettingsAtom', () => {
-    expect(dashboardSettingsAtom).toBeDefined()
-    expect(dashboardSettingsAtom.init).toEqual({
-      showNavLabels: true,
-      showStats: false,
-      showSystemMetrics: false,
-    })
+  it('exports refreshIntervalAtom', () => {
+    expect(refreshIntervalAtom).toBeDefined()
   })
 
-  it('exports serviceListAtom', () => {
-    expect(serviceListAtom).toBeDefined()
-    expect(serviceListAtom.init).toBeNull()
+  it('exports viewAtom', () => {
+    expect(viewAtom).toBeDefined()
   })
 
-  it('exports serviceStatsAtom', () => {
-    expect(serviceStatsAtom).toBeDefined()
-    expect(serviceStatsAtom.init).toEqual({})
+  it('exports messagesAtom', () => {
+    expect(messagesAtom).toBeDefined()
   })
 
-  it('exports selectedServiceIdAtom', () => {
-    expect(selectedServiceIdAtom).toBeDefined()
-    expect(selectedServiceIdAtom.init).toBeNull()
+  it('exports tableSizeAtom', () => {
+    expect(tableSizeAtom).toBeDefined()
+  })
+
+  it('exports serviceNameFilterAtom', () => {
+    expect(serviceNameFilterAtom).toBeDefined()
+  })
+
+  it('exports stackNameFilterAtom', () => {
+    expect(stackNameFilterAtom).toBeDefined()
+  })
+
+  it('exports filterTypeAtom', () => {
+    expect(filterTypeAtom).toBeDefined()
+  })
+
+  it('exports logsLinesAtom', () => {
+    expect(logsLinesAtom).toBeDefined()
+  })
+
+  it('exports logsShowLogsAtom', () => {
+    expect(logsShowLogsAtom).toBeDefined()
+  })
+
+  it('exports logsNumberOfLinesAtom', () => {
+    expect(logsNumberOfLinesAtom).toBeDefined()
+  })
+
+  it('exports isDarkModeAtom', () => {
+    expect(isDarkModeAtom).toBeDefined()
+  })
+
+  it('exports networkRequestsAtom', () => {
+    expect(networkRequestsAtom).toBeDefined()
+  })
+
+  it('exports showNamesButtonsAtom', () => {
+    expect(showNamesButtonsAtom).toBeDefined()
   })
 
   it('exports showNavLabelsAtom', () => {
     expect(showNavLabelsAtom).toBeDefined()
-    expect(showNavLabelsAtom.init).toBe(true)
   })
 
-  it('exports statsEnabledAtom', () => {
-    expect(statsEnabledAtom).toBeDefined()
-    expect(statsEnabledAtom.init).toBe(true)
+  it('exports maxContentWidthAtom', () => {
+    expect(maxContentWidthAtom).toBeDefined()
   })
 
-  it('exports intervalAtom', () => {
-    expect(intervalAtom).toBeDefined()
-    expect(intervalAtom.init).toBe(5000)
+  it('exports defaultLayoutAtom', () => {
+    expect(defaultLayoutAtom).toBeDefined()
   })
 
-  it('exports settingsVisibleAtom', () => {
-    expect(settingsVisibleAtom).toBeDefined()
-    expect(settingsVisibleAtom.init).toBe(false)
+  it('exports hiddenServiceStatesAtom', () => {
+    expect(hiddenServiceStatesAtom).toBeDefined()
+  })
+
+  it('exports timeZoneAtom', () => {
+    expect(timeZoneAtom).toBeDefined()
+  })
+
+  it('exports localeAtom', () => {
+    expect(localeAtom).toBeDefined()
+  })
+
+  it('exports showWelcomeMessageAtom', () => {
+    expect(showWelcomeMessageAtom).toBeDefined()
   })
 })
