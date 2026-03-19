@@ -33,8 +33,12 @@ describe('DefaultLayoutRow', () => {
       render(<DefaultLayoutRow />)
 
       expect(screen.getByText('Default layout')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /horizontal/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /vertical/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /horizontal/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /vertical/i }),
+      ).toBeInTheDocument()
     })
 
     it('renders row button as active when defaultLayout is row', () => {
@@ -62,7 +66,9 @@ describe('DefaultLayoutRow', () => {
     it('renders the reset button', () => {
       render(<DefaultLayoutRow />)
 
-      expect(screen.getByLabelText('Reset default layout to default')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Reset default layout to default'),
+      ).toBeInTheDocument()
     })
   })
 
@@ -93,7 +99,9 @@ describe('DefaultLayoutRow', () => {
 
       // Button should still work - the component may or may not call setter
       // depending on implementation, but it shouldn't break
-      expect(screen.getByRole('button', { name: /horizontal/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /horizontal/i }),
+      ).toBeInTheDocument()
     })
   })
 

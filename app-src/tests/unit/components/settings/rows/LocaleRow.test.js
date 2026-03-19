@@ -55,7 +55,9 @@ describe('LocaleRow', () => {
     it('renders the reset button', () => {
       render(<LocaleRow />)
 
-      expect(screen.getByLabelText('Reset locale to default')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Reset locale to default'),
+      ).toBeInTheDocument()
     })
   })
 
@@ -85,10 +87,10 @@ describe('LocaleRow', () => {
       render(<LocaleRow />)
 
       const input = screen.getByLabelText('Locale')
-      
+
       fireEvent.change(input, { target: { value: 'de-DE' } })
       expect(mockSetLocale).toHaveBeenCalledWith('de-DE')
-      
+
       fireEvent.change(input, { target: { value: 'ja-JP' } })
       expect(mockSetLocale).toHaveBeenCalledWith('ja-JP')
     })

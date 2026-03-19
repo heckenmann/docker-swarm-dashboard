@@ -86,7 +86,9 @@ describe('ShowNamesButtonsRow', () => {
 
       render(<ShowNamesButtonsRow />)
 
-      fireEvent.click(screen.getByLabelText('Reset show names buttons to default'))
+      fireEvent.click(
+        screen.getByLabelText('Reset show names buttons to default'),
+      )
 
       expect(mockSetShowNamesButtons).toHaveBeenCalledWith(true)
     })
@@ -97,7 +99,9 @@ describe('ShowNamesButtonsRow', () => {
 
       render(<ShowNamesButtonsRow />)
 
-      fireEvent.click(screen.getByLabelText('Reset show names buttons to default'))
+      fireEvent.click(
+        screen.getByLabelText('Reset show names buttons to default'),
+      )
 
       expect(mockSetShowNamesButtons).toHaveBeenCalledWith(false)
     })
@@ -108,7 +112,9 @@ describe('ShowNamesButtonsRow', () => {
 
       render(<ShowNamesButtonsRow />)
 
-      fireEvent.click(screen.getByLabelText('Reset show names buttons to default'))
+      fireEvent.click(
+        screen.getByLabelText('Reset show names buttons to default'),
+      )
 
       expect(mockSetShowNamesButtons).toHaveBeenCalledWith(true)
     })

@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { HiddenServiceStatesRow } from '../../../../../src/components/settings/rows/HiddenServiceStatesRow'
 
 const mockUseAtomValue = jest.fn()
@@ -24,7 +24,11 @@ jest.mock('../../../../../src/common/store/atoms', () => ({
  * This avoids HTML nesting warnings in tests.
  */
 function renderTableRow(ui) {
-  return render(<table><tbody>{ui}</tbody></table>)
+  return render(
+    <table>
+      <tbody>{ui}</tbody>
+    </table>,
+  )
 }
 
 describe('HiddenServiceStatesRow', () => {
@@ -33,7 +37,10 @@ describe('HiddenServiceStatesRow', () => {
     mockUseAtomValue.mockReturnValue({
       hiddenServiceStates: ['failed', 'shutdown'],
     })
-    mockUseAtom.mockReturnValue([['failed', 'shutdown'], mockSetHiddenServiceStates])
+    mockUseAtom.mockReturnValue([
+      ['failed', 'shutdown'],
+      mockSetHiddenServiceStates,
+    ])
   })
 
   describe('initial state', () => {
@@ -42,13 +49,17 @@ describe('HiddenServiceStatesRow', () => {
 
       expect(screen.getByText('Hidden service states')).toBeInTheDocument()
       expect(screen.getByLabelText('Hidden state: failed')).toBeInTheDocument()
-      expect(screen.getByLabelText('Hidden state: shutdown')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Hidden state: shutdown'),
+      ).toBeInTheDocument()
     })
 
     it('renders the dropdown toggle button', () => {
       renderTableRow(<HiddenServiceStatesRow />)
 
-      expect(screen.getByRole('button', { name: /add state/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /add state/i }),
+      ).toBeInTheDocument()
     })
 
     it('renders the custom state input field', () => {
@@ -60,7 +71,9 @@ describe('HiddenServiceStatesRow', () => {
     it('renders the reset button', () => {
       renderTableRow(<HiddenServiceStatesRow />)
 
-      expect(screen.getByLabelText('Reset hidden service states to default')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Reset hidden service states to default'),
+      ).toBeInTheDocument()
     })
 
     it('renders with empty hidden states array', () => {
@@ -111,7 +124,10 @@ describe('HiddenServiceStatesRow', () => {
       // Click on 'shutdown' state
       fireEvent.click(screen.getByText('shutdown'))
 
-      expect(mockSetHiddenServiceStates).toHaveBeenCalledWith(['failed', 'shutdown'])
+      expect(mockSetHiddenServiceStates).toHaveBeenCalledWith([
+        'failed',
+        'shutdown',
+      ])
     })
   })
 
@@ -174,7 +190,10 @@ describe('HiddenServiceStatesRow', () => {
 
   describe('badge removal', () => {
     it('removes state when clicking remove button on badge', () => {
-      mockUseAtom.mockReturnValue([['failed', 'shutdown'], mockSetHiddenServiceStates])
+      mockUseAtom.mockReturnValue([
+        ['failed', 'shutdown'],
+        mockSetHiddenServiceStates,
+      ])
       renderTableRow(<HiddenServiceStatesRow />)
 
       // Click remove button for 'failed' state
@@ -184,7 +203,10 @@ describe('HiddenServiceStatesRow', () => {
     })
 
     it('removes state from middle of array', () => {
-      mockUseAtom.mockReturnValue([['failed', 'shutdown', 'new'], mockSetHiddenServiceStates])
+      mockUseAtom.mockReturnValue([
+        ['failed', 'shutdown', 'new'],
+        mockSetHiddenServiceStates,
+      ])
       renderTableRow(<HiddenServiceStatesRow />)
 
       // Click remove button for 'shutdown' state
@@ -206,16 +228,24 @@ describe('HiddenServiceStatesRow', () => {
 
   describe('reset button', () => {
     it('resets hidden states to dashboard settings default', () => {
-      mockUseAtom.mockReturnValue([['failed', 'shutdown'], mockSetHiddenServiceStates])
+      mockUseAtom.mockReturnValue([
+        ['failed', 'shutdown'],
+        mockSetHiddenServiceStates,
+      ])
       mockUseAtomValue.mockReturnValue({
         hiddenServiceStates: ['new', 'pending'],
       })
 
       renderTableRow(<HiddenServiceStatesRow />)
 
-      fireEvent.click(screen.getByLabelText('Reset hidden service states to default'))
+      fireEvent.click(
+        screen.getByLabelText('Reset hidden service states to default'),
+      )
 
-      expect(mockSetHiddenServiceStates).toHaveBeenCalledWith(['new', 'pending'])
+      expect(mockSetHiddenServiceStates).toHaveBeenCalledWith([
+        'new',
+        'pending',
+      ])
     })
 
     it('resets to empty array when dashboard settings has no hiddenServiceStates', () => {
@@ -224,7 +254,9 @@ describe('HiddenServiceStatesRow', () => {
 
       renderTableRow(<HiddenServiceStatesRow />)
 
-      fireEvent.click(screen.getByLabelText('Reset hidden service states to default'))
+      fireEvent.click(
+        screen.getByLabelText('Reset hidden service states to default'),
+      )
 
       expect(mockSetHiddenServiceStates).toHaveBeenCalledWith([])
     })

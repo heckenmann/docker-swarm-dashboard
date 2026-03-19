@@ -69,7 +69,9 @@ describe('ShowNavLabelsRow', () => {
 
       render(<ShowNavLabelsRow />)
 
-      expect(screen.getByLabelText('Reset show nav labels to default')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Reset show nav labels to default'),
+      ).toBeInTheDocument()
     })
   })
 

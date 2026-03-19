@@ -55,7 +55,9 @@ describe('TimeZoneRow', () => {
     it('renders the reset button', () => {
       render(<TimeZoneRow />)
 
-      expect(screen.getByLabelText('Reset time zone to default')).toBeInTheDocument()
+      expect(
+        screen.getByLabelText('Reset time zone to default'),
+      ).toBeInTheDocument()
     })
   })
 
@@ -85,10 +87,10 @@ describe('TimeZoneRow', () => {
       render(<TimeZoneRow />)
 
       const input = screen.getByLabelText('Time zone')
-      
+
       fireEvent.change(input, { target: { value: 'Europe/London' } })
       expect(mockSetTimeZone).toHaveBeenCalledWith('Europe/London')
-      
+
       fireEvent.change(input, { target: { value: 'Asia/Tokyo' } })
       expect(mockSetTimeZone).toHaveBeenCalledWith('Asia/Tokyo')
     })
