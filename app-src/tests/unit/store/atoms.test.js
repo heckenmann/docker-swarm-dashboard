@@ -24,6 +24,8 @@ import {
   timeZoneAtom,
   localeAtom,
   showWelcomeMessageAtom,
+  versionRefreshAtom,
+  versionAtom,
 } from '../../../src/common/store/atoms'
 
 describe('atoms.js exports', () => {
@@ -109,5 +111,13 @@ describe('atoms.js exports', () => {
 
   it('exports showWelcomeMessageAtom', () => {
     expect(showWelcomeMessageAtom).toBeDefined()
+  })
+
+  it('exports versionRefreshAtom', () => {
+    expect(versionRefreshAtom).toBeDefined()
+  })
+
+  it('exports versionAtom', () => {
+    expect(versionAtom).toBeDefined()
   })
 })
