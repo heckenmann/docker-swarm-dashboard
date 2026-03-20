@@ -260,12 +260,10 @@ function LogsSetupForm() {
       <SinceInput />
 
       <Form.Group as={Row} className="mb-3" controlId="logsformfollow">
-        <Form.Label column sm="2">
-          Follow
-        </Form.Label>
-        <Col sm="10">
+        <Col sm={{ span: 10, offset: 2 }}>
           <Form.Check
             type="switch"
+            label="Follow"
             checked={followVal}
             onChange={(e) => setFollowVal(e.target.checked)}
           />
@@ -296,12 +294,10 @@ function LogsSetupForm() {
       {showAdvanced && (
         <div id="advanced-options">
           <Form.Group as={Row} className="mb-3" controlId="logsformtimestamps">
-            <Form.Label column sm="2">
-              Timestamps
-            </Form.Label>
-            <Col sm="10">
+            <Col sm={{ span: 10, offset: 2 }}>
               <Form.Check
                 type="switch"
+                label="Timestamps"
                 checked={timestampsVal}
                 onChange={(e) => setTimestampsVal(e.target.checked)}
               />
@@ -316,12 +312,10 @@ function LogsSetupForm() {
           </Form.Group>
 
           <Form.Group as={Row} className="mb-3" controlId="logsformstdout">
-            <Form.Label column sm="2">
-              Stdout
-            </Form.Label>
-            <Col sm="10">
+            <Col sm={{ span: 10, offset: 2 }}>
               <Form.Check
                 type="switch"
+                label="Stdout"
                 checked={stdoutVal}
                 onChange={(e) => setStdoutVal(e.target.checked)}
               />
@@ -336,12 +330,10 @@ function LogsSetupForm() {
           </Form.Group>
 
           <Form.Group as={Row} className="mb-3" controlId="logsformstderr">
-            <Form.Label column sm="2">
-              Stderr
-            </Form.Label>
-            <Col sm="10">
+            <Col sm={{ span: 10, offset: 2 }}>
               <Form.Check
                 type="switch"
+                label="Stderr"
                 checked={stderrVal}
                 onChange={(e) => setStderrVal(e.target.checked)}
               />
@@ -356,12 +348,10 @@ function LogsSetupForm() {
           </Form.Group>
 
           <Form.Group as={Row} className="mb-3" controlId="logsformdetails">
-            <Form.Label column sm="2">
-              Details
-            </Form.Label>
-            <Col sm="10">
+            <Col sm={{ span: 10, offset: 2 }}>
               <Form.Check
                 type="switch"
+                label="Details"
                 checked={detailsVal}
                 onChange={(e) => setDetailsVal(e.target.checked)}
               />
@@ -409,3 +399,4 @@ function LogsSetupForm() {
 LogsSetupForm.propTypes = {}
 
 export { LogsSetupForm }
+export default LogsSetupForm

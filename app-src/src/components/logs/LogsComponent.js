@@ -98,3 +98,4 @@ function LogsComponent() {
 LogsComponent.propTypes = {}
 
 export { LogsComponent }
+export default LogsComponent
