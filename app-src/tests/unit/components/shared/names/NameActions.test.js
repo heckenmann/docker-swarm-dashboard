@@ -11,13 +11,13 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 }))
 
 // Track stopPropagation calls
-let stopPropagationMock = null
+let mockStopPropagation = null
 
 // Mock react-bootstrap Button
 jest.mock('react-bootstrap', () => ({
   Button: ({ children, onClick, title, size, className }) => {
     const handleClick = () => {
-      const e = { stopPropagation: () => { stopPropagationMock?.() } }
+      const e = { stopPropagation: () => { mockStopPropagation?.() } }
       onClick && onClick(e)
     }
     return (
@@ -35,7 +35,7 @@ describe('NameActions', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    stopPropagationMock = jest.fn()
+    mockStopPropagation = jest.fn()
   })
 
   it('renders open button when showOpen=true', () => {
@@ -162,7 +162,7 @@ describe('NameActions', () => {
       />
     )
     fireEvent.click(screen.getByTitle(/Open service:/))
-    expect(stopPropagationMock).toHaveBeenCalled()
+    expect(mockStopPropagation).toHaveBeenCalled()
   })
 
   it('calls stopPropagation when filter button is clicked', () => {
@@ -176,7 +176,7 @@ describe('NameActions', () => {
       />
     )
     fireEvent.click(screen.getByTitle(/Filter service:/))
-    expect(stopPropagationMock).toHaveBeenCalled()
+    expect(mockStopPropagation).toHaveBeenCalled()
   })
 
   it('calls stopPropagation when logs button is clicked', () => {
@@ -190,7 +190,7 @@ describe('NameActions', () => {
       />
     )
     fireEvent.click(screen.getByTitle(/Show logs for service:/))
-    expect(stopPropagationMock).toHaveBeenCalled()
+    expect(mockStopPropagation).toHaveBeenCalled()
   })
 
   it('renders with custom entityType', () => {
