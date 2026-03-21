@@ -56,6 +56,29 @@ describe('LoadingBar', () => {
     await waitFor(() => expect(root.className).not.toMatch(/visible/))
   })
 
+  test('force prop cleanup when requestsRef.current is 0', async () => {
+    const { container, rerender } = render(
+      <Provider initialValues={[[atoms.networkRequestsAtom, 0]]}>
+        <LoadingBar force={true} />
+      </Provider>,
+    )
+    const root = container.querySelector('.loading-bar')
+    await waitFor(() => expect(root.className).toMatch(/visible/))
+
+    // Unmount by rerendering without force - this triggers cleanup
+    rerender(
+      <Provider initialValues={[[atoms.networkRequestsAtom, 0]]}>
+        <LoadingBar force={false} />
+      </Provider>,
+    )
+
+    // After timers, bar should hide
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
+    await waitFor(() => expect(root.className).not.toMatch(/visible/))
+  })
+
   test('finishTimeout ceiling triggers stop', async () => {
     const { container } = render(
       <Provider initialValues={[[atoms.networkRequestsAtom, 0]]}>
@@ -144,5 +167,47 @@ describe('LoadingBar', () => {
     remSpy.mockRestore()
   })
 
+  test('force prop cleanup when requestsRef.current is 0', async () => {
+    const { container, rerender } = render(
+      <Provider initialValues={[[atoms.networkRequestsAtom, 0]]}>
+        <LoadingBar force={true} />
+      </Provider>,
+    )
+    const root = container.querySelector('.loading-bar')
+    await waitFor(() => expect(root.className).toMatch(/visible/))
+
+    // Toggle force off when requestsRef.current is 0 (no network events sent)
+    // This covers the branch: if (requestsRef.current === 0) { stop() }
+    rerender(
+      <Provider initialValues={[[atoms.networkRequestsAtom, 0]]}>
+        <LoadingBar force={false} />
+      </Provider>,
+    )
+    act(() => jest.runOnlyPendingTimers())
+    await waitFor(() => expect(root.className).not.toMatch(/visible/))
+  })
+
+  test('shows when atomCount > 0 via Provider initial value', async () => {
+    const { container } = render(
+      <Provider>
+        <LoadingBar />
+      </Provider>,
+    )
+    const root = container.querySelector('.loading-bar')
+    // Dispatch start event to show the bar
+    act(() => {
+      window.dispatchEvent(new Event('network-request-start'))
+    })
+    await waitFor(() => expect(root.className).toMatch(/visible/))
+  })
+
+  test('atomCount null branch - no Provider', async () => {
+    // Render without Provider to test atomCount == null branch
+    const { container } = render(<LoadingBar />)
+    const root = container.querySelector('.loading-bar')
+    // Should render but not be visible
+    expect(root).toBeTruthy()
+    await waitFor(() => expect(root.className).not.toMatch(/visible/))
+  })
 
 })

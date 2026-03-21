@@ -10,7 +10,8 @@ import {
 } from '../../common/store/atoms'
 import { useAtom, useAtomValue } from 'jotai'
 import { serviceFilter } from '../../common/utils'
-import { Table, Card } from 'react-bootstrap'
+import { Table } from 'react-bootstrap'
+import DSDCard from '../common/DSDCard'
 import { NodeName } from '../shared/names/NodeName'
 import { ServiceName } from '../shared/names/ServiceName'
 import { StackName } from '../shared/names/StackName'
@@ -145,37 +146,34 @@ function DashboardVerticalComponent() {
     })
 
   return (
-    <Card>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <DashboardSettingsComponent />
-      </Card.Header>
-      <Card.Body>
-        <div className="table-responsive">
-          <Table
-            variant={isDarkMode ? currentVariant : null}
-            id="dashboardTable"
-            key="dashboardTable"
-            className="dashboard-table vertical-dashboard"
-            striped
-            size={tableSize}
-            role="table"
-            aria-label="Docker Swarm Dashboard (vertical)"
-          >
-            <thead role="rowgroup">
-              <tr role="row">
-                <th className="col-md-4">Service</th>
-                <th className="stack-column">Stack</th>
-                <th style={{ width: '120px', minWidth: '120px' }}>
-                  Replication
-                </th>
-                {theads}
-              </tr>
-            </thead>
-            <tbody>{trows}</tbody>
-          </Table>
-        </div>
-      </Card.Body>
-    </Card>
+    <DSDCard
+      icon="grip-vertical"
+      title="Dashboard"
+      headerActions={<DashboardSettingsComponent />}
+    >
+      <div className="table-responsive">
+        <Table
+          variant={isDarkMode ? currentVariant : null}
+          id="dashboardTable"
+          key="dashboardTable"
+          className="dashboard-table vertical-dashboard"
+          striped
+          size={tableSize}
+          role="table"
+          aria-label="Docker Swarm Dashboard (vertical)"
+        >
+          <thead role="rowgroup">
+            <tr role="row">
+              <th className="col-md-4">Service</th>
+              <th className="stack-column">Stack</th>
+              <th style={{ width: '120px', minWidth: '120px' }}>Replication</th>
+              {theads}
+            </tr>
+          </thead>
+          <tbody>{trows}</tbody>
+        </Table>
+      </div>
+    </DSDCard>
   )
 }
 

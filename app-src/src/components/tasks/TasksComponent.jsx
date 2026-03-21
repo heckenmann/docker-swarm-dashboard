@@ -1,8 +1,6 @@
 import { useAtomValue, useAtom } from 'jotai'
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import {
-  currentVariantAtom,
-  currentVariantClassesAtom,
   tasksAtomNew,
   tableSizeAtom,
   localeAtom,
@@ -10,11 +8,13 @@ import {
   serviceNameFilterAtom,
   stackNameFilterAtom,
   viewAtom,
+  currentVariantAtom,
 } from '../../common/store/atoms'
 
 // Add missing UI and internal component imports
-import { Card, Table, Button } from 'react-bootstrap'
+import DSDCard from '../common/DSDCard.jsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, Table } from 'react-bootstrap'
 import ServiceStatusBadge from '../services/ServiceStatusBadge'
 import { ServiceName } from '../shared/names/ServiceName'
 import { StackName } from '../shared/names/StackName'
@@ -30,9 +30,8 @@ import { tasksDetailId } from '../../common/navigationConstants'
  * in a table format.
  */
 function TasksComponent() {
-  const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+  const currentVariant = useAtomValue(currentVariantAtom)
   const locale = useAtomValue(localeAtom)
   const timeZone = useAtomValue(timeZoneAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
@@ -157,96 +156,85 @@ function TasksComponent() {
   ))
 
   return (
-    <Card className={currentVariantClasses}>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <div>
-          <FontAwesomeIcon icon="tasks" className="me-2" />
-          <strong>Tasks</strong>
-        </div>
-        <div className="d-flex align-items-center">
-          <FilterComponent />
-        </div>
-      </Card.Header>
-      <Card.Body className="p-0">
-        <Table
-          className="tasks-table mb-0"
-          variant={currentVariant}
-          striped
-          size={tableSize}
-        >
-          <thead>
-            <tr>
-              <th style={{ width: '25px' }}></th>
-              <SortableHeader
-                column="Timestamp"
-                label="Timestamp"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="timestamp-col"
-              />
-              <SortableHeader
-                column="State"
-                label="State"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="state-col"
-              />
-              <SortableHeader
-                column="DesiredState"
-                label="DesiredState"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="desired-state-col"
-              />
-              <SortableHeader
-                column="ServiceName"
-                label="ServiceName"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="service-col"
-              />
-              <SortableHeader
-                column="Slot"
-                label="Slot"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="slot-col"
-              />
-              <SortableHeader
-                column="Stack"
-                label="Stack"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="stack-col"
-              />
-              <SortableHeader
-                column="NodeName"
-                label="Node"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="node-col"
-              />
-              <SortableHeader
-                column="Err"
-                label="Error"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </Table>
-      </Card.Body>
-    </Card>
+    <DSDCard icon="tasks" title="Tasks" headerActions={<FilterComponent />}>
+      <Table
+        className="tasks-table mb-0"
+        variant={currentVariant}
+        striped
+        size={tableSize}
+      >
+        <thead>
+          <tr>
+            <th style={{ width: '25px' }}></th>
+            <SortableHeader
+              column="Timestamp"
+              label="Timestamp"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="timestamp-col"
+            />
+            <SortableHeader
+              column="State"
+              label="State"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="state-col"
+            />
+            <SortableHeader
+              column="DesiredState"
+              label="DesiredState"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="desired-state-col"
+            />
+            <SortableHeader
+              column="ServiceName"
+              label="ServiceName"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="service-col"
+            />
+            <SortableHeader
+              column="Slot"
+              label="Slot"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="slot-col"
+            />
+            <SortableHeader
+              column="Stack"
+              label="Stack"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="stack-col"
+            />
+            <SortableHeader
+              column="NodeName"
+              label="Node"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              className="node-col"
+            />
+            <SortableHeader
+              column="Err"
+              label="Error"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </Table>
+    </DSDCard>
   )
 }
 

@@ -69,12 +69,55 @@ describe('cpuCharts', () => {
       expect(result.cpuGaugeOptions.plotOptions.radialBar.track.background).toBe('#444')
     })
 
+    test('builds CPU charts with light mode', () => {
+      const m = {
+        cpuPercent: 50,
+        cpuUserSeconds: 100,
+        cpuSystemSeconds: 50,
+      }
+      const result = buildCPUCharts(m, commonOpts, false)
+      
+      expect(result.cpuGaugeOptions.plotOptions.radialBar.track.background).toBe('#e0e0e0')
+    })
+
     test('builds CPU charts with missing values', () => {
       const m = {}
       const result = buildCPUCharts(m, commonOpts, false)
       
       expect(result.cpuGaugeSeries).toEqual([0])
       expect(result.cpuBreakdownSeries).toEqual([0, 0])
+    })
+
+    test('builds CPU charts with zero values', () => {
+      const m = {
+        cpuPercent: 0,
+        cpuUserSeconds: 0,
+        cpuSystemSeconds: 0,
+      }
+      const result = buildCPUCharts(m, commonOpts, false)
+      
+      expect(result.cpuGaugeSeries).toEqual([0])
+      expect(result.cpuBreakdownSeries).toEqual([0, 0])
+    })
+
+    test('builds CPU charts with only user seconds', () => {
+      const m = {
+        cpuPercent: 50,
+        cpuUserSeconds: 100,
+      }
+      const result = buildCPUCharts(m, commonOpts, false)
+      
+      expect(result.cpuBreakdownSeries).toEqual([100, 0])
+    })
+
+    test('builds CPU charts with only system seconds', () => {
+      const m = {
+        cpuPercent: 50,
+        cpuSystemSeconds: 50,
+      }
+      const result = buildCPUCharts(m, commonOpts, false)
+      
+      expect(result.cpuBreakdownSeries).toEqual([0, 50])
     })
   })
 })

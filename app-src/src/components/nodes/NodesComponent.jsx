@@ -1,19 +1,19 @@
 import { useAtomValue, useAtom } from 'jotai'
 import {
   currentVariantAtom,
-  currentVariantClassesAtom,
   nodesAtomNew,
   tableSizeAtom,
   viewAtom,
 } from '../../common/store/atoms'
 
 // UI & internal imports
-import { Card, Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from '../shared/names/NodeName'
 import { SortableHeader } from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
+import DSDCard from '../common/DSDCard.jsx'
 
 /**
  * NodesComponent is a React functional component that renders a table of nodes.
@@ -22,7 +22,6 @@ import { useCallback } from 'react'
  */
 function NodesComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const [view, setView] = useAtom(viewAtom)
   const trows = []
@@ -31,7 +30,8 @@ function NodesComponent() {
   const sortBy = view?.sortBy || null
   const sortDirection = view?.sortDirection || 'asc'
 
-  const nodes = useAtomValue(nodesAtomNew)
+  const nodesRaw = useAtomValue(nodesAtomNew)
+  const nodes = nodesRaw || []
 
   /**
    * Handle sorting when a column header is clicked
@@ -132,13 +132,7 @@ function NodesComponent() {
   })
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <div>
-          <FontAwesomeIcon icon="server" className="me-2" />
-          <strong>Nodes</strong>
-        </div>
-      </Card.Header>
+    <DSDCard icon="server" title="Nodes">
       <Table
         variant={currentVariant}
         key="nodesTable"
@@ -166,6 +160,7 @@ function NodesComponent() {
               onSort={handleSort}
               className="node-attribute-small"
             />
+
             <SortableHeader
               column="State"
               label="State"
@@ -194,7 +189,7 @@ function NodesComponent() {
         </thead>
         <tbody>{trows}</tbody>
       </Table>
-    </Card>
+    </DSDCard>
   )
 }
 

@@ -62,6 +62,21 @@ describe('memoryCharts', () => {
       expect(result.otherUsed).toBe(0) // Math.max(0, -500 - (-200) - (-100)) = Math.max(0, -200)
       expect(result.memAvailable).toBe(1500) // 1000 - (-500)
     })
+
+    test('handles zero values', () => {
+      const m = {
+        memoryCache: 0,
+        workingSet: 0,
+        usage: 0,
+        limit: 0
+      }
+      
+      const result = calculateMemoryMetrics(m)
+      expect(result.memCache).toBe(0)
+      expect(result.workingSet).toBe(0)
+      expect(result.otherUsed).toBe(0)
+      expect(result.memAvailable).toBe(0)
+    })
   })
 
   describe('createMemoryDonutOptions', () => {
@@ -89,6 +104,17 @@ describe('memoryCharts', () => {
       expect(options.labels).toEqual(['Working Set', 'Cache', 'Other Used'])
       expect(options.plotOptions.pie.donut.labels.total.label).toBe('Total RSS')
       expect(options.plotOptions.pie.donut.labels.total.formatter()).toBe('500 B')
+    })
+
+    test('creates options with dark mode', () => {
+      const m = { limit: 1000, usage: 500 }
+      const darkOpts = {
+        ...commonOpts,
+        theme: { mode: 'dark' }
+      }
+      const options = createMemoryDonutOptions(m, darkOpts, formatBytes)
+      
+      expect(options.theme.mode).toBe('dark')
     })
   })
 

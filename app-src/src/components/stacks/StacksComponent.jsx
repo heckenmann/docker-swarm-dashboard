@@ -1,7 +1,6 @@
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import {
   currentVariantAtom,
-  currentVariantClassesAtom,
   stacksAtom,
   localeAtom,
   timeZoneAtom,
@@ -13,13 +12,13 @@ import { useAtomValue } from 'jotai'
 import { useState, useCallback } from 'react'
 
 // UI & internal imports
-import { Card, Table } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Table } from 'react-bootstrap'
 import { StackName } from '../shared/names/StackName'
 import { ServiceName } from '../shared/names/ServiceName'
 import { FilterComponent } from '../shared/FilterComponent'
 import { SortableHeader } from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
+import DSDCard from '../common/DSDCard.jsx'
 
 /**
  * StacksComponent is a React functional component that renders a list of stacks.
@@ -28,13 +27,12 @@ import { sortData } from '../../common/sortUtils'
  */
 function StacksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const locale = useAtomValue(localeAtom)
   const timeZone = useAtomValue(timeZoneAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const stacksData = useAtomValue(stacksAtom)
-  const tableSize = useAtomValue(tableSizeAtom)
+  const _tableSize = useAtomValue(tableSizeAtom)
 
   // Shared sorting state for all stack tables
   const [sortBy, setSortBy] = useState(null)
@@ -143,71 +141,60 @@ function StacksComponent() {
     )
     .filter((stack) => createServicesForStack(stack).length > 0)
     .map((stack) => (
-      <Card
-        bg={currentVariant}
-        className={currentVariantClasses + ' mb-3'}
+      <DSDCard
+        icon="cubes"
+        title={<StackName name={stack['Name']} />}
+        body={
+          <Table variant={currentVariant} size="sm" hover>
+            <thead>
+              <tr>
+                <SortableHeader
+                  column="ServiceNameSortable"
+                  label="Service Name"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  column="ReplicationSortable"
+                  label="Replication"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="col-md-1"
+                />
+                <SortableHeader
+                  column="CreatedSortable"
+                  label="Created"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="col-md-2"
+                />
+                <SortableHeader
+                  column="UpdatedSortable"
+                  label="Updated"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="col-md-2"
+                />
+              </tr>
+            </thead>
+            <tbody>{createServicesForStack(stack)}</tbody>
+          </Table>
+        }
         key={'card_' + stack['Name']}
-      >
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <div>
-            <FontAwesomeIcon icon="cubes" className="me-2" />
-            <strong>
-              <StackName name={stack['Name']} />
-            </strong>
-          </div>
-        </Card.Header>
-        <Table variant={currentVariant} size={tableSize} hover>
-          <thead>
-            <tr>
-              <SortableHeader
-                column="ServiceNameSortable"
-                label="Service Name"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-              <SortableHeader
-                column="ReplicationSortable"
-                label="Replication"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="col-md-1"
-              />
-              <SortableHeader
-                column="CreatedSortable"
-                label="Created"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="col-md-2"
-              />
-              <SortableHeader
-                column="UpdatedSortable"
-                label="Updated"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="col-md-2"
-              />
-            </tr>
-          </thead>
-          <tbody>{createServicesForStack(stack)}</tbody>
-        </Table>
-      </Card>
+      />
     ))
 
   return (
     <>
-      <Card className={currentVariantClasses + ' mb-3'} key={'card_filter'}>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <div>
-            <FontAwesomeIcon icon="cubes" className="me-2" />
-            <strong>Stacks</strong>
-          </div>
-          <FilterComponent />
-        </Card.Header>
-      </Card>
+      <DSDCard
+        icon="cubes"
+        title="Stacks"
+        headerActions={<FilterComponent />}
+      />
       {stacks}
     </>
   )

@@ -275,5 +275,46 @@ describe('TaskMetricsContent', () => {
 
       expect(screen.getByText('CPU details not available (no quota configured)')).toBeInTheDocument()
     })
+
+    test('renders with dark mode', () => {
+      const mockUseAtomValue = require('jotai').useAtomValue
+      const mockGetCommonChartOptions = require('../../../../../src/common/chartUtils').getCommonChartOptions
+
+      mockUseAtomValue.mockReturnValue(true) // isDarkMode = true
+      mockGetCommonChartOptions.mockReturnValue({
+        chart: {},
+        theme: { mode: 'dark' },
+        xaxis: {},
+      })
+
+      render(
+        <TaskMetricsContent
+          taskMetrics={taskMetrics}
+          metricsLoading={false}
+          metricsError={null}
+        />
+      )
+
+      expect(screen.getByText('Container:')).toBeInTheDocument()
+    })
+
+    test('hides CPU breakdown when no CPU data', () => {
+      const metricsWithoutCPU = {
+        ...taskMetrics,
+        cpuUserSeconds: 0,
+        cpuSystemSeconds: 0,
+      }
+
+      const { container } = render(
+        <TaskMetricsContent
+          taskMetrics={metricsWithoutCPU}
+          metricsLoading={false}
+          metricsError={null}
+        />
+      )
+
+      // CPU breakdown should not be present
+      expect(container.querySelector('[data-testid="mock-chart"]')).not.toContainHTML('CPU Time Split')
+    })
   })
 })

@@ -1,8 +1,6 @@
 import { useAtomValue } from 'jotai'
-import { Card } from 'react-bootstrap'
+import DSDCard from '../common/DSDCard.jsx'
 import {
-  currentVariantAtom,
-  currentVariantClassesAtom,
   dashboardHAtom,
   dashboardSettingsAtom,
   dashboardVAtom,
@@ -18,9 +16,6 @@ import {
  * It uses various atoms from Jotai to fetch and display the current state of the application.
  */
 function DebugComponent() {
-  const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-
   const debugJson = {
     dashboardh: useAtomValue(dashboardHAtom),
     dashboardv: useAtomValue(dashboardVAtom),
@@ -34,21 +29,25 @@ function DebugComponent() {
   }
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Body>
-        <h1>Debug</h1>
-        <h2>API Dump</h2>
-        <pre
-          style={{
-            whiteSpace: 'pre-wrap',
-            fontFamily: 'monospace',
-            fontSize: 12,
-          }}
-        >
-          <code>{JSON.stringify(debugJson, null, 2)}</code>
-        </pre>
-      </Card.Body>
-    </Card>
+    <DSDCard
+      icon="bug"
+      title="Debug"
+      body={
+        <>
+          <h1>Debug</h1>
+          <h2>API Dump</h2>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'monospace',
+              fontSize: 12,
+            }}
+          >
+            <code>{JSON.stringify(debugJson, null, 2)}</code>
+          </pre>
+        </>
+      }
+    />
   )
 }
 

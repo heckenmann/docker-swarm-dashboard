@@ -24,33 +24,21 @@ function DashboardSettingsComponent() {
     view?.id === dashboardVId || (!view?.id && defaultLayout === dashboardVId)
 
   return (
-    <div
-      className="d-flex justify-content-between align-items-center w-100"
-      data-bs-theme={variant}
-    >
-      <div className="d-flex align-items-center gap-2">
-        <div>
-          <FontAwesomeIcon
-            icon={vertical ? 'grip-vertical' : 'grip'}
-            className="me-2"
-          />
-          <strong>Dashboard</strong>
-        </div>
-        <ButtonGroup>
-          <Button
-            variant={`${vertical ? 'outline-' : ''}secondary`}
-            onClick={() => updateViewId({ id: dashboardHId })}
-          >
-            <FontAwesomeIcon icon="grip" />
-          </Button>
-          <Button
-            variant={`${vertical ? '' : 'outline-'}secondary`}
-            onClick={() => updateViewId({ id: dashboardVId })}
-          >
-            <FontAwesomeIcon icon="grip-vertical" />
-          </Button>
-        </ButtonGroup>
-      </div>
+    <div className="d-flex align-items-center gap-2" data-bs-theme={variant}>
+      <ButtonGroup>
+        <Button
+          variant={`${vertical ? 'outline-' : ''}secondary`}
+          onClick={() => updateViewId({ id: dashboardHId })}
+        >
+          <FontAwesomeIcon icon="grip" />
+        </Button>
+        <Button
+          variant={`${vertical ? '' : 'outline-'}secondary`}
+          onClick={() => updateViewId({ id: dashboardVId })}
+        >
+          <FontAwesomeIcon icon="grip-vertical" />
+        </Button>
+      </ButtonGroup>
       <FilterComponent />
     </div>
   )

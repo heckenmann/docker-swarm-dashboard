@@ -1,9 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai'
+import DSDCard from '../common/DSDCard.jsx'
 import { Card } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  currentVariantAtom,
-  currentVariantClassesAtom,
   logsConfigAtom,
   logsLinesAtom,
   logsNumberOfLinesAtom,
@@ -31,8 +29,6 @@ function LogsComponent() {
   const logsMessageMaxLen = useAtomValue(logsMessageMaxLenAtom)
   const [logsShowLogs] = useAtom(logsShowLogsAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
-  const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const logsWebsocketUrl = useAtomValue(logsWebsocketUrlAtom)
 
   const shouldReconnect = useCallback(() => {
@@ -76,22 +72,22 @@ function LogsComponent() {
   }, [lastMessage, logsNumberOfLines, logsMessageMaxLen, setLogsLines])
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      {!logsShowLogs && (
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <div>
-            <FontAwesomeIcon icon="desktop" className="me-2" />
-            <strong>Logs</strong>
-          </div>
-          <div className="text-muted">Choose a service and options</div>
-        </Card.Header>
-      )}
-      <Card.Body>
-        {!logsShowLogs && <LogsSetupForm />}
-        {logsShowLogs && <LogsActiveControls />}
-      </Card.Body>
-      {logsShowLogs && <LogsOutput />}
-    </Card>
+    <DSDCard
+      icon="desktop"
+      title="Logs"
+      body={
+        <>
+          {!logsShowLogs && (
+            <div className="text-muted mb-3">Choose a service and options</div>
+          )}
+          <Card.Body>
+            {!logsShowLogs && <LogsSetupForm />}
+            {logsShowLogs && <LogsActiveControls />}
+          </Card.Body>
+          {logsShowLogs && <LogsOutput />}
+        </>
+      }
+    />
   )
 }
 

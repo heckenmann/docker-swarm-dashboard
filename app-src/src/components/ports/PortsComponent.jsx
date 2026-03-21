@@ -1,7 +1,6 @@
 import { useAtomValue, useAtom } from 'jotai'
 import {
   currentVariantAtom,
-  currentVariantClassesAtom,
   portsAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
@@ -10,7 +9,7 @@ import {
 } from '../../common/store/atoms'
 
 // UI & internal imports
-import { Card, Table } from 'react-bootstrap'
+import { Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ServiceName } from '../shared/names/ServiceName'
 import { StackName } from '../shared/names/StackName'
@@ -18,6 +17,7 @@ import { FilterComponent } from '../shared/FilterComponent'
 import { SortableHeader } from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
+import DSDCard from '../common/DSDCard.jsx'
 
 /**
  * PortsComponent is a React functional component that renders a table of port mappings.
@@ -25,7 +25,6 @@ import { useCallback } from 'react'
  */
 function PortsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
@@ -35,7 +34,8 @@ function PortsComponent() {
   const sortBy = view?.sortBy || null
   const sortDirection = view?.sortDirection || 'asc'
 
-  const ports = useAtomValue(portsAtom)
+  const portsRaw = useAtomValue(portsAtom)
+  const ports = portsRaw || []
 
   /**
    * Handle sorting when a column header is clicked
@@ -116,14 +116,7 @@ function PortsComponent() {
   })
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <div>
-          <FontAwesomeIcon icon="building" className="me-2" />
-          <strong>Ports</strong>
-        </div>
-        <FilterComponent />
-      </Card.Header>
+    <DSDCard icon="building" title="Ports" headerActions={<FilterComponent />}>
       <Table
         id="portsTable"
         className="ports-table mt-2"
@@ -187,7 +180,7 @@ function PortsComponent() {
         </thead>
         <tbody>{renderedServices}</tbody>
       </Table>
-    </Card>
+    </DSDCard>
   )
 }
 

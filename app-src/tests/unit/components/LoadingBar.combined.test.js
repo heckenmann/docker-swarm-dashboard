@@ -1,5 +1,7 @@
 import React from 'react'
 import { render, act, waitFor } from '@testing-library/react'
+import { Provider } from 'jotai'
+import { networkRequestsAtom } from '../../../src/common/store/atoms'
 
 jest.useFakeTimers()
 
@@ -110,7 +112,6 @@ describe('LoadingBar (combined)', () => {
   })
 
   test('drives visibility from networkRequestsAtom via useAtomValue', async () => {
-    jest.useFakeTimers()
     const mod = require('../../../src/components/layout/LoadingBar')
     const LoadingBar = mod.default || mod
     const { container } = render(React.createElement(LoadingBar))
@@ -130,6 +131,50 @@ describe('LoadingBar (combined)', () => {
       jest.advanceTimersByTime(200)
     })
     await waitFor(() => expect(bar.getAttribute('aria-hidden')).toBe('true'))
+  })
+
+  test('handles atomCount > 0 directly from atom', async () => {
+    const mod = require('../../../src/components/layout/LoadingBar')
+    const LoadingBar = mod.default || mod
+    const { container } = render(
+      React.createElement(Provider, null,
+        React.createElement(LoadingBar)
+      )
+    )
+    const bar = container.querySelector('.loading-bar')
+    // Dispatch start event to show the bar
+    act(() => {
+      window.dispatchEvent(new Event('network-request-start'))
+    })
+    await waitFor(() => expect(bar.classList.contains('visible')).toBe(true))
+  })
+
+  test('handles atomCount null (no provider)', async () => {
+    const mod = require('../../../src/components/layout/LoadingBar')
+    const LoadingBar = mod.default || mod
+    const { container } = render(React.createElement(LoadingBar))
+    const bar = container.querySelector('.loading-bar')
+    expect(bar).toBeTruthy()
+    // When atomCount is null (no provider), bar should not be visible
+    expect(bar.classList.contains('visible')).toBe(false)
+  })
+
+  test('force cleanup when requestsRef.current is 0', async () => {
+    jest.useFakeTimers()
+    const mod = require('../../../src/components/layout/LoadingBar')
+    const LoadingBar = mod.default || mod
+    const { container, rerender } = render(
+      React.createElement(LoadingBar, { force: true }),
+    )
+    const bar = container.querySelector('.loading-bar')
+    expect(bar.classList.contains('visible')).toBe(true)
+    
+    // Toggle force off - bar should hide after timeout
+    rerender(React.createElement(LoadingBar, { force: false }))
+    act(() => {
+      jest.advanceTimersByTime(200)
+    })
+    await waitFor(() => expect(bar.classList.contains('visible')).toBe(false))
     jest.useRealTimers()
   })
 })

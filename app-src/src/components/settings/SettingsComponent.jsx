@@ -1,8 +1,8 @@
 import { useAtom, useAtomValue } from 'jotai'
+import DSDCard from '../common/DSDCard.jsx'
 import {
   baseUrlAtom,
   currentVariantAtom,
-  currentVariantClassesAtom,
   isDarkModeAtom,
   tableSizeAtom,
   refreshIntervalAtom,
@@ -16,7 +16,7 @@ import {
   dashboardSettingsAtom,
 } from '../../common/store/atoms'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
-import { Card, Table, Button } from 'react-bootstrap'
+import { Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
 
@@ -39,7 +39,6 @@ import { LocaleRow } from './rows/LocaleRow'
  */
 function SettingsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
   const [tableSize, setTableSize] = useAtom(tableSizeAtom)
   const [_refreshInterval, _toggleRefresh] = useAtom(
@@ -87,13 +86,7 @@ function SettingsComponent() {
   }
 
   return (
-    <Card bg={currentVariant} className={currentVariantClasses}>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <div>
-          <FontAwesomeIcon icon="cog" className="me-2" />
-          <strong>Settings</strong>
-        </div>
-      </Card.Header>
+    <DSDCard icon="cog" title="Settings">
       <div className="p-3">
         <Button
           variant="link"
@@ -162,6 +155,7 @@ services:
         variant={isDarkMode ? currentVariant : null}
         striped
         size={tableSize}
+        className="mb-0"
       >
         <thead>
           <tr>
@@ -186,7 +180,7 @@ services:
           <LocaleRow />
         </tbody>
       </Table>
-      <div className="p-2 d-flex justify-content-end">
+      <div className="p-2 d-flex justify-content-end border-top">
         <Button
           variant="outline-secondary"
           size="sm"
@@ -196,7 +190,7 @@ services:
           Reset to defaults
         </Button>
       </div>
-    </Card>
+    </DSDCard>
   )
 }
 

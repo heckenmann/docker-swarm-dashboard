@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
 import { baseUrlAtom, isDarkModeAtom, viewAtom } from '../../common/store/atoms'
-import { Card, Alert, Spinner, Row, Col } from 'react-bootstrap'
+import { Alert, Spinner, Row, Col, Card } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { getCommonChartOptions } from '../../common/chartUtils'
 import { formatBytes, bytesToMB } from '../../common/formatUtils'

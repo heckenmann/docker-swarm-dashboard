@@ -23,6 +23,10 @@ jest.mock('../../../src/common/store/atoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
   dashboardSettingsAtom: 'dashboardSettingsAtom',
+  defaultLayoutAtom: 'defaultLayoutAtom',
+  hiddenServiceStatesAtom: 'hiddenServiceStatesAtom',
+  timeZoneAtom: 'timeZoneAtom',
+  localeAtom: 'localeAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
@@ -70,6 +74,7 @@ function setup(overrides = {}) {
     hiddenServiceStates: [],
     timeZone: '',
     locale: '',
+    showYaml: false,
   }
   const vals = { ...defaults, ...overrides }
   // Ensure hiddenServiceStates is always an array
@@ -90,6 +95,7 @@ function setup(overrides = {}) {
       hiddenServiceStates: vals.hiddenServiceStates ?? [],
       timeZone: vals.timeZone,
       locale: vals.locale,
+      showYaml: vals.showYaml,
     }
     return null
   })
@@ -106,6 +112,7 @@ function setup(overrides = {}) {
     if (atom === 'hiddenServiceStatesAtom') return [vals.hiddenServiceStates || [], jest.fn()]
     if (atom === 'timeZoneAtom') return [vals.timeZone || '', jest.fn()]
     if (atom === 'localeAtom') return [vals.locale || '', jest.fn()]
+    if (atom === 'showYamlAtom') return [vals.showYaml || false, jest.fn()]
     return ['', jest.fn()]
   })
 }
@@ -129,6 +136,10 @@ function setupAtomToggle(atomName, value) {
     maxContentWidthAtom: ['fluid', jest.fn()],
     refreshIntervalAtom: [0, jest.fn()],
     hiddenServiceStatesAtom: [[], jest.fn()],
+    defaultLayoutAtom: ['row', jest.fn()],
+    timeZoneAtom: ['', jest.fn()],
+    localeAtom: ['', jest.fn()],
+    showYamlAtom: [false, jest.fn()],
   }
   atomDefaults[atomName] = [value, mockSet]
   mockUseAtomValue.mockImplementation((atom) => {
@@ -201,6 +212,11 @@ test('toggling centered layout switch calls setter with centered when currently 
     if (atom === 'tableSizeAtom') return ['sm', jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [true, jest.fn()]
     if (atom === 'refreshIntervalAtom') return [false, jest.fn()]
+    if (atom === 'showYamlAtom') return [false, jest.fn()]
+    if (atom === 'defaultLayoutAtom') return ['grid', jest.fn()]
+    if (atom === 'hiddenServiceStatesAtom') return [['not-running'], jest.fn()]
+    if (atom === 'timeZoneAtom') return ['UTC', jest.fn()]
+    if (atom === 'localeAtom') return ['en', jest.fn()]
     return [null, jest.fn()]
   })
   render(<SettingsComponent />)
@@ -223,6 +239,11 @@ test('toggling centered layout switch calls setter with fluid when currently cen
     if (atom === 'tableSizeAtom') return ['sm', jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [true, jest.fn()]
     if (atom === 'refreshIntervalAtom') return [false, jest.fn()]
+    if (atom === 'showYamlAtom') return [false, jest.fn()]
+    if (atom === 'defaultLayoutAtom') return ['grid', jest.fn()]
+    if (atom === 'hiddenServiceStatesAtom') return [['not-running'], jest.fn()]
+    if (atom === 'timeZoneAtom') return ['UTC', jest.fn()]
+    if (atom === 'localeAtom') return ['en', jest.fn()]
     return [null, jest.fn()]
   })
   render(<SettingsComponent />)
@@ -291,6 +312,16 @@ test('reset to defaults calls all setters with default values', () => {
   expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
   // computeDefaultBase() falls back to window.location.pathname which is '/' in jsdom
   expect(setBaseUrl).toHaveBeenCalledWith('/')
+  // Values come from dashboardSettingsAtom mock in setup()
+  expect(setIsDarkMode).toHaveBeenCalledWith(false)
+  expect(setTableSize).toHaveBeenCalledWith('sm')
+  expect(setShowNamesButtons).toHaveBeenCalledWith(true)
+  expect(setShowNavLabels).toHaveBeenCalledWith(false)
+  expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
+  expect(setDefaultLayout).toHaveBeenCalledWith('row')
+  expect(setHiddenServiceStates).toHaveBeenCalledWith([])
+  expect(setTimeZone).toHaveBeenCalledWith('')
+  expect(setLocale).toHaveBeenCalledWith('')
 })
 
 test('showNavLabels switch is unchecked by default', () => {

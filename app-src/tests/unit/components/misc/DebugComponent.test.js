@@ -2,9 +2,9 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom'
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { DebugComponent } from '../../../../src/components/misc/DebugComponent'
-import { Card } from 'react-bootstrap'
 
 // Mock jotai
 const mockAtomValue = {}
@@ -15,7 +15,6 @@ jest.mock('jotai', () => ({
 
 // Mock the atom
 jest.mock('../../../../src/common/store/atoms', () => ({
-  currentVariantAtom: { toString: () => 'currentVariantAtom' },
   currentVariantClassesAtom: { toString: () => 'currentVariantClassesAtom' },
   dashboardHAtom: { toString: () => 'dashboardHAtom' },
   dashboardSettingsAtom: { toString: () => 'dashboardSettingsAtom' },
@@ -27,19 +26,22 @@ jest.mock('../../../../src/common/store/atoms', () => ({
   versionAtom: { toString: () => 'versionAtom' },
 }))
 
-// Mock JsonTable - not used in DebugComponent
-// jest.mock('../../../../src/components/shared/JsonTable', () => ({
-//   JsonTable: ({ data }) => <div data-testid="json-table">{JSON.stringify(data)}</div>,
-// }))
+// Mock DSDCard
+jest.mock('../../../../src/components/common/DSDCard.jsx', () => {
+  const React = require('react')
+  return {
+    __esModule: true,
+    default: function DSDCardMock({ children, className, title, body }) {
+      return React.createElement('div', { 'data-testid': 'card', className: className },
+        title && React.createElement('span', { 'data-testid': 'card-title' }, title),
+        body || children
+      )
+    },
+  }
+})
 
 // Mock react-bootstrap
 jest.mock('react-bootstrap', () => ({
-  Card: Object.assign(
-    ({ children, bg, className }) => <div data-testid="card" data-bg={bg} className={className}>{children}</div>,
-    {
-      Body: ({ children }) => <div data-testid="card-body">{children}</div>,
-    }
-  ),
   Alert: ({ children, variant }) => <div data-testid={`alert-${variant}`}>{children}</div>,
   Spinner: () => <div data-testid="spinner">Loading...</div>,
 }))
@@ -50,7 +52,6 @@ describe('DebugComponent', () => {
   })
 
   it('renders debug information', () => {
-    mockAtomValue.currentVariantAtom = 'light'
     mockAtomValue.currentVariantClassesAtom = 'bg-light'
     mockAtomValue.dashboardHAtom = 'dashboard-h'
     mockAtomValue.dashboardVAtom = 'dashboard-v'
@@ -62,13 +63,12 @@ describe('DebugComponent', () => {
     mockAtomValue.versionAtom = '1.0.0'
 
     render(<DebugComponent />)
-    expect(screen.getByText('Debug')).toBeInTheDocument()
+    expect(screen.getByTestId('card-title')).toHaveTextContent('Debug')
     expect(screen.getByText('API Dump')).toBeInTheDocument()
     expect(screen.getByTestId('card')).toBeInTheDocument()
   })
 
   it('renders with different variant', () => {
-    mockAtomValue.currentVariantAtom = 'dark'
     mockAtomValue.currentVariantClassesAtom = 'bg-dark'
     mockAtomValue.dashboardHAtom = 'dashboard-h'
     mockAtomValue.dashboardVAtom = 'dashboard-v'
@@ -80,11 +80,12 @@ describe('DebugComponent', () => {
     mockAtomValue.versionAtom = '1.0.0'
 
     render(<DebugComponent />)
-    expect(screen.getByTestId('card')).toHaveAttribute('data-bg', 'dark')
+    // DebugComponent does not pass className to DSDCard, so no class is expected
+    expect(screen.getByTestId('card')).toBeInTheDocument()
+    expect(screen.getByTestId('card-title')).toHaveTextContent('Debug')
   })
 
   it('renders with null data', () => {
-    mockAtomValue.currentVariantAtom = 'light'
     mockAtomValue.currentVariantClassesAtom = 'bg-light'
     mockAtomValue.dashboardHAtom = null
     mockAtomValue.dashboardVAtom = null
@@ -96,7 +97,7 @@ describe('DebugComponent', () => {
     mockAtomValue.versionAtom = null
 
     render(<DebugComponent />)
-    expect(screen.getByText('Debug')).toBeInTheDocument()
+    expect(screen.getByTestId('card-title')).toHaveTextContent('Debug')
   })
 
   it('renders with complex data', () => {
@@ -112,7 +113,7 @@ describe('DebugComponent', () => {
     mockAtomValue.versionAtom = '2.0.0'
 
     render(<DebugComponent />)
-    expect(screen.getByText('Debug')).toBeInTheDocument()
+    expect(screen.getByTestId('card-title')).toHaveTextContent('Debug')
     expect(screen.getByText(/"key": "value"/)).toBeInTheDocument()
   })
 
@@ -129,6 +130,6 @@ describe('DebugComponent', () => {
     mockAtomValue.versionAtom = ''
 
     render(<DebugComponent />)
-    expect(screen.getByText('Debug')).toBeInTheDocument()
+    expect(screen.getByTestId('card-title')).toHaveTextContent('Debug')
   })
 })
