@@ -9,6 +9,14 @@ import { EntityName } from '../../shared/names/EntityName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 
 /**
+ * Determines if slot information should be displayed
+ * Extracted for better testability
+ */
+export function shouldShowSlot(slot) {
+  return slot != null && slot !== '';
+}
+
+/**
  * Displays a summary table with core task properties (service, node, state,
  * desired state, slot, timestamps).
  * @param {object} props
@@ -17,6 +25,8 @@ import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 function TaskInfoTable({ taskObj }) {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
+
+  if (!taskObj) return null
 
   return (
     <div className="mb-3">
@@ -65,7 +75,7 @@ function TaskInfoTable({ taskObj }) {
             </td>
             <td>{taskObj.DesiredState}</td>
           </tr>
-          {taskObj.Slot != null && (
+          {shouldShowSlot(taskObj.Slot) && (
             <tr>
               <td>
                 <strong>Slot</strong>

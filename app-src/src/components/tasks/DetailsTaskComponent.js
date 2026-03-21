@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from '../shared/JsonTable'
 import { useState, useEffect } from 'react'
 import { TaskInfoTable } from './details/TaskInfoTable'
-import { TaskMetricsContent } from './details/TaskMetricsContent'
+import { TaskMetricsContent } from './details'
 
 /**
  * Displays full details for a single task: an info table, container metrics

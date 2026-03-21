@@ -70,19 +70,7 @@ function ServiceName({
   const [, updateView] = useAtom(viewAtom)
 
   const handleShowLogs = (sid) => {
-    // If logs are currently being streamed (follow), close them first
-    if (logsShowLogsVal && logsConfigVal?.follow) {
-      setLogsShowLogs(false)
-      setLogsConfig(null)
-    }
-    // Prefill the logs form but DO NOT start streaming or set the active logs config.
-    setFormId(sid)
-    setFormName(name)
-    // Only set the service id/name for the logs form; do NOT modify other
-    // form atoms so we don't overwrite user state.
-
-    // Navigate to logs view; the form will be shown because logsShowLogs is false
-    updateView((prev) => ({ ...prev, id: logsId }))
+    handleShowLogsInternal(sid, name, logsShowLogsVal, logsConfigVal, setLogsShowLogs, setLogsConfig, setFormId, setFormName, updateView)
   }
 
   return (
@@ -100,6 +88,36 @@ function ServiceName({
       entityType="service"
     />
   )
+}
+
+/**
+ * Internal function to handle logs button click
+ * Extracted for better testability
+ */
+export function handleShowLogsInternal(
+  sid,
+  name,
+  logsShowLogsVal,
+  logsConfigVal,
+  setLogsShowLogs,
+  setLogsConfig,
+  setFormId,
+  setFormName,
+  updateView
+) {
+  // If logs are currently being streamed (follow), close them first
+  if (logsShowLogsVal && logsConfigVal?.follow) {
+    setLogsShowLogs(false)
+    setLogsConfig(null)
+  }
+  // Prefill the logs form but DO NOT start streaming or set the active logs config.
+  setFormId(sid)
+  setFormName(name)
+  // Only set the service id/name for the logs form; do NOT modify other
+  // form atoms so we don't overwrite user state.
+
+  // Navigate to logs view; the form will be shown because logsShowLogs is false
+  updateView((prev) => ({ ...prev, id: logsId }))
 }
 
 export { ServiceName }
