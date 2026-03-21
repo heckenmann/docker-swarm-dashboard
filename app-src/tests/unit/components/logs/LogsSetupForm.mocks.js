@@ -104,7 +104,7 @@ export function renderLogsSetupForm(initialValues = []) {
   const TestProvider = createTestProvider(initialValues)
   const LogsSetupForm = require('../../../../src/components/logs/LogsSetupForm').default
   return render(
-    <Suspense fallback={<div data-testid=\"loading\">loading</div>}>
+    <Suspense fallback={<div data-testid="loading">loading</div>}>
       <TestProvider>
         <LogsSetupForm />
       </TestProvider>
