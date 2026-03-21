@@ -24,7 +24,7 @@ import {
   logsShowLogsAtom,
 } from '../../common/store/atoms'
 import { isValidSince } from './logsUtils'
-import { SinceInput } from './SinceInput'
+import { SinceInput } from './SinceInput.jsx'
 import { useState } from 'react'
 
 /**

@@ -14,7 +14,7 @@ import {
 import useWebSocket from 'react-use-websocket'
 import { useEffect, useCallback } from 'react'
 import { LogsSetupForm } from './LogsSetupForm'
-import { LogsActiveControls } from './LogsActiveControls'
+import { LogsActiveControls } from './LogsActiveControls.jsx'
 import { LogsOutput } from './LogsOutput'
 
 // Re-export for consumers that import isValidSince from this module
