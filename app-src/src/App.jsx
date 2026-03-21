@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 // single store instance.
 import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
-import { ErrorBoundary } from './common/ErrorBoundary'
+import { ErrorBoundary } from './common/ErrorBoundary.jsx'
 import LoadingBar from './components/layout/LoadingBar.jsx'
 import { DashboardNavbar } from './components/layout/DashboardNavbar.jsx'
 import { Container } from 'react-bootstrap'
