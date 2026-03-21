@@ -14,7 +14,7 @@ import { Table, Card } from 'react-bootstrap'
 import { NodeName } from '../shared/names/NodeName'
 import { ServiceName } from '../shared/names/ServiceName'
 import { StackName } from '../shared/names/StackName'
-import ServiceStatusBadge from '../services/ServiceStatusBadge'
+import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
 import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 import { tasksDetailId } from '../../common/navigationConstants'
 

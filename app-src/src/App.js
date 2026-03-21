@@ -11,11 +11,11 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { ErrorBoundary } from './common/ErrorBoundary'
-import LoadingBar from './components/layout/LoadingBar'
-import { DashboardNavbar } from './components/layout/DashboardNavbar'
+import LoadingBar from './components/layout/LoadingBar.jsx'
+import { DashboardNavbar } from './components/layout/DashboardNavbar.jsx'
 import { Container } from 'react-bootstrap'
 import { WelcomeMessageComponent } from './components/shared/WelcomeMessageComponent'
-import { ContentRouter } from './components/layout/ContentRouter'
+import { ContentRouter } from './components/layout/ContentRouter.jsx'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,

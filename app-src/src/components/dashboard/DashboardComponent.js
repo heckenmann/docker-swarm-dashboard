@@ -18,7 +18,7 @@ import { Table, Badge, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from '../shared/names/NodeName'
 import { ServiceName } from '../shared/names/ServiceName'
-import ServiceStatusBadge from '../services/ServiceStatusBadge'
+import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
 import { DashboardSettingsComponent } from './DashboardSettingsComponent'
 
 /**
