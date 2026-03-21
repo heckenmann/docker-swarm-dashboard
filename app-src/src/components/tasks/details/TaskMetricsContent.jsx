@@ -8,10 +8,10 @@ import {
   formatBytesCompact as formatBytes,
   pctClass,
 } from '../../../common/formatUtils'
-import { buildMemoryCharts } from './memoryCharts'
-import { buildCPUCharts } from './cpuCharts'
-import { buildNetworkChart } from './networkChart'
-import { buildFSChart } from './fsChart'
+import { buildMemoryCharts } from './MemoryCharts.jsx'
+import { buildCPUCharts } from './CpuCharts.jsx'
+import { buildNetworkChart } from './NetworkChart.jsx'
+import { buildFSChart } from './fsChart.jsx'
 
 /**
  * Container metrics section for a task: summary row, memory/CPU/network/FS

@@ -6,7 +6,7 @@ export {
 
 export { buildCPUCharts } from './cpuCharts'
 
-export { buildNetworkChart } from './networkChart'
+export { buildNetworkChart } from './NetworkChart'
 
 export { buildFSChart } from './fsChart'
 
