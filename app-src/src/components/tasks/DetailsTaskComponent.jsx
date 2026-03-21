@@ -9,7 +9,7 @@ import { Card, Tabs, Tab } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JsonTable } from '../shared/JsonTable'
 import { useState, useEffect } from 'react'
-import { TaskInfoTable } from './details/TaskInfoTable'
+import { TaskInfoTable } from './details/TaskInfoTable.jsx'
 import { TaskMetricsContent } from './details'
 
 /**
