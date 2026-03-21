@@ -29,7 +29,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['centered', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'centered' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Centered layout')).toBeInTheDocument()
     })
@@ -38,7 +44,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['centered', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'centered' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).toBeChecked()
@@ -48,7 +60,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['fluid', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'centered' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).not.toBeChecked()
@@ -60,7 +78,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['centered', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'centered' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -71,7 +95,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['fluid', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'centered' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -84,7 +114,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['fluid', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'centered' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset centered layout to default'))
 
@@ -95,7 +131,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['centered', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({ maxContentWidth: 'fluid' })
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset centered layout to default'))
 
@@ -106,7 +148,13 @@ describe('CenteredLayoutRow', () => {
       mockUseAtom.mockReturnValue(['centered', mockSetMaxContentWidth])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<CenteredLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <CenteredLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset centered layout to default'))
 

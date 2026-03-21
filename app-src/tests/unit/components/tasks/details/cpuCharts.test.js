@@ -1,7 +1,7 @@
 // cpuCharts.test.js
 // Tests for CPU chart builder functions
 
-const { buildCPUCharts } = require('../../../../../src/components/tasks/details/cpuCharts')
+const { buildCPUCharts } = require('../../../../../src/components/tasks/details/CpuCharts.jsx')
 
 describe('cpuCharts', () => {
   describe('buildCPUCharts', () => {

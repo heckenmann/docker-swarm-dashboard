@@ -1,7 +1,7 @@
 // networkChart.test.js
 // Tests for network chart builder functions
 
-const { buildNetworkChart } = require('../../../../../src/components/tasks/details/networkChart')
+const { buildNetworkChart } = require('../../../../../src/components/tasks/details/NetworkChart.jsx')
 
 describe('networkChart', () => {
   describe('buildNetworkChart', () => {

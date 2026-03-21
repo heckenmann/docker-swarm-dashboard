@@ -30,7 +30,13 @@ describe('DefaultLayoutRow', () => {
 
   describe('initial state', () => {
     it('renders the component with row layout selected by default', () => {
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Default layout')).toBeInTheDocument()
       expect(
@@ -43,7 +49,13 @@ describe('DefaultLayoutRow', () => {
 
     it('renders row button as active when defaultLayout is row', () => {
       mockUseAtom.mockReturnValue(['row', mockSetDefaultLayout])
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       const rowButton = screen.getByRole('button', { name: /horizontal/i })
       const columnButton = screen.getByRole('button', { name: /vertical/i })
@@ -54,7 +66,13 @@ describe('DefaultLayoutRow', () => {
 
     it('renders column button as active when defaultLayout is column', () => {
       mockUseAtom.mockReturnValue(['column', mockSetDefaultLayout])
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       const rowButton = screen.getByRole('button', { name: /horizontal/i })
       const columnButton = screen.getByRole('button', { name: /vertical/i })
@@ -64,7 +82,13 @@ describe('DefaultLayoutRow', () => {
     })
 
     it('renders the reset button', () => {
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       expect(
         screen.getByLabelText('Reset default layout to default'),
@@ -75,7 +99,13 @@ describe('DefaultLayoutRow', () => {
   describe('layout toggle', () => {
     it('sets layout to row when clicking row button', () => {
       mockUseAtom.mockReturnValue(['column', mockSetDefaultLayout])
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('button', { name: /horizontal/i }))
 
@@ -84,7 +114,13 @@ describe('DefaultLayoutRow', () => {
 
     it('sets layout to column when clicking column button', () => {
       mockUseAtom.mockReturnValue(['row', mockSetDefaultLayout])
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('button', { name: /vertical/i }))
 
@@ -93,7 +129,13 @@ describe('DefaultLayoutRow', () => {
 
     it('does not call setter when clicking already active button', () => {
       mockUseAtom.mockReturnValue(['row', mockSetDefaultLayout])
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('button', { name: /horizontal/i }))
 
@@ -112,7 +154,13 @@ describe('DefaultLayoutRow', () => {
         defaultLayout: 'row',
       })
 
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset default layout to default'))
 
@@ -125,7 +173,13 @@ describe('DefaultLayoutRow', () => {
         defaultLayout: 'column',
       })
 
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset default layout to default'))
 
@@ -136,7 +190,13 @@ describe('DefaultLayoutRow', () => {
       mockUseAtom.mockReturnValue(['column', mockSetDefaultLayout])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<DefaultLayoutRow />)
+      render(
+        <table>
+          <tbody>
+            <DefaultLayoutRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset default layout to default'))
 

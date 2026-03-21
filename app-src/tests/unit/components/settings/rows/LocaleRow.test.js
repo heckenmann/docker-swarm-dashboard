@@ -30,7 +30,13 @@ describe('LocaleRow', () => {
 
   describe('initial state', () => {
     it('renders the component with locale input', () => {
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Locale')).toBeInTheDocument()
       expect(screen.getByLabelText('Locale')).toBeInTheDocument()
@@ -38,7 +44,13 @@ describe('LocaleRow', () => {
 
     it('displays the current locale value in the input', () => {
       mockUseAtom.mockReturnValue(['en-US', mockSetLocale])
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Locale')
       expect(input).toHaveValue('en-US')
@@ -46,14 +58,26 @@ describe('LocaleRow', () => {
 
     it('displays empty string when locale is not set', () => {
       mockUseAtom.mockReturnValue(['', mockSetLocale])
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Locale')
       expect(input).toHaveValue('')
     })
 
     it('renders the reset button', () => {
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       expect(
         screen.getByLabelText('Reset locale to default'),
@@ -64,7 +88,13 @@ describe('LocaleRow', () => {
   describe('locale input change', () => {
     it('updates locale when typing in the input', () => {
       mockUseAtom.mockReturnValue(['', mockSetLocale])
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Locale')
       fireEvent.change(input, { target: { value: 'fr-FR' } })
@@ -74,7 +104,13 @@ describe('LocaleRow', () => {
 
     it('updates locale to empty string when input is cleared', () => {
       mockUseAtom.mockReturnValue(['en-US', mockSetLocale])
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Locale')
       fireEvent.change(input, { target: { value: '' } })
@@ -84,7 +120,13 @@ describe('LocaleRow', () => {
 
     it('handles various locale formats', () => {
       mockUseAtom.mockReturnValue(['', mockSetLocale])
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Locale')
 
@@ -103,7 +145,13 @@ describe('LocaleRow', () => {
         locale: 'en-US',
       })
 
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset locale to default'))
 
@@ -114,7 +162,13 @@ describe('LocaleRow', () => {
       mockUseAtom.mockReturnValue(['fr-FR', mockSetLocale])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset locale to default'))
 
@@ -127,7 +181,13 @@ describe('LocaleRow', () => {
         locale: undefined,
       })
 
-      render(<LocaleRow />)
+      render(
+        <table>
+          <tbody>
+            <LocaleRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset locale to default'))
 

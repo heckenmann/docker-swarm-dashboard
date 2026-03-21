@@ -29,7 +29,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: true })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Show buttons in Names')).toBeInTheDocument()
     })
@@ -38,7 +44,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: true })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).toBeChecked()
@@ -48,7 +60,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: false })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).not.toBeChecked()
@@ -60,7 +78,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: true })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -71,7 +95,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: true })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -84,7 +114,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: true })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(
         screen.getByLabelText('Reset show names buttons to default'),
@@ -97,7 +133,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({ showNamesButtons: false })
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(
         screen.getByLabelText('Reset show names buttons to default'),
@@ -110,7 +152,13 @@ describe('ShowNamesButtonsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNamesButtons])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<ShowNamesButtonsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNamesButtonsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(
         screen.getByLabelText('Reset show names buttons to default'),

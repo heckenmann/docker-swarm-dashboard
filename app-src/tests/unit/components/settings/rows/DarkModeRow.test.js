@@ -29,7 +29,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: true })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Dark Mode')).toBeInTheDocument()
     })
@@ -38,7 +44,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: true })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).toBeChecked()
@@ -48,7 +60,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: false })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).not.toBeChecked()
@@ -60,7 +78,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: true })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -71,7 +95,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: true })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -84,7 +114,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: true })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset dark mode to default'))
 
@@ -95,7 +131,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({ isDarkMode: false })
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset dark mode to default'))
 
@@ -106,7 +148,13 @@ describe('DarkModeRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetIsDarkMode])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<DarkModeRow />)
+      render(
+        <table>
+          <tbody>
+            <DarkModeRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset dark mode to default'))
 

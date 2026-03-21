@@ -95,18 +95,18 @@ function setup(overrides = {}) {
   })
 
   mockUseAtom.mockImplementation((atom) => {
-    if (atom === 'baseUrlAtom') return [vals.baseUrl, jest.fn()]
+    if (atom === 'baseUrlAtom') return [vals.baseUrl || '', jest.fn()]
     if (atom === 'isDarkModeAtom') return [vals.isDarkMode, jest.fn()]
-    if (atom === 'tableSizeAtom') return [vals.tableSize, jest.fn()]
+    if (atom === 'tableSizeAtom') return [vals.tableSize || 'sm', jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [vals.showNamesButtons, jest.fn()]
     if (atom === 'showNavLabelsAtom') return [vals.showNavLabels, jest.fn()]
-    if (atom === 'maxContentWidthAtom') return [vals.maxContentWidth, jest.fn()]
-    if (atom === 'refreshIntervalAtom') return [vals.refreshInterval, jest.fn()]
-    if (atom === 'defaultLayoutAtom') return [vals.defaultLayout, jest.fn()]
-    if (atom === 'hiddenServiceStatesAtom') return [vals.hiddenServiceStates ?? [], jest.fn()]
-    if (atom === 'timeZoneAtom') return [vals.timeZone, jest.fn()]
-    if (atom === 'localeAtom') return [vals.locale, jest.fn()]
-    return [null, jest.fn()]
+    if (atom === 'maxContentWidthAtom') return [vals.maxContentWidth || 'fluid', jest.fn()]
+    if (atom === 'refreshIntervalAtom') return [vals.refreshInterval || 0, jest.fn()]
+    if (atom === 'defaultLayoutAtom') return [vals.defaultLayout || 'row', jest.fn()]
+    if (atom === 'hiddenServiceStatesAtom') return [vals.hiddenServiceStates || [], jest.fn()]
+    if (atom === 'timeZoneAtom') return [vals.timeZone || '', jest.fn()]
+    if (atom === 'localeAtom') return [vals.locale || '', jest.fn()]
+    return ['', jest.fn()]
   })
 }
 

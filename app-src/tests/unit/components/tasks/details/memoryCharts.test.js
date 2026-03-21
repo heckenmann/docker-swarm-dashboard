@@ -5,7 +5,7 @@ const {
   calculateMemoryMetrics,
   createMemoryDonutOptions,
   buildMemoryCharts,
-} = require('../../../../../src/components/tasks/details/memoryCharts')
+} = require('../../../../../src/components/tasks/details/MemoryCharts.jsx')
 
 describe('memoryCharts', () => {
   describe('calculateMemoryMetrics', () => {

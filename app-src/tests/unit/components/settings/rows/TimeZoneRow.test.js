@@ -30,7 +30,13 @@ describe('TimeZoneRow', () => {
 
   describe('initial state', () => {
     it('renders the component with timeZone input', () => {
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Time zone')).toBeInTheDocument()
       expect(screen.getByLabelText('Time zone')).toBeInTheDocument()
@@ -38,7 +44,13 @@ describe('TimeZoneRow', () => {
 
     it('displays the current timeZone value in the input', () => {
       mockUseAtom.mockReturnValue(['UTC', mockSetTimeZone])
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Time zone')
       expect(input).toHaveValue('UTC')
@@ -46,14 +58,26 @@ describe('TimeZoneRow', () => {
 
     it('displays empty string when timeZone is not set', () => {
       mockUseAtom.mockReturnValue(['', mockSetTimeZone])
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Time zone')
       expect(input).toHaveValue('')
     })
 
     it('renders the reset button', () => {
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       expect(
         screen.getByLabelText('Reset time zone to default'),
@@ -64,7 +88,13 @@ describe('TimeZoneRow', () => {
   describe('timeZone input change', () => {
     it('updates timeZone when typing in the input', () => {
       mockUseAtom.mockReturnValue(['', mockSetTimeZone])
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Time zone')
       fireEvent.change(input, { target: { value: 'America/New_York' } })
@@ -74,7 +104,13 @@ describe('TimeZoneRow', () => {
 
     it('updates timeZone to empty string when input is cleared', () => {
       mockUseAtom.mockReturnValue(['UTC', mockSetTimeZone])
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Time zone')
       fireEvent.change(input, { target: { value: '' } })
@@ -84,7 +120,13 @@ describe('TimeZoneRow', () => {
 
     it('handles various time zone formats', () => {
       mockUseAtom.mockReturnValue(['', mockSetTimeZone])
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       const input = screen.getByLabelText('Time zone')
 
@@ -103,7 +145,13 @@ describe('TimeZoneRow', () => {
         timeZone: 'UTC',
       })
 
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset time zone to default'))
 
@@ -114,7 +162,13 @@ describe('TimeZoneRow', () => {
       mockUseAtom.mockReturnValue(['America/New_York', mockSetTimeZone])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset time zone to default'))
 
@@ -127,7 +181,13 @@ describe('TimeZoneRow', () => {
         timeZone: undefined,
       })
 
-      render(<TimeZoneRow />)
+      render(
+        <table>
+          <tbody>
+            <TimeZoneRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset time zone to default'))
 

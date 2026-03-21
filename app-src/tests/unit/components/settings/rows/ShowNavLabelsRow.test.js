@@ -29,7 +29,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Show navigation labels')).toBeInTheDocument()
     })
@@ -38,7 +44,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).toBeChecked()
@@ -48,7 +60,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       const switch_ = screen.getByRole('checkbox')
       expect(switch_).not.toBeChecked()
@@ -58,7 +76,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       expect(screen.getByText('Env: DSD_SHOW_NAV_LABELS')).toBeInTheDocument()
     })
@@ -67,7 +91,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       expect(
         screen.getByLabelText('Reset show nav labels to default'),
@@ -80,7 +110,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -91,7 +127,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByRole('checkbox'))
 
@@ -104,7 +146,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([false, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: true })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset show nav labels to default'))
 
@@ -115,7 +163,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({ showNavLabels: false })
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset show nav labels to default'))
 
@@ -126,7 +180,13 @@ describe('ShowNavLabelsRow', () => {
       mockUseAtom.mockReturnValue([true, mockSetShowNavLabels])
       mockUseAtomValue.mockReturnValue({})
 
-      render(<ShowNavLabelsRow />)
+      render(
+        <table>
+          <tbody>
+            <ShowNavLabelsRow />
+          </tbody>
+        </table>
+      )
 
       fireEvent.click(screen.getByLabelText('Reset show nav labels to default'))
 
