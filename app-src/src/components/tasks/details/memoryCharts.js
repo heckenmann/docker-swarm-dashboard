@@ -1,6 +1,4 @@
-import {
-  formatBytesCompact as formatBytes,
-} from '../../../common/formatUtils'
+import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
 
 /**
  * Calculates memory metrics for donut chart
@@ -11,12 +9,12 @@ export function calculateMemoryMetrics(m) {
   const workingSet = m.workingSet || 0
   const otherUsed = Math.max(0, (m.usage || 0) - workingSet - memCache)
   const memAvailable = m.limit > 0 ? Math.max(0, m.limit - (m.usage || 0)) : 0
-  
+
   return {
     memCache,
     workingSet,
     otherUsed,
-    memAvailable
+    memAvailable,
   }
 }
 
@@ -25,12 +23,13 @@ export function calculateMemoryMetrics(m) {
  * Extracted for better testability
  */
 export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
-  const { memCache, workingSet, otherUsed, memAvailable } = calculateMemoryMetrics(m)
-  
-  const labels = m.limit > 0
-    ? ['Working Set', 'Cache', 'Other Used', 'Available']
-    : ['Working Set', 'Cache', 'Other Used']
-  
+  const {} = calculateMemoryMetrics(m)
+
+  const labels =
+    m.limit > 0
+      ? ['Working Set', 'Cache', 'Other Used', 'Available']
+      : ['Working Set', 'Cache', 'Other Used']
+
   return {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'donut' },
@@ -44,7 +43,8 @@ export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
             total: {
               show: true,
               label: m.limit > 0 ? 'Limit' : 'Total RSS',
-              formatter: () => formatBytes(m.limit > 0 ? m.limit : m.usage || 0),
+              formatter: () =>
+                formatBytes(m.limit > 0 ? m.limit : m.usage || 0),
             },
           },
         },
@@ -91,7 +91,8 @@ export function buildMemoryCharts(m, commonOpts, isDarkMode) {
   }
   const memGaugeSeries = [parseFloat((m.usagePercent || 0).toFixed(1))]
 
-  const { memCache, workingSet, otherUsed, memAvailable } = calculateMemoryMetrics(m)
+  const { memCache, workingSet, otherUsed, memAvailable } =
+    calculateMemoryMetrics(m)
   const memDonutOptions = createMemoryDonutOptions(m, commonOpts, formatBytes)
   const memDonutSeries =
     m.limit > 0

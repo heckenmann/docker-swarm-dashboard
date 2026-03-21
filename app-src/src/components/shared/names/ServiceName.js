@@ -70,7 +70,17 @@ function ServiceName({
   const [, updateView] = useAtom(viewAtom)
 
   const handleShowLogs = (sid) => {
-    handleShowLogsInternal(sid, name, logsShowLogsVal, logsConfigVal, setLogsShowLogs, setLogsConfig, setFormId, setFormName, updateView)
+    handleShowLogsInternal(
+      sid,
+      name,
+      logsShowLogsVal,
+      logsConfigVal,
+      setLogsShowLogs,
+      setLogsConfig,
+      setFormId,
+      setFormName,
+      updateView,
+    )
   }
 
   return (
@@ -103,7 +113,7 @@ export function handleShowLogsInternal(
   setLogsConfig,
   setFormId,
   setFormName,
-  updateView
+  updateView,
 ) {
   // If logs are currently being streamed (follow), close them first
   if (logsShowLogsVal && logsConfigVal?.follow) {

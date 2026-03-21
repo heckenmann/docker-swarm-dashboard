@@ -1,6 +1,4 @@
-import {
-  formatBytesCompact as formatBytes,
-} from '../../../common/formatUtils'
+import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
 
 /**
  * Build network bar chart configuration.
