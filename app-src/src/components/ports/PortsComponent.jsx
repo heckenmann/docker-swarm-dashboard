@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ServiceName } from '../shared/names/ServiceName'
 import { StackName } from '../shared/names/StackName'
 import { FilterComponent } from '../shared/FilterComponent'
-import { SortableHeader } from '../shared/SortableHeader'
+import { SortableHeader } from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
 

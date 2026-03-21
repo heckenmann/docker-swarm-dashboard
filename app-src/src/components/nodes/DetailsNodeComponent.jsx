@@ -5,7 +5,7 @@ import {
 } from '../../common/store/atoms'
 import { Card, Tabs, Tab, Row, Col } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JsonTable } from '../shared/JsonTable'
+import { JsonTable } from '../shared/JsonTable.jsx'
 import { NodeMetricsComponent } from './NodeMetricsComponent'
 import { NodeTasksTab } from './details/NodeTasksTab'
 

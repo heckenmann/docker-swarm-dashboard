@@ -11,7 +11,7 @@ import {
 import { Card, Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { NodeName } from '../shared/names/NodeName'
-import { SortableHeader } from '../shared/SortableHeader'
+import { SortableHeader } from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
 

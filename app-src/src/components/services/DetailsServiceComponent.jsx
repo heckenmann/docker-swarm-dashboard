@@ -8,7 +8,7 @@ import {
 } from '../../common/store/atoms'
 import { Card, Tabs, Tab } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JsonTable } from '../shared/JsonTable'
+import { JsonTable } from '../shared/JsonTable.jsx'
 import { useState, useEffect } from 'react'
 import { ServiceMetricsComponent } from './ServiceMetricsComponent'
 import { ServiceTasksTab } from './details/ServiceTasksTab'

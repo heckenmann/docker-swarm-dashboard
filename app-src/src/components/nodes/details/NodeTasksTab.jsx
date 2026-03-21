@@ -8,7 +8,7 @@ import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 import { Table } from 'react-bootstrap'
 import { ServiceName } from '../../shared/names/ServiceName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
-import { SortableHeader } from '../../shared/SortableHeader'
+import { SortableHeader } from '../../shared/SortableHeader.jsx'
 import { sortData } from '../../../common/sortUtils'
 import { useState, useCallback } from 'react'
 
