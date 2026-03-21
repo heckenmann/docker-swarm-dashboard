@@ -2,12 +2,10 @@ export {
   calculateMemoryMetrics,
   createMemoryDonutOptions,
   buildMemoryCharts,
-} from './memoryCharts'
+} from './MemoryCharts.jsx'
 
-export { buildCPUCharts } from './cpuCharts'
+export { buildCPUCharts } from './CpuCharts.jsx'
 
-export { buildNetworkChart } from './NetworkChart'
-
-export { buildFSChart } from './fsChart'
-
+export { buildNetworkChart } from './NetworkChart.jsx'
+export { buildFSChart } from './fsChart.jsx'
 export { TaskMetricsContent } from './TaskMetricsContent.jsx'
