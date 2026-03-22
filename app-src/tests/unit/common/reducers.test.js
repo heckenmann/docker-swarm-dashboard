@@ -8,12 +8,14 @@ import {
 } from '../../../src/common/store/reducers'
 
 describe('RefreshIntervalToggleReducer', () => {
-  test('toggles null → 3000', () => {
-    expect(RefreshIntervalToggleReducer(null)).toBe(3000)
+  test('sets the provided interval value', () => {
+    expect(RefreshIntervalToggleReducer(null, 5000)).toBe(5000)
+    expect(RefreshIntervalToggleReducer(3000, 10000)).toBe(10000)
+    expect(RefreshIntervalToggleReducer(5000, null)).toBeNull()
   })
 
-  test('toggles 3000 → null', () => {
-    expect(RefreshIntervalToggleReducer(3000)).toBeNull()
+  test('returns undefined when no newInterval provided', () => {
+    expect(RefreshIntervalToggleReducer(null)).toBeUndefined()
   })
 })
 

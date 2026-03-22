@@ -1,11 +1,13 @@
-// Broad exercise test to touch many branches in atoms.js
 jest.mock('jotai', () => ({ atom: (v) => v }))
-jest.mock('jotai/utils', () => ({
-  atomWithReducer: (v) => v,
-  atomWithReset: (v) => v,
-  selectAtom: (a) => a,
+jest.mock('jotai-location', () => ({
+  atomWithHash: (key, defaultValue) => {
+    if (typeof defaultValue === 'function') { return defaultValue }
+    return defaultValue
+  },
 }))
-jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
+
+// Broad exercise test to touch many branches in atoms.js
+// NOTE: When run via atoms.combined.test.js aggregator, mocks are provided via jest.doMock().
 
 describe('exercise many atoms to increase branch coverage', () => {
   const realFetch = global.fetch

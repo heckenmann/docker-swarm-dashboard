@@ -1,7 +1,14 @@
+jest.mock('jotai', () => ({ atom: (v) => v }))
+jest.mock('jotai-location', () => ({
+  atomWithHash: (key, defaultValue) => {
+    if (typeof defaultValue === 'function') { return defaultValue }
+    return defaultValue
+  },
+}))
+
 // atoms_logic.test.js
 // Tests the logsWebsocketUrlAtom getter logic for both relative and absolute base URLs.
-jest.mock('jotai', () => ({ atom: (v) => v }))
-jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
+// NOTE: When run via atoms.combined.test.js aggregator, mocks are provided via jest.doMock().
 
 describe('logsWebsocketUrlAtom logic', () => {
   afterEach(() => jest.resetModules())

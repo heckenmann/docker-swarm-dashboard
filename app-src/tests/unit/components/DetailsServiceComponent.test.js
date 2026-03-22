@@ -1,6 +1,5 @@
 // Combined tests for DetailsServiceComponent
 import { render, screen, waitFor } from '@testing-library/react'
-import { act } from 'react'
 
 // Mock atoms
 jest.mock('../../../src/common/store/atoms', () => ({
@@ -23,11 +22,7 @@ jest.mock('../../../src/components/services/ServiceMetricsComponent', () => ({
 }))
 
 jest.mock('../../../src/components/shared/names/NodeName', () => ({
-  NodeName: ({ name, id }) => (
-    <span data-testid="node-name">
-      {name || id}
-    </span>
-  ),
+  NodeName: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
 }))
 
 jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
@@ -38,7 +33,9 @@ jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
 }))
 
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
-  SortableHeader: ({ label, column }) => <th data-testid={`header-${column}`}>{label}</th>,
+  SortableHeader: ({ label, column }) => (
+    <th data-testid={`header-${column}`}>{label}</th>
+  ),
 }))
 
 jest.mock('../../../src/common/DefaultDateTimeFormat', () => ({
@@ -53,7 +50,8 @@ const mockSetView = jest.fn()
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (atom) => {
-    if (atom === 'viewAtom') return [{ id: null, detail: null, timestamp: 0 }, mockSetView]
+    if (atom === 'viewAtom')
+      return [{ id: null, detail: null, timestamp: 0 }, mockSetView]
     return [undefined, jest.fn()]
   },
 }))
@@ -72,14 +70,13 @@ describe('DetailsServiceComponent', () => {
     jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
       if (typeof msg === 'string' && msg.includes('not wrapped in act')) return
       // Re-throw unexpected errors so real issues are still visible
-      // eslint-disable-next-line no-console
+
       console.warn('[test console.error]', msg, ...args)
     })
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     jest.restoreAllMocks()
-    await act(async () => {})
   })
 
   test('renders service not found message when currentService is null', () => {
@@ -350,9 +347,7 @@ describe('DetailsServiceComponent', () => {
 
     global.fetch.mockRejectedValue(new Error('Network error'))
 
-    await act(async () => {
-      render(<DetailsServiceComponent />)
-    })
+    render(<DetailsServiceComponent />)
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -525,5 +520,275 @@ describe('DetailsServiceComponent', () => {
       // Container ID should be truncated to 12 chars
       expect(screen.getByText('abc123def456')).toBeInTheDocument()
     })
+  })
+
+  test('sanitizes src attribute with null value', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+        Spec: { Name: 'test-service' },
+        Endpoint: { Spec: { Ports: [{ TargetPort: 80 }] } },
+        // src with null value
+        Labels: { src: null },
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    // Click on Table tab to see sanitized output
+    screen.getByText('Table').click()
+
+    // The component should render without error
+    expect(screen.getByText('Table')).toBeInTheDocument()
+  })
+
+  test('sanitizes image attribute with object value', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+        Spec: { Name: 'test-service' },
+        // image with object value
+        Labels: { image: { nested: 'value' } },
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    screen.getByText('Table').click()
+
+    expect(screen.getByText('Table')).toBeInTheDocument()
+  })
+
+  test('sanitizes logo attribute with undefined value', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+        Spec: { Name: 'test-service' },
+        Labels: { logo: undefined },
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    screen.getByText('Table').click()
+
+    expect(screen.getByText('Table')).toBeInTheDocument()
+  })
+
+  test('sanitizes nested objects with src attribute', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+        Spec: { Name: 'test-service' },
+        Nested: {
+          deep: {
+            src: 'https://example.com/image.png',
+          },
+        },
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    screen.getByText('Table').click()
+
+    expect(screen.getByText('Table')).toBeInTheDocument()
+  })
+
+  test('sanitizes arrays with image attribute', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+        Spec: { Name: 'test-service' },
+        Items: [{ image: 'img1.png' }, { image: null }, { other: 'value' }],
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    screen.getByText('Table').click()
+
+    expect(screen.getByText('Table')).toBeInTheDocument()
+  })
+
+  test('handles service without Spec.Name', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+        Name: 'fallback-name',
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    // Should use fallback Name property
+    expect(screen.getByText(/Service "fallback-name"/)).toBeInTheDocument()
+  })
+
+  test('handles service without Spec or Name', async () => {
+    const mockService = {
+      service: {
+        ID: 'service-1',
+      },
+      tasks: [],
+    }
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      switch (atom) {
+        case 'currentVariantAtom':
+          return 'light'
+        case 'currentVariantClassesAtom':
+          return 'card-class'
+        case 'serviceDetailAtom':
+          return mockService
+        case 'baseUrlAtom':
+          return 'http://localhost/'
+        case 'viewAtom':
+          return { timestamp: Date.now() }
+        default:
+          return ''
+      }
+    })
+
+    global.fetch.mockResolvedValue({
+      json: async () => ({ available: false }),
+    })
+
+    render(<DetailsServiceComponent />)
+
+    // Should use 'unknown' fallback
+    expect(screen.getByText(/Service "unknown"/)).toBeInTheDocument()
   })
 })

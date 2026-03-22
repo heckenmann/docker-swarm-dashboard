@@ -19,7 +19,7 @@ module.exports = [
         process: "readonly",
       },
     },
-   plugins: { "unused-imports": require("eslint-plugin-unused-imports"), "react": require("eslint-plugin-react"), "prettier": require("eslint-plugin-prettier") },
+   plugins: { "unused-imports": require("eslint-plugin-unused-imports"), "react": require("eslint-plugin-react"), "prettier": require("eslint-plugin-prettier"), "jsx-a11y": require("eslint-plugin-jsx-a11y") },
     rules: {
       // keep a couple lightweight rules; expand later as needed
   "prefer-const": "error",
@@ -30,6 +30,15 @@ module.exports = [
   "react/jsx-uses-vars": "error",
   // Enforce Prettier formatting via ESLint
   "prettier/prettier": "error",
+  // ARIA accessibility rules
+  "jsx-a11y/aria-props": "error",
+  "jsx-a11y/aria-proptypes": "error",
+  "jsx-a11y/aria-role": "error",
+  "jsx-a11y/aria-unsupported-elements": "error",
+  "jsx-a11y/label-has-associated-control": "error",
+  "jsx-a11y/role-has-required-aria-props": "error",
+  "jsx-a11y/anchor-is-valid": "error",
+  "jsx-a11y/interactive-supports-focus": "error",
     },
   },
 ];

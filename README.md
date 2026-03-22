@@ -69,8 +69,35 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `LOCALE` | Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag. | (system) |
 | `TZ` | [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in. | (system) |
 | `DSD_VERSION_CHECK_ENABLED` | When `true`, the system will check for updates and notify in the UI if a new version is available. | `false` |
+| `DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES` | Cache duration in minutes for version check results. | `60` |
 | `DSD_WELCOME_MESSAGE` | If set, this message will be displayed to the user in a modal dialog when the web application is opened in the browser. | (none) |
 | `DOCKER_API_VERSION` | Forces a specific Docker API version to use (e.g. `1.35`, `1.41`). When not specified, the server automatically negotiates the highest API version supported by both the client and Docker daemon. Only set this if you need to force a specific version for compatibility. | (auto-negotiated) |
+
+#### UI Default Settings
+These environment variables control the default UI state. All settings can be changed by the user in the web interface and are persisted in the URL hash.
+
+| Environment variable | Description | Default |
+|---|---|---|
+| `DSD_TABLE_SIZE` | Default table size. Either `sm` (small) or `lg` (large). | `sm` |
+| `DSD_SERVICE_NAME_FILTER` | Default service name filter value. | (none) |
+| `DSD_STACK_NAME_FILTER` | Default stack name filter value. | (none) |
+| `DSD_FILTER_TYPE` | Default filter type. Either `service` or `stack`. | `service` |
+| `DSD_LOGS_NUMBER_OF_LINES` | Default number of log lines to fetch. | `100` |
+| `DSD_LOGS_MESSAGE_MAX_LEN` | Maximum length of log messages to display. | `2000` |
+| `DSD_LOGS_FORM_TAIL` | Default value for tail option in logs form. | `true` |
+| `DSD_LOGS_FORM_SINCE` | Default value for since option in logs form. | `false` |
+| `DSD_LOGS_FORM_SINCE_AMOUNT` | Default amount for since option in logs form. | `15` |
+| `DSD_LOGS_FORM_SINCE_UNIT` | Default unit for since option in logs form. Either `minutes`, `hours`, or `days`. | `minutes` |
+| `DSD_LOGS_FORM_FOLLOW` | Default value for follow option in logs form. | `false` |
+| `DSD_LOGS_FORM_TIMESTAMPS` | Default value for timestamps option in logs form. | `true` |
+| `DSD_LOGS_FORM_STDOUT` | Default value for stdout option in logs form. | `true` |
+| `DSD_LOGS_FORM_STDERR` | Default value for stderr option in logs form. | `true` |
+| `DSD_LOGS_FORM_DETAILS` | Default value for details option in logs form. | `true` |
+| `DSD_LOGS_SEARCH_KEYWORD` | Default search keyword for logs. | (none) |
+| `DSD_DARK_MODE` | Enable dark mode by default. Either `true` or `false`. | `false` |
+| `DSD_SHOW_NAMES_BUTTONS` | Show action buttons in entity names by default. Either `true` or `false`. | `true` |
+| `DSD_SHOW_NAV_LABELS` | Show navigation labels by default. Either `true` or `false`. | `false` |
+| `DSD_MAX_CONTENT_WIDTH` | Maximum content width. Either `fluid` (full width) or `fixed` (container width). | `fluid` |
 
 ### Pull Image from ghcr.io
 ```

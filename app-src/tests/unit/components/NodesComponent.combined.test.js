@@ -39,7 +39,7 @@ describe('NodesComponent (combined)', () => {
     ]
 
     // return values in sequence (more robust against extra calls)
-    const values = ['light', 'classes', 'sm', nodes]
+    const values = ['light', 'sm', nodes]
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'showNamesButtonsAtom') return true
       return values.shift()
@@ -85,7 +85,7 @@ describe('NodesComponent (combined)', () => {
         StatusAddr: '2.2.2.2',
       },
     ]
-    const values = ['light', 'classes', 'sm', nodes]
+    const values = ['light', 'sm', nodes]
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'showNamesButtonsAtom') return true
       return values.shift()
@@ -112,7 +112,7 @@ describe('NodesComponent (combined)', () => {
         StatusAddr: '3.3.3.3',
       },
     ]
-    const values = ['light', 'classes', 'sm', nodes]
+    const values = ['light', 'sm', nodes]
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'showNamesButtonsAtom') return true
       return values.shift()

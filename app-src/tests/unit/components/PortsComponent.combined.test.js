@@ -61,7 +61,7 @@ describe('PortsComponent (combined)', () => {
         Stack: 'st1',
       },
     ]
-    const values = ['light', 'classes', 'sm', '', '', ports]
+    const values = ['light', 'sm', '', '', ports]
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'showNamesButtonsAtom') return true
       return values.shift()

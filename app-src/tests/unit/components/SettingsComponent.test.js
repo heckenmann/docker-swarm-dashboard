@@ -22,13 +22,22 @@ jest.mock('../../../src/common/store/atoms', () => ({
   showNavLabelsAtom: 'showNavLabelsAtom',
   tableSizeAtom: 'tableSizeAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+  dashboardSettingsAtom: 'dashboardSettingsAtom',
+  defaultLayoutAtom: 'defaultLayoutAtom',
+  hiddenServiceStatesAtom: 'hiddenServiceStatesAtom',
+  timeZoneAtom: 'timeZoneAtom',
+  localeAtom: 'localeAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
-  useAtom: (...args) => mockUseAtom(...args),
+  useAtom: (...args) => {
+    const result = mockUseAtom(...args)
+    // Return [value, setter] tuple as expected by useAtom hook
+    return Array.isArray(result) && result.length === 2 ? result : [result, jest.fn()]
+  },
 }))
 
 jest.mock('../../../src/common/store/reducers', () => ({
@@ -60,25 +69,51 @@ function setup(overrides = {}) {
     showNamesButtons: true,
     showNavLabels: false,
     maxContentWidth: 'fluid',
-    refreshInterval: false,
+    refreshInterval: 0,
+    defaultLayout: 'row',
+    hiddenServiceStates: [],
+    timeZone: '',
+    locale: '',
+    showYaml: false,
   }
   const vals = { ...defaults, ...overrides }
+  // Ensure hiddenServiceStates is always an array
+  if (vals.hiddenServiceStates == null) vals.hiddenServiceStates = []
 
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return 'light'
     if (atom === 'currentVariantClassesAtom') return ''
+    if (atom === 'dashboardSettingsAtom') return {
+      baseUrl: vals.baseUrl,
+      isDarkMode: vals.isDarkMode,
+      tableSize: vals.tableSize,
+      showNamesButtons: vals.showNamesButtons,
+      showNavLabels: vals.showNavLabels,
+      maxContentWidth: vals.maxContentWidth,
+      refreshInterval: vals.refreshInterval,
+      defaultLayout: vals.defaultLayout,
+      hiddenServiceStates: vals.hiddenServiceStates ?? [],
+      timeZone: vals.timeZone,
+      locale: vals.locale,
+      showYaml: vals.showYaml,
+    }
     return null
   })
 
   mockUseAtom.mockImplementation((atom) => {
-    if (atom === 'baseUrlAtom') return [vals.baseUrl, jest.fn()]
+    if (atom === 'baseUrlAtom') return [vals.baseUrl || '', jest.fn()]
     if (atom === 'isDarkModeAtom') return [vals.isDarkMode, jest.fn()]
-    if (atom === 'tableSizeAtom') return [vals.tableSize, jest.fn()]
+    if (atom === 'tableSizeAtom') return [vals.tableSize || 'sm', jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [vals.showNamesButtons, jest.fn()]
     if (atom === 'showNavLabelsAtom') return [vals.showNavLabels, jest.fn()]
-    if (atom === 'maxContentWidthAtom') return [vals.maxContentWidth, jest.fn()]
-    if (atom === 'refreshIntervalAtom') return [vals.refreshInterval, jest.fn()]
-    return [null, jest.fn()]
+    if (atom === 'maxContentWidthAtom') return [vals.maxContentWidth || 'fluid', jest.fn()]
+    if (atom === 'refreshIntervalAtom') return [vals.refreshInterval || 0, jest.fn()]
+    if (atom === 'defaultLayoutAtom') return [vals.defaultLayout || 'row', jest.fn()]
+    if (atom === 'hiddenServiceStatesAtom') return [vals.hiddenServiceStates || [], jest.fn()]
+    if (atom === 'timeZoneAtom') return [vals.timeZone || '', jest.fn()]
+    if (atom === 'localeAtom') return [vals.locale || '', jest.fn()]
+    if (atom === 'showYamlAtom') return [vals.showYaml || false, jest.fn()]
+    return ['', jest.fn()]
   })
 }
 
@@ -99,12 +134,30 @@ function setupAtomToggle(atomName, value) {
     showNamesButtonsAtom: [true, jest.fn()],
     showNavLabelsAtom: [false, jest.fn()],
     maxContentWidthAtom: ['fluid', jest.fn()],
-    refreshIntervalAtom: [false, jest.fn()],
+    refreshIntervalAtom: [0, jest.fn()],
+    hiddenServiceStatesAtom: [[], jest.fn()],
+    defaultLayoutAtom: ['row', jest.fn()],
+    timeZoneAtom: ['', jest.fn()],
+    localeAtom: ['', jest.fn()],
+    showYamlAtom: [false, jest.fn()],
   }
   atomDefaults[atomName] = [value, mockSet]
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return 'light'
     if (atom === 'currentVariantClassesAtom') return ''
+    if (atom === 'dashboardSettingsAtom') return {
+      baseUrl: 'http://localhost:3001/',
+      isDarkMode: false,
+      tableSize: 'sm',
+      showNamesButtons: true,
+      showNavLabels: false,
+      maxContentWidth: 'fluid',
+      refreshInterval: 0,
+      defaultLayout: 'row',
+      hiddenServiceStates: [],
+      timeZone: '',
+      locale: '',
+    }
     return null
   })
   mockUseAtom.mockImplementation((atom) => atomDefaults[atom] || [null, jest.fn()])
@@ -123,7 +176,7 @@ test('renders all expected setting rows', () => {
   expect(screen.getByText('API URL')).toBeInTheDocument()
   expect(screen.getByText(/Interval Refresh/)).toBeInTheDocument()
   expect(screen.getByText('Dark Mode')).toBeInTheDocument()
-  expect(screen.getByText('Small tables')).toBeInTheDocument()
+  expect(screen.getByText('Table size')).toBeInTheDocument()
   expect(screen.getByText('Show buttons in Names')).toBeInTheDocument()
   expect(screen.getByText('Centered layout')).toBeInTheDocument()
   expect(screen.getByText('Show navigation labels')).toBeInTheDocument()
@@ -159,6 +212,11 @@ test('toggling centered layout switch calls setter with centered when currently 
     if (atom === 'tableSizeAtom') return ['sm', jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [true, jest.fn()]
     if (atom === 'refreshIntervalAtom') return [false, jest.fn()]
+    if (atom === 'showYamlAtom') return [false, jest.fn()]
+    if (atom === 'defaultLayoutAtom') return ['grid', jest.fn()]
+    if (atom === 'hiddenServiceStatesAtom') return [['not-running'], jest.fn()]
+    if (atom === 'timeZoneAtom') return ['UTC', jest.fn()]
+    if (atom === 'localeAtom') return ['en', jest.fn()]
     return [null, jest.fn()]
   })
   render(<SettingsComponent />)
@@ -181,6 +239,11 @@ test('toggling centered layout switch calls setter with fluid when currently cen
     if (atom === 'tableSizeAtom') return ['sm', jest.fn()]
     if (atom === 'showNamesButtonsAtom') return [true, jest.fn()]
     if (atom === 'refreshIntervalAtom') return [false, jest.fn()]
+    if (atom === 'showYamlAtom') return [false, jest.fn()]
+    if (atom === 'defaultLayoutAtom') return ['grid', jest.fn()]
+    if (atom === 'hiddenServiceStatesAtom') return [['not-running'], jest.fn()]
+    if (atom === 'timeZoneAtom') return ['UTC', jest.fn()]
+    if (atom === 'localeAtom') return ['en', jest.fn()]
     return [null, jest.fn()]
   })
   render(<SettingsComponent />)
@@ -200,10 +263,28 @@ test('reset to defaults calls all setters with default values', () => {
   const setShowNamesButtons = jest.fn()
   const setShowNavLabels = jest.fn()
   const setBaseUrl = jest.fn()
+  const setRefreshInterval = jest.fn()
+  const setDefaultLayout = jest.fn()
+  const setHiddenServiceStates = jest.fn()
+  const setTimeZone = jest.fn()
+  const setLocale = jest.fn()
 
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return 'light'
     if (atom === 'currentVariantClassesAtom') return ''
+    if (atom === 'dashboardSettingsAtom') return {
+      baseUrl: 'http://localhost:3001/',
+      isDarkMode: false,
+      tableSize: 'sm',
+      showNamesButtons: true,
+      showNavLabels: false,
+      maxContentWidth: 'fluid',
+      refreshInterval: 0,
+      defaultLayout: 'row',
+      hiddenServiceStates: [],
+      timeZone: '',
+      locale: '',
+    }
     return null
   })
   mockUseAtom.mockImplementation((atom) => {
@@ -213,7 +294,11 @@ test('reset to defaults calls all setters with default values', () => {
     if (atom === 'showNamesButtonsAtom') return [false, setShowNamesButtons]
     if (atom === 'showNavLabelsAtom') return [false, setShowNavLabels]
     if (atom === 'baseUrlAtom') return ['http://custom/', setBaseUrl]
-    if (atom === 'refreshIntervalAtom') return [true, jest.fn()]
+    if (atom === 'refreshIntervalAtom') return [30, setRefreshInterval]
+    if (atom === 'defaultLayoutAtom') return ['col', setDefaultLayout]
+    if (atom === 'hiddenServiceStatesAtom') return [['failed'], setHiddenServiceStates]
+    if (atom === 'timeZoneAtom') return ['UTC', setTimeZone]
+    if (atom === 'localeAtom') return ['en', setLocale]
     return [null, jest.fn()]
   })
 
@@ -227,6 +312,16 @@ test('reset to defaults calls all setters with default values', () => {
   expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
   // computeDefaultBase() falls back to window.location.pathname which is '/' in jsdom
   expect(setBaseUrl).toHaveBeenCalledWith('/')
+  // Values come from dashboardSettingsAtom mock in setup()
+  expect(setIsDarkMode).toHaveBeenCalledWith(false)
+  expect(setTableSize).toHaveBeenCalledWith('sm')
+  expect(setShowNamesButtons).toHaveBeenCalledWith(true)
+  expect(setShowNavLabels).toHaveBeenCalledWith(false)
+  expect(setMaxContentWidth).toHaveBeenCalledWith('fluid')
+  expect(setDefaultLayout).toHaveBeenCalledWith('row')
+  expect(setHiddenServiceStates).toHaveBeenCalledWith([])
+  expect(setTimeZone).toHaveBeenCalledWith('')
+  expect(setLocale).toHaveBeenCalledWith('')
 })
 
 test('showNavLabels switch is unchecked by default', () => {
@@ -316,30 +411,74 @@ test('API URL onChange preserves existing trailing slash', () => {
 
 // ---- Interval Refresh ----
 
-test('interval refresh switch is unchecked when refreshInterval is false', () => {
-  setup({ refreshInterval: false })
-  render(<SettingsComponent />)
-
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle auto refresh' })
-  expect(toggle).not.toBeChecked()
+test('interval refresh buttons show correct active state', () => {
+  setup()
+  const { getAllByRole } = render(<SettingsComponent />)
+  
+  const buttons = getAllByRole('button', { name: /^(Off|5s|10s|30s|60s)$/ })
+  expect(buttons).toHaveLength(5) // Off, 5s, 10s, 30s, 60s
 })
 
-test('interval refresh switch is checked when refreshInterval is true', () => {
-  setup({ refreshInterval: true })
+test('interval refresh button calls setRefreshInterval with correct value', () => {
+  setup()
   render(<SettingsComponent />)
-
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle auto refresh' })
-  expect(toggle).toBeChecked()
+  
+  // Check that buttons have correct labels
+  expect(screen.getByRole('button', { name: 'Off' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '5s' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '10s' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '30s' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '60s' })).toBeInTheDocument()
 })
 
-test('toggling interval refresh switch calls the toggle function', () => {
-  const mockToggle = setupAtomToggle('refreshIntervalAtom', false)
+test('interval refresh Off button calls setRefreshInterval with null', () => {
+  const mockSet = setupAtomToggle('refreshIntervalAtom', 5000)
   render(<SettingsComponent />)
 
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle auto refresh' })
-  fireEvent.click(toggle)
+  const offButton = screen.getByRole('button', { name: 'Off' })
+  fireEvent.click(offButton)
 
-  expect(mockToggle).toHaveBeenCalled()
+  expect(mockSet).toHaveBeenCalledWith(null)
+})
+
+test('interval refresh 5s button calls setRefreshInterval with 5000', () => {
+  const mockSet = setupAtomToggle('refreshIntervalAtom', 0)
+  render(<SettingsComponent />)
+
+  const button5s = screen.getByRole('button', { name: '5s' })
+  fireEvent.click(button5s)
+
+  expect(mockSet).toHaveBeenCalledWith(5000)
+})
+
+test('interval refresh 10s button calls setRefreshInterval with 10000', () => {
+  const mockSet = setupAtomToggle('refreshIntervalAtom', 5000)
+  render(<SettingsComponent />)
+
+  const button10s = screen.getByRole('button', { name: '10s' })
+  fireEvent.click(button10s)
+
+  expect(mockSet).toHaveBeenCalledWith(10000)
+})
+
+test('interval refresh 30s button calls setRefreshInterval with 30000', () => {
+  const mockSet = setupAtomToggle('refreshIntervalAtom', 10000)
+  render(<SettingsComponent />)
+
+  const button30s = screen.getByRole('button', { name: '30s' })
+  fireEvent.click(button30s)
+
+  expect(mockSet).toHaveBeenCalledWith(30000)
+})
+
+test('interval refresh 60s button calls setRefreshInterval with 60000', () => {
+  const mockSet = setupAtomToggle('refreshIntervalAtom', 30000)
+  render(<SettingsComponent />)
+
+  const button60s = screen.getByRole('button', { name: '60s' })
+  fireEvent.click(button60s)
+
+  expect(mockSet).toHaveBeenCalledWith(60000)
 })
 
 // ---- Dark Mode ----
@@ -382,38 +521,38 @@ test('toggling dark mode switch calls setter with false when currently true', ()
 
 // ---- Small tables ----
 
-test('small tables switch is checked when tableSize is sm', () => {
+test('small tables button is active when tableSize is sm', () => {
   setup({ tableSize: 'sm' })
   render(<SettingsComponent />)
 
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
-  expect(toggle).toBeChecked()
+  const smButton = screen.getByRole('button', { name: 'Small (sm)' })
+  expect(smButton).toHaveClass('active')
 })
 
-test('small tables switch is unchecked when tableSize is lg', () => {
+test('large tables button is active when tableSize is lg', () => {
   setup({ tableSize: 'lg' })
   render(<SettingsComponent />)
 
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
-  expect(toggle).not.toBeChecked()
+  const lgButton = screen.getByRole('button', { name: 'Large (lg)' })
+  expect(lgButton).toHaveClass('active')
 })
 
-test('toggling small tables switch calls setter with lg when currently sm', () => {
+test('clicking large tables button calls setter with lg when currently sm', () => {
   const mockSet = setupAtomToggle('tableSizeAtom', 'sm')
   render(<SettingsComponent />)
 
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
-  fireEvent.click(toggle)
+  const lgButton = screen.getByRole('button', { name: 'Large (lg)' })
+  fireEvent.click(lgButton)
 
   expect(mockSet).toHaveBeenCalledWith('lg')
 })
 
-test('toggling small tables switch calls setter with sm when currently lg', () => {
+test('clicking small tables button calls setter with sm when currently lg', () => {
   const mockSet = setupAtomToggle('tableSizeAtom', 'lg')
   render(<SettingsComponent />)
 
-  const toggle = screen.getByRole('checkbox', { name: 'Toggle compact tables' })
-  fireEvent.click(toggle)
+  const smButton = screen.getByRole('button', { name: 'Small (sm)' })
+  fireEvent.click(smButton)
 
   expect(mockSet).toHaveBeenCalledWith('sm')
 })

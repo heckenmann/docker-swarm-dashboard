@@ -1,12 +1,14 @@
+jest.mock('jotai', () => ({ atom: (v) => v }))
+jest.mock('jotai-location', () => ({
+  atomWithHash: (key, defaultValue) => {
+    if (typeof defaultValue === 'function') { return defaultValue }
+    return defaultValue
+  },
+}))
+
 // Combined fetch_atoms tests
 // Merges previous fetch_atoms.* fragments into one consolidated file.
-jest.mock('jotai', () => ({ atom: (v) => v }))
-jest.mock('jotai/utils', () => ({
-  atomWithReducer: (v) => v,
-  atomWithReset: (v) => v,
-  selectAtom: (a) => a,
-}))
-jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
+// NOTE: When run via atoms.combined.test.js aggregator, mocks are provided via jest.doMock().
 
 describe('fetch-based atoms (combined)', () => {
   const realFetch = global.fetch
@@ -255,13 +257,21 @@ describe('fetch-based atoms (combined)', () => {
     const t = await atoms.taskDetailAtom(getTask)
     expect(t).toEqual({ ok: true })
   })
-  test('maxContentWidthAtom defaults to fluid', () => {
+  test('maxContentWidthAtom defaults to fluid (static default)', () => {
     const atoms = require('../../../src/common/store/atoms')
-    // atomWithHash is mocked to return its default value directly
-    expect(atoms.maxContentWidthAtom).toBe('fluid')
+    // atomWithHash now uses static defaults; server defaults are in *DefaultAtom
+    const defaultValue = atoms.maxContentWidthAtom
+    // Static default is 'fluid'
+    expect(defaultValue).toBe('fluid')
+    // Server default is available via separate atom
+    expect(atoms.maxContentWidthDefaultAtom).toBeDefined()
   })
-  test('showNavLabelsAtom defaults to false', () => {
+  test('showNavLabelsAtom defaults to false (static default)', () => {
     const atoms = require('../../../src/common/store/atoms')
-    expect(atoms.showNavLabelsAtom).toBe(false)
+    const defaultValue = atoms.showNavLabelsAtom
+    // Static default is false
+    expect(defaultValue).toBe(false)
+    // Server default is available via separate atom
+    expect(atoms.showNavLabelsDefaultAtom).toBeDefined()
   })
 })

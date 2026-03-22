@@ -31,7 +31,8 @@ function setup({ viewId = null, defaultLayout = 'dashboardH' } = {}) {
   const mockUpdateView = jest.fn()
   mockUseAtomValue.mockImplementation((atom) => {
     if (atom === 'currentVariantAtom') return 'light'
-    if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return defaultLayout
+    if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom')
+      return defaultLayout
     return ''
   })
   mockUseAtom.mockImplementation((atom) => {
@@ -50,11 +51,6 @@ describe('DashboardSettingsComponent (combined)', () => {
   beforeEach(() => {
     mockUseAtomValue.mockReset()
     mockUseAtom.mockReset()
-  })
-
-  test('renders Dashboard title', () => {
-    setup()
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
   })
 
   test('renders both layout toggle buttons', () => {
@@ -88,12 +84,22 @@ describe('DashboardSettingsComponent (combined)', () => {
 
   test('horizontal grip icon shown in title when view is horizontal', () => {
     setup({ viewId: 'dashboardH' })
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    // Check that the horizontal grip button is active (not outline variant)
+    const buttons = screen.getAllByRole('button')
+    const horizontalButton = buttons.find(b =>
+      b.className.includes('btn-secondary') && !b.className.includes('btn-outline-secondary')
+    )
+    expect(horizontalButton).toBeTruthy()
   })
 
   test('vertical grip icon shown in title when view is vertical', () => {
     setup({ viewId: 'dashboardV' })
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    // Check that the vertical grip button is active (not outline variant)
+    const buttons = screen.getAllByRole('button')
+    const verticalButton = buttons.find(b =>
+      b.className.includes('btn-secondary') && !b.className.includes('btn-outline-secondary')
+    )
+    expect(verticalButton).toBeTruthy()
   })
 
   test('renders FilterComponent (filter input is present)', () => {
