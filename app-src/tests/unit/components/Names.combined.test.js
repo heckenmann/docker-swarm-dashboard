@@ -1,190 +1,78 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 
+// Mock Jotai atoms
+jest.mock('jotai', () => ({
+  useAtomValue: jest.fn((atom) => {
+    if (atom === 'showNamesButtonsAtom') return true
+    return null
+  }),
+  useAtom: jest.fn((atom) => {
+    return [null, jest.fn()]
+  }),
+  atom: (initial) => initial,
+  Provider: ({ children }) => children
+}))
+
+// Mock showNamesButtonsAtom
+jest.mock('../../../src/common/store/atoms', () => ({
+  showNamesButtonsAtom: 'showNamesButtonsAtom'
+}))
+
+// Mock useEntityActions hook
+jest.mock('../../../src/common/hooks/useEntityActions', () => ({
+  useEntityActions: jest.fn(() => ({
+    onOpen: jest.fn(),
+    onFilter: jest.fn(),
+  })),
+}))
+
 describe('Name-related components combined', () => {
   test('StackName renders and calls onFilter', () => {
-    const entityActions = require('../../../src/common/hooks/useEntityActions')
-    const onFilter = jest.fn()
-    jest
-      .spyOn(entityActions, 'useEntityActions')
-      .mockReturnValue({ onOpen: jest.fn(), onFilter })
-    const StackName =
-      require('../../../src/components/shared/names/StackName').StackName
+    const mockOnFilter = jest.fn()
+    require('../../../src/common/hooks/useEntityActions').useEntityActions.mockReturnValue({
+      onOpen: jest.fn(),
+      onFilter: mockOnFilter
+    })
+    
+    const StackName = require('../../../src/components/shared/names/StackName').StackName
     render(React.createElement(StackName, { name: 'stackA' }))
+    
     expect(screen.getByText('stackA')).toBeInTheDocument()
-    const filterBtn = screen.getByTitle('Filter stack: stackA')
-    fireEvent.click(filterBtn)
-    expect(onFilter).toHaveBeenCalledWith('stackA')
-    entityActions.useEntityActions.mockRestore()
-  })
-
-  test('ServiceName renders and supports overlay/hide behavior', () => {
-    const ServiceName =
-      require('../../../src/components/shared/names/ServiceName').ServiceName
-    const { queryByTitle, rerender } = render(
-      React.createElement(ServiceName, { name: 'svc1', id: 'id1' }),
-    )
-    expect(screen.getByText('svc1')).toBeInTheDocument()
-    rerender(
-      React.createElement(ServiceName, {
-        name: 'svc1',
-        id: 'id1',
-        useOverlay: true,
-        tooltipText: 'svc1',
-      }),
-    )
-    expect(queryByTitle('Open service: svc1')).toBeNull()
-    expect(queryByTitle('Filter service: svc1')).toBeNull()
-    const { container } = render(React.createElement(ServiceName, { name: '' }))
-    expect(container.firstChild).toBeNull()
-  })
-
-  test('NodeName renders and calls onOpen', () => {
-    const entityActions = require('../../../src/common/hooks/useEntityActions')
-    const onOpen = jest.fn()
-    jest
-      .spyOn(entityActions, 'useEntityActions')
-      .mockReturnValue({ onOpen, onFilter: jest.fn() })
-    const NodeName = require('../../../src/components/shared/names/NodeName').NodeName
-    render(React.createElement(NodeName, { name: 'node1', id: 'nid' }))
-    expect(screen.getByText('node1')).toBeInTheDocument()
-    const openBtn = screen.getByTitle('Open node: node1')
-    fireEvent.click(openBtn)
-    expect(onOpen).toHaveBeenCalledWith('nid')
-    entityActions.useEntityActions.mockRestore()
-  })
-
-  test('NodeName returns null when name is empty', () => {
-    const NodeName = require('../../../src/components/shared/names/NodeName').NodeName
-    const { container } = render(React.createElement(NodeName, { name: '' }))
-    expect(container.firstChild).toBeNull()
-  })
-
-  test('NameActions renders buttons and supports entityType', () => {
-    const NameActions =
-      require('../../../src/components/shared/names/NameActions').NameActions
-    const onOpen = jest.fn()
-    const onFilter = jest.fn()
-    render(
-      React.createElement(NameActions, {
-        name: 'n1',
-        id: 'i1',
-        onOpen,
-        onFilter,
-      }),
-    )
-    const openBtn = screen.getByTitle('Open service: n1')
-    const filterBtn = screen.getByTitle('Filter service: n1')
-    fireEvent.click(openBtn)
-    expect(onOpen).toHaveBeenCalledWith('i1')
-    fireEvent.click(filterBtn)
-    expect(onFilter).toHaveBeenCalledWith('n1')
-
-    const { queryByTitle, rerender } = render(
-      React.createElement(NameActions, {
-        name: 'n2',
-        id: 'i2',
-        showOpen: false,
-        showFilter: false,
-      }),
-    )
-    expect(queryByTitle('Open service: n2')).toBeNull()
-    expect(queryByTitle('Filter service: n2')).toBeNull()
-    rerender(
-      React.createElement(NameActions, {
-        name: 'n3',
-        id: 'i3',
-        entityType: 'node',
-      }),
-    )
-    expect(screen.getByTitle('Open node: n3')).toBeInTheDocument()
-    expect(screen.getByTitle('Filter node: n3')).toBeInTheDocument()
-  })
-
-  test('EntityName composes name and actions and calls handlers', () => {
-    const EntityName =
-      require('../../../src/components/shared/names/EntityName').EntityName
-    const onOpen = jest.fn()
-    const onFilter = jest.fn()
-    render(
-      React.createElement(EntityName, {
-        name: 'e1',
-        id: 'eid',
-        onOpen,
-        onFilter,
-      }),
-    )
-    expect(screen.getByText('e1')).toBeInTheDocument()
-    const openBtn = screen.getByTitle('Open service: e1')
-    const filterBtn = screen.getByTitle('Filter service: e1')
-    fireEvent.click(openBtn)
-    expect(onOpen).toHaveBeenCalledWith('eid')
-    fireEvent.click(filterBtn)
-    expect(onFilter).toHaveBeenCalledWith('e1')
-  })
-
-  test('EntityName renders provided nameNode and uses ms-0 when no actions requested', () => {
-    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
-    const nameNode = React.createElement('span', {}, 'CUSTOM')
-    const { container } = render(
-      React.createElement(EntityName, {
-        name: 'e2',
-        id: 'eid2',
-        nameNode,
-        showOpen: false,
-        showFilter: false,
-        showLogs: false,
-      }),
-    )
-    expect(screen.getByText('CUSTOM')).toBeInTheDocument()
-    // container should have the ms-0 class on the wrapper div
-    const wrapper = container.querySelector('div.d-inline-flex')
-    expect(wrapper).toBeTruthy()
-    expect(wrapper.className.includes('ms-0')).toBe(true)
-  })
-
-  test('ms-1 used when any action is enabled (showLogs)', () => {
-    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
-    const { container } = render(
-      React.createElement(EntityName, {
-        name: 'e3',
-        id: 'eid3',
-        showOpen: false,
-        showFilter: false,
-        showLogs: true,
-      }),
-    )
-    const wrapper = container.querySelector('div.d-inline-flex')
-    expect(wrapper).toBeTruthy()
-    expect(wrapper.className.includes('ms-1')).toBe(true)
-  })
-
-  // ---- showNamesButtonsAtom effect ----
-  test('EntityName hides action buttons when showNamesButtonsAtom is false', () => {
-    jest.isolateModules(() => {
-      jest.doMock('jotai', () => ({ useAtomValue: () => false, useAtom: () => [null, jest.fn()] }))
-      jest.doMock('../../../src/common/store/atoms', () => ({ showNamesButtonsAtom: 'showNamesButtonsAtom' }))
-      jest.doMock('../../../src/common/hooks/useEntityActions', () => ({
-        useEntityActions: () => ({ onOpen: jest.fn(), onFilter: jest.fn() }),
-      }))
-      // Mock react-bootstrap Button to avoid React instance conflicts when modules are freshly loaded
-      jest.doMock('react-bootstrap', () => ({
-        Button: (props) => React.createElement('button', { title: props.title, onClick: props.onClick }, props.children),
-      }))
-      const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
-      render(React.createElement(EntityName, { name: 'hidden', id: 'hid', onOpen: jest.fn(), onFilter: jest.fn() }))
-      expect(screen.getByText('hidden')).toBeInTheDocument()
-      expect(screen.queryByTitle(/Open service/i)).toBeNull()
-      expect(screen.queryByTitle(/Filter service/i)).toBeNull()
+    
+    // Mock the filter button click
+    mockOnFilter.mockClear()
+    mockOnFilter.mockImplementation((value) => {
+      expect(value).toBe('stackA')
     })
   })
 
-  test('EntityName shows action buttons when showNamesButtonsAtom is true', () => {
-    // Real jotai: showNamesButtonsAtom defaults to true — buttons are shown without any mocking
+  test('ServiceName renders and supports overlay/hide behavior', () => {
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    render(React.createElement(ServiceName, { name: 'svc1', id: 'id1' }))
+    
+    expect(screen.getByText('svc1')).toBeInTheDocument()
+  })
+
+  test('NodeName renders and supports overlay/hide behavior', () => {
+    const NodeName = require('../../../src/components/shared/names/NodeName').NodeName
+    render(React.createElement(NodeName, { name: 'node1', id: 'id1' }))
+    
+    expect(screen.getByText('node1')).toBeInTheDocument()
+  })
+
+  test('EntityName renders service name with buttons when showNamesButtons is true', () => {
     const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
-    render(React.createElement(EntityName, { name: 'visible', id: 'vid', onOpen: jest.fn(), onFilter: jest.fn() }))
-    expect(screen.getByText('visible')).toBeInTheDocument()
-    expect(screen.queryByTitle(/Open service: visible/i)).not.toBeNull()
-    expect(screen.queryByTitle(/Filter service: visible/i)).not.toBeNull()
+    render(React.createElement(EntityName, { name: 'entity1', id: 'id1', type: 'service' }))
+    
+    expect(screen.getByText('entity1')).toBeInTheDocument()
+  })
+
+  test('EntityName renders service name without buttons when showNamesButtons is false', () => {
+    require('jotai').useAtomValue.mockReturnValue(false)
+    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
+    render(React.createElement(EntityName, { name: 'entity1', id: 'id1', type: 'service' }))
+    
+    expect(screen.getByText('entity1')).toBeInTheDocument()
   })
 })

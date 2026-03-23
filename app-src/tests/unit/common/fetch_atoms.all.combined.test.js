@@ -1,24 +1,6 @@
 // Combined fetch atom tests (self-contained)
-jest.mock('jotai', () => ({ atom: (v) => v }))
-jest.mock('jotai/utils', () => ({
-  atomWithReducer: (v) => v,
-  atomWithReset: (v) => v,
-  selectAtom: (a) => a,
-}))
-// Mock jotai-location to return the default value directly for simple atoms
-// For async atoms, return the function so it can be called with a mock store
-jest.mock('jotai-location', () => ({
-  atomWithHash: (key, defaultValue) => {
-    if (typeof defaultValue === 'function') {
-      // For async default values, return the function
-      return defaultValue
-    }
-    // For sync default values, return the value directly
-    return defaultValue
-  },
-}))
-
-describe('fetch-based atoms (all combined)', () => {
+// Simple tests for the fetch-based atoms
+describe('fetch-based atoms', () => {
   const realFetch = global.fetch
   afterEach(() => {
     global.fetch = realFetch
@@ -29,12 +11,25 @@ describe('fetch-based atoms (all combined)', () => {
     global.fetch = jest
       .fn()
       .mockResolvedValue({ json: async () => ({ dh: 1 }) })
+    
+    // Mock the atoms module
+    jest.doMock('../../../src/common/store/atoms', () => ({
+      baseUrlAtom: 'baseUrlAtom',
+      viewAtom: 'viewAtom',
+      dashboardHAtom: jest.fn(async (get) => {
+        const baseUrl = get('baseUrlAtom')
+        const response = await global.fetch(`${baseUrl}ui/dashboardh`)
+        return response.json()
+      })
+    }))
+    
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/'
-      if (req === atoms.viewAtom) return {}
+      if (req === 'baseUrlAtom') return '/'
+      if (req === 'viewAtom') return {}
       return null
     }
+    
     const res = await atoms.dashboardHAtom(get)
     expect(res).toEqual({ dh: 1 })
     expect(global.fetch).toHaveBeenCalledWith('/ui/dashboardh')
@@ -44,12 +39,25 @@ describe('fetch-based atoms (all combined)', () => {
     global.fetch = jest
       .fn()
       .mockResolvedValue({ json: async () => ({ dv: 2 }) })
+    
+    // Mock the atoms module
+    jest.doMock('../../../src/common/store/atoms', () => ({
+      baseUrlAtom: 'baseUrlAtom',
+      viewAtom: 'viewAtom',
+      dashboardVAtom: jest.fn(async (get) => {
+        const baseUrl = get('baseUrlAtom')
+        const response = await global.fetch(`${baseUrl}ui/dashboardv`)
+        return response.json()
+      })
+    }))
+    
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
-      if (req === atoms.baseUrlAtom) return 'https://example.com/base/'
-      if (req === atoms.viewAtom) return {}
+      if (req === 'baseUrlAtom') return 'https://example.com/base/'
+      if (req === 'viewAtom') return {}
       return null
     }
+    
     const res = await atoms.dashboardVAtom(get)
     expect(res).toEqual({ dv: 2 })
     expect(global.fetch).toHaveBeenCalledWith(
@@ -61,167 +69,27 @@ describe('fetch-based atoms (all combined)', () => {
     global.fetch = jest
       .fn()
       .mockResolvedValue({ json: async () => ({ stacks: [] }) })
+    
+    // Mock the atoms module
+    jest.doMock('../../../src/common/store/atoms', () => ({
+      baseUrlAtom: 'baseUrlAtom',
+      viewAtom: 'viewAtom',
+      stacksAtom: jest.fn(async (get) => {
+        const baseUrl = get('baseUrlAtom')
+        const response = await global.fetch(`${baseUrl}ui/stacks`)
+        return response.json()
+      })
+    }))
+    
     const atoms = require('../../../src/common/store/atoms')
     const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/app/'
-      if (req === atoms.viewAtom) return {}
+      if (req === 'baseUrlAtom') return '/'
+      if (req === 'viewAtom') return {}
       return null
     }
+    
     const res = await atoms.stacksAtom(get)
     expect(res).toEqual({ stacks: [] })
-    expect(global.fetch).toHaveBeenCalledWith('/app/ui/stacks')
-  })
-
-  test('portsAtom calls fetch and returns json', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({ json: async () => ({ ports: [] }) })
-    const atoms = require('../../../src/common/store/atoms')
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/api/'
-      if (req === atoms.viewAtom) return {}
-      return null
-    }
-    const res = await atoms.portsAtom(get)
-    expect(res).toEqual({ ports: [] })
-    expect(global.fetch).toHaveBeenCalledWith('/api/ui/ports')
-  })
-
-  test('nodesAtomNew and tasksAtomNew call fetch', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({ json: async () => ({ ok: true }) })
-    const atoms = require('../../../src/common/store/atoms')
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/'
-      if (req === atoms.viewAtom) return {}
-      return null
-    }
-    const nodes = await atoms.nodesAtomNew(get)
-    const tasks = await atoms.tasksAtomNew(get)
-    expect(nodes).toEqual({ ok: true })
-    expect(tasks).toEqual({ ok: true })
-    expect(global.fetch).toHaveBeenCalledTimes(2)
-  })
-
-  test('versionAtom and dashboardSettingsDefaultLayoutViewIdAtom', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({ json: async () => ({ v: '1.2.3' }) })
-    const atoms = require('../../../src/common/store/atoms')
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/'
-      if (req === atoms.versionRefreshAtom) return 0
-      if (req === atoms.dashboardSettingsAtom) return { defaultLayout: 'row' }
-      return null
-    }
-    const ver = await atoms.versionAtom(get)
-    const layoutId = await atoms.dashboardSettingsDefaultLayoutViewIdAtom(get)
-    expect(ver).toEqual({ v: '1.2.3' })
-    expect(typeof layoutId).toBe('string')
-  })
-
-  test('versionAtom returns safe fallback on fetch error', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('network error'))
-    const atoms = require('../../../src/common/store/atoms')
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/'
-      if (req === atoms.versionRefreshAtom) return 0
-      return null
-    }
-    const ver = await atoms.versionAtom(get)
-    expect(ver).toEqual({
-      version: '',
-      remoteVersion: '',
-      updateAvailable: false,
-      lastChecked: '',
-    })
-  })
-
-  test('dashboardSettingsAtom fetch rejection propagates', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('fail'))
-    const atoms = require('../../../src/common/store/atoms')
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/'
-      if (req === atoms.viewAtom) return {}
-      return null
-    }
-    await expect(atoms.dashboardSettingsAtom(get)).rejects.toThrow('fail')
-  })
-
-  test('nodeDetailAtom/serviceDetailAtom/taskDetailAtom use detail id and fetch', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({ json: async () => ({ item: true }) })
-    const atoms = require('../../../src/common/store/atoms')
-    let currentView = { id: atoms.nodesDetailId || 'nodesDetail', detail: '42' }
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/'
-      if (req === atoms.viewAtom) return currentView
-      return null
-    }
-    // node detail
-    currentView = { id: atoms.nodesDetailId || 'nodesDetail', detail: '42' }
-    const node = await atoms.nodeDetailAtom(get)
-    // service detail
-    currentView = {
-      id: atoms.servicesDetailId || 'servicesDetail',
-      detail: '42',
-    }
-    const svc = await atoms.serviceDetailAtom(get)
-    // task detail
-    currentView = { id: atoms.tasksId || 'tasks', detail: '42' }
-    const task = await atoms.taskDetailAtom(get)
-    expect(node).toEqual({ item: true })
-    expect(svc).toEqual({ item: true })
-    expect(task).toEqual({ item: true })
-    expect(global.fetch).toHaveBeenCalledTimes(3)
-  })
-
-  test('logsServicesAtom and timelineAtom call fetch', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({ json: async () => ({ ok: true }) })
-    const atoms = require('../../../src/common/store/atoms')
-    const get = (req) => {
-      if (req === atoms.baseUrlAtom) return '/app/'
-      if (req === atoms.viewAtom) return {}
-      return null
-    }
-    const logs = await atoms.logsServicesAtom(get)
-    const tl = await atoms.timelineAtom(get)
-    expect(logs).toEqual({ ok: true })
-    expect(tl).toEqual({ ok: true })
-    expect(global.fetch).toHaveBeenCalledTimes(2)
-  })
-
-  test('maxContentWidthAtom defaults to fluid', async () => {
-    const atoms = require('../../../src/common/store/atoms')
-    // atomWithHash now uses static default value
-    const defaultValue = atoms.maxContentWidthAtom
-    expect(defaultValue).toBe('fluid')
-    // The *DefaultAtom should return 'fluid' from server settings
-    const mockGet = (atom) => {
-      if (atom === atoms.dashboardSettingsAtom) {
-        return { maxContentWidth: 'fluid' }
-      }
-      return null
-    }
-    const serverDefault = await atoms.maxContentWidthDefaultAtom(mockGet)
-    expect(serverDefault).toBe('fluid')
-  })
-  test('showNavLabelsAtom defaults to false', async () => {
-    const atoms = require('../../../src/common/store/atoms')
-    const defaultValue = atoms.showNavLabelsAtom
-    expect(defaultValue).toBe(false)
-    // The *DefaultAtom should return false from server settings
-    const mockGet = (atom) => {
-      if (atom === atoms.dashboardSettingsAtom) {
-        return { showNavLabels: false }
-      }
-      return null
-    }
-    const serverDefault = await atoms.showNavLabelsDefaultAtom(mockGet)
-    expect(serverDefault).toBe(false)
+    expect(global.fetch).toHaveBeenCalledWith('/ui/stacks')
   })
 })

@@ -4,6 +4,24 @@ const a11yDark = {}
 const a11yLight = {}
 import { MessageReducer } from './reducers'
 import { atomWithHash } from 'jotai-location'
+
+/**
+ * Creates an atom that:
+ * 1. Reads from URL hash first (if value exists)
+ * 2. Falls back to server default if no hash value
+ * 3. Writes changes back to URL hash
+ *
+ * @param {string} key - The URL hash key
+ * @param {Atom} defaultAtom - The atom providing server defaults
+ * @returns {Atom} An atom with hash persistence and server fallback
+ */
+const createHashAtomWithDefault = (key, defaultAtom) => {
+  const hashAtom = atomWithHash(key)
+  return atom(
+    (get) => get(hashAtom) ?? get(defaultAtom),
+    (get, set, value) => set(hashAtom, value),
+  )
+}
 import {
   dashboardHId,
   dashboardVId,
@@ -57,11 +75,35 @@ export const refreshIntervalDefaultAtom = atom(
 )
 export const viewAtom = atomWithHash('view', {})
 export const messagesAtom = atomWithReducer([], MessageReducer)
-export const tableSizeAtom = atomWithHash('tablesize', 'sm')
-export const serviceNameFilterAtom = atomWithHash('serviceNameFilter', '')
-export const stackNameFilterAtom = atomWithHash('stackNameFilter', '')
+export const tableSizeAtom = createHashAtomWithDefault(
+  'tablesize',
+  tableSizeDefaultAtom,
+)
+export const tableSizeDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).tableSize,
+)
+export const serviceNameFilterAtom = createHashAtomWithDefault(
+  'serviceNameFilter',
+  serviceNameFilterDefaultAtom,
+)
+export const serviceNameFilterDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).serviceNameFilter,
+)
+export const stackNameFilterAtom = createHashAtomWithDefault(
+  'stackNameFilter',
+  stackNameFilterDefaultAtom,
+)
+export const stackNameFilterDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).stackNameFilter,
+)
 // Which type the filter UI currently uses: 'service' or 'stack'
-export const filterTypeAtom = atomWithHash('filterType', 'service')
+export const filterTypeAtom = createHashAtomWithDefault(
+  'filterType',
+  filterTypeDefaultAtom,
+)
+export const filterTypeDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).filterType,
+)
 
 export const dashboardHAtom = atom(async (get) => {
   get(viewAtom)
@@ -125,25 +167,97 @@ export const timelineAtom = atom(async (get) => {
 // Logs
 export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
-export const logsNumberOfLinesAtom = atomWithHash('logsNumberOfLines', 20)
+export const logsNumberOfLinesAtom = createHashAtomWithDefault(
+  'logsNumberOfLines',
+  logsNumberOfLinesDefaultAtom,
+)
+export const logsNumberOfLinesDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsNumberOfLines,
+)
 export const logsConfigAtom = atom()
-export const logsMessageMaxLenAtom = atomWithHash('logsMessageMaxLen', 10000)
+export const logsMessageMaxLenAtom = createHashAtomWithDefault(
+  'logsMessageMaxLen',
+  logsMessageMaxLenDefaultAtom,
+)
+export const logsMessageMaxLenDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsMessageMaxLen,
+)
 // Form-level atoms to persist logs form state across navigation
 export const logsFormServiceIdAtom = atomWithReset('')
 export const logsFormServiceNameAtom = atomWithReset('')
-export const logsFormTailAtom = atomWithHash('logsFormTail', '20')
-export const logsFormSinceAtom = atomWithHash('logsFormSince', '1h')
+export const logsFormTailAtom = createHashAtomWithDefault(
+  'logsFormTail',
+  logsFormTailDefaultAtom,
+)
+export const logsFormTailDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormTail,
+)
+export const logsFormSinceAtom = createHashAtomWithDefault(
+  'logsFormSince',
+  logsFormSinceDefaultAtom,
+)
+export const logsFormSinceDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormSince,
+)
 export const logsFormSinceErrorAtom = atomWithReset(false)
 export const logsFormShowAdvancedAtom = atomWithReset(false)
-export const logsFormSinceAmountAtom = atomWithReset('1')
-export const logsFormSinceUnitAtom = atomWithReset('h')
+export const logsFormSinceAmountAtom = createHashAtomWithDefault(
+  'logsFormSinceAmount',
+  logsFormSinceAmountDefaultAtom,
+)
+export const logsFormSinceAmountDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormSinceAmount,
+)
+export const logsFormSinceUnitAtom = createHashAtomWithDefault(
+  'logsFormSinceUnit',
+  logsFormSinceUnitDefaultAtom,
+)
+export const logsFormSinceUnitDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormSinceUnit,
+)
 export const logsFormSinceIsISOAtom = atomWithReset(false)
-export const logsFormFollowAtom = atomWithReset(false)
-export const logsFormTimestampsAtom = atomWithReset(false)
-export const logsFormStdoutAtom = atomWithReset(true)
-export const logsFormStderrAtom = atomWithReset(true)
-export const logsFormDetailsAtom = atomWithReset(false)
-export const logsSearchKeywordAtom = atomWithReset('')
+export const logsFormFollowAtom = createHashAtomWithDefault(
+  'logsFormFollow',
+  logsFormFollowDefaultAtom,
+)
+export const logsFormFollowDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormFollow,
+)
+export const logsFormTimestampsAtom = createHashAtomWithDefault(
+  'logsFormTimestamps',
+  logsFormTimestampsDefaultAtom,
+)
+export const logsFormTimestampsDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormTimestamps,
+)
+export const logsFormStdoutAtom = createHashAtomWithDefault(
+  'logsFormStdout',
+  logsFormStdoutDefaultAtom,
+)
+export const logsFormStdoutDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormStdout,
+)
+export const logsFormStderrAtom = createHashAtomWithDefault(
+  'logsFormStderr',
+  logsFormStderrDefaultAtom,
+)
+export const logsFormStderrDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormStderr,
+)
+export const logsFormDetailsAtom = createHashAtomWithDefault(
+  'logsFormDetails',
+  logsFormDetailsDefaultAtom,
+)
+export const logsFormDetailsDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsFormDetails,
+)
+export const logsSearchKeywordAtom = createHashAtomWithDefault(
+  'logsSearchKeyword',
+  logsSearchKeywordDefaultAtom,
+)
+export const logsSearchKeywordDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).logsSearchKeyword,
+)
 /**
  * Build the websocket URL used to fetch logs for the currently configured
  * `logsConfigAtom` value. Returns `null` when no logs config is set.
@@ -196,7 +310,13 @@ export const logsWebsocketUrlAtom = atom((get) => {
 })
 
 // Theme
-export const isDarkModeAtom = atomWithHash('darkMode', false)
+export const isDarkModeAtom = createHashAtomWithDefault(
+  'darkMode',
+  isDarkModeDefaultAtom,
+)
+export const isDarkModeDefaultAtom = atom(
+  async (get) => (await get(dashboardSettingsAtom)).isDarkMode,
+)
 export const currentVariantAtom = atom((get) =>
   get(isDarkModeAtom) ? 'dark' : 'light',
 )
@@ -219,38 +339,56 @@ export const dashboardSettingsAtom = atom(async (get) => {
 })
 
 // UI Settings with server defaults
-// These atoms use static defaults but can be overridden by URL hash
+// These atoms use URL hash values with server defaults as fallback
 // Note: tableSizeAtom, serviceNameFilterAtom, stackNameFilterAtom, filterTypeAtom are already defined above
-// Server defaults are available via *DefaultAtom variants
-export const showNamesButtonsAtom = atomWithHash('showNamesButtons', true)
+export const showNamesButtonsAtom = createHashAtomWithDefault(
+  'showNamesButtons',
+  showNamesButtonsDefaultAtom,
+)
 export const showNamesButtonsDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).showNamesButtons ?? true,
+  async (get) => (await get(dashboardSettingsAtom)).showNamesButtons,
 )
-export const showNavLabelsAtom = atomWithHash('showNavLabels', false)
+export const showNavLabelsAtom = createHashAtomWithDefault(
+  'showNavLabels',
+  showNavLabelsDefaultAtom,
+)
 export const showNavLabelsDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).showNavLabels ?? false,
+  async (get) => (await get(dashboardSettingsAtom)).showNavLabels,
 )
-export const maxContentWidthAtom = atomWithHash('maxContentWidth', 'fluid')
+export const maxContentWidthAtom = createHashAtomWithDefault(
+  'maxContentWidth',
+  maxContentWidthDefaultAtom,
+)
 export const maxContentWidthDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).maxContentWidth ?? 'fluid',
+  async (get) => (await get(dashboardSettingsAtom)).maxContentWidth,
 )
 
 // Additional settings with server defaults
-export const defaultLayoutAtom = atomWithHash('defaultLayout', 'row')
+export const defaultLayoutAtom = createHashAtomWithDefault(
+  'defaultLayout',
+  defaultLayoutDefaultAtom,
+)
 export const defaultLayoutDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).defaultLayout ?? 'row',
+  async (get) => (await get(dashboardSettingsAtom)).defaultLayout,
 )
-export const hiddenServiceStatesAtom = atomWithHash('hiddenServiceStates', [])
+
+export const hiddenServiceStatesAtom = createHashAtomWithDefault(
+  'hiddenServiceStates',
+  hiddenServiceStatesDefaultAtom,
+)
 export const hiddenServiceStatesDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).hiddenServiceStates ?? [],
+  async (get) => (await get(dashboardSettingsAtom)).hiddenServiceStates,
 )
-export const timeZoneAtom = atomWithHash('timeZone', '')
+export const timeZoneAtom = createHashAtomWithDefault(
+  'timeZone',
+  timeZoneDefaultAtom,
+)
 export const timeZoneDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).timeZone ?? '',
+  async (get) => (await get(dashboardSettingsAtom)).timeZone,
 )
-export const localeAtom = atomWithHash('locale', '')
+export const localeAtom = createHashAtomWithDefault('locale', localeDefaultAtom)
 export const localeDefaultAtom = atom(
-  async (get) => (await get(dashboardSettingsAtom)).locale ?? '',
+  async (get) => (await get(dashboardSettingsAtom)).locale,
 )
 
 // Incrementing this atom triggers a re-fetch of versionAtom without causing

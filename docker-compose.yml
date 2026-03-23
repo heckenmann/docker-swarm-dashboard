@@ -4,7 +4,7 @@ networks:
 
 services:
   docker-swarm-dashboard:
-    image: ghcr.io/heckenmann/docker-swarm-dashboard:local
+    image: ghcr.io/heckenmann/docker-swarm-dashboard:master
     deploy:
       replicas: 1
       placement:
@@ -16,6 +16,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       DSD_VERSION_CHECK_ENABLED: 'true'
+      DSD_DARK_MODE: 'true'
     networks:
       - dashboard-network
   node-exporter:
