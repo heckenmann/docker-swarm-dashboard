@@ -1,22 +1,25 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
   isDarkModeAtom,
+} from '../../common/store/atoms/themeAtoms'
+import {
   serviceNameFilterAtom,
   stackNameFilterAtom,
-  timelineAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
+import { timelineAtom } from '../../common/store/atoms/dashboardAtoms'
 import { Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FilterComponent } from '../shared/FilterComponent'
+import FilterComponent from '../shared/FilterComponent'
 import ReactApexChart from 'react-apexcharts'
 
 /**
  * TimelineComponent is a React functional component that renders a timeline chart
  * using ReactApexChart. It filters and maps tasks data to display them in a range bar chart.
  */
-function TimelineComponent() {
+const TimelineComponent = React.memo(function TimelineComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const isDark = useAtomValue(isDarkModeAtom)
@@ -230,6 +233,6 @@ function TimelineComponent() {
       </Card>
     </>
   )
-}
+})
 
-export { TimelineComponent }
+export default TimelineComponent

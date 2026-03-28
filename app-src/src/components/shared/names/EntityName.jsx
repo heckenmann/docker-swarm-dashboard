@@ -18,12 +18,13 @@
  * @param {string} [props.entityType='service'] - Type of entity (service|stack|node)
  * @returns {JSX.Element|null}
  */
+import React from 'react'
 import { useEntityActions } from '../../../common/hooks/useEntityActions'
-import { NameActions } from './NameActions'
+import NameActions from './NameActions'
 import { useAtomValue } from 'jotai'
-import { showNamesButtonsAtom } from '../../../common/store/atoms'
+import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
 
-export function EntityName({
+const EntityName = React.memo(function EntityName({
   name,
   id,
   onOpen,
@@ -82,4 +83,6 @@ export function EntityName({
       </div>
     </>
   )
-}
+})
+
+export default EntityName

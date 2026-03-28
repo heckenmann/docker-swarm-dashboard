@@ -1,3 +1,4 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import DSDCard from '../common/DSDCard.jsx'
 import { Card } from 'react-bootstrap'
@@ -8,12 +9,12 @@ import {
   logsMessageMaxLenAtom,
   logsShowLogsAtom,
   logsWebsocketUrlAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/logsAtoms'
 import useWebSocket from 'react-use-websocket'
 import { useEffect, useCallback } from 'react'
-import { LogsSetupForm } from './LogsSetupForm'
-import { LogsActiveControls } from './LogsActiveControls.jsx'
-import { LogsOutput } from './LogsOutput'
+import LogsSetupForm from './LogsSetupForm.jsx'
+import LogsActiveControls from './LogsActiveControls.jsx'
+import LogsOutput from './LogsOutput'
 
 // Re-export for consumers that import isValidSince from this module
 export { isValidSince } from './logsUtils'
@@ -23,7 +24,7 @@ export { isValidSince } from './logsUtils'
  * It manages the WebSocket connection and incoming message buffering,
  * then delegates rendering to LogsSetupForm, LogsActiveControls and LogsOutput.
  */
-function LogsComponent() {
+const LogsComponent = React.memo(function LogsComponent() {
   const [, setLogsLines] = useAtom(logsLinesAtom)
   const logsNumberOfLines = useAtomValue(logsNumberOfLinesAtom)
   const logsMessageMaxLen = useAtomValue(logsMessageMaxLenAtom)
@@ -47,12 +48,7 @@ function LogsComponent() {
 
   useEffect(() => {
     if (!lastMessage) return
-    let raw
-    try {
-      raw = lastMessage.data
-    } catch {
-      return
-    }
+    const raw = lastMessage.data
     let message
     if (typeof raw === 'string') message = raw
     else {
@@ -89,9 +85,8 @@ function LogsComponent() {
       }
     />
   )
-}
+})
 
 LogsComponent.propTypes = {}
 
-export { LogsComponent }
 export default LogsComponent

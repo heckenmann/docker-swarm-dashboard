@@ -7,7 +7,7 @@ import {
   hiddenServiceStatesAtom,
   timeZoneAtom,
   localeAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
 import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 /**

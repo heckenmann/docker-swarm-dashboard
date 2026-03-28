@@ -1,6 +1,7 @@
 'use strict'
 
 import PropTypes from 'prop-types'
+import React from 'react'
 import { Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -52,7 +53,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
  *   <CustomComponent />
  * </DSDCard>
  */
-const DSDCard = ({
+const DSDCard = React.memo(function DSDCard({
   header,
   icon,
   title,
@@ -62,7 +63,7 @@ const DSDCard = ({
   headerClassName = '',
   bodyClassName = '',
   children,
-}) => {
+}) {
   // Build standardized header if icon or title is provided
   const renderHeader = () => {
     if (header) {
@@ -99,7 +100,7 @@ const DSDCard = ({
       )}
     </Card>
   )
-}
+})
 
 DSDCard.propTypes = {
   header: PropTypes.node,

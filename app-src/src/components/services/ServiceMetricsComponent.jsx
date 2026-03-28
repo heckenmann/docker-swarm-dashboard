@@ -1,6 +1,9 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { baseUrlAtom, isDarkModeAtom, viewAtom } from '../../common/store/atoms'
+import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
+import { isDarkModeAtom } from '../../common/store/atoms/themeAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { Alert, Spinner, Row, Col, Card } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { getCommonChartOptions } from '../../common/chartUtils'
@@ -15,7 +18,9 @@ const UNKNOWN_CONTAINER_TEXT = 'Container N/A'
  * @param {object} props - Component props
  * @param {string} props.serviceId - The ID of the service to fetch metrics for
  */
-function ServiceMetricsComponent({ serviceId }) {
+const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
+  serviceId,
+}) {
   const baseURL = useAtomValue(baseUrlAtom)
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const view = useAtomValue(viewAtom)
@@ -280,6 +285,6 @@ function ServiceMetricsComponent({ serviceId }) {
       </Row>
     </Card.Body>
   )
-}
+})
 
-export { ServiceMetricsComponent }
+export default ServiceMetricsComponent

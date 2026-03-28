@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  showNavLabelsAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { showNavLabelsAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * ShowNavLabelsRow renders the show navigation labels setting row.
  */
-function ShowNavLabelsRow() {
+const ShowNavLabelsRow = React.memo(function ShowNavLabelsRow() {
   const [showNavLabels, setShowNavLabels] = useAtom(showNavLabelsAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -59,6 +58,6 @@ function ShowNavLabelsRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { ShowNavLabelsRow }
+export default ShowNavLabelsRow

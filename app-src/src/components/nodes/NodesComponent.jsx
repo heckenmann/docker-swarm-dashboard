@@ -1,16 +1,15 @@
+import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
-import {
-  currentVariantAtom,
-  nodesAtomNew,
-  tableSizeAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { nodesAtomNew } from '../../common/store/atoms/dashboardAtoms'
+import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 
 // UI & internal imports
 import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NodeName } from '../shared/names/NodeName'
-import { SortableHeader } from '../shared/SortableHeader.jsx'
+import NodeName from '../shared/names/NodeName'
+import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
 import DSDCard from '../common/DSDCard.jsx'
@@ -20,7 +19,7 @@ import DSDCard from '../common/DSDCard.jsx'
  * It uses various atoms from Jotai for state management and displays node details
  * such as hostname, role, state, availability, and IP address.
  */
-function NodesComponent() {
+const NodesComponent = React.memo(function NodesComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const [view, setView] = useAtom(viewAtom)
@@ -191,6 +190,6 @@ function NodesComponent() {
       </Table>
     </DSDCard>
   )
-}
+})
 
-export { NodesComponent }
+export default NodesComponent

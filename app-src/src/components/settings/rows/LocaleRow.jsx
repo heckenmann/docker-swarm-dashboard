@@ -1,12 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { localeAtom, dashboardSettingsAtom } from '../../../common/store/atoms'
+import { localeAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormControl, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * LocaleRow renders the locale setting row.
  */
-function LocaleRow() {
+const LocaleRow = React.memo(function LocaleRow() {
   const [locale, setLocale] = useAtom(localeAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -52,6 +54,6 @@ function LocaleRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { LocaleRow }
+export default LocaleRow

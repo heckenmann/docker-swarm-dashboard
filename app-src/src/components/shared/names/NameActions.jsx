@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -18,7 +19,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
  * @returns {JSX.Element}
  */
 
-export function NameActions({
+const NameActions = React.memo(function NameActions({
   showOpen = true,
   showFilter = true,
   size = 'sm',
@@ -73,4 +74,6 @@ export function NameActions({
       )}
     </>
   )
-}
+})
+
+export default NameActions

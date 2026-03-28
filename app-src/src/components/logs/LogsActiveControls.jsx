@@ -1,15 +1,16 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { Row, Col, Form, Button, InputGroup } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import {
-  currentVariantAtom,
   logsConfigAtom,
   logsLinesAtom,
   logsNumberOfLinesAtom,
   logsSearchKeywordAtom,
   logsShowLogsAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/logsAtoms'
 
 /**
  * LogsActiveControls renders the controls displayed while logs are active.
@@ -17,7 +18,7 @@ import {
  * and a button to hide the current log view. Reads and writes Jotai atoms
  * directly; no props required.
  */
-function LogsActiveControls() {
+const LogsActiveControls = React.memo(function LogsActiveControls() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const logsConfig = useAtomValue(logsConfigAtom)
   const [logsNumberOfLines, setLogsNumberOfLines] = useAtom(
@@ -123,8 +124,8 @@ function LogsActiveControls() {
       </Form.Group>
     </Form>
   )
-}
+})
 
 LogsActiveControls.propTypes = {}
 
-export { LogsActiveControls }
+export default LogsActiveControls

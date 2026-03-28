@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  timeZoneAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { timeZoneAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormControl, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * TimeZoneRow renders the time zone setting row.
  */
-function TimeZoneRow() {
+const TimeZoneRow = React.memo(function TimeZoneRow() {
   const [timeZone, setTimeZone] = useAtom(timeZoneAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -57,6 +56,6 @@ function TimeZoneRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { TimeZoneRow }
+export default TimeZoneRow

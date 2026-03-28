@@ -1,3 +1,4 @@
+import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
@@ -10,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
  * @param {object} style - Optional style object
  * @param {string} className - Optional className
  */
-export function SortableHeader({
+const SortableHeader = React.memo(function SortableHeader({
   column,
   label,
   sortBy,
@@ -56,4 +57,6 @@ export function SortableHeader({
       )}
     </th>
   )
-}
+})
+
+export default SortableHeader

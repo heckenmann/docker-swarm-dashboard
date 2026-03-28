@@ -12,15 +12,15 @@ import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { ErrorBoundary } from './common/ErrorBoundary.jsx'
 import LoadingBar from './components/layout/LoadingBar.jsx'
-import { DashboardNavbar } from './components/layout/DashboardNavbar.jsx'
+import DashboardNavbar from './components/layout/DashboardNavbar.jsx'
 import { Container } from 'react-bootstrap'
-import { WelcomeMessageComponent } from './components/shared/WelcomeMessageComponent.jsx'
-import { ContentRouter } from './components/layout/ContentRouter.jsx'
+import WelcomeMessageComponent from './components/shared/WelcomeMessageComponent.jsx'
+import ContentRouter from './components/layout/ContentRouter.jsx'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
-  maxContentWidthAtom,
-} from './common/store/atoms'
+} from './common/store/atoms/themeAtoms'
+import { maxContentWidthAtom } from './common/store/atoms/uiAtoms'
 import './App.css'
 import bgLogo from './assets/docker.png'
 

@@ -1,11 +1,10 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
 import DSDCard from '../common/DSDCard.jsx'
-import {
-  currentVariantAtom,
-  dashboardSettingsAtom,
-  versionAtom,
-  tableSizeAtom,
-} from '../../common/store/atoms'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { dashboardSettingsAtom } from '../../common/store/atoms/foundationAtoms'
+import { versionAtom } from '../../common/store/atoms/dashboardAtoms'
+import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 import { Alert, Badge, Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -32,7 +31,7 @@ function formatLastChecked(isoString) {
  * VersionUpdateComponent shows the current and latest version with an update
  * call-to-action, or explains how to enable version checks when disabled.
  */
-function VersionUpdateComponent() {
+const VersionUpdateComponent = React.memo(function VersionUpdateComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const version = useAtomValue(versionAtom)
@@ -165,6 +164,6 @@ function VersionUpdateComponent() {
       }
     />
   )
-}
+})
 
-export { VersionUpdateComponent }
+export default VersionUpdateComponent

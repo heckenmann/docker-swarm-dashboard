@@ -1,22 +1,23 @@
+import React from 'react'
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { stacksAtom } from '../../common/store/atoms/dashboardAtoms'
 import {
-  currentVariantAtom,
-  stacksAtom,
   localeAtom,
   timeZoneAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
   tableSizeAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
 import { useAtomValue } from 'jotai'
 import { useState, useCallback } from 'react'
 
 // UI & internal imports
 import { Table } from 'react-bootstrap'
-import { StackName } from '../shared/names/StackName'
-import { ServiceName } from '../shared/names/ServiceName'
-import { FilterComponent } from '../shared/FilterComponent'
-import { SortableHeader } from '../shared/SortableHeader.jsx'
+import StackName from '../shared/names/StackName'
+import ServiceName from '../shared/names/ServiceName'
+import FilterComponent from '../shared/FilterComponent'
+import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import DSDCard from '../common/DSDCard.jsx'
 
@@ -25,7 +26,7 @@ import DSDCard from '../common/DSDCard.jsx'
  * Each stack contains a list of services, which are displayed in a table format.
  * The component uses various atoms from Jotai for state management and filtering.
  */
-function StacksComponent() {
+const StacksComponent = React.memo(function StacksComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const locale = useAtomValue(localeAtom)
   const timeZone = useAtomValue(timeZoneAtom)
@@ -198,6 +199,6 @@ function StacksComponent() {
       {stacks}
     </>
   )
-}
+})
 
-export { StacksComponent }
+export default StacksComponent

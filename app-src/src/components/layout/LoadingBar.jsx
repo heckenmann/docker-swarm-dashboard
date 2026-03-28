@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { networkRequestsAtom } from '../../common/store/atoms'
+import { networkRequestsAtom } from '../../common/store/atoms/uiAtoms'
 
 /**
  * LoadingBar: shows a thin progress bar while there are active network requests.
  * It is driven by the `networkRequestsAtom` in the central store.
  */
-function LoadingBar({ force = false }) {
+const LoadingBar = React.memo(function LoadingBar({ force = false }) {
   const [visible, setVisible] = useState(false)
   const [percent, setPercent] = useState(0)
   const timerRef = useRef(null)
@@ -106,6 +107,6 @@ function LoadingBar({ force = false }) {
       <div className="loading-bar-progress" style={{ width: `${percent}%` }} />
     </div>
   )
-}
+})
 
 export default LoadingBar

@@ -1,22 +1,20 @@
+import React, { useState, useCallback } from 'react'
 import { useAtomValue } from 'jotai'
-import {
-  currentVariantAtom,
-  tableSizeAtom,
-  nodeDetailAtom,
-} from '../../../common/store/atoms'
+import { currentVariantAtom } from '../../../common/store/atoms/themeAtoms'
+import { nodeDetailAtom } from '../../../common/store/atoms/navigationAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 import { Table } from 'react-bootstrap'
-import { ServiceName } from '../../shared/names/ServiceName'
+import ServiceName from '../../shared/names/ServiceName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
-import { SortableHeader } from '../../shared/SortableHeader.jsx'
+import SortableHeader from '../../shared/SortableHeader.jsx'
 import { sortData } from '../../../common/sortUtils'
-import { useState, useCallback } from 'react'
 
 /**
  * Sortable tasks table rendered inside the node detail "Tasks" tab.
  * Reads the node detail atom directly to source its tasks.
  */
-function NodeTasksTab() {
+const NodeTasksTab = React.memo(function NodeTasksTab() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const currentNode = useAtomValue(nodeDetailAtom)
@@ -148,6 +146,6 @@ function NodeTasksTab() {
       </tbody>
     </Table>
   )
-}
+})
 
-export { NodeTasksTab }
+export default NodeTasksTab

@@ -1,5 +1,6 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { Alert, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { getCommonChartOptions } from '../../../common/chartUtils'
@@ -10,7 +11,10 @@ import { getCommonChartOptions } from '../../../common/chartUtils'
  * @param {Array<{mode: string, value: number}>} props.cpuData - Per-mode CPU seconds
  * @param {object} props.systemData - System metrics (numCPUs, load1, load5, load15)
  */
-function NodeCpuSection({ cpuData, systemData }) {
+const NodeCpuSection = React.memo(function NodeCpuSection({
+  cpuData,
+  systemData,
+}) {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const commonOpts = getCommonChartOptions(isDarkMode)
   const textColor = isDarkMode ? '#e0e0e0' : '#373d3f'
@@ -152,6 +156,6 @@ function NodeCpuSection({ cpuData, systemData }) {
       </Col>
     </Row>
   )
-}
+})
 
-export { NodeCpuSection }
+export default NodeCpuSection

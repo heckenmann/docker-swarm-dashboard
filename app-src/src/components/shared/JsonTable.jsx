@@ -1,6 +1,7 @@
+import React from 'react'
 import { flatten } from '../../common/utils'
 import { useAtomValue } from 'jotai'
-import { tableSizeAtom } from '../../common/store/atoms'
+import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 import { Table } from 'react-bootstrap'
 
 /**
@@ -10,7 +11,7 @@ import { Table } from 'react-bootstrap'
  * @param {Object} props.json - The JSON object to be displayed in the table.
  * @param {string} [props.variant] - The variant of the table.
  */
-export function JsonTable(props) {
+const JsonTable = React.memo(function JsonTable(props) {
   const tableSize = useAtomValue(tableSizeAtom)
   const flattenConfig = flatten(props.json)
   const rows = Object.keys(flattenConfig).map((node) => {
@@ -48,4 +49,6 @@ export function JsonTable(props) {
       <tbody>{rows}</tbody>
     </Table>
   )
-}
+})
+
+export default JsonTable

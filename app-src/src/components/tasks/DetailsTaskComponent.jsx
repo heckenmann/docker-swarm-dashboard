@@ -1,22 +1,21 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import {
-  currentVariantClassesAtom,
-  taskDetailAtom,
-  baseUrlAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+import { currentVariantClassesAtom } from '../../common/store/atoms/themeAtoms'
+import { taskDetailAtom } from '../../common/store/atoms/navigationAtoms'
+import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { Card, Tabs, Tab } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JsonTable } from '../shared/JsonTable.jsx'
+import JsonTable from '../shared/JsonTable.jsx'
 import { useState, useEffect } from 'react'
-import { TaskInfoTable } from './details/TaskInfoTable.jsx'
-import { TaskMetricsContent } from './details'
+import TaskInfoTable from './details/TaskInfoTable.jsx'
+import TaskMetricsContent from './details/TaskMetricsContent.jsx'
 
 /**
  * Displays full details for a single task: an info table, container metrics
  * charts, a structured table view and a raw JSON tab.
  */
-function DetailsTaskComponent() {
+const DetailsTaskComponent = React.memo(function DetailsTaskComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const baseURL = useAtomValue(baseUrlAtom)
   const view = useAtomValue(viewAtom)
@@ -90,6 +89,6 @@ function DetailsTaskComponent() {
       </Card>
     </div>
   )
-}
+})
 
-export { DetailsTaskComponent }
+export default DetailsTaskComponent

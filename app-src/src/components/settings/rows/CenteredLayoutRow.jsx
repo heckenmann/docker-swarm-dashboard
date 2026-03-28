@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  maxContentWidthAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { maxContentWidthAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * CenteredLayoutRow renders the centered layout setting row.
  */
-function CenteredLayoutRow() {
+const CenteredLayoutRow = React.memo(function CenteredLayoutRow() {
   const [maxContentWidth, setMaxContentWidth] = useAtom(maxContentWidthAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -63,6 +62,6 @@ function CenteredLayoutRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { CenteredLayoutRow }
+export default CenteredLayoutRow

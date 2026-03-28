@@ -1,9 +1,16 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
+import { useState } from 'react'
 import DSDCard from '../common/DSDCard.jsx'
 import {
   baseUrlAtom,
+  dashboardSettingsAtom,
+} from '../../common/store/atoms/foundationAtoms'
+import {
   currentVariantAtom,
   isDarkModeAtom,
+} from '../../common/store/atoms/themeAtoms'
+import {
   tableSizeAtom,
   refreshIntervalAtom,
   showNamesButtonsAtom,
@@ -13,31 +20,29 @@ import {
   hiddenServiceStatesAtom,
   timeZoneAtom,
   localeAtom,
-  dashboardSettingsAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
 import { Table, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useState } from 'react'
 
-import { ApiUrlRow } from './rows/ApiUrlRow'
-import { RefreshIntervalRow } from './rows/RefreshIntervalRow'
-import { DarkModeRow } from './rows/DarkModeRow'
-import { TableSizeRow } from './rows/TableSizeRow'
-import { CenteredLayoutRow } from './rows/CenteredLayoutRow'
-import { ShowNavLabelsRow } from './rows/ShowNavLabelsRow'
-import { ShowNamesButtonsRow } from './rows/ShowNamesButtonsRow'
-import { DefaultLayoutRow } from './rows/DefaultLayoutRow'
-import { HiddenServiceStatesRow } from './rows/HiddenServiceStatesRow'
-import { TimeZoneRow } from './rows/TimeZoneRow'
-import { LocaleRow } from './rows/LocaleRow'
+import ApiUrlRow from './rows/ApiUrlRow'
+import RefreshIntervalRow from './rows/RefreshIntervalRow'
+import DarkModeRow from './rows/DarkModeRow'
+import TableSizeRow from './rows/TableSizeRow'
+import CenteredLayoutRow from './rows/CenteredLayoutRow'
+import ShowNavLabelsRow from './rows/ShowNavLabelsRow'
+import ShowNamesButtonsRow from './rows/ShowNamesButtonsRow'
+import DefaultLayoutRow from './rows/DefaultLayoutRow'
+import HiddenServiceStatesRow from './rows/HiddenServiceStatesRow'
+import TimeZoneRow from './rows/TimeZoneRow'
+import LocaleRow from './rows/LocaleRow'
 
 /**
  * SettingsComponent is a React functional component that renders a settings panel.
  * It allows users to configure various settings such as API URL, refresh interval,
  * dark mode, and table size.
  */
-function SettingsComponent() {
+const SettingsComponent = React.memo(function SettingsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
   const [tableSize, setTableSize] = useAtom(tableSizeAtom)
@@ -192,6 +197,6 @@ services:
       </div>
     </DSDCard>
   )
-}
+})
 
-export { SettingsComponent }
+export default SettingsComponent

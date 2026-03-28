@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { useEffect, useState } from 'react'
+import React from 'react'
 import {
   aboutId,
   dashboardHId,
@@ -17,25 +18,23 @@ import {
   timelineId,
   versionUpdateId,
 } from '../../common/navigationConstants'
-import {
-  dashboardSettingsDefaultLayoutViewIdAtom,
-  viewAtom,
-} from '../../common/store/atoms'
-import { DashboardComponent } from '../dashboard/DashboardComponent'
-import { DashboardVerticalComponent } from '../dashboard/DashboardVerticalComponent'
-import { TimelineComponent } from '../timeline/TimelineComponent.jsx'
-import { DetailsServiceComponent } from '../services/DetailsServiceComponent'
-import { StacksComponent } from '../stacks/StacksComponent'
-import { PortsComponent } from '../ports/PortsComponent'
-import { NodesComponent } from '../nodes/NodesComponent'
-import { DetailsNodeComponent } from '../nodes/DetailsNodeComponent'
-import { TasksComponent } from '../tasks/TasksComponent'
-import { DetailsTaskComponent } from '../tasks/DetailsTaskComponent.jsx'
-import { AboutComponent } from '../misc/AboutComponent'
-import { SettingsComponent } from '../settings/SettingsComponent'
-import { LogsComponent } from '../logs/LogsComponent.jsx'
-import { DebugComponent } from '../misc/DebugComponent'
-import { VersionUpdateComponent } from '../misc/VersionUpdateComponent.jsx'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
+import { dashboardSettingsDefaultLayoutViewIdAtom } from '../../common/store/atoms/dashboardAtoms'
+import DashboardComponent from '../dashboard/DashboardComponent'
+import DashboardVerticalComponent from '../dashboard/DashboardVerticalComponent'
+import TimelineComponent from '../timeline/TimelineComponent.jsx'
+import DetailsServiceComponent from '../services/DetailsServiceComponent'
+import StacksComponent from '../stacks/StacksComponent'
+import PortsComponent from '../ports/PortsComponent'
+import NodesComponent from '../nodes/NodesComponent'
+import DetailsNodeComponent from '../nodes/DetailsNodeComponent'
+import TasksComponent from '../tasks/TasksComponent'
+import DetailsTaskComponent from '../tasks/DetailsTaskComponent.jsx'
+import AboutComponent from '../misc/AboutComponent'
+import SettingsComponent from '../settings/SettingsComponent'
+import LogsComponent from '../logs/LogsComponent.jsx'
+import DebugComponent from '../misc/DebugComponent'
+import VersionUpdateComponent from '../misc/VersionUpdateComponent.jsx'
 
 /**
  * ContentRouter component that determines which view to render
@@ -43,7 +42,7 @@ import { VersionUpdateComponent } from '../misc/VersionUpdateComponent.jsx'
  *
  * @returns {JSX.Element} The component corresponding to the current view ID.
  */
-export function ContentRouter() {
+const ContentRouter = React.memo(function ContentRouter() {
   const getView = useAtomValue(viewAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
@@ -87,4 +86,6 @@ export function ContentRouter() {
       {componentMap[idToRender] || <DashboardComponent />}
     </div>
   )
-}
+})
+
+export default ContentRouter

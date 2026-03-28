@@ -1,5 +1,6 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { Alert, Row, Col, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ReactApexChart from 'react-apexcharts'
@@ -21,7 +22,11 @@ import { buildFSChart } from './fsChart.jsx'
  * @param {boolean} props.metricsLoading - Whether the metrics fetch is in progress
  * @param {string|null} props.metricsError - Error message if the fetch failed
  */
-function TaskMetricsContent({ taskMetrics, metricsLoading, metricsError }) {
+const TaskMetricsContent = React.memo(function TaskMetricsContent({
+  taskMetrics,
+  metricsLoading,
+  metricsError,
+}) {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const commonOpts = getCommonChartOptions(isDarkMode, false)
 
@@ -206,6 +211,6 @@ function TaskMetricsContent({ taskMetrics, metricsLoading, metricsError }) {
       )}
     </>
   )
-}
+})
 
-export { TaskMetricsContent }
+export default TaskMetricsContent

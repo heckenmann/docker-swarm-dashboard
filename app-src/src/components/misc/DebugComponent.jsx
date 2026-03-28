@@ -1,21 +1,22 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
 import DSDCard from '../common/DSDCard.jsx'
 import {
   dashboardHAtom,
-  dashboardSettingsAtom,
   dashboardVAtom,
   nodesAtomNew,
   portsAtom,
   stacksAtom,
   tasksAtomNew,
   versionAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/dashboardAtoms'
+import { dashboardSettingsAtom } from '../../common/store/atoms/foundationAtoms'
 
 /**
  * DebugComponent is a React functional component that displays debugging information.
  * It uses various atoms from Jotai to fetch and display the current state of the application.
  */
-function DebugComponent() {
+const DebugComponent = React.memo(function DebugComponent() {
   const debugJson = {
     dashboardh: useAtomValue(dashboardHAtom),
     dashboardv: useAtomValue(dashboardVAtom),
@@ -49,6 +50,6 @@ function DebugComponent() {
       }
     />
   )
-}
+})
 
-export { DebugComponent }
+export default DebugComponent

@@ -1,3 +1,4 @@
+import React from 'react'
 import { Alert, Row, Col } from 'react-bootstrap'
 import { formatUptime } from '../../../common/formatUtils'
 
@@ -9,7 +10,11 @@ import { formatUptime } from '../../../common/formatUtils'
  * @param {object} props.ntpData - NTP sync data
  * @param {string} props.serverTime - Formatted server time string
  */
-function NodeInfoHeader({ systemData, ntpData, serverTime }) {
+const NodeInfoHeader = React.memo(function NodeInfoHeader({
+  systemData,
+  ntpData,
+  serverTime,
+}) {
   return (
     <Alert variant="secondary" className="mb-3 py-2">
       <Row>
@@ -66,6 +71,6 @@ function NodeInfoHeader({ systemData, ntpData, serverTime }) {
       </Row>
     </Alert>
   )
-}
+})
 
-export { NodeInfoHeader }
+export default NodeInfoHeader

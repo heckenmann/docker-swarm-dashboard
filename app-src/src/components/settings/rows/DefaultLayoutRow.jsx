@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  defaultLayoutAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { defaultLayoutAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { ButtonGroup, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * DefaultLayoutRow renders the default layout setting row.
  */
-function DefaultLayoutRow() {
+const DefaultLayoutRow = React.memo(function DefaultLayoutRow() {
   const [defaultLayout, setDefaultLayout] = useAtom(defaultLayoutAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -74,6 +73,6 @@ function DefaultLayoutRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { DefaultLayoutRow }
+export default DefaultLayoutRow

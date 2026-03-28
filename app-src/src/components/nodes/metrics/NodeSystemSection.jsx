@@ -1,5 +1,7 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom, tableSizeAtom } from '../../../common/store/atoms'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { getCommonChartOptions } from '../../../common/chartUtils'
@@ -12,7 +14,11 @@ import { getCommonChartOptions } from '../../../common/chartUtils'
  * @param {object} props.fdData - File descriptor metrics from node-exporter
  * @param {object} props.systemData - System metrics (context switches, interrupts, etc.)
  */
-function NodeSystemSection({ tcpData, fdData, systemData }) {
+const NodeSystemSection = React.memo(function NodeSystemSection({
+  tcpData,
+  fdData,
+  systemData,
+}) {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const commonOpts = getCommonChartOptions(isDarkMode)
@@ -187,6 +193,6 @@ function NodeSystemSection({ tcpData, fdData, systemData }) {
       </Row>
     </>
   )
-}
+})
 
-export { NodeSystemSection }
+export default NodeSystemSection

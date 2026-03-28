@@ -1,9 +1,10 @@
 import { useAtomValue } from 'jotai'
 import { Card } from 'react-bootstrap'
+import React from 'react'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/themeAtoms'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import LoadingBar from './LoadingBar'
@@ -12,7 +13,7 @@ import LoadingBar from './LoadingBar'
  * LoadingComponent is a functional component that displays a loading spinner
  * with a background and classes based on the current variant.
  */
-function LoadingComponent() {
+const LoadingComponent = React.memo(function LoadingComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   return (
@@ -39,6 +40,6 @@ function LoadingComponent() {
       </Card>
     </div>
   )
-}
+})
 
 export default LoadingComponent

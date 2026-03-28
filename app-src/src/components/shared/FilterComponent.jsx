@@ -1,11 +1,12 @@
+import React from 'react'
 import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import {
-  currentVariantAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
   filterTypeAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
 
 // UI imports
 import {
@@ -24,7 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
  * cubes = Stack) with tooltips. The text input shows an inline ×-clear button
  * that is only rendered when a filter is active.
  */
-function FilterComponent() {
+const FilterComponent = React.memo(function FilterComponent() {
   const variant = useAtomValue(currentVariantAtom)
   const [serviceFilter, setServiceNameFilter] = useAtom(serviceNameFilterAtom)
   const [stackFilter, setStackNameFilter] = useAtom(stackNameFilterAtom)
@@ -102,6 +103,6 @@ function FilterComponent() {
       )}
     </InputGroup>
   )
-}
+})
 
-export { FilterComponent }
+export default FilterComponent
