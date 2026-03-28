@@ -15,7 +15,7 @@ jest.mock('jotai', () => ({
 }))
 
 // Mock showNamesButtonsAtom
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   showNamesButtonsAtom: 'showNamesButtonsAtom'
 }))
 
@@ -35,7 +35,7 @@ describe('Name-related components combined', () => {
       onFilter: mockOnFilter
     })
     
-    const StackName = require('../../../src/components/shared/names/StackName').StackName
+    const StackName = require('../../../src/components/shared/names/StackName').default
     render(React.createElement(StackName, { name: 'stackA' }))
     
     expect(screen.getByText('stackA')).toBeInTheDocument()
@@ -48,31 +48,31 @@ describe('Name-related components combined', () => {
   })
 
   test('ServiceName renders and supports overlay/hide behavior', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(React.createElement(ServiceName, { name: 'svc1', id: 'id1' }))
     
     expect(screen.getByText('svc1')).toBeInTheDocument()
   })
 
   test('NodeName renders and supports overlay/hide behavior', () => {
-    const NodeName = require('../../../src/components/shared/names/NodeName').NodeName
+    const NodeName = require('../../../src/components/shared/names/NodeName').default
     render(React.createElement(NodeName, { name: 'node1', id: 'id1' }))
     
     expect(screen.getByText('node1')).toBeInTheDocument()
   })
 
   test('EntityName renders service name with buttons when showNamesButtons is true', () => {
-    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
+    const EntityName = require('../../../src/components/shared/names/EntityName').default
     render(React.createElement(EntityName, { name: 'entity1', id: 'id1', type: 'service' }))
-    
+
     expect(screen.getByText('entity1')).toBeInTheDocument()
   })
 
   test('EntityName renders service name without buttons when showNamesButtons is false', () => {
     require('jotai').useAtomValue.mockReturnValue(false)
-    const EntityName = require('../../../src/components/shared/names/EntityName').EntityName
+    const EntityName = require('../../../src/components/shared/names/EntityName').default
     render(React.createElement(EntityName, { name: 'entity1', id: 'id1', type: 'service' }))
-    
+
     expect(screen.getByText('entity1')).toBeInTheDocument()
   })
 })

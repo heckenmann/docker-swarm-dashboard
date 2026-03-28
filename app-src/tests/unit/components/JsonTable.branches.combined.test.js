@@ -35,7 +35,7 @@ describe('JsonTable branch coverage via mocked flatten (combined)', () => {
         return '{"ok":1}'
       }
 
-      const { JsonTable } = require('../../../src/components/shared/JsonTable')
+      const { default: JsonTable } = require('../../../src/components/shared/JsonTable')
       render(React.createElement(JsonTable, { json: {} }))
 
       expect(screen.getByText('k.null')).toBeInTheDocument()

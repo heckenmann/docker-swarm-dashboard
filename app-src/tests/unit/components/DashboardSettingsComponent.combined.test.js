@@ -1,30 +1,41 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 
+// Jotai mock - single mock that provides atom for dashboardAtoms.js
+const mockUseAtomValue = jest.fn()
+const mockUseAtom = jest.fn()
+
+jest.mock('jotai', () => ({
+  atom: (fn) => fn,
+  useAtom: (...args) => mockUseAtom(...args),
+  useAtomValue: (...args) => mockUseAtomValue(...args),
+}))
+
 jest.mock('../../../src/common/navigationConstants', () => ({
   dashboardHId: 'dashboardH',
   dashboardVId: 'dashboardV',
 }))
 
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsDefaultLayoutViewIdAtom:
     'dashboardSettingsDefaultLayoutViewIdAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   viewAtom: 'viewAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   serviceNameFilterAtom: 'serviceNameFilterAtom',
   stackNameFilterAtom: 'stackNameFilterAtom',
   filterTypeAtom: 'filterTypeAtom',
 }))
 
-const mockUseAtomValue = jest.fn()
-const mockUseAtom = jest.fn()
-jest.mock('jotai', () => ({
-  useAtomValue: (...args) => mockUseAtomValue(...args),
-  useAtom: (...args) => mockUseAtom(...args),
-}))
-
 const modDash = require('../../../src/components/dashboard/DashboardSettingsComponent')
-const DashboardSettingsComponent =
-  modDash.DashboardSettingsComponent || modDash.default || modDash
+const DashboardSettingsComponent = modDash.default
 
 /** Helper: mount DashboardSettingsComponent with given view and default layout. */
 function setup({ viewId = null, defaultLayout = 'dashboardH' } = {}) {

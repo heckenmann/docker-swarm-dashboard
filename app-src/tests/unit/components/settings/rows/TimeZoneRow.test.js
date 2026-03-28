@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { TimeZoneRow } from '../../../../../src/components/settings/rows/TimeZoneRow'
+import TimeZoneRow from '../../../../../src/components/settings/rows/TimeZoneRow'
 
 const mockUseAtomValue = jest.fn()
 const mockSetTimeZone = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   timeZoneAtom: 'timeZoneAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

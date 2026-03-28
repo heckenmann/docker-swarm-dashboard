@@ -3,9 +3,19 @@
 // with Jotai atoms for service selection, tail, since, follow, and advanced options.
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/foundationAtoms', () => ({
+  createHashAtomWithDefault: (k, d) => d,
+}))
+
+jest.mock('../../../src/common/store/atoms/dashboardAtoms', () => ({
   logsServicesAtom: 'logsServicesAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/logsAtoms', () => ({
   logsFormServiceIdAtom: 'logsFormServiceIdAtom',
   logsFormServiceNameAtom: 'logsFormServiceNameAtom',
   logsFormTailAtom: 'logsFormTailAtom',
@@ -29,12 +39,14 @@ jest.mock('../../../src/common/store/atoms', () => ({
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
+  atom: (v) => v,
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
 jest.mock('../../../src/components/logs/SinceInput', () => ({
-  SinceInput: () => <div data-testid="since-input">SinceInput Mock</div>,
+  __esModule: true,
+  default: () => <div data-testid="since-input">SinceInput Mock</div>,
 }))
 
 jest.mock('../../../src/components/logs/logsUtils', () => ({
@@ -53,7 +65,7 @@ jest.mock('@fortawesome/fontawesome-svg-core', () => ({
 jest.mock('@fortawesome/free-solid-svg-icons', () => ({}))
 
 const modLogsSetup = require('../../../src/components/logs/LogsSetupForm')
-const LogsSetupForm = modLogsSetup.LogsSetupForm || modLogsSetup.default || modLogsSetup
+const LogsSetupForm = modLogsSetup.default
 
 /**
  * Mount LogsSetupForm with controllable setting atoms.
@@ -156,6 +168,42 @@ function renderLogsSetupForm(opts = {}) {
         return services
       case 'currentVariantAtom':
         return currentVariant
+      case 'logsNumberOfLinesAtom':
+        return 20
+      case 'logsMessageMaxLenAtom':
+        return 10000
+      case 'logsWebsocketUrlAtom':
+        return null
+      case 'logsFormServiceIdAtom':
+        return serviceId
+      case 'logsFormServiceNameAtom':
+        return serviceName
+      case 'logsFormTailAtom':
+        return tail
+      case 'logsFormSinceAtom':
+        return since
+      case 'logsFormSinceErrorAtom':
+        return false
+      case 'logsFormSinceAmountAtom':
+        return '1'
+      case 'logsFormSinceUnitAtom':
+        return 'h'
+      case 'logsFormSinceIsISOAtom':
+        return false
+      case 'logsFormShowAdvancedAtom':
+        return showAdvanced
+      case 'logsFormFollowAtom':
+        return follow
+      case 'logsFormTimestampsAtom':
+        return timestamps
+      case 'logsFormStdoutAtom':
+        return stdout
+      case 'logsFormStderrAtom':
+        return stderr
+      case 'logsFormDetailsAtom':
+        return details
+      case 'logsSearchKeywordAtom':
+        return ''
       default:
         return undefined
     }
@@ -599,6 +647,28 @@ describe('LogsSetupForm', () => {
     expect(screen.getByLabelText('Stderr')).toBeInTheDocument()
     expect(screen.getByLabelText('Details')).toBeInTheDocument()
     expect(screen.getByText('Hide advanced options')).toBeInTheDocument()
+  })
+
+  test('renders advanced options with correct dark mode text styling', () => {
+    const services = [{ ID: 'svc-1', Name: 'test-service' }]
+
+    renderLogsSetupForm({ services, showAdvanced: true, currentVariant: 'dark' })
+
+    // Verify Form.Text has correct dark mode class for timestamps help text
+    const timestampsHelpText = screen.getByText('Include timestamps for each log line.')
+    expect(timestampsHelpText).toHaveClass('text-secondary')
+
+    // Verify Form.Text has correct dark mode class for stdout help text
+    const stdoutHelpText = screen.getByText('Include standard output stream (stdout).')
+    expect(stdoutHelpText).toHaveClass('text-secondary')
+
+    // Verify Form.Text has correct dark mode class for stderr help text
+    const stderrHelpText = screen.getByText('Include standard error stream (stderr).')
+    expect(stderrHelpText).toHaveClass('text-secondary')
+
+    // Verify Form.Text has correct dark mode class for details help text
+    const detailsHelpText = screen.getByText(/Include additional metadata\/details/)
+    expect(detailsHelpText).toHaveClass('text-secondary')
   })
 
   test('toggles timestamps checkbox', () => {

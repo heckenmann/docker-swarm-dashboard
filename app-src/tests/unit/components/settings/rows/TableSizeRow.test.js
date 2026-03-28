@@ -4,7 +4,7 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { TableSizeRow } from '../../../../../src/components/settings/rows/TableSizeRow'
+import TableSizeRow from '../../../../../src/components/settings/rows/TableSizeRow'
 
 const mockUseAtom = jest.fn()
 const mockUseAtomValue = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

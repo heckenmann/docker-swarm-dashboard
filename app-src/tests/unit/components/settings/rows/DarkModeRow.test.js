@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { DarkModeRow } from '../../../../../src/components/settings/rows/DarkModeRow'
+import DarkModeRow from '../../../../../src/components/settings/rows/DarkModeRow'
 
 const mockSetIsDarkMode = jest.fn()
 const mockUseAtom = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/themeAtoms', () => ({
   isDarkModeAtom: 'isDarkModeAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

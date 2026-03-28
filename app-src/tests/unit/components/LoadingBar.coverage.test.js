@@ -2,7 +2,17 @@ import React from 'react'
 import { render, screen, act, waitFor } from '@testing-library/react'
 import { Provider } from 'jotai'
 import LoadingBar from '../../../src/components/layout/LoadingBar'
-import * as atoms from '../../../src/common/store/atoms'
+import * as atoms from '../../../src/common/store/atoms/uiAtoms'
+
+jest.mock('jotai', () => ({
+  atom: (v) => v,
+  useAtomValue: jest.fn(),
+  Provider: ({ children }) => children
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
+  networkRequestsAtom: 'networkRequestsAtom',
+}))
 
 jest.useFakeTimers()
 

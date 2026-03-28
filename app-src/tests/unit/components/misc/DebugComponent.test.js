@@ -4,7 +4,7 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { DebugComponent } from '../../../../src/components/misc/DebugComponent'
+import DebugComponent from '../../../../src/components/misc/DebugComponent'
 
 // Mock jotai
 const mockAtomValue = {}
@@ -14,10 +14,16 @@ jest.mock('jotai', () => ({
 }))
 
 // Mock the atom
-jest.mock('../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantClassesAtom: { toString: () => 'currentVariantClassesAtom' },
-  dashboardHAtom: { toString: () => 'dashboardHAtom' },
+}))
+
+jest.mock('../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: { toString: () => 'dashboardSettingsAtom' },
+}))
+
+jest.mock('../../../../src/common/store/atoms/dashboardAtoms', () => ({
+  dashboardHAtom: { toString: () => 'dashboardHAtom' },
   dashboardVAtom: { toString: () => 'dashboardVAtom' },
   nodesAtomNew: { toString: () => 'nodesAtomNew' },
   portsAtom: { toString: () => 'portsAtom' },

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { SortableHeader } from '../../../src/components/shared/SortableHeader'
+import SortableHeader from '../../../src/components/shared/SortableHeader'
 
 // Mock FontAwesomeIcon
 jest.mock('@fortawesome/react-fontawesome', () => ({

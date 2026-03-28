@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 
 // Mock atoms module BEFORE importing the component
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   hiddenServiceStatesAtom: 'hiddenServiceStatesAtom',
   timeZoneAtom: 'timeZoneAtom',
   localeAtom: 'localeAtom',

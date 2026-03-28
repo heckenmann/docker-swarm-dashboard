@@ -3,10 +3,19 @@ import { render, screen, waitFor, act } from '@testing-library/react'
 const ReactApexChartMock = require('../../../__mocks__/react-apexcharts')
 
 // Mock atoms
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/foundationAtoms', () => ({
   baseUrlAtom: 'baseUrlAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   isDarkModeAtom: 'isDarkModeAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   viewAtom: 'viewAtom',
 }))
 
@@ -18,7 +27,7 @@ jest.mock('jotai', () => ({
 }))
 
 const mod = require('../../../src/components/nodes/NodeMetricsComponent')
-const NodeMetricsComponent = mod.NodeMetricsComponent || mod.default || mod
+const NodeMetricsComponent = mod.default
 
 // Helpers
 const baseAtomValues = (isDarkMode = false) => (atom) => {

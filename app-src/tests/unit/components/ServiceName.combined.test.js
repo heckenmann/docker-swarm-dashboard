@@ -17,18 +17,24 @@ jest.mock('jotai', () => ({
 const mockShowNamesButtonsAtom = { toString: () => 'showNamesButtonsAtom' }
 
 // Mock showNamesButtonsAtom
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   showNamesButtonsAtom: { toString: () => 'showNamesButtonsAtom' },
+}))
+
+jest.mock('../../../src/common/store/atoms/logsAtoms', () => ({
   logsFormServiceIdAtom: { toString: () => 'logsFormServiceIdAtom' },
   logsFormServiceNameAtom: { toString: () => 'logsFormServiceNameAtom' },
   logsConfigAtom: { toString: () => 'logsConfigAtom' },
   logsShowLogsAtom: { toString: () => 'logsShowLogsAtom' },
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   viewAtom: { toString: () => 'viewAtom' },
 }))
 
 describe('ServiceName component combined', () => {
   test('ServiceName renders and supports overlay/hide behavior', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     const { queryByTitle, rerender } = render(
       <Provider>
         {React.createElement(ServiceName, { name: 'svc1', id: 'id1' })}
@@ -56,7 +62,7 @@ describe('ServiceName component combined', () => {
   })
 
   test('ServiceName renders with default props', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, { name: 'my-service', id: 'svc-123' })}
@@ -70,7 +76,7 @@ describe('ServiceName component combined', () => {
   })
 
   test('ServiceName renders service name correctly', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     const { container } = render(
       <Provider>
         {React.createElement(ServiceName, {
@@ -85,7 +91,7 @@ describe('ServiceName component combined', () => {
   })
 
   test('ServiceName shows action buttons when showNamesButtonsAtom is true', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, { name: 'test-service', id: 'test-id' })}
@@ -100,7 +106,7 @@ describe('ServiceName component combined', () => {
     // Mock showNamesButtonsAtom to return false
     mockUseAtomValueReturn = false
     
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, { name: 'test-service', id: 'test-id' })}
@@ -120,7 +126,7 @@ describe('ServiceName component combined', () => {
     jest
       .spyOn(entityActions, 'useEntityActions')
       .mockReturnValue({ onOpen: jest.fn(), onFilter })
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, { name: 'filterable-svc', id: 'filter-1' })}
@@ -133,7 +139,7 @@ describe('ServiceName component combined', () => {
 
   test('ServiceName shows action buttons when showNamesButtonsAtom is true (isolated)', () => {
     // Real jotai: showNamesButtonsAtom defaults to true — buttons are shown without any mocking
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, { name: 'visible-svc', id: 'vid-1' })}
@@ -149,7 +155,7 @@ describe('ServiceName component combined', () => {
   // Note: ServiceName always shows logs button (showLogs is hardcoded to true in ServiceName)
   // The showLogs prop is not exposed in ServiceName - it's always true
   test('ServiceName always shows logs button (showLogs is hardcoded to true)', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, { name: 'log-svc', id: 'log-1' })}
@@ -160,7 +166,7 @@ describe('ServiceName component combined', () => {
 
   // ---- Edge cases ----
   test('ServiceName with overlay hides open/filter but shows logs', () => {
-    const ServiceName = require('../../../src/components/shared/names/ServiceName').ServiceName
+    const ServiceName = require('../../../src/components/shared/names/ServiceName').default
     render(
       <Provider>
         {React.createElement(ServiceName, {

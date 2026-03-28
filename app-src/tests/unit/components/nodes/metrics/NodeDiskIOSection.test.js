@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import { NodeDiskIOSection } from '../../../../../src/components/nodes/metrics/NodeDiskIOSection'
+import NodeDiskIOSection from '../../../../../src/components/nodes/metrics/NodeDiskIOSection'
 
 // Mock jotai - provide atoms
 jest.mock('jotai', () => ({
@@ -11,7 +11,7 @@ jest.mock('jotai', () => ({
   atom: jest.fn((v) => v),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/themeAtoms', () => ({
   isDarkModeAtom: { toString: () => 'isDarkModeAtom' },
   tableSizeAtom: { toString: () => 'tableSizeAtom' },
 }))

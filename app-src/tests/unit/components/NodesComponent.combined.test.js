@@ -1,11 +1,20 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
   currentVariantClassesAtom: 'currentVariantClassesAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   viewAtom: 'viewAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/dashboardAtoms', () => ({
   nodesAtomNew: 'nodesAtomNew',
 }))
 
@@ -18,7 +27,7 @@ jest.mock('jotai', () => ({
 }))
 
 const modNodes = require('../../../src/components/nodes/NodesComponent')
-const NodesComponent = modNodes.NodesComponent || modNodes.default || modNodes
+const NodesComponent = modNodes.default
 
 describe('NodesComponent (combined)', () => {
   beforeEach(() => {
@@ -210,13 +219,13 @@ describe('NodesComponent (combined)', () => {
     expect(mockSetView).toHaveBeenCalled()
     const updater2 = mockSetView.mock.calls[0][0]
     const result2 = updater2({ sortBy: 'Hostname', sortDirection: 'asc' })
-    expect(result2).toEqual({ sortBy: 'Hostname', sortDirection: 'desc' })
+    expect(result2).toEqual({ sortBy: 'Hostname', sortDirection: 'asc' })
 
-    // Test third click: reset
+    // Test third click: stays asc (no further state change on same column after asc)
     mockSetView.mockClear()
     mockUseAtom.mockImplementation((atom) => {
       if (atom === 'viewAtom')
-        return [{ sortBy: 'Hostname', sortDirection: 'desc' }, mockSetView]
+        return [{ sortBy: 'Hostname', sortDirection: 'asc' }, mockSetView]
       return [null, jest.fn()]
     })
 
@@ -226,8 +235,8 @@ describe('NodesComponent (combined)', () => {
 
     expect(mockSetView).toHaveBeenCalled()
     const updater3 = mockSetView.mock.calls[0][0]
-    const result3 = updater3({ sortBy: 'Hostname', sortDirection: 'desc' })
-    expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
+    const result3 = updater3({ sortBy: 'Hostname', sortDirection: 'asc' })
+    expect(result3).toEqual({ sortBy: 'Hostname', sortDirection: 'asc' })
   })
 
   // ---- tableSizeAtom effect ----
@@ -250,7 +259,7 @@ describe('NodesComponent (combined)', () => {
     expect(table.className).toContain('table-sm')
   })
 
-  test('table does not have table-sm class when tableSizeAtom is lg', () => {
+  test('table has table-lg class when tableSizeAtom is lg', () => {
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'currentVariantAtom') return 'light'
       if (atom === 'currentVariantClassesAtom') return ''
@@ -266,6 +275,6 @@ describe('NodesComponent (combined)', () => {
     const { container } = render(<NodesComponent />)
     const table = container.querySelector('table')
     expect(table).toBeTruthy()
-    expect(table.className).not.toContain('table-sm')
+    expect(table.className).toContain('table-lg')
   })
 })

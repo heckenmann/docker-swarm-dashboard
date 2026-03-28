@@ -1,17 +1,20 @@
 import { render, screen } from '@testing-library/react'
 const modTaskInfoTable = require('../../../src/components/tasks/details/TaskInfoTable')
-const TaskInfoTable =
-  modTaskInfoTable.TaskInfoTable || modTaskInfoTable.default || modTaskInfoTable
+const TaskInfoTable = modTaskInfoTable.default
 
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
   currentVariantClassesAtom: 'currentVariantClassesAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
+  atom: (v) => v,
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
 }))
@@ -46,11 +49,11 @@ describe('TaskInfoTable (combined)', () => {
       Status: { State: 'running' },
     }
 
-    const { rerender, container } = render(<TaskInfoTable taskObj={taskObj} />)
+    const { rerender, container, unmount } = render(<TaskInfoTable taskObj={taskObj} />)
     const table = container.querySelector('table')
     expect(table).toHaveClass('table-sm')
 
-    // Test with 'lg' size
+    // Test with 'lg' size - need to unmount and remount to force re-render since React.memo skips re-render
     mockUseAtomValue.mockImplementation((atom) => {
       switch (atom) {
         case 'currentVariantAtom':
@@ -64,8 +67,10 @@ describe('TaskInfoTable (combined)', () => {
       }
     })
 
-    rerender(<TaskInfoTable taskObj={taskObj} />)
-    expect(table).not.toHaveClass('table-sm')
+    unmount()
+    const { container: container2 } = render(<TaskInfoTable taskObj={taskObj} />)
+    const tableLg = container2.querySelector('table')
+    expect(tableLg).toHaveClass('table-lg')
   })
 
   test('shouldShowSlot returns false for null', () => {

@@ -3,6 +3,7 @@ import { render } from '@testing-library/react'
 
 // Mock Jotai atoms
 jest.mock('jotai', () => ({
+  atom: (v) => v,
   useAtomValue: jest.fn((atom) => {
     if (atom === 'currentVariantAtom') return 'light'
     return null
@@ -11,7 +12,7 @@ jest.mock('jotai', () => ({
 }))
 
 // Mock atoms
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom'
 }))
 

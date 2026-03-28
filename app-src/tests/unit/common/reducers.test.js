@@ -45,5 +45,11 @@ describe('MessageReducer', () => {
       'unknown action type',
     )
   })
+
+  test('uses default prev when undefined', () => {
+    // Exercise the default parameter branch (prev = [])
+    const result = MessageReducer(undefined, { type: 'add', value: 'a' })
+    expect(result).toEqual(['a'])
+  })
 })
 

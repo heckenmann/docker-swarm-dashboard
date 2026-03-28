@@ -12,19 +12,19 @@ jest.mock('jotai', () => ({
 }))
 
 // Mock tableSizeAtom
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   tableSizeAtom: 'tableSizeAtom'
 }))
 
 describe('JsonTable combined', () => {
   test('renders with empty data', () => {
-    const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
+    const JsonTable = require('../../../src/components/shared/JsonTable').default
     const { container } = render(React.createElement(JsonTable, { json: {} }))
     expect(container).toBeTruthy()
   })
 
   test('renders table from json', () => {
-    const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
+    const JsonTable = require('../../../src/components/shared/JsonTable').default
     const data = { x: { y: 'z' }, n: 1 }
     render(React.createElement(JsonTable, { json: data }))
     expect(screen.getByText('Key')).toBeInTheDocument()
@@ -55,7 +55,7 @@ describe('JsonTable combined', () => {
         return origStringify(obj)
       }
 
-      const JsonTable = require('../../../src/components/shared/JsonTable').JsonTable
+      const JsonTable = require('../../../src/components/shared/JsonTable').default
       const data = { k: { null: null, obj: { a: 1 }, bad: { b: 2 } } }
       render(React.createElement(JsonTable, { json: data }))
       
