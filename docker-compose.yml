@@ -3,6 +3,7 @@ networks:
     driver: overlay
 
 services:
+  # Main dashboard application
   docker-swarm-dashboard:
     image: ghcr.io/heckenmann/docker-swarm-dashboard:master
     deploy:
@@ -16,9 +17,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       DSD_VERSION_CHECK_ENABLED: 'true'
-      DSD_DARK_MODE: 'true'
     networks:
       - dashboard-network
+  # Prometheus node-exporter for node metrics
   node-exporter:
     image: prom/node-exporter:latest
     deploy:
@@ -33,5 +34,19 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - dashboard-network
+  # Google cadvisor for container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    deploy:
+      mode: global
+      labels:
+        - "dsd.cadvisor=true"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - dashboard-network
