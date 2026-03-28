@@ -1,5 +1,7 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom, tableSizeAtom } from '../../../common/store/atoms'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { getCommonChartOptions } from '../../../common/chartUtils'
@@ -11,7 +13,9 @@ import { formatBytes } from '../../../common/formatUtils'
  * @param {object} props
  * @param {Array} props.diskIOData - Disk I/O metrics from node-exporter
  */
-function NodeDiskIOSection({ diskIOData }) {
+const NodeDiskIOSection = React.memo(function NodeDiskIOSection({
+  diskIOData,
+}) {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const commonOpts = getCommonChartOptions(isDarkMode)
@@ -126,6 +130,6 @@ function NodeDiskIOSection({ diskIOData }) {
       )}
     </>
   )
-}
+})
 
-export { NodeDiskIOSection }
+export default NodeDiskIOSection

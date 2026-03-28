@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { CenteredLayoutRow } from '../../../../../src/components/settings/rows/CenteredLayoutRow'
+import CenteredLayoutRow from '../../../../../src/components/settings/rows/CenteredLayoutRow'
 
 const mockSetMaxContentWidth = jest.fn()
 const mockUseAtom = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   maxContentWidthAtom: 'maxContentWidthAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

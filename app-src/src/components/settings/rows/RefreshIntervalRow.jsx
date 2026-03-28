@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  refreshIntervalAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { refreshIntervalAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { ButtonGroup, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * RefreshIntervalRow renders the refresh interval setting row.
  */
-function RefreshIntervalRow() {
+const RefreshIntervalRow = React.memo(function RefreshIntervalRow() {
   const [refreshInterval, setRefreshInterval] = useAtom(refreshIntervalAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -73,6 +72,6 @@ function RefreshIntervalRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { RefreshIntervalRow }
+export default RefreshIntervalRow

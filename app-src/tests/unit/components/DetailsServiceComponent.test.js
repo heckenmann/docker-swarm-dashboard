@@ -1,28 +1,55 @@
 // Combined tests for DetailsServiceComponent
 import { render, screen, waitFor } from '@testing-library/react'
 
-// Mock atoms
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
   currentVariantClassesAtom: 'currentVariantClassesAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   serviceDetailAtom: 'serviceDetailAtom',
-  baseUrlAtom: 'baseUrlAtom',
   viewAtom: 'viewAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/foundationAtoms', () => ({
+  baseUrlAtom: 'baseUrlAtom',
+  createHashAtomWithDefault: (key, defaultAtom) => defaultAtom,
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
+  showWelcomeMessageAtom: true,
+  networkRequestsAtom: 0,
+  tableSizeAtom: 'tableSizeAtom',
+  serviceNameFilterAtom: 'serviceNameFilterAtom',
+  stackNameFilterAtom: 'stackNameFilterAtom',
+  hiddenServiceStatesAtom: 'hiddenServiceStatesAtom',
+  refreshIntervalAtom: null,
+  filterTypeAtom: 'filterTypeAtom',
+  showNamesButtonsAtom: 'showNamesButtonsAtom',
+  showNavLabelsAtom: 'showNavLabelsAtom',
+  maxContentWidthAtom: 'maxContentWidthAtom',
+  defaultLayoutAtom: 'defaultLayoutAtom',
+  timeZoneAtom: 'timeZoneAtom',
+  localeAtom: 'localeAtom',
+  baseUrlDefaultAtom: 'baseUrlDefaultAtom',
 }))
 
 // Mock components
 jest.mock('../../../src/components/shared/JsonTable', () => ({
-  JsonTable: () => <div data-testid="json-table">JsonTable Mock</div>,
+  __esModule: true,
+  default: () => <div data-testid="json-table">JsonTable Mock</div>,
 }))
 
 jest.mock('../../../src/components/services/ServiceMetricsComponent', () => ({
-  ServiceMetricsComponent: ({ serviceId }) => (
+  __esModule: true,
+  default: ({ serviceId }) => (
     <div data-testid="service-metrics">ServiceMetrics: {serviceId}</div>
   ),
 }))
 
 jest.mock('../../../src/components/shared/names/NodeName', () => ({
-  NodeName: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
+  __esModule: true,
+  default: ({ name, id }) => <span data-testid="node-name">{name || id}</span>,
 }))
 
 jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
@@ -33,7 +60,15 @@ jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
 }))
 
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
-  SortableHeader: ({ label, column }) => (
+  __esModule: true,
+  default: ({ children, onSort, ...props }) => (
+    <th {...props}>{children}</th>
+  ),
+}))
+
+jest.mock('../../../src/components/shared/SortableHeader', () => ({
+  __esModule: true,
+  default: ({ label, column }) => (
     <th data-testid={`header-${column}`}>{label}</th>
   ),
 }))

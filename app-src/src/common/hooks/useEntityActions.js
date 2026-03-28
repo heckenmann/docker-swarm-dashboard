@@ -16,8 +16,8 @@ import {
   serviceNameFilterAtom,
   stackNameFilterAtom,
   filterTypeAtom,
-  viewAtom,
-} from '../store/atoms'
+} from '../store/atoms/uiAtoms'
+import { viewAtom } from '../store/atoms/navigationAtoms'
 import {
   servicesDetailId,
   nodesDetailId,

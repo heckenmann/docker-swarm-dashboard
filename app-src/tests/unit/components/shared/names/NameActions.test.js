@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { NameActions } from '../../../../../src/components/shared/names/NameActions'
+import NameActions from '../../../../../src/components/shared/names/NameActions'
 
 // Mock FontAwesomeIcon
 jest.mock('@fortawesome/react-fontawesome', () => ({

@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  hiddenServiceStatesAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { hiddenServiceStatesAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { Dropdown, FormControl, Badge, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * HiddenServiceStatesRow renders the hidden service states setting row.
  */
-function HiddenServiceStatesRow() {
+const HiddenServiceStatesRow = React.memo(function HiddenServiceStatesRow() {
   const [hiddenServiceStates, setHiddenServiceStates] = useAtom(
     hiddenServiceStatesAtom,
   )
@@ -136,6 +135,6 @@ function HiddenServiceStatesRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { HiddenServiceStatesRow }
+export default HiddenServiceStatesRow

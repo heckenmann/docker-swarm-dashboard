@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  tableSizeAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { ButtonGroup, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * TableSizeRow renders the table size setting row.
  */
-function TableSizeRow() {
+const TableSizeRow = React.memo(function TableSizeRow() {
   const [tableSize, setTableSize] = useAtom(tableSizeAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -66,6 +65,6 @@ function TableSizeRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { TableSizeRow }
+export default TableSizeRow

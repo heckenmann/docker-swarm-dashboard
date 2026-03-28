@@ -6,6 +6,7 @@ const {
   createMemoryDonutOptions,
   buildMemoryCharts,
 } = require('../../../../../src/components/tasks/details/MemoryCharts.jsx')
+const { formatBytesCompact } = require('../../../../../src/common/formatUtils')
 
 describe('memoryCharts', () => {
   describe('calculateMemoryMetrics', () => {
@@ -116,6 +117,25 @@ describe('memoryCharts', () => {
       
       expect(options.theme.mode).toBe('dark')
     })
+
+    test('creates options with dataLabels formatter', () => {
+      const m = { limit: 1000, usage: 500 }
+      const options = createMemoryDonutOptions(m, commonOpts, formatBytes)
+
+      // Verify dataLabels formatter exists and produces correct output
+      expect(options.dataLabels).toBeDefined()
+      expect(options.dataLabels.formatter(50)).toBe('50.0%')
+      expect(options.dataLabels.formatter(0)).toBe('0.0%')
+      expect(options.dataLabels.formatter(100)).toBe('100.0%')
+    })
+
+    test('creates options with formatter using 0 usage', () => {
+      const m = { limit: 1000, usage: 0 }
+      const options = createMemoryDonutOptions(m, commonOpts, formatBytes)
+      
+      // formatter uses limit (1000) since limit > 0
+      expect(options.plotOptions.pie.donut.labels.total.formatter()).toBe('1000 B')
+    })
   })
 
   describe('buildMemoryCharts', () => {
@@ -205,6 +225,38 @@ describe('memoryCharts', () => {
       const result = buildMemoryCharts(m, commonOpts, false)
       
       expect(result.memGaugeSeries).toEqual([0])
+    })
+
+    test('memory gauge formatter produces valid output', () => {
+      const m = {
+        usagePercent: 50,
+        memoryCache: 100,
+        workingSet: 200,
+        usage: 500,
+        limit: 1000
+      }
+      const result = buildMemoryCharts(m, commonOpts, false)
+      
+      // The formatter should produce a valid percentage string
+      // dataLabels is nested inside plotOptions.radialBar
+      const formatter = result.memGaugeOptions.plotOptions.radialBar.dataLabels.value.formatter
+      expect(formatter(50)).toBe('50.0%')
+      expect(formatter(0)).toBe('0.0%')
+      expect(formatter(100)).toBe('100.0%')
+    })
+
+    test('memory donut formatter produces valid output', () => {
+      const m = {
+        memoryCache: 100,
+        workingSet: 200,
+        usage: 500,
+        limit: 1000
+      }
+      const result = createMemoryDonutOptions(m, commonOpts, formatBytesCompact)
+      
+      // The formatter should produce a valid bytes string
+      const formatter = result.plotOptions.pie.donut.labels.total.formatter
+      expect(formatter()).toBe('1000 B')
     })
   })
 })

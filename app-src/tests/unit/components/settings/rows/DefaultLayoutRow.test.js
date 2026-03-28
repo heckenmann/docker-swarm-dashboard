@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { DefaultLayoutRow } from '../../../../../src/components/settings/rows/DefaultLayoutRow'
+import DefaultLayoutRow from '../../../../../src/components/settings/rows/DefaultLayoutRow'
 
 const mockUseAtomValue = jest.fn()
 const mockSetDefaultLayout = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   defaultLayoutAtom: 'defaultLayoutAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

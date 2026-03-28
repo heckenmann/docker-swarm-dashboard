@@ -1,4 +1,5 @@
-import { EntityName } from './EntityName'
+import React from 'react'
+import EntityName from './EntityName'
 
 /**
  * NodeName
@@ -15,7 +16,13 @@ import { EntityName } from './EntityName'
  * @param {string} [props.nameClass]
  */
 
-function NodeName({ name, id, showOpen = true, size = 'sm', nameClass = '' }) {
+const NodeName = React.memo(function NodeName({
+  name,
+  id,
+  showOpen = true,
+  size = 'sm',
+  nameClass = '',
+}) {
   if (!name) return null
   const nameNode = <span className={nameClass ? nameClass : ''}>{name}</span>
   return (
@@ -30,6 +37,6 @@ function NodeName({ name, id, showOpen = true, size = 'sm', nameClass = '' }) {
       entityType="node"
     />
   )
-}
+})
 
-export { NodeName }
+export default NodeName

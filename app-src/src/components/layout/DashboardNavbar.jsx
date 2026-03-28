@@ -1,19 +1,24 @@
 import logo from '../../assets/docker.png'
+import React from 'react'
 import { useEffect } from 'react'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { dashboardSettingsAtom } from '../../common/store/atoms/foundationAtoms'
+import { dashboardSettingsDefaultLayoutViewIdAtom } from '../../common/store/atoms/dashboardAtoms'
 import {
-  currentVariantAtom,
-  dashboardSettingsAtom,
-  dashboardSettingsDefaultLayoutViewIdAtom,
   logsConfigAtom,
   logsShowLogsAtom,
+} from '../../common/store/atoms/logsAtoms'
+import {
   maxContentWidthAtom,
   refreshIntervalAtom,
   showNavLabelsAtom,
+} from '../../common/store/atoms/uiAtoms'
+import {
   versionAtom,
   versionRefreshAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/dashboardAtoms'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   Navbar,
@@ -43,7 +48,7 @@ import {
  * DashboardNavbar component renders the navigation bar for the dashboard.
  * It includes various navigation links and a refresh button.
  */
-function DashboardNavbar() {
+const DashboardNavbar = React.memo(function DashboardNavbar() {
   const [refreshInterval, toggleRefresh] = useAtom(
     refreshIntervalAtom,
     RefreshIntervalToggleReducer,
@@ -331,8 +336,8 @@ function DashboardNavbar() {
       </Navbar>
     </>
   )
-}
+})
 
 // Refresh toasts removed per UX: do not show a toast when the manual refresh button is pressed.
 
-export { DashboardNavbar }
+export default DashboardNavbar

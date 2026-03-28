@@ -1,14 +1,15 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Row, Col, Form, Button, ButtonGroup } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import {
-  currentVariantAtom,
   logsFormSinceAtom,
   logsFormSinceAmountAtom,
   logsFormSinceUnitAtom,
   logsFormSinceIsISOAtom,
   logsFormSinceErrorAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/logsAtoms'
 import { isValidSince } from './logsUtils'
 
 /**
@@ -16,7 +17,7 @@ import { isValidSince } from './logsUtils'
  * Supports duration mode (amount + unit selectors + presets) and ISO timestamp mode.
  * Reads and writes Jotai atoms directly; no props required.
  */
-function SinceInput() {
+const SinceInput = React.memo(function SinceInput() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const [since, setSince] = useAtom(logsFormSinceAtom)
   const [sinceAmount, setSinceAmount] = useAtom(logsFormSinceAmountAtom)
@@ -155,8 +156,8 @@ function SinceInput() {
       </Col>
     </Form.Group>
   )
-}
+})
 
 SinceInput.propTypes = {}
 
-export { SinceInput }
+export default SinceInput

@@ -1,13 +1,16 @@
+import React from 'react'
 import {
   currentVariantAtom,
-  dashboardHAtom,
-  hiddenServiceStatesAtom,
   isDarkModeAtom,
+} from '../../common/store/atoms/themeAtoms'
+import { dashboardHAtom } from '../../common/store/atoms/dashboardAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
+import {
+  hiddenServiceStatesAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
   tableSizeAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   servicesDetailId,
@@ -17,10 +20,10 @@ import { serviceFilter } from '../../common/utils'
 import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import DSDCard from '../common/DSDCard'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NodeName } from '../shared/names/NodeName'
-import { ServiceName } from '../shared/names/ServiceName'
+import NodeName from '../shared/names/NodeName'
+import ServiceName from '../shared/names/ServiceName'
 import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
-import { DashboardSettingsComponent } from './DashboardSettingsComponent'
+import DashboardSettingsComponent from './DashboardSettingsComponent'
 
 /**
  * DashboardComponent
@@ -28,7 +31,7 @@ import { DashboardSettingsComponent } from './DashboardSettingsComponent'
  * Keys are defensive: coerced to string with fallbacks to avoid duplicate or
  * malformed object keys.
  */
-function DashboardComponent() {
+const DashboardComponent = React.memo(function DashboardComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const isDarkMode = useAtomValue(isDarkModeAtom)
@@ -370,6 +373,6 @@ function DashboardComponent() {
       </div>
     </DSDCard>
   )
-}
+})
 
-export { DashboardComponent }
+export default DashboardComponent

@@ -1,23 +1,24 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
-  serviceDetailAtom,
-  baseUrlAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/themeAtoms'
+import { serviceDetailAtom } from '../../common/store/atoms/navigationAtoms'
+import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { Card, Tabs, Tab } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JsonTable } from '../shared/JsonTable.jsx'
+import JsonTable from '../shared/JsonTable.jsx'
 import { useState, useEffect } from 'react'
-import { ServiceMetricsComponent } from './ServiceMetricsComponent'
-import { ServiceTasksTab } from './details/ServiceTasksTab'
+import ServiceMetricsComponent from './ServiceMetricsComponent'
+import ServiceTasksTab from './details/ServiceTasksTab'
 
 /**
  * Displays full details for a service: metrics, tasks table with per-task
  * metrics, a structured table view and a raw JSON tab.
  */
-function DetailsServiceComponent() {
+const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const baseURL = useAtomValue(baseUrlAtom)
@@ -136,6 +137,6 @@ function DetailsServiceComponent() {
       </Card.Body>
     </Card>
   )
-}
+})
 
-export { DetailsServiceComponent }
+export default DetailsServiceComponent

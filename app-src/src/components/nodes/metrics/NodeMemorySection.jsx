@@ -1,5 +1,6 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { Alert, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { getCommonChartOptions } from '../../../common/chartUtils'
@@ -11,7 +12,9 @@ import { formatBytes } from '../../../common/formatUtils'
  * @param {object} props
  * @param {object} props.memoryData - Memory metrics from node-exporter
  */
-function NodeMemorySection({ memoryData }) {
+const NodeMemorySection = React.memo(function NodeMemorySection({
+  memoryData,
+}) {
   const isDarkMode = useAtomValue(isDarkModeAtom)
   const commonOpts = getCommonChartOptions(isDarkMode)
 
@@ -117,6 +120,6 @@ function NodeMemorySection({ memoryData }) {
       </Col>
     </Row>
   )
-}
+})
 
-export { NodeMemorySection }
+export default NodeMemorySection

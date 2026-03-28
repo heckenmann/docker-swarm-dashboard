@@ -36,7 +36,7 @@ describe('Task Details Tests', () => {
           // Verify task details view is shown
           cy.contains('Task Details', { timeout: 5000 }).should('be.visible')
         } else {
-          cy.log('No badges on vertical dashboard; skipping badge click assertion')
+          cy.log('No badges on horizontal dashboard; skipping badge click assertion')
         }
       })
     })
@@ -44,22 +44,9 @@ describe('Task Details Tests', () => {
 
   it('opens task details by clicking task badge in v-dashboard', () => {
     visitBaseUrlAndTest(() => {
-      // Navigate to Dashboard Vertical (try nav link/button, fallback to direct hash)
-      cy.get('a,button')
-        .then(($els) => {
-          const found = Array.from($els).find((el) =>
-            el.textContent && /dashboard vertical/i.test(el.textContent),
-          )
-          if (found) {
-            cy.wrap(found).click({ force: true })
-            cy.wait(300)
-          } else {
-            const encoded = encodeURIComponent(`http://localhost:3001/dashboard/v`)
-            cy.visit(`#base="${encoded}"`)
-            cy.wait(300)
-          }
-        })
-      cy.get('.card', { timeout: 5000 }).should('exist')
+      cy.get('a[aria-label="Dashboard"]').click()
+      cy.get('main').within(() => { cy.get('button').eq(1).click() })
+      cy.wait(300)
 
       // Find and click a task badge if present, otherwise skip this interaction
       cy.get('body').then(($body) => {

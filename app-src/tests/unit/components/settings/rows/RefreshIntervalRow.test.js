@@ -4,7 +4,7 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { RefreshIntervalRow } from '../../../../../src/components/settings/rows/RefreshIntervalRow'
+import RefreshIntervalRow from '../../../../../src/components/settings/rows/RefreshIntervalRow'
 
 const mockUseAtom = jest.fn()
 const mockUseAtomValue = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   refreshIntervalAtom: 'refreshIntervalAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

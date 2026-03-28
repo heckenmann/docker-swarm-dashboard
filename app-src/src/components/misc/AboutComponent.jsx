@@ -1,11 +1,10 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DSDCard from '../common/DSDCard.jsx'
-import {
-  currentVariantAtom,
-  versionAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { versionAtom } from '../../common/store/atoms/dashboardAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { debugId } from '../../common/navigationConstants'
 import { Table, Button } from 'react-bootstrap'
 
@@ -13,7 +12,7 @@ import { Table, Button } from 'react-bootstrap'
  * AboutComponent is a functional component that displays information about the Docker Swarm Dashboard project.
  * It includes project links, acknowledgments, and tools used in the project.
  */
-function AboutComponent() {
+const AboutComponent = React.memo(function AboutComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const version = useAtomValue(versionAtom)
 
@@ -133,6 +132,6 @@ function AboutComponent() {
       }
     />
   )
-}
+})
 
-export { AboutComponent }
+export default AboutComponent

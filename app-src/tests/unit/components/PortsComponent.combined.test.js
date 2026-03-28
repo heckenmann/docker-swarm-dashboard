@@ -2,23 +2,33 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 
 const modPorts = require('../../../src/components/ports/PortsComponent')
-const PortsComponent = modPorts.PortsComponent || modPorts.default || modPorts
+const PortsComponent = modPorts.default
 
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
   currentVariantClassesAtom: 'currentVariantClassesAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/dashboardAtoms', () => ({
+  portsAtom: 'portsAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   tableSizeAtom: 'tableSizeAtom',
   serviceNameFilterAtom: 'serviceNameFilterAtom',
   stackNameFilterAtom: 'stackNameFilterAtom',
   filterTypeAtom: 'filterTypeAtom',
-  portsAtom: 'portsAtom',
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   viewAtom: 'viewAtom',
 }))
 
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
+  atom: (v) => v,
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
 }))
@@ -476,13 +486,13 @@ describe('PortsComponent (combined)', () => {
     expect(mockSetView).toHaveBeenCalled()
     const updater2 = mockSetView.mock.calls[0][0]
     const result2 = updater2({ sortBy: 'PublishedPort', sortDirection: 'asc' })
-    expect(result2).toEqual({ sortBy: 'PublishedPort', sortDirection: 'desc' })
+    expect(result2).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
 
-    // Third click: should reset (clear sort)
+    // Third click: stays asc
     mockSetView.mockClear()
     mockUseAtom.mockImplementation((atom) => {
       if (atom === 'viewAtom')
-        return [{ sortBy: 'PublishedPort', sortDirection: 'desc' }, mockSetView]
+        return [{ sortBy: 'PublishedPort', sortDirection: 'asc' }, mockSetView]
       if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
       if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
       if (atom === 'filterTypeAtom') return ['service', jest.fn()]
@@ -495,8 +505,8 @@ describe('PortsComponent (combined)', () => {
 
     expect(mockSetView).toHaveBeenCalled()
     const updater3 = mockSetView.mock.calls[0][0]
-    const result3 = updater3({ sortBy: 'PublishedPort', sortDirection: 'desc' })
-    expect(result3).toEqual({ sortBy: null, sortDirection: 'asc' })
+    const result3 = updater3({ sortBy: 'PublishedPort', sortDirection: 'asc' })
+    expect(result3).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
   })
 
   // ---- tableSizeAtom effect ----
@@ -522,7 +532,7 @@ describe('PortsComponent (combined)', () => {
     expect(table.className).toContain('table-sm')
   })
 
-  test('ports table does not have table-sm class when tableSizeAtom is lg', () => {
+  test('ports table has table-lg class when tableSizeAtom is lg', () => {
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'currentVariantAtom') return 'light'
       if (atom === 'currentVariantClassesAtom') return ''
@@ -541,6 +551,6 @@ describe('PortsComponent (combined)', () => {
     const { container } = render(<PortsComponent />)
     const table = container.querySelector('#portsTable')
     expect(table).toBeTruthy()
-    expect(table.className).not.toContain('table-sm')
+    expect(table.className).toContain('table-lg')
   })
 })

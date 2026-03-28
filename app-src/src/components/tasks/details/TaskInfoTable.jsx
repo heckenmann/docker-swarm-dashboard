@@ -1,11 +1,10 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import {
-  currentVariantClassesAtom,
-  tableSizeAtom,
-} from '../../../common/store/atoms'
+import { currentVariantClassesAtom } from '../../../common/store/atoms/themeAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 import { Table } from 'react-bootstrap'
-import { EntityName } from '../../shared/names/EntityName'
+import EntityName from '../../shared/names/EntityName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 
 /**
@@ -22,7 +21,7 @@ export function shouldShowSlot(slot) {
  * @param {object} props
  * @param {object} props.taskObj - The raw task object
  */
-function TaskInfoTable({ taskObj }) {
+const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const tableSize = useAtomValue(tableSizeAtom)
 
@@ -99,6 +98,6 @@ function TaskInfoTable({ taskObj }) {
       </Table>
     </div>
   )
-}
+})
 
-export { TaskInfoTable }
+export default TaskInfoTable

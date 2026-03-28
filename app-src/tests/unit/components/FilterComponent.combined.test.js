@@ -1,11 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 const modFilter = require('../../../src/components/shared/FilterComponent')
-const FilterComponent =
-  modFilter.FilterComponent || modFilter.default || modFilter
+const FilterComponent = modFilter.default
 
 // mock atoms module
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   serviceNameFilterAtom: 'serviceNameFilterAtom',
   stackNameFilterAtom: 'stackNameFilterAtom',
   filterTypeAtom: 'filterTypeAtom',

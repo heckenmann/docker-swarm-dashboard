@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import { baseUrlAtom, viewAtom } from '../../common/store/atoms'
+import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { Card, Alert, Spinner } from 'react-bootstrap'
-import { NodeInfoHeader } from './metrics/NodeInfoHeader'
-import { NodeCpuSection } from './metrics/NodeCpuSection'
-import { NodeMemorySection } from './metrics/NodeMemorySection'
-import { NodeFilesystemNetworkSection } from './metrics/NodeFilesystemNetworkSection'
-import { NodeDiskIOSection } from './metrics/NodeDiskIOSection'
-import { NodeSystemSection } from './metrics/NodeSystemSection'
+import NodeInfoHeader from './metrics/NodeInfoHeader'
+import NodeCpuSection from './metrics/NodeCpuSection'
+import NodeMemorySection from './metrics/NodeMemorySection'
+import NodeFilesystemNetworkSection from './metrics/NodeFilesystemNetworkSection'
+import NodeDiskIOSection from './metrics/NodeDiskIOSection'
+import NodeSystemSection from './metrics/NodeSystemSection'
 
 /**
  * Fetches and displays node-exporter metrics for a single Docker Swarm node.
@@ -16,7 +18,9 @@ import { NodeSystemSection } from './metrics/NodeSystemSection'
  * @param {object} props
  * @param {string} props.nodeId - The ID of the node to fetch metrics for
  */
-function NodeMetricsComponent({ nodeId }) {
+const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
+  nodeId,
+}) {
   const baseURL = useAtomValue(baseUrlAtom)
   const view = useAtomValue(viewAtom)
   const [loading, setLoading] = useState(true)
@@ -147,6 +151,6 @@ function NodeMetricsComponent({ nodeId }) {
       />
     </Card.Body>
   )
-}
+})
 
-export { NodeMetricsComponent }
+export default NodeMetricsComponent

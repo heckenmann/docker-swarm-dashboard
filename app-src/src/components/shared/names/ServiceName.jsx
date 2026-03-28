@@ -1,14 +1,45 @@
+import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { EntityName } from './EntityName'
+import EntityName from './EntityName'
 import { useAtom, useAtomValue } from 'jotai'
 import {
   logsFormServiceIdAtom,
   logsFormServiceNameAtom,
   logsConfigAtom,
   logsShowLogsAtom,
-} from '../../../common/store/atoms'
-import { viewAtom } from '../../../common/store/atoms'
+} from '../../../common/store/atoms/logsAtoms'
+import { viewAtom } from '../../../common/store/atoms/navigationAtoms'
 import { logsId } from '../../../common/navigationConstants'
+
+/**
+ * Internal function to handle logs button click
+ * Extracted for better testability
+ */
+export function handleShowLogsInternal(
+  sid,
+  name,
+  logsShowLogsVal,
+  logsConfigVal,
+  setLogsShowLogs,
+  setLogsConfig,
+  setFormId,
+  setFormName,
+  updateView,
+) {
+  // If logs are currently being streamed (follow), close them first
+  if (logsShowLogsVal && logsConfigVal?.follow) {
+    setLogsShowLogs(false)
+    setLogsConfig(null)
+  }
+  // Prefill the logs form but DO NOT start streaming or set the active logs config.
+  setFormId(sid)
+  setFormName(name)
+  // Only set the service id/name for the logs form; do NOT modify other
+  // form atoms so we don't overwrite user state.
+
+  // Navigate to logs view; the form will be shown because logsShowLogs is false
+  updateView((prev) => ({ ...prev, id: logsId }))
+}
 
 /**
  * ServiceName
@@ -27,8 +58,7 @@ import { logsId } from '../../../common/navigationConstants'
  * @param {boolean} [props.showFilter=true]
  * @param {string} [props.size='sm']
  */
-
-function ServiceName({
+const ServiceName = React.memo(function ServiceName({
   name,
   id,
   nameClass = '',
@@ -98,36 +128,6 @@ function ServiceName({
       entityType="service"
     />
   )
-}
+})
 
-/**
- * Internal function to handle logs button click
- * Extracted for better testability
- */
-export function handleShowLogsInternal(
-  sid,
-  name,
-  logsShowLogsVal,
-  logsConfigVal,
-  setLogsShowLogs,
-  setLogsConfig,
-  setFormId,
-  setFormName,
-  updateView,
-) {
-  // If logs are currently being streamed (follow), close them first
-  if (logsShowLogsVal && logsConfigVal?.follow) {
-    setLogsShowLogs(false)
-    setLogsConfig(null)
-  }
-  // Prefill the logs form but DO NOT start streaming or set the active logs config.
-  setFormId(sid)
-  setFormName(name)
-  // Only set the service id/name for the logs form; do NOT modify other
-  // form atoms so we don't overwrite user state.
-
-  // Navigate to logs view; the form will be shown because logsShowLogs is false
-  updateView((prev) => ({ ...prev, id: logsId }))
-}
-
-export { ServiceName }
+export default ServiceName

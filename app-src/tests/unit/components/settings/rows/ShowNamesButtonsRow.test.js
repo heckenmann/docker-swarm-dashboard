@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { ShowNamesButtonsRow } from '../../../../../src/components/settings/rows/ShowNamesButtonsRow'
+import ShowNamesButtonsRow from '../../../../../src/components/settings/rows/ShowNamesButtonsRow'
 
 const mockSetShowNamesButtons = jest.fn()
 const mockUseAtom = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   showNamesButtonsAtom: 'showNamesButtonsAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

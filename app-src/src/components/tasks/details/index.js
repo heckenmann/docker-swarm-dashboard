@@ -8,4 +8,4 @@ export { buildCPUCharts } from './CpuCharts.jsx'
 
 export { buildNetworkChart } from './NetworkChart.jsx'
 export { buildFSChart } from './fsChart.jsx'
-export { TaskMetricsContent } from './TaskMetricsContent.jsx'
+export { default as TaskMetricsContent } from './TaskMetricsContent.jsx'

@@ -1,18 +1,17 @@
+import React from 'react'
 import { useAtomValue } from 'jotai'
-import {
-  currentVariantClassesAtom,
-  nodeDetailAtom,
-} from '../../common/store/atoms'
+import { currentVariantClassesAtom } from '../../common/store/atoms/themeAtoms'
+import { nodeDetailAtom } from '../../common/store/atoms/navigationAtoms'
 import { Card, Tabs, Tab, Row, Col } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JsonTable } from '../shared/JsonTable.jsx'
-import { NodeMetricsComponent } from './NodeMetricsComponent'
-import { NodeTasksTab } from './details/NodeTasksTab'
+import JsonTable from '../shared/JsonTable.jsx'
+import NodeMetricsComponent from './NodeMetricsComponent'
+import NodeTasksTab from './details/NodeTasksTab'
 
 /**
  * Displays full details for a node: metrics, tasks, structured table and raw JSON.
  */
-function DetailsNodeComponent() {
+const DetailsNodeComponent = React.memo(function DetailsNodeComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const currentNode = useAtomValue(nodeDetailAtom)
 
@@ -60,6 +59,6 @@ function DetailsNodeComponent() {
       </Row>
     </div>
   )
-}
+})
 
-export { DetailsNodeComponent }
+export default DetailsNodeComponent

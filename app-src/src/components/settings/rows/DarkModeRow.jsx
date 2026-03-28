@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  isDarkModeAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * DarkModeRow renders the dark mode setting row.
  */
-function DarkModeRow() {
+const DarkModeRow = React.memo(function DarkModeRow() {
   const [isDarkMode, setIsDarkMode] = useAtom(isDarkModeAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -58,6 +57,6 @@ function DarkModeRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { DarkModeRow }
+export default DarkModeRow

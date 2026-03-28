@@ -1,4 +1,5 @@
-import { EntityName } from './EntityName'
+import React from 'react'
+import EntityName from './EntityName'
 
 /**
  * StackName
@@ -14,7 +15,12 @@ import { EntityName } from './EntityName'
  * @param {string} [props.nameClass]
  */
 
-function StackName({ name, showFilter = true, size = 'sm', nameClass = '' }) {
+const StackName = React.memo(function StackName({
+  name,
+  showFilter = true,
+  size = 'sm',
+  nameClass = '',
+}) {
   if (!name) return null
   const nameNode = <span className={nameClass ? nameClass : ''}>{name}</span>
   return (
@@ -29,6 +35,6 @@ function StackName({ name, showFilter = true, size = 'sm', nameClass = '' }) {
       entityType="stack"
     />
   )
-}
+})
 
-export { StackName }
+export default StackName

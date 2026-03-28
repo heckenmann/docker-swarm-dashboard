@@ -1,19 +1,48 @@
 // Combined tests for ServiceTasksTab component and getTaskMetrics helper.
 // Covers: getTaskMetrics (including fallback paths), handleSort, and Details button onClick.
 import { render, screen, fireEvent } from '@testing-library/react'
+import React from 'react'
 
-jest.mock('../../../src/common/store/atoms', () => ({
-  currentVariantAtom: 'currentVariantAtom',
-  tableSizeAtom: 'tableSizeAtom',
-  viewAtom: 'viewAtom',
-}))
+// Mock react-bootstrap first - must be before any imports
+jest.mock('react-bootstrap', () => {
+  const React = require('react')
+  return {
+    __esModule: true,
+    Table: function(props) { return React.createElement('table', props, props.children) },
+    Badge: function(props) { return React.createElement('span', props, props.children) },
+    Button: function(props) { return React.createElement('button', props, props.children) },
+    Spinner: function(props) { return React.createElement('div', props, props.children) },
+    OverlayTrigger: function(props) { return React.createElement('div', props, props.children) },
+    Tooltip: function(props) { return React.createElement('div', props, props.children) },
+  }
+})
 
+// Jotai mock - must be before any component imports
 const mockUseAtomValue = jest.fn()
 const mockSetView = jest.fn()
 const mockUseAtom = jest.fn()
+
 jest.mock('jotai', () => ({
-  useAtomValue: (...args) => mockUseAtomValue(...args),
+  atom: (v) => v,
   useAtom: (...args) => mockUseAtom(...args),
+  useAtomValue: (...args) => mockUseAtomValue(...args),
+}))
+
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
+  currentVariantAtom: 'currentVariantAtom',
+  tableSizeAtom: 'tableSizeAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
+  viewAtom: 'viewAtom',
+  tasksDetailId: 'tasks-detail',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
+  tableSizeAtom: 'tableSizeAtom',
+  serviceNameFilterAtom: 'serviceNameFilterAtom',
+  stackNameFilterAtom: 'stackNameFilterAtom',
+  hiddenServiceStatesAtom: 'hiddenServiceStatesAtom',
 }))
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
@@ -21,7 +50,8 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 }))
 
 jest.mock('../../../src/components/shared/names/NodeName', () => ({
-  NodeName: ({ name }) => <span data-testid="node-name">{name}</span>,
+  __esModule: true,
+  default: ({ name }) => <span data-testid="node-name">{name}</span>,
 }))
 
 jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
@@ -29,12 +59,9 @@ jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
   default: ({ serviceState }) => <span data-testid="status">{serviceState}</span>,
 }))
 
-/**
- * Mock SortableHeader renders a plain <th> that calls onSort when clicked.
- * This allows tests to trigger handleSort without real sorting UI logic.
- */
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
-  SortableHeader: ({ column, onSort, label }) => (
+  __esModule: true,
+  default: ({ column, onSort, label }) => (
     <th data-column={column} onClick={() => onSort && onSort(column)}>
       {label || column}
     </th>
@@ -42,7 +69,8 @@ jest.mock('../../../src/components/shared/SortableHeader', () => ({
 }))
 
 const mod = require('../../../src/components/services/details/ServiceTasksTab')
-const { ServiceTasksTab, getTaskMetrics } = mod
+const ServiceTasksTab = mod.default
+const { getTaskMetrics } = mod
 
 // ─── getTaskMetrics unit tests ────────────────────────────────────────────────
 
@@ -86,12 +114,6 @@ const SAMPLE_TASK = {
   UpdatedAt: '2025-01-01T01:00:00Z',
 }
 
-/**
- * Mounts ServiceTasksTab with sensible defaults.
- *
- * @param {object} [overrides] - prop overrides for the component
- * @returns {{ container: HTMLElement, ...renderResult }}
- */
 function setup(overrides = {}) {
   mockSetView.mockReset()
   mockUseAtomValue.mockImplementation((atom) => {

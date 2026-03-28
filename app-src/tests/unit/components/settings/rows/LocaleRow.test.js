@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { LocaleRow } from '../../../../../src/components/settings/rows/LocaleRow'
+import LocaleRow from '../../../../../src/components/settings/rows/LocaleRow'
 
 const mockUseAtomValue = jest.fn()
 const mockSetLocale = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   localeAtom: 'localeAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

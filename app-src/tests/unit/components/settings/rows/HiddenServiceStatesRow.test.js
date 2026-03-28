@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { HiddenServiceStatesRow } from '../../../../../src/components/settings/rows/HiddenServiceStatesRow'
+import HiddenServiceStatesRow from '../../../../../src/components/settings/rows/HiddenServiceStatesRow'
 
 const mockUseAtomValue = jest.fn()
 const mockSetHiddenServiceStates = jest.fn()
@@ -14,8 +14,11 @@ jest.mock('jotai', () => ({
   useAtom: (...args) => mockUseAtom(...args),
 }))
 
-jest.mock('../../../../../src/common/store/atoms', () => ({
+jest.mock('../../../../../src/common/store/atoms/uiAtoms', () => ({
   hiddenServiceStatesAtom: 'hiddenServiceStatesAtom',
+}))
+
+jest.mock('../../../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
 }))
 

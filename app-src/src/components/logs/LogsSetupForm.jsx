@@ -1,9 +1,10 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Row, Col, Form, Button, InputGroup, ListGroup } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { logsServicesAtom } from '../../common/store/atoms/dashboardAtoms'
 import {
-  currentVariantAtom,
-  logsServicesAtom,
   logsFormServiceIdAtom,
   logsFormServiceNameAtom,
   logsFormTailAtom,
@@ -19,12 +20,12 @@ import {
   logsFormStderrAtom,
   logsFormDetailsAtom,
   logsSearchKeywordAtom,
-  logsNumberOfLinesAtom,
   logsConfigAtom,
   logsShowLogsAtom,
-} from '../../common/store/atoms'
+  logsNumberOfLinesAtom,
+} from '../../common/store/atoms/logsAtoms'
 import { isValidSince } from './logsUtils'
-import { SinceInput } from './SinceInput.jsx'
+import SinceInput from './SinceInput.jsx'
 import { useState } from 'react'
 
 /**
@@ -32,7 +33,7 @@ import { useState } from 'react'
  * Manages service selection, tail, since, follow, and advanced options.
  * Reads and writes Jotai atoms directly; no props required.
  */
-function LogsSetupForm() {
+const LogsSetupForm = React.memo(function LogsSetupForm() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const services = useAtomValue(logsServicesAtom)
 
@@ -394,9 +395,8 @@ function LogsSetupForm() {
       </Form.Group>
     </Form>
   )
-}
+})
 
 LogsSetupForm.propTypes = {}
 
-export { LogsSetupForm }
 export default LogsSetupForm

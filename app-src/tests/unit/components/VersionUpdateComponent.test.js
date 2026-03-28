@@ -29,7 +29,7 @@ const { useAtomValue } = require('jotai')
 // checks in the useAtomValue mock work correctly.
 const atoms = require('../../../src/common/store/atoms')
 const {
-  VersionUpdateComponent,
+  default: VersionUpdateComponent,
 } = require('../../../src/components/misc/VersionUpdateComponent')
 
 /**

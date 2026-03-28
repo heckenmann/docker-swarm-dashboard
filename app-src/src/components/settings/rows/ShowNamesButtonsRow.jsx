@@ -1,15 +1,14 @@
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import {
-  showNamesButtonsAtom,
-  dashboardSettingsAtom,
-} from '../../../common/store/atoms'
+import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * ShowNamesButtonsRow renders the show names buttons setting row.
  */
-function ShowNamesButtonsRow() {
+const ShowNamesButtonsRow = React.memo(function ShowNamesButtonsRow() {
   const [showNamesButtons, setShowNamesButtons] = useAtom(showNamesButtonsAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
 
@@ -60,6 +59,6 @@ function ShowNamesButtonsRow() {
       </td>
     </tr>
   )
-}
+})
 
-export { ShowNamesButtonsRow }
+export default ShowNamesButtonsRow

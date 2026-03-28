@@ -1,20 +1,21 @@
+import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { portsAtom } from '../../common/store/atoms/dashboardAtoms'
 import {
-  currentVariantAtom,
-  portsAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
   tableSizeAtom,
-  viewAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 
 // UI & internal imports
 import { Table } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { ServiceName } from '../shared/names/ServiceName'
-import { StackName } from '../shared/names/StackName'
-import { FilterComponent } from '../shared/FilterComponent'
-import { SortableHeader } from '../shared/SortableHeader.jsx'
+import ServiceName from '../shared/names/ServiceName'
+import StackName from '../shared/names/StackName'
+import FilterComponent from '../shared/FilterComponent'
+import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
 import DSDCard from '../common/DSDCard.jsx'
@@ -23,7 +24,7 @@ import DSDCard from '../common/DSDCard.jsx'
  * PortsComponent is a React functional component that renders a table of port mappings.
  * It uses various atoms from Jotai for state management and filtering.
  */
-function PortsComponent() {
+const PortsComponent = React.memo(function PortsComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
@@ -182,6 +183,6 @@ function PortsComponent() {
       </Table>
     </DSDCard>
   )
-}
+})
 
-export { PortsComponent }
+export default PortsComponent

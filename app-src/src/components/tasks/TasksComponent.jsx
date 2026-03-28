@@ -1,26 +1,27 @@
+import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
+import { viewAtom } from '../../common/store/atoms/navigationAtoms'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import { tasksAtomNew } from '../../common/store/atoms/dashboardAtoms'
 import {
-  tasksAtomNew,
   tableSizeAtom,
   localeAtom,
   timeZoneAtom,
   serviceNameFilterAtom,
   stackNameFilterAtom,
-  viewAtom,
-  currentVariantAtom,
-} from '../../common/store/atoms'
+} from '../../common/store/atoms/uiAtoms'
 
 // Add missing UI and internal component imports
 import DSDCard from '../common/DSDCard.jsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, Table } from 'react-bootstrap'
 import ServiceStatusBadge from '../services/ServiceStatusBadge'
-import { ServiceName } from '../shared/names/ServiceName'
-import { StackName } from '../shared/names/StackName'
-import { NodeName } from '../shared/names/NodeName'
-import { FilterComponent } from '../shared/FilterComponent'
-import { SortableHeader } from '../shared/SortableHeader.jsx'
+import ServiceName from '../shared/names/ServiceName'
+import StackName from '../shared/names/StackName'
+import NodeName from '../shared/names/NodeName'
+import FilterComponent from '../shared/FilterComponent'
+import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { useCallback } from 'react'
 import { tasksDetailId } from '../../common/navigationConstants'
@@ -29,7 +30,7 @@ import { tasksDetailId } from '../../common/navigationConstants'
  * TasksComponent is a React functional component that displays a list of tasks
  * in a table format.
  */
-function TasksComponent() {
+const TasksComponent = React.memo(function TasksComponent() {
   const tableSize = useAtomValue(tableSizeAtom)
   const currentVariant = useAtomValue(currentVariantAtom)
   const locale = useAtomValue(localeAtom)
@@ -236,6 +237,6 @@ function TasksComponent() {
       </Table>
     </DSDCard>
   )
-}
+})
 
-export { TasksComponent }
+export default TasksComponent

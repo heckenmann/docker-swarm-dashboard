@@ -3,17 +3,33 @@
 // (driven by isDarkModeAtom) correctly affect the rendered output.
 import { render, screen, fireEvent } from '@testing-library/react'
 
-jest.mock('../../../src/common/store/atoms', () => ({
+jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/foundationAtoms', () => ({
   dashboardSettingsAtom: 'dashboardSettingsAtom',
   dashboardSettingsDefaultLayoutViewIdAtom: 'dashboardSettingsDefaultLayoutViewIdAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/logsAtoms', () => ({
   logsConfigAtom: 'logsConfigAtom',
   logsShowLogsAtom: 'logsShowLogsAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/uiAtoms', () => ({
   maxContentWidthAtom: 'maxContentWidthAtom',
   refreshIntervalAtom: 'refreshIntervalAtom',
   showNavLabelsAtom: 'showNavLabelsAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/dashboardAtoms', () => ({
   versionAtom: 'versionAtom',
   versionRefreshAtom: 'versionRefreshAtom',
+  dashboardSettingsDefaultLayoutViewIdAtom: 'dashboardSettingsDefaultLayoutViewIdAtom',
+}))
+
+jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
   viewAtom: 'viewAtom',
 }))
 

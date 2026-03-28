@@ -116,8 +116,22 @@ describe('cpuCharts', () => {
         cpuSystemSeconds: 50,
       }
       const result = buildCPUCharts(m, commonOpts, false)
-      
+
       expect(result.cpuBreakdownSeries).toEqual([0, 50])
+    })
+
+    test('cpuGaugeOptions formatter function formats value correctly', () => {
+      const m = { cpuPercent: 50, cpuUserSeconds: 100, cpuSystemSeconds: 50 }
+      const result = buildCPUCharts(m, commonOpts, false)
+      const formatter = result.cpuGaugeOptions.plotOptions.radialBar.dataLabels.value.formatter
+      expect(formatter(75.123)).toBe('75.1%')
+    })
+
+    test('cpuBreakdownOptions dataLabels formatter formats value correctly', () => {
+      const m = { cpuPercent: 50, cpuUserSeconds: 100, cpuSystemSeconds: 50 }
+      const result = buildCPUCharts(m, commonOpts, false)
+      const formatter = result.cpuBreakdownOptions.dataLabels.formatter
+      expect(formatter(33.333)).toBe('33.3%')
     })
   })
 })

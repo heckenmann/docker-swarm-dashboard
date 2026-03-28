@@ -1,16 +1,18 @@
+import React from 'react'
+import { Table, Button, Spinner } from 'react-bootstrap'
 import { useAtomValue, useAtom } from 'jotai'
-import { currentVariantAtom, tableSizeAtom } from '../../../common/store/atoms'
-import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
-import { Table, Spinner, Button } from 'react-bootstrap'
+import { currentVariantAtom } from '../../../common/store/atoms/themeAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NodeName } from '../../shared/names/NodeName'
+import NodeName from '../../shared/names/NodeName'
 import ServiceStatusBadge from '../ServiceStatusBadge'
-import { SortableHeader } from '../../shared/SortableHeader.jsx'
+import SortableHeader from '../../shared/SortableHeader.jsx'
 import { sortData } from '../../../common/sortUtils'
 import { useState, useCallback } from 'react'
-import { viewAtom } from '../../../common/store/atoms'
+import { viewAtom } from '../../../common/store/atoms/navigationAtoms'
 import { tasksDetailId } from '../../../common/navigationConstants'
 import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
+import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 
 /**
  * Returns metrics for a given task from the metrics map.
@@ -19,7 +21,7 @@ import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
  * @param {object|null} taskMetrics - Map of task key → metrics
  * @returns {object|null}
  */
-function getTaskMetrics(task, taskMetrics) {
+export function getTaskMetrics(task, taskMetrics) {
   if (!taskMetrics) return null
   const taskName = task.Spec?.Name || task.Name
   if (taskName && taskMetrics[taskName]) return taskMetrics[taskName]
@@ -35,7 +37,11 @@ function getTaskMetrics(task, taskMetrics) {
  * @param {object|null} props.taskMetrics - Map of task key → metrics (null while loading)
  * @param {boolean} props.metricsLoading - Whether the metrics fetch is in progress
  */
-function ServiceTasksTab({ tasksForService, taskMetrics, metricsLoading }) {
+const ServiceTasksTab = React.memo(function ServiceTasksTab({
+  tasksForService,
+  taskMetrics,
+  metricsLoading,
+}) {
   const currentVariant = useAtomValue(currentVariantAtom)
   const tableSize = useAtomValue(tableSizeAtom)
   const [, setView] = useAtom(viewAtom)
@@ -292,6 +298,6 @@ function ServiceTasksTab({ tasksForService, taskMetrics, metricsLoading }) {
       </tbody>
     </Table>
   )
-}
+})
 
-export { ServiceTasksTab, getTaskMetrics }
+export default ServiceTasksTab

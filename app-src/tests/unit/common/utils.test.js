@@ -59,5 +59,12 @@ describe('serviceFilter', () => {
     expect(serviceFilter(svc, 'my', 'x')).toBe(false)
     expect(serviceFilter(svc, 'no', 'prod')).toBe(false)
   })
+
+  test('serviceNameFilter truthy, stackNameFilter falsy', () => {
+    // This covers line 47: serviceNameFilter && !stackNameFilter
+    expect(serviceFilter(svc, 'my', '')).toBe(true)
+    expect(serviceFilter(svc, 'my', undefined)).toBe(true)
+    expect(serviceFilter(svc, 'my', null)).toBe(true)
+  })
 })
 
