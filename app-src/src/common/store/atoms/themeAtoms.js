@@ -7,25 +7,33 @@ import {
 const a11yDark = {}
 const a11yLight = {}
 
-// Dark mode setting
+/**
+ * Dark mode: persists the dark/light theme preference in URL hash, falling back to server default.
+ */
 export const isDarkModeAtom = createHashAtomWithDefault(
   'darkMode',
   isDarkModeDefaultAtom,
 )
 
-// Derived variant string ('dark' or 'light')
+/**
+ * Current variant: derives 'dark' or 'light' string from the isDarkModeAtom for use with UI libraries.
+ */
 export const currentVariantAtom = atom((get) =>
   get(isDarkModeAtom) ? 'dark' : 'light',
 )
 
-// Derived variant CSS classes
+/**
+ * Current variant classes: derives Bootstrap CSS classes for the active theme variant.
+ */
 export const currentVariantClassesAtom = atom((get) =>
   get(isDarkModeAtom)
     ? 'bg-dark text-light border-secondary'
     : 'bg-light text-dark',
 )
 
-// Syntax highlighter style (derived from dark mode)
+/**
+ * Current syntax highlighter style: derives the code syntax highlighting style for the active theme.
+ */
 export const currentSyntaxHighlighterStyleAtom = atom((get) =>
   // keep API shape for tests/components — returns an object
   get(isDarkModeAtom) ? a11yDark : a11yLight,

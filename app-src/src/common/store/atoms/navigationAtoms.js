@@ -10,13 +10,20 @@ import {
 } from '../../navigationConstants'
 import { baseUrlAtom } from './foundationAtoms'
 
-// Navigation view state - persisted in URL hash
+/**
+ * Navigation view state: stores the current view (id and detail params) in URL hash for shareable links.
+ */
 export const viewAtom = atomWithHash('view', {})
 
-// Messages reducer for toasts/notifications
+/**
+ * Messages/reducer for toast notifications: holds an array of toasts and handles show/hide/remove actions.
+ */
 export const messagesAtom = atomWithReducer([], MessageReducer)
 
-// Detail view atoms - only fetch when their respective detail view is active
+/**
+ * Node detail: fetches details for a specific Docker node when viewing the node detail view.
+ * Returns null when not on the node detail page to avoid unnecessary requests.
+ */
 export const nodeDetailAtom = atom(async (get) => {
   const view = get(viewAtom) || {}
   // Only fetch node details when the active view is the nodes detail view
@@ -26,6 +33,10 @@ export const nodeDetailAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'docker/nodes/' + id)).json()
 })
 
+/**
+ * Service detail: fetches details for a specific Docker service when viewing the service detail view.
+ * Returns null when not on the service detail page to avoid unnecessary requests.
+ */
 export const serviceDetailAtom = atom(async (get) => {
   const view = get(viewAtom) || {}
   // Only fetch service details when the active view is the services detail view
@@ -35,6 +46,11 @@ export const serviceDetailAtom = atom(async (get) => {
   return (await fetch(get(baseUrlAtom) + 'docker/services/' + id)).json()
 })
 
+/**
+ * Task detail: fetches details for a specific Docker task when viewing the task detail view.
+ * Accepts both the legacy tasks id and the explicit tasksDetail id.
+ * Returns null when not on the task detail page to avoid unnecessary requests.
+ */
 export const taskDetailAtom = atom(async (get) => {
   const view = get(viewAtom) || {}
   // Only fetch task details when the active view is the tasks detail view

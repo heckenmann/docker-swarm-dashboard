@@ -17,93 +17,135 @@ import {
   logsSearchKeywordDefaultAtom,
 } from './foundationAtoms'
 
-// Logs output state
+/**
+ * Logs output: stores the array of log lines currently displayed in the logs panel.
+ */
 export const logsLinesAtom = atomWithReset([])
+/**
+ * Logs visibility toggle: controls whether the logs panel is shown.
+ */
 export const logsShowLogsAtom = atom(false)
 
-// Logs number of lines setting
+/**
+ * Logs number of lines: persists the number of log lines to fetch in URL hash, falling back to server default.
+ */
 export const logsNumberOfLinesAtom = createHashAtomWithDefault(
   'logsNumberOfLines',
   logsNumberOfLinesDefaultAtom,
 )
 
-// Logs config atom (holds current logs configuration)
+/**
+ * Logs configuration: holds the current service ID and filter parameters used to configure log retrieval.
+ */
 export const logsConfigAtom = atom()
 
-// Logs message max length setting
+/**
+ * Logs message max length: persists the maximum character length for log messages in URL hash, falling back to server default.
+ */
 export const logsMessageMaxLenAtom = createHashAtomWithDefault(
   'logsMessageMaxLen',
   logsMessageMaxLenDefaultAtom,
 )
 
-// Form-level atoms to persist logs form state across navigation
+/**
+ * Logs form service ID: stores the Docker service ID for log retrieval, reset when navigating away.
+ */
 export const logsFormServiceIdAtom = atomWithReset('')
+/**
+ * Logs form service name: stores the Docker service name for log retrieval, reset when navigating away.
+ */
 export const logsFormServiceNameAtom = atomWithReset('')
 
-// Logs form tail setting
+/**
+ * Logs form tail: persists whether to fetch last N lines vs all logs in URL hash, falling back to server default.
+ */
 export const logsFormTailAtom = createHashAtomWithDefault(
   'logsFormTail',
   logsFormTailDefaultAtom,
 )
 
-// Logs form since setting
+/**
+ * Logs form since: persists whether to filter logs by time (since) vs all logs in URL hash, falling back to server default.
+ */
 export const logsFormSinceAtom = createHashAtomWithDefault(
   'logsFormSince',
   logsFormSinceDefaultAtom,
 )
 
-// Logs form since error state
+/**
+ * Logs form since error: tracks validation errors for the since input field.
+ */
 export const logsFormSinceErrorAtom = atomWithReset(false)
 
-// Logs form show advanced toggle
+/**
+ * Logs form show advanced: toggles visibility of advanced log options (since, follow, timestamps).
+ */
 export const logsFormShowAdvancedAtom = atomWithReset(false)
 
-// Logs form since amount setting
+/**
+ * Logs form since amount: persists the numeric amount for the since filter in URL hash, falling back to server default.
+ */
 export const logsFormSinceAmountAtom = createHashAtomWithDefault(
   'logsFormSinceAmount',
   logsFormSinceAmountDefaultAtom,
 )
 
-// Logs form since unit setting
+/**
+ * Logs form since unit: persists the time unit (seconds, minutes, hours) for the since filter in URL hash, falling back to server default.
+ */
 export const logsFormSinceUnitAtom = createHashAtomWithDefault(
   'logsFormSinceUnit',
   logsFormSinceUnitDefaultAtom,
 )
 
-// Logs form since ISO timestamp flag
+/**
+ * Logs form since ISO: tracks whether the since input is in ISO timestamp format vs relative time.
+ */
 export const logsFormSinceIsISOAtom = atomWithReset(false)
 
-// Logs form follow setting
+/**
+ * Logs form follow: persists whether to stream logs in real-time in URL hash, falling back to server default.
+ */
 export const logsFormFollowAtom = createHashAtomWithDefault(
   'logsFormFollow',
   logsFormFollowDefaultAtom,
 )
 
-// Logs form timestamps setting
+/**
+ * Logs form timestamps: persists whether to show timestamps in log output in URL hash, falling back to server default.
+ */
 export const logsFormTimestampsAtom = createHashAtomWithDefault(
   'logsFormTimestamps',
   logsFormTimestampsDefaultAtom,
 )
 
-// Logs form stdout setting
+/**
+ * Logs form stdout: persists whether to show stdout logs in URL hash, falling back to server default.
+ */
 export const logsFormStdoutAtom = createHashAtomWithDefault(
   'logsFormStdout',
   logsFormStdoutDefaultAtom,
 )
 
-// Logs form stderr setting
+/**
+ * Logs form stderr: persists whether to show stderr logs in URL hash, falling back to server default.
+ */
 export const logsFormStderrAtom = createHashAtomWithDefault(
   'logsFormStderr',
   logsFormStderrDefaultAtom,
 )
 
-// Logs form details setting
+/**
+ * Logs form details: persists whether to show extra log details in URL hash, falling back to server default.
+ */
 export const logsFormDetailsAtom = createHashAtomWithDefault(
   'logsFormDetails',
   logsFormDetailsDefaultAtom,
 )
 
-// Logs search keyword setting
+/**
+ * Logs search keyword: persists the keyword filter for log output in URL hash, falling back to server default.
+ */
 export const logsSearchKeywordAtom = createHashAtomWithDefault(
   'logsSearchKeyword',
   logsSearchKeywordDefaultAtom,
