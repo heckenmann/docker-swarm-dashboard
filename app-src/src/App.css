@@ -419,8 +419,6 @@ ul li {
     apply to both header and body buttons for consistent styling. */
 
 
-
-
 /* Pulsing animation for the version-update badge dot in the navbar */
 @keyframes version-badge-pulse {
   0%,
