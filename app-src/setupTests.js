@@ -1,6 +1,7 @@
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like: expect(element).toHaveTextContent(/react/i)
 import '@testing-library/jest-dom'
+import 'whatwg-fetch'
 
 // jsdom does not implement HTMLFormElement.requestSubmit yet (used when buttons
 // with type="submit" are activated). Provide a small polyfill so tests that

@@ -94,6 +94,7 @@
     "stylelint-config-twbs-bootstrap": "^16.1.0",
     "webpack": "5.105.4",
     "webpack-cli": "^7.0.2",
-    "webpack-dev-server": "^5.2.3"
+    "webpack-dev-server": "^5.2.3",
+    "whatwg-fetch": "^3.6.20"
   }
 }
