@@ -178,17 +178,34 @@ From the directory with docker-compose.yml run:
 docker stack deploy --compose-file docker-compose.yml docker-swarm-dashboard
 ```
 
-### Node Metrics (Optional)
-Docker Swarm Dashboard can display node metrics from [Prometheus Node Exporter](https://github.com/prometheus/node_exporter).
+### Metrics Integration (Optional)
 
-#### Setup Node Exporter
-Deploy `node-exporter` as a global service with the label `dsd.node-exporter` and attach it to the same overlay network as the dashboard. In this configuration the exporter is only reachable from other containers on the overlay network (recommended).
+Docker Swarm Dashboard supports optional integration with Prometheus Node Exporter and cAdvisor for enhanced metrics visualization.
 
+#### Overview
+
+| Metric Source | Provides | Discovery Label | Default Label |
+|--------------|----------|-----------------|---------------|
+| **Node Exporter** | Node-level metrics (CPU, memory, disk, network) | `dsd.node-exporter` | `dsd.node-exporter=true` |
+| **cAdvisor** | Container-level metrics (memory usage per container) | `dsd.cadvisor` | `dsd.cadvisor=true` |
+
+Both services should be deployed as **global services** on the same overlay network as the dashboard.
+
+---
+
+#### Node Exporter Setup
+
+**Purpose:** Displays node-level system metrics (CPU, memory, disk, network usage per swarm node).
+
+**Deployment:**
 ```yaml
 node-exporter:
   image: prom/node-exporter:latest
   deploy:
     mode: global
+    placement:
+      constraints:
+        - node.role == manager   # Or remove for all nodes
     labels:
       - "dsd.node-exporter=true"
   networks:
@@ -201,26 +218,29 @@ node-exporter:
     - '--path.procfs=/host/proc'
     - '--path.sysfs=/host/sys'
     - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+```
 
-
-#### Customize Label
-You can customize the label used to discover node-exporter by setting:
+**Customize Discovery Label:**
 ```yaml
 environment:
   DSD_NODE_EXPORTER_LABEL: "my.custom.label"
 ```
 
-### Service Memory Metrics with cAdvisor
-Docker Swarm Dashboard can display service container memory metrics from [cAdvisor](https://github.com/google/cadvisor).
+---
 
-#### Setup cAdvisor
-Deploy `cadvisor` as a global service with the label `dsd.cadvisor` and attach it to the same overlay network as the dashboard. In this configuration cAdvisor is only reachable from other containers on the overlay network (recommended).
+#### cAdvisor Setup
 
+**Purpose:** Displays container-level memory metrics per service (memory usage, limits, per-container breakdown).
+
+**Deployment:**
 ```yaml
 cadvisor:
   image: gcr.io/cadvisor/cadvisor:latest
   deploy:
     mode: global
+    placement:
+      constraints:
+        - node.role == manager   # Or remove for all nodes
     labels:
       - "dsd.cadvisor=true"
   networks:
@@ -236,24 +256,45 @@ cadvisor:
     - '--housekeeping_interval=30s'
 ```
 
-#### Customize Label
-You can customize the label used to discover cAdvisor by setting:
+**Customize Discovery Label:**
 ```yaml
 environment:
   DSD_CADVISOR_LABEL: "my.custom.label"
 ```
 
-#### What Metrics Are Displayed
-The service metrics tab displays:
-- **Total Memory Usage**: Aggregate memory usage across all containers in the service
-- **Memory Limits**: Configured memory limits for each container
-- **Per-Container Breakdown**: Memory usage for each task/container in the service
-- **Usage Percentage**: Memory usage as a percentage of the configured limit
+---
 
-cAdvisor provides more detailed, per-container metrics compared to node-level metrics. This is particularly useful for:
-- Identifying memory-hungry containers within a service
-- Monitoring services approaching their memory limits
-- Detecting potential out-of-memory (OOM) situations before they occur
+#### Metrics Displayed
+
+**Node Exporter Metrics:**
+- CPU usage per node
+- Memory usage per node
+- Disk I/O and storage
+- Network traffic per node
+
+**cAdvisor Metrics (Service Metrics Tab):**
+- **Total Memory Usage:** Aggregate memory usage across all containers in the service
+- **Memory Limits:** Configured memory limits for each container
+- **Per-Container Breakdown:** Memory usage for each task/container in the service
+- **Usage Percentage:** Memory usage as a percentage of the configured limit
+
+**Benefits of cAdvisor:**
+- Identify memory-hungry containers within a service
+- Monitor services approaching memory limits
+- Detect potential out-of-memory (OOM) situations before they occur
+
+---
+
+#### Network Configuration
+
+Both services should be attached to the same overlay network as the dashboard for container-to-container communication:
+
+```yaml
+networks:
+  - your-network-name  # Same network as docker-swarm-dashboard
+```
+
+This ensures metrics are only reachable from within the overlay network (recommended for security).
 
 ### logs-generator (for testing)
 ```

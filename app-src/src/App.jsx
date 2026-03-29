@@ -8,7 +8,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 // Provider is intentionally omitted here; the app-level Provider with a
 // dedicated store is created in `index.js` so components read from that
 // single store instance.
-import { Suspense } from 'react'
 import { useAtomValue } from 'jotai'
 import { ErrorBoundary } from './common/ErrorBoundary.jsx'
 import LoadingBar from './components/layout/LoadingBar.jsx'
@@ -52,10 +51,8 @@ const App = () => {
           className="overflow-auto"
         >
           <ErrorBoundary>
-            <Suspense fallback={null}>
-              <WelcomeMessageComponent />
-              <ContentRouter />
-            </Suspense>
+            <WelcomeMessageComponent />
+            <ContentRouter />
           </ErrorBoundary>
         </Container>
       </main>
@@ -63,10 +60,4 @@ const App = () => {
   )
 }
 
-const AppWithSuspense = () => (
-  <Suspense fallback={<LoadingBar />}>
-    <App />
-  </Suspense>
-)
-
-export default AppWithSuspense
+export default App
