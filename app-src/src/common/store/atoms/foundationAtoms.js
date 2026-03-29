@@ -12,12 +12,13 @@ import { atomWithHash } from 'jotai-location'
  * @returns {Atom} An atom with hash persistence and server fallback
  */
 const createHashAtomWithDefault = (key, defaultAtom) => {
-  const hashAtom = atomWithHash(key, null)
+  const hashAtom = atomWithHash(key)
   return atom(
-    (get) => {
+    async (get) => {
       const hashValue = get(hashAtom)
       if (hashValue !== undefined && hashValue !== null) return hashValue
-      return get(defaultAtom)
+      const defaultValue = get(defaultAtom)
+      return defaultValue instanceof Promise ? await defaultValue : defaultValue
     },
     (get, set, value) => set(hashAtom, value),
   )
