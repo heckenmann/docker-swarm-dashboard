@@ -63,3 +63,26 @@ jobs:
 
       - name: Run Stylelint
         run: yarn lint:css
+
+  format:
+    name: Prettier formatting check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app-src
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: app-src/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check formatting with Prettier
+        run: yarn format:check
