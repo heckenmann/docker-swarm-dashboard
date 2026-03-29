@@ -9,17 +9,28 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
+// NodesHandlerSimpleNode represents a simplified node structure for the nodes handler response.
 type NodesHandlerSimpleNode struct {
-	ID                string
-	Hostname          string
-	Leader            bool
-	Role              string
-	State             string
-	Availability      string
-	Reachability      string
-	StatusAddr        string
+	// ID is the unique identifier of the node
+	ID string
+	// Hostname is the hostname of the node
+	Hostname string
+	// Leader indicates if the node is a leader manager node
+	Leader bool
+	// Role is the role of the node (manager or worker)
+	Role string
+	// State is the current state of the node
+	State string
+	// Availability is the availability of the node (active, pause, drain)
+	Availability string
+	// Reachability is the reachability status of manager nodes
+	Reachability string
+	// StatusAddr is the address of the node
+	StatusAddr string
+	// ManagerStatusAddr is the address of the manager status endpoint
 	ManagerStatusAddr string
-	Message           string
+	// Message contains any status message associated with the node
+	Message string
 }
 
 func nodesHandler(w http.ResponseWriter, _ *http.Request) {

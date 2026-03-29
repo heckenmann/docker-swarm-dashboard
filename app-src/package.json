@@ -11,6 +11,7 @@
     "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\" \"sleep 2 && yarn run open-browser\"",
     "start:servers": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\"",
     "format": "prettier --write src/**/*.js",
+    "format:check": "prettier --check src/**/*.js",
     "postinstall": "node download-files.js",
     "lint": "eslint src",
     "lint:css": "stylelint src/**/*.css",
@@ -93,6 +94,7 @@
     "stylelint-config-twbs-bootstrap": "^16.1.0",
     "webpack": "5.105.4",
     "webpack-cli": "^7.0.2",
-    "webpack-dev-server": "^5.2.3"
+    "webpack-dev-server": "^5.2.3",
+    "whatwg-fetch": "^3.6.20"
   }
 }

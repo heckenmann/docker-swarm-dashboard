@@ -63,4 +63,10 @@ const App = () => {
   )
 }
 
-export default App
+const AppWithSuspense = () => (
+  <Suspense fallback={<LoadingBar />}>
+    <App />
+  </Suspense>
+)
+
+export default AppWithSuspense

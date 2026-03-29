@@ -130,7 +130,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
       >
         <Container fluid={maxContentWidth === 'fluid'}>
           <Navbar.Brand
-            className="cursorPointer"
+            className="cursor-pointer"
             onClick={() =>
               updateView((prev) => ({ ...prev, id: defaultLayout }))
             }

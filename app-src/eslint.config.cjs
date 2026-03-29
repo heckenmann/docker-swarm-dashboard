@@ -19,7 +19,12 @@ module.exports = [
         process: "readonly",
       },
     },
-   plugins: { "unused-imports": require("eslint-plugin-unused-imports"), "react": require("eslint-plugin-react"), "prettier": require("eslint-plugin-prettier"), "jsx-a11y": require("eslint-plugin-jsx-a11y") },
+   plugins: { 
+      "unused-imports": require("eslint-plugin-unused-imports"), 
+      "react": require("eslint-plugin-react"), 
+      "prettier": require("eslint-plugin-prettier"), 
+      "jsx-a11y": require("eslint-plugin-jsx-a11y")
+    },
     rules: {
       // keep a couple lightweight rules; expand later as needed
   "prefer-const": "error",
