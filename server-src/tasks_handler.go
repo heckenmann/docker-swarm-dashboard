@@ -11,19 +11,32 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 )
 
+// TasksHandlerSimpleTask represents a simplified task structure for the tasks handler response.
 type TasksHandlerSimpleTask struct {
-	ID           string
-	Timestamp    time.Time
-	State        string
+	// ID is the unique identifier of the task
+	ID string
+	// Timestamp is the timestamp of the task status
+	Timestamp time.Time
+	// State is the current state of the task
+	State string
+	// DesiredState is the desired state of the task
 	DesiredState string
-	ServiceName  string
-	ServiceID    string
-	NodeName     string
-	NodeID       string
-	Message      string
-	Err          string
-	Stack        string
-	Slot         int
+	// ServiceName is the name of the service the task belongs to
+	ServiceName string
+	// ServiceID is the unique identifier of the service the task belongs to
+	ServiceID string
+	// NodeName is the hostname of the node where the task is running
+	NodeName string
+	// NodeID is the unique identifier of the node where the task is running
+	NodeID string
+	// Message contains any status message associated with the task
+	Message string
+	// Err contains any error message associated with the task
+	Err string
+	// Stack is the name of the stack the service belongs to (if any)
+	Stack string
+	// Slot is the slot number of the task (for replicated services)
+	Slot int
 }
 
 func tasksHandler(w http.ResponseWriter, _ *http.Request) {
@@ -38,13 +51,11 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 			Timestamp:    task.Status.Timestamp,
 			State:        string(task.Status.State),
 			DesiredState: string(task.DesiredState),
-			//ServiceName:
-			ServiceID: task.ServiceID,
-			//NodeName:
-			NodeID:  task.NodeID,
-			Message: task.Status.Message,
-			Err:     task.Status.Err,
-			Slot:    task.Slot,
+			ServiceID:    task.ServiceID,
+			NodeID:       task.NodeID,
+			Message:      task.Status.Message,
+			Err:          task.Status.Err,
+			Slot:         task.Slot,
 		}
 		// Find Service for Task
 		servicesFilter := filters.NewArgs()
