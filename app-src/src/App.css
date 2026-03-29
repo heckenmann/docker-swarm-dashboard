@@ -419,14 +419,7 @@ ul li {
     apply to both header and body buttons for consistent styling. */
 
 
-.fade {
-  opacity: 0;
-  transition: opacity .2s ease-in;
-}
 
-.fade.show {
-  opacity: 1;
-}
 
 /* Pulsing animation for the version-update badge dot in the navbar */
 @keyframes version-badge-pulse {
