@@ -68,6 +68,13 @@ const ServiceName = React.memo(function ServiceName({
   showFilter = true,
   size = 'sm',
 }) {
+  const [, setFormId] = useAtom(logsFormServiceIdAtom)
+  const [, setFormName] = useAtom(logsFormServiceNameAtom)
+  const [, setLogsConfig] = useAtom(logsConfigAtom)
+  const [logsShowLogsVal, setLogsShowLogs] = useAtom(logsShowLogsAtom)
+  const logsConfigVal = useAtomValue(logsConfigAtom)
+  const [, updateView] = useAtom(viewAtom)
+
   if (!name) return null
 
   const nameNode = (
@@ -90,14 +97,6 @@ const ServiceName = React.memo(function ServiceName({
     ) : (
       nameNode
     )
-
-  const [, setFormId] = useAtom(logsFormServiceIdAtom)
-  const [, setFormName] = useAtom(logsFormServiceNameAtom)
-  const [, setLogsConfig] = useAtom(logsConfigAtom)
-  const [logsShowLogsVal, setLogsShowLogs] = useAtom(logsShowLogsAtom)
-
-  const logsConfigVal = useAtomValue(logsConfigAtom)
-  const [, updateView] = useAtom(viewAtom)
 
   const handleShowLogs = (sid) => {
     handleShowLogsInternal(
