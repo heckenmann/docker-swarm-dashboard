@@ -12,7 +12,8 @@ import ServiceStatusBadge from '../../services/ServiceStatusBadge'
  * Extracted for better testability
  */
 export function shouldShowSlot(slot) {
-  return slot !== null && slot !== ''
+  // eslint-disable-next-line eqeqeq
+  return slot != null && slot !== ''
 }
 
 /**
