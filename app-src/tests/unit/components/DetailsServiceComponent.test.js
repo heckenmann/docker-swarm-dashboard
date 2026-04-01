@@ -385,7 +385,7 @@ describe('DetailsServiceComponent', () => {
     render(<DetailsServiceComponent />)
 
     await waitFor(() => {
-      expect(screen.getByText(/test-service/)).toBeInTheDocument()
+      expect(screen.getByText(/Service "test-service"/)).toBeInTheDocument()
     })
 
     consoleErrorSpy.mockRestore()

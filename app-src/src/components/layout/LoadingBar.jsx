@@ -15,18 +15,6 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
   const finishTimeoutRef = useRef(null)
   const requestsRef = useRef(0)
 
-  const start = useCallback(() => {
-    clearInterval(timerRef.current)
-    clearTimeout(finishTimeoutRef.current)
-    setVisible(true)
-    setPercent(6)
-    timerRef.current = setInterval(() => {
-      setPercent((p) => Math.min(90, p + Math.random() * 6))
-    }, 160)
-    finishTimeoutRef.current = setTimeout(() => stop(), 15000)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const stop = useCallback(() => {
     clearInterval(timerRef.current)
     clearTimeout(finishTimeoutRef.current)
@@ -36,6 +24,17 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
       setPercent(0)
     }, 120)
   }, [])
+
+  const start = useCallback(() => {
+    clearInterval(timerRef.current)
+    clearTimeout(finishTimeoutRef.current)
+    setVisible(true)
+    setPercent(6)
+    timerRef.current = setInterval(() => {
+      setPercent((p) => Math.min(90, p + Math.random() * 6))
+    }, 160)
+    finishTimeoutRef.current = setTimeout(() => stop(), 15000)
+  }, [stop])
 
   const atomCount = useAtomValue(networkRequestsAtom)
 
