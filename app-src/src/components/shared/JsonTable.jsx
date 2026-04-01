@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Table } from 'react-bootstrap'
 import { flatten } from '../../common/utils'
@@ -50,5 +51,10 @@ const JsonTable = React.memo(function JsonTable(props) {
     </Table>
   )
 })
+
+JsonTable.propTypes = {
+  json: PropTypes.object.isRequired,
+  variant: PropTypes.string,
+}
 
 export default JsonTable

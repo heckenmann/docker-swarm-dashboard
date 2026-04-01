@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Alert, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
@@ -157,5 +158,10 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
     </Row>
   )
 })
+
+NodeCpuSection.propTypes = {
+  cpuData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  systemData: PropTypes.object.isRequired,
+}
 
 export default NodeCpuSection

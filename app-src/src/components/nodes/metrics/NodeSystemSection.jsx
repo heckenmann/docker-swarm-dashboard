@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
@@ -194,5 +195,11 @@ const NodeSystemSection = React.memo(function NodeSystemSection({
     </>
   )
 })
+
+NodeSystemSection.propTypes = {
+  tcpData: PropTypes.object.isRequired,
+  fdData: PropTypes.object.isRequired,
+  systemData: PropTypes.object.isRequired,
+}
 
 export default NodeSystemSection

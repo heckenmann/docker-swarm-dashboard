@@ -19,6 +19,7 @@
  * @returns {JSX.Element|null}
  */
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { useEntityActions } from '../../../common/hooks/useEntityActions'
 import NameActions from './NameActions'
@@ -83,5 +84,21 @@ const EntityName = React.memo(function EntityName({
     </>
   )
 })
+
+EntityName.propTypes = {
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string,
+  onOpen: PropTypes.func,
+  onFilter: PropTypes.func,
+  showOpen: PropTypes.bool,
+  showFilter: PropTypes.bool,
+  showLogs: PropTypes.bool,
+  onLogs: PropTypes.func,
+  size: PropTypes.string,
+  nameClass: PropTypes.string,
+  tooltipText: PropTypes.string,
+  nameNode: PropTypes.node,
+  entityType: PropTypes.string,
+}
 
 export default EntityName

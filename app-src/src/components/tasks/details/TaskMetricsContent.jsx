@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Alert, Row, Col, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -212,5 +213,11 @@ const TaskMetricsContent = React.memo(function TaskMetricsContent({
     </>
   )
 })
+
+TaskMetricsContent.propTypes = {
+  taskMetrics: PropTypes.object,
+  metricsLoading: PropTypes.bool.isRequired,
+  metricsError: PropTypes.string,
+}
 
 export default TaskMetricsContent

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
@@ -157,5 +158,10 @@ const NodeFilesystemNetworkSection = React.memo(
     )
   },
 )
+
+NodeFilesystemNetworkSection.propTypes = {
+  filesystemData: PropTypes.arrayOf(PropTypes.object).isRequired,
+  networkData: PropTypes.arrayOf(PropTypes.object).isRequired,
+}
 
 export default NodeFilesystemNetworkSection

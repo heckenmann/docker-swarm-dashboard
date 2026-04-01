@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Table, Button, Spinner } from 'react-bootstrap'
 import { useAtomValue, useAtom } from 'jotai'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -299,5 +300,11 @@ const ServiceTasksTab = React.memo(function ServiceTasksTab({
     </Table>
   )
 })
+
+ServiceTasksTab.propTypes = {
+  tasksForService: PropTypes.array.isRequired,
+  taskMetrics: PropTypes.object,
+  metricsLoading: PropTypes.bool.isRequired,
+}
 
 export default ServiceTasksTab

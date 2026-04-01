@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Card, Alert, Spinner } from 'react-bootstrap'
 import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
@@ -152,5 +153,9 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
     </Card.Body>
   )
 })
+
+NodeMetricsComponent.propTypes = {
+  nodeId: PropTypes.string.isRequired,
+}
 
 export default NodeMetricsComponent

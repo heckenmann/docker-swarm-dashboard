@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Table } from 'react-bootstrap'
 import { currentVariantClassesAtom } from '../../../common/store/atoms/themeAtoms'
@@ -100,5 +101,9 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
     </div>
   )
 })
+
+TaskInfoTable.propTypes = {
+  taskObj: PropTypes.object.isRequired,
+}
 
 export default TaskInfoTable

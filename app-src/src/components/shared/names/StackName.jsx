@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import EntityName from './EntityName'
 
 /**
@@ -36,5 +37,12 @@ const StackName = React.memo(function StackName({
     />
   )
 })
+
+StackName.propTypes = {
+  name: PropTypes.string.isRequired,
+  showFilter: PropTypes.bool,
+  size: PropTypes.string,
+  nameClass: PropTypes.string,
+}
 
 export default StackName

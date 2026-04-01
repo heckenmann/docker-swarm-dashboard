@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useAtom, useAtomValue } from 'jotai'
 import EntityName from './EntityName'
@@ -128,5 +129,16 @@ const ServiceName = React.memo(function ServiceName({
     />
   )
 })
+
+ServiceName.propTypes = {
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  nameClass: PropTypes.string,
+  useOverlay: PropTypes.bool,
+  tooltipText: PropTypes.string,
+  showOpen: PropTypes.bool,
+  showFilter: PropTypes.bool,
+  size: PropTypes.string,
+}
 
 export default ServiceName

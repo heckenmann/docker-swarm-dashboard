@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
 import { Alert, Spinner, Row, Col, Card } from 'react-bootstrap'
@@ -286,5 +287,9 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
     </Card.Body>
   )
 })
+
+ServiceMetricsComponent.propTypes = {
+  serviceId: PropTypes.string.isRequired,
+}
 
 export default ServiceMetricsComponent

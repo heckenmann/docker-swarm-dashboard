@@ -1,15 +1,9 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * Reusable sortable table header component
- * @param {string} column - The column name to sort by
- * @param {string} label - The display label
- * @param {string|null} sortBy - The current sort column
- * @param {string} sortDirection - The current sort direction ('asc' or 'desc')
- * @param {Function} onSort - Callback function when header is clicked
- * @param {object} style - Optional style object
- * @param {string} className - Optional className
  */
 const SortableHeader = React.memo(function SortableHeader({
   column,
@@ -58,5 +52,15 @@ const SortableHeader = React.memo(function SortableHeader({
     </th>
   )
 })
+
+SortableHeader.propTypes = {
+  column: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  sortBy: PropTypes.string,
+  sortDirection: PropTypes.oneOf(['asc', 'desc']),
+  onSort: PropTypes.func.isRequired,
+  style: PropTypes.object,
+  className: PropTypes.string,
+}
 
 export default SortableHeader

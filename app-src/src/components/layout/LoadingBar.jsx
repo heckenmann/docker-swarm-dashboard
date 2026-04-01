@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { networkRequestsAtom } from '../../common/store/atoms/uiAtoms'
 
@@ -110,5 +111,9 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
     </div>
   )
 })
+
+LoadingBar.propTypes = {
+  force: PropTypes.bool,
+}
 
 export default LoadingBar
