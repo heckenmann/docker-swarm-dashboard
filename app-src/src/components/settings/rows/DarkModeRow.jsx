@@ -1,9 +1,9 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
-import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 
 /**
  * DarkModeRow renders the dark mode setting row.

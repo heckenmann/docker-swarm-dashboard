@@ -1,4 +1,6 @@
 import React from 'react'
+import { useAtom, useAtomValue } from 'jotai'
+import { Table } from 'react-bootstrap'
 import {
   currentVariantAtom,
   isDarkModeAtom,
@@ -11,9 +13,7 @@ import {
   tableSizeAtom,
 } from '../../common/store/atoms/uiAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
-import { useAtom, useAtomValue } from 'jotai'
 import { serviceFilter } from '../../common/utils'
-import { Table } from 'react-bootstrap'
 import DSDCard from '../common/DSDCard'
 import NodeName from '../shared/names/NodeName'
 import ServiceName from '../shared/names/ServiceName'
@@ -62,7 +62,7 @@ const DashboardVerticalComponent = React.memo(
         </th>,
       )
     })
-    theads.push(<th key="dashboardTable-empty"></th>)
+    theads.push(<th key="dashboardTable-empty" />)
 
     services
       .filter((service) =>
@@ -144,7 +144,7 @@ const DashboardVerticalComponent = React.memo(
             </td>
             <td>{service['Replication']}</td>
             {dataCols}
-            <td></td>
+            <td />
           </tr>,
         )
       })

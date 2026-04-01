@@ -1,14 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
-import {
-  serviceNameFilterAtom,
-  stackNameFilterAtom,
-  filterTypeAtom,
-} from '../../common/store/atoms/uiAtoms'
-
-// UI imports
 import {
   Form,
   InputGroup,
@@ -17,6 +9,14 @@ import {
   Tooltip,
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import {
+  serviceNameFilterAtom,
+  stackNameFilterAtom,
+  filterTypeAtom,
+} from '../../common/store/atoms/uiAtoms'
+
+// UI imports
 
 /**
  * FilterComponent provides a UI for filtering services or stacks.

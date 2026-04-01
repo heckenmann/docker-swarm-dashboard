@@ -1,10 +1,10 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Modal, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { currentVariantClassesAtom } from '../../common/store/atoms/themeAtoms'
 import { dashboardSettingsAtom } from '../../common/store/atoms/foundationAtoms'
 import { showWelcomeMessageAtom } from '../../common/store/atoms/uiAtoms'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * WelcomeMessageComponent

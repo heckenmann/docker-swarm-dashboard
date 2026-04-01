@@ -1,7 +1,7 @@
 import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import EntityName from './EntityName'
 import { useAtom, useAtomValue } from 'jotai'
+import EntityName from './EntityName'
 import {
   logsFormServiceIdAtom,
   logsFormServiceNameAtom,

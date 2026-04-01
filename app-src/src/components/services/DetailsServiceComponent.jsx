@@ -1,5 +1,8 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
+import { Card, Tabs, Tab } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useState, useEffect } from 'react'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -7,10 +10,7 @@ import {
 import { serviceDetailAtom } from '../../common/store/atoms/navigationAtoms'
 import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
-import { Card, Tabs, Tab } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import JsonTable from '../shared/JsonTable.jsx'
-import { useState, useEffect } from 'react'
 import ServiceMetricsComponent from './ServiceMetricsComponent'
 import ServiceTasksTab from './details/ServiceTasksTab'
 

@@ -1,5 +1,8 @@
 import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button, Table } from 'react-bootstrap'
+import { useCallback } from 'react'
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
@@ -14,8 +17,6 @@ import {
 
 // Add missing UI and internal component imports
 import DSDCard from '../common/DSDCard.jsx'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, Table } from 'react-bootstrap'
 import ServiceStatusBadge from '../services/ServiceStatusBadge'
 import ServiceName from '../shared/names/ServiceName'
 import StackName from '../shared/names/StackName'
@@ -23,7 +24,6 @@ import NodeName from '../shared/names/NodeName'
 import FilterComponent from '../shared/FilterComponent'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
-import { useCallback } from 'react'
 import { tasksDetailId } from '../../common/navigationConstants'
 
 /**
@@ -166,7 +166,7 @@ const TasksComponent = React.memo(function TasksComponent() {
       >
         <thead>
           <tr>
-            <th style={{ width: '25px' }}></th>
+            <th style={{ width: '25px' }} />
             <SortableHeader
               column="Timestamp"
               label="Timestamp"

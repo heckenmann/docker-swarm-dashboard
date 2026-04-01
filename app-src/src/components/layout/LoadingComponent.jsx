@@ -1,12 +1,12 @@
 import { useAtomValue } from 'jotai'
 import { Card } from 'react-bootstrap'
 import React from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
 } from '../../common/store/atoms/themeAtoms'
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import LoadingBar from './LoadingBar'
 
 /**

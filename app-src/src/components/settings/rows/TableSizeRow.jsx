@@ -1,9 +1,9 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
-import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { ButtonGroup, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 
 /**
  * TableSizeRow renders the table size setting row.

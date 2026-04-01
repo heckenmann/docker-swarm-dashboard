@@ -1,9 +1,9 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { Alert, Row, Col, Spinner } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ReactApexChart from 'react-apexcharts'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { getCommonChartOptions } from '../../../common/chartUtils'
 import {
   formatBytesCompact as formatBytes,

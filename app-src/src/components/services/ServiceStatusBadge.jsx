@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react'
-import { getStyleClassForState } from '../../common/utils/taskStateUtils'
 import PropTypes from 'prop-types'
-import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import { useAtomValue } from 'jotai'
+import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { getStyleClassForState } from '../../common/utils/taskStateUtils'
+import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import {
   hiddenServiceStatesAtom,
   timeZoneAtom,
   localeAtom,
 } from '../../common/store/atoms/uiAtoms'
-import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 /**
  * Component to display a service status badge with optional tooltip information.

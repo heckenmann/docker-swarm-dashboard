@@ -1,7 +1,8 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import DSDCard from '../common/DSDCard.jsx'
 import { Card } from 'react-bootstrap'
+import useWebSocket from 'react-use-websocket'
+import { useEffect, useCallback } from 'react'
 import {
   logsConfigAtom,
   logsLinesAtom,
@@ -10,8 +11,7 @@ import {
   logsShowLogsAtom,
   logsWebsocketUrlAtom,
 } from '../../common/store/atoms/logsAtoms'
-import useWebSocket from 'react-use-websocket'
-import { useEffect, useCallback } from 'react'
+import DSDCard from '../common/DSDCard.jsx'
 import LogsSetupForm from './LogsSetupForm.jsx'
 import LogsActiveControls from './LogsActiveControls.jsx'
 import LogsOutput from './LogsOutput'

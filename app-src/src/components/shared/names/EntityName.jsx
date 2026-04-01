@@ -19,9 +19,9 @@
  * @returns {JSX.Element|null}
  */
 import React from 'react'
+import { useAtomValue } from 'jotai'
 import { useEntityActions } from '../../../common/hooks/useEntityActions'
 import NameActions from './NameActions'
-import { useAtomValue } from 'jotai'
 import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
 
 const EntityName = React.memo(function EntityName({

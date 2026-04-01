@@ -1,8 +1,8 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { Alert, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { getCommonChartOptions } from '../../../common/chartUtils'
 
 /**

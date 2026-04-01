@@ -2,6 +2,7 @@ import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Row, Col, Form, Button, InputGroup, ListGroup } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useState } from 'react'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { logsServicesAtom } from '../../common/store/atoms/dashboardAtoms'
 import {
@@ -26,7 +27,6 @@ import {
 } from '../../common/store/atoms/logsAtoms'
 import { isValidSince } from './logsUtils'
 import SinceInput from './SinceInput.jsx'
-import { useState } from 'react'
 
 /**
  * LogsSetupForm renders the initial log configuration form shown before logs are active.

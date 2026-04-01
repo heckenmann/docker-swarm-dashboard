@@ -1,17 +1,17 @@
 import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
+import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useCallback } from 'react'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { nodesAtomNew } from '../../common/store/atoms/dashboardAtoms'
 import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 
 // UI & internal imports
-import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NodeName from '../shared/names/NodeName'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
-import { useCallback } from 'react'
 import DSDCard from '../common/DSDCard.jsx'
 
 /**
@@ -142,7 +142,7 @@ const NodesComponent = React.memo(function NodesComponent() {
       >
         <thead>
           <tr>
-            <th style={{ width: '25px' }}></th>
+            <th style={{ width: '25px' }} />
             <SortableHeader
               column="Hostname"
               label="Node"

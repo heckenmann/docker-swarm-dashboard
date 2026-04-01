@@ -1,8 +1,8 @@
 import React from 'react'
-import { flatten } from '../../common/utils'
 import { useAtomValue } from 'jotai'
-import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 import { Table } from 'react-bootstrap'
+import { flatten } from '../../common/utils'
+import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 
 /**
  * Renders a table from a JSON object.

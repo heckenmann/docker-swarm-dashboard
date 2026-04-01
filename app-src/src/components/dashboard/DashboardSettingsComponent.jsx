@@ -1,12 +1,12 @@
 import React from 'react'
 import { useAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
+import { ButtonGroup, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { dashboardHId, dashboardVId } from '../../common/navigationConstants'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { dashboardSettingsDefaultLayoutViewIdAtom } from '../../common/store/atoms/dashboardAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
-import { useAtomValue } from 'jotai'
-import { ButtonGroup, Button } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FilterComponent from '../shared/FilterComponent'
 
 /**

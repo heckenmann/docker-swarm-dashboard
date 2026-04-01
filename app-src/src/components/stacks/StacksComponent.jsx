@@ -1,4 +1,7 @@
 import React from 'react'
+import { useAtomValue } from 'jotai'
+import { useState, useCallback } from 'react'
+import { Table } from 'react-bootstrap'
 import { toDefaultDateTimeString } from '../../common/DefaultDateTimeFormat'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { stacksAtom } from '../../common/store/atoms/dashboardAtoms'
@@ -9,11 +12,8 @@ import {
   stackNameFilterAtom,
   tableSizeAtom,
 } from '../../common/store/atoms/uiAtoms'
-import { useAtomValue } from 'jotai'
-import { useState, useCallback } from 'react'
 
 // UI & internal imports
-import { Table } from 'react-bootstrap'
 import StackName from '../shared/names/StackName'
 import ServiceName from '../shared/names/ServiceName'
 import FilterComponent from '../shared/FilterComponent'

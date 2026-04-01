@@ -1,5 +1,8 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
+import { Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import ReactApexChart from 'react-apexcharts'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -10,10 +13,7 @@ import {
   stackNameFilterAtom,
 } from '../../common/store/atoms/uiAtoms'
 import { timelineAtom } from '../../common/store/atoms/dashboardAtoms'
-import { Card } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FilterComponent from '../shared/FilterComponent'
-import ReactApexChart from 'react-apexcharts'
 
 /**
  * TimelineComponent is a React functional component that renders a timeline chart

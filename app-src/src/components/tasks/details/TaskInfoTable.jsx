@@ -1,9 +1,9 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
+import { Table } from 'react-bootstrap'
 import { currentVariantClassesAtom } from '../../../common/store/atoms/themeAtoms'
 import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
-import { Table } from 'react-bootstrap'
 import EntityName from '../../shared/names/EntityName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 
