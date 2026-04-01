@@ -34,7 +34,9 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
       setPercent((p) => Math.min(90, p + Math.random() * 6))
     }, 160)
     finishTimeoutRef.current = setTimeout(() => stop(), 15000)
-  }, [stop])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // stop is intentionally omitted from deps as it's a stable function that
+  // should not cause start to recreate when stop is recreated
 
   const atomCount = useAtomValue(networkRequestsAtom)
 
