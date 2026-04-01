@@ -39,8 +39,6 @@ const LogsComponent = React.memo(function LogsComponent() {
   const { lastMessage } = useWebSocket(
     logsWebsocketUrl,
     {
-      onOpen: () => console.log('logger-websocket connected'),
-      onClose: () => console.log('logger-websocket closed'),
       shouldReconnect: shouldReconnect,
     },
     logsShowLogs,

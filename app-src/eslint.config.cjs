@@ -15,6 +15,29 @@ module.exports = [
   // Rules for JS/JSX files in src
   {
     files: ["src/**/*.js", "src/**/*.jsx"],
+    settings: {
+      'import/resolver': {
+        alias: {
+          map: [
+            ['@common', './src/common'],
+            ['@components', './src/components'],
+            ['@shared', './src/components/shared'],
+            ['@layout', './src/components/layout'],
+            ['@dashboard', './src/components/dashboard'],
+            ['@nodes', './src/components/nodes'],
+            ['@services', './src/components/services'],
+            ['@tasks', './src/components/tasks'],
+            ['@settings', './src/components/settings'],
+            ['@logs', './src/components/logs'],
+            ['@stacks', './src/components/stacks'],
+            ['@misc', './src/components/misc'],
+            ['@ports', './src/components/ports'],
+            ['@timeline', './src/components/timeline'],
+          ],
+          extensions: ['.js', '.jsx'],
+        },
+      },
+    },
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: "module",
