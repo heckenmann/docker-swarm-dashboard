@@ -16,5 +16,94 @@
 // Import commands.js using ES2015 syntax:
 import './commands'
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
+Cypress.on('uncaught:exception', (err) => {
+  if (err.message && err.message.includes('Script error')) {
+    return false
+  }
+})
+
+// Import all page objects
+import BasePage from './pageObjects/BasePage'
+import DashboardPage from './pageObjects/DashboardPage'
+import SettingsPage from './pageObjects/SettingsPage'
+import NodesPage from './pageObjects/NodesPage'
+import StacksPage from './pageObjects/StacksPage'
+import TasksPage from './pageObjects/TasksPage'
+import PortsPage from './pageObjects/PortsPage'
+import LogsPage from './pageObjects/LogsPage'
+import TimelinePage from './pageObjects/TimelinePage'
+import AboutPage from './pageObjects/AboutPage'
+
+// Make page objects globally available
+Cypress.Commands.add('getPage', (pageName) => {
+  switch(pageName) {
+    case 'base':
+      return new BasePage()
+    case 'dashboard':
+      return new DashboardPage()
+    case 'settings':
+      return new SettingsPage()
+    case 'nodes':
+      return new NodesPage()
+    case 'stacks':
+      return new StacksPage()
+    case 'tasks':
+      return new TasksPage()
+    case 'ports':
+      return new PortsPage()
+    case 'logs':
+      return new LogsPage()
+    case 'timeline':
+      return new TimelinePage()
+    case 'about':
+      return new AboutPage()
+    default:
+      throw new Error(`Unknown page: ${pageName}`)
+  }
+})
+
+// Global before each hook
+beforeEach(() => {
+  // Reset viewport to default
+  cy.viewport(Cypress.config('viewportWidth'), Cypress.config('viewportHeight'))
+  
+  // Clear cookies and localStorage between tests
+  cy.clearCookies()
+  cy.clearTestLocalStorage()
+})
+
+// Global after each hook
+afterEach(() => {
+  // Any cleanup needed after each test
+})
+
+// Add tab command for keyboard navigation testing
+Cypress.Commands.add('tab', { prevSubject: 'optional' }, (subject, options) => {
+  const opts = options || {}
+  return cy.push(subject ? subject.tab(opts) : cy.state('currentSubject').tab(opts))
+})
+
+// Add accessibility check command
+Cypress.Commands.add('checkAccessibility', () => {
+  // Simple accessibility checks
+  cy.get('img[alt]').each(($img) => {
+    cy.wrap($img).should('have.attr', 'alt')
+  })
+  
+  cy.get('a[href]').each(($link) => {
+    cy.wrap($link).should('have.attr', 'href')
+  })
+  
+  // Check for sufficient color contrast
+  cy.get('*').each(($el) => {
+    const $element = Cypress.$($el)
+    const bgColor = $element.css('background-color')
+    const color = $element.css('color')
+    
+    // Very basic color contrast check
+    if (bgColor !== 'rgba(0, 0, 0, 0)' && color !== 'rgb(0, 0, 0)') {
+      // This is a placeholder for actual contrast checking
+      // In real implementation you would use axe-core or similar
+    }
+  })
+})

@@ -1,0 +1,1 @@
+export const CY_BASE_URL = '/#base="http%3A%2F%2Flocalhost%3A3001%2F"'
