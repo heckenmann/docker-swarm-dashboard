@@ -18,14 +18,11 @@ describe('Dump all pages', () => {
       visitBaseUrlAndTest(() => {
         if (p.isDefault) {
           cy.get(`a[aria-label="${p.text}"]`).click()
-          cy.wait(300)
         } else if (p.name === 'dashboard_v') {
           cy.get('a[aria-label="Dashboard"]').click()
           cy.get('main').within(() => { cy.get('button').eq(1).click() })
-          cy.wait(300)
         } else {
           cy.get(`a[aria-label="${p.text}"]`).click()
-          cy.wait(300)
         }
 
         cy.document().its('body').should('exist')

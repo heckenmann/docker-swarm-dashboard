@@ -45,8 +45,8 @@ describe('Console should not show errors or warnings via navbar clicks', () => {
             return null
           })
 
-        // allow async loads to settle
-        cy.wait(250)
+        // wait for loading bar to disappear (indicates async loads settled)
+        cy.get('[data-testid="loading-bar"]', { timeout: 5000 }).should('not.exist')
 
         // assert no console errors/warnings were recorded
         cy.window().then((win) => {

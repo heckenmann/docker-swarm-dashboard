@@ -314,6 +314,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   />
                 ),
               )}
+              <th className="fill-col" rowSpan={3}></th>
             </tr>
             <tr role="row">
               {serviceHeaders.map((h) =>
@@ -340,6 +341,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   />
                 ),
               )}
+              <th className="fill-col" rowSpan={2}></th>
             </tr>
             <tr role="row">
               {serviceHeaders.map((h) =>
