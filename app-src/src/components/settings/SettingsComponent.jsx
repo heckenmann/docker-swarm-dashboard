@@ -1,6 +1,8 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useState } from 'react'
+import { Table, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DSDCard from '../common/DSDCard.jsx'
 import {
   baseUrlAtom,
@@ -22,8 +24,6 @@ import {
   localeAtom,
 } from '../../common/store/atoms/uiAtoms'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
-import { Table, Button } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ApiUrlRow from './rows/ApiUrlRow'
 import RefreshIntervalRow from './rows/RefreshIntervalRow'
@@ -164,7 +164,7 @@ services:
       >
         <thead>
           <tr>
-            <th></th>
+            <th />
             <th className="col-sm-5">Setting</th>
             <th className="col-sm-4">Value</th>
             <th className="col-sm-1">Default</th>

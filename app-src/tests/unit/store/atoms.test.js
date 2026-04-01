@@ -96,7 +96,7 @@ import {
   parseHashToObj,
 } from '../../../src/common/store/atoms'
 
-// Mock für dashboardSettingsAtom
+// Mock for dashboardSettingsAtom
 afterEach(() => {
   jest.restoreAllMocks()
 })

@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { networkRequestsAtom } from '../../common/store/atoms/uiAtoms'
 
@@ -14,25 +15,39 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
   const finishTimeoutRef = useRef(null)
   const requestsRef = useRef(0)
 
-  // Read the current outstanding network requests from the Jotai atom.
-  // This requires the component to be rendered inside a Jotai Provider (store).
-  // We call the hook at top-level to follow the rules of hooks. If Jotai is
-  // not available in the render environment the hook will still work in tests
-  // because Jotai is part of the app dependencies.
+  const stop = useCallback(() => {
+    clearInterval(timerRef.current)
+    clearTimeout(finishTimeoutRef.current)
+    setPercent(100)
+    setTimeout(() => {
+      setVisible(false)
+      setPercent(0)
+    }, 120)
+  }, [])
+
+  const start = useCallback(() => {
+    clearInterval(timerRef.current)
+    clearTimeout(finishTimeoutRef.current)
+    setVisible(true)
+    setPercent(6)
+    timerRef.current = setInterval(() => {
+      setPercent((p) => Math.min(90, p + Math.random() * 6))
+    }, 160)
+    finishTimeoutRef.current = setTimeout(() => stop(), 15000)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // stop is intentionally omitted from deps as it's a stable function that
+  // should not cause start to recreate when stop is recreated
+
   const atomCount = useAtomValue(networkRequestsAtom)
 
   useEffect(() => {
-    // If atomCount is available, drive visibility from it.
-    if (atomCount != null) {
+    if (atomCount !== null) {
       requestsRef.current = atomCount
       if (atomCount > 0) start()
       else stop()
     }
-  }, [atomCount])
+  }, [atomCount, start, stop])
 
-  // Backwards-compat: support older tests and code paths that dispatch
-  // window events ('network-request-start' / 'network-request-end'). This
-  // keeps tests that use window.dispatchEvent working.
   useEffect(() => {
     const onStart = () => {
       requestsRef.current = Math.max(0, requestsRef.current + 1)
@@ -50,25 +65,20 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
       window.removeEventListener('network-request-start', onStart)
       window.removeEventListener('network-request-end', onEnd)
     }
-  }, [])
+  }, [start, stop])
 
-  // If `force` is true, ensure the bar is shown while mounted/force is true.
   useEffect(() => {
     if (force) {
-      // show immediately
       start()
     } else {
-      // if no active requests, hide
       if (requestsRef.current === 0) stop()
     }
-    // cleanup when force toggles off
     return () => {
       if (force) {
-        // if force was true and unmounted, hide
         if (requestsRef.current === 0) stop()
       }
     }
-  }, [force])
+  }, [force, start, stop])
 
   useEffect(() => {
     return () => {
@@ -76,28 +86,6 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
       clearTimeout(finishTimeoutRef.current)
     }
   }, [])
-
-  function start() {
-    clearInterval(timerRef.current)
-    clearTimeout(finishTimeoutRef.current)
-    setVisible(true)
-    setPercent(6)
-    timerRef.current = setInterval(() => {
-      setPercent((p) => Math.min(90, p + Math.random() * 6))
-    }, 160)
-    // safety ceiling
-    finishTimeoutRef.current = setTimeout(() => stop(), 15000)
-  }
-
-  function stop() {
-    clearInterval(timerRef.current)
-    clearTimeout(finishTimeoutRef.current)
-    setPercent(100)
-    setTimeout(() => {
-      setVisible(false)
-      setPercent(0)
-    }, 120)
-  }
 
   return (
     <div
@@ -108,5 +96,9 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
     </div>
   )
 })
+
+LoadingBar.propTypes = {
+  force: PropTypes.bool,
+}
 
 export default LoadingBar

@@ -33,7 +33,6 @@ describe('Console errors dynamic (fast)', () => {
           return cy.wrap(texts).each((linkText) => {
             interceptedResponses = []
             cy.contains('nav a.nav-link, nav .nav-link', linkText, { timeout: 3000 }).click()
-            cy.wait(200)
 
             // Check for buttons synchronously first so we don't fail the test when a page
             // legitimately has no detail buttons (cy.get would retry and eventually fail).
@@ -56,7 +55,6 @@ describe('Console errors dynamic (fast)', () => {
                   }
                   cy.wrap($current.eq(i)).should('exist').click({ force: true })
                 })
-                cy.wait(200)
 
                 // fail fast: check console and network errors now
                 cy.window().then((win) => {
@@ -76,7 +74,6 @@ describe('Console errors dynamic (fast)', () => {
 
                 // return to page for next interaction
                 cy.contains('nav a.nav-link, nav .nav-link', linkText, { timeout: 2000 }).click()
-                cy.wait(100)
               }
             })
           })

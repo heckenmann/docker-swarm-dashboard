@@ -1,6 +1,18 @@
-import logo from '../../assets/docker.png'
 import React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
+import { useAtom, useAtomValue } from 'jotai'
+import {
+  Navbar,
+  Nav,
+  Badge,
+  Container,
+  ButtonGroup,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import logo from '../../assets/docker.png'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
@@ -19,18 +31,6 @@ import {
   versionAtom,
   versionRefreshAtom,
 } from '../../common/store/atoms/dashboardAtoms'
-import { useAtom, useAtomValue } from 'jotai'
-import {
-  Navbar,
-  Nav,
-  Badge,
-  Container,
-  ButtonGroup,
-  Button,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   aboutId,
   dashboardHId,
@@ -65,18 +65,18 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
   const version = useAtomValue(versionAtom)
   const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
 
-  const reloadData = () => {
+  const reloadData = useCallback(() => {
     updateView((prev) => ({ ...prev, timestamp: new Date() }))
     incrementVersionRefresh((n) => n + 1)
-  }
+  }, [updateView, incrementVersionRefresh])
 
   // Automatic refresh interval using useEffect
   useEffect(() => {
-    if (refreshInterval != null) {
+    if (refreshInterval !== null) {
       const intervalId = setInterval(reloadData, refreshInterval)
       return () => clearInterval(intervalId)
     }
-  }, [refreshInterval])
+  }, [refreshInterval, reloadData])
 
   /**
    * Toggles the refresh interval and notifies the user with a message.

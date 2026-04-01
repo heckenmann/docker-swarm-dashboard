@@ -9,10 +9,10 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 // dedicated store is created in `index.js` so components read from that
 // single store instance.
 import { useAtomValue } from 'jotai'
+import { Container } from 'react-bootstrap'
 import { ErrorBoundary } from './common/ErrorBoundary.jsx'
 import LoadingBar from './components/layout/LoadingBar.jsx'
 import DashboardNavbar from './components/layout/DashboardNavbar.jsx'
-import { Container } from 'react-bootstrap'
 import WelcomeMessageComponent from './components/shared/WelcomeMessageComponent.jsx'
 import ContentRouter from './components/layout/ContentRouter.jsx'
 import {

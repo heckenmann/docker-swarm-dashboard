@@ -1,9 +1,9 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
-import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 
 /**
  * ShowNamesButtonsRow renders the show names buttons setting row.

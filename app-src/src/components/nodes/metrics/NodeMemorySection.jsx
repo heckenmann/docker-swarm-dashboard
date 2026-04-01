@@ -1,8 +1,9 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { Alert, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { getCommonChartOptions } from '../../../common/chartUtils'
 import { formatBytes } from '../../../common/formatUtils'
 
@@ -121,5 +122,9 @@ const NodeMemorySection = React.memo(function NodeMemorySection({
     </Row>
   )
 })
+
+NodeMemorySection.propTypes = {
+  memoryData: PropTypes.object.isRequired,
+}
 
 export default NodeMemorySection

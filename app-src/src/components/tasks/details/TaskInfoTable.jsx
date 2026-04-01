@@ -1,9 +1,10 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
+import { Table } from 'react-bootstrap'
 import { currentVariantClassesAtom } from '../../../common/store/atoms/themeAtoms'
 import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
-import { Table } from 'react-bootstrap'
 import EntityName from '../../shared/names/EntityName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 
@@ -12,7 +13,7 @@ import ServiceStatusBadge from '../../services/ServiceStatusBadge'
  * Extracted for better testability
  */
 export function shouldShowSlot(slot) {
-  return slot != null && slot !== ''
+  return slot !== null && slot !== undefined && slot !== ''
 }
 
 /**
@@ -99,5 +100,9 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
     </div>
   )
 })
+
+TaskInfoTable.propTypes = {
+  taskObj: PropTypes.object.isRequired,
+}
 
 export default TaskInfoTable

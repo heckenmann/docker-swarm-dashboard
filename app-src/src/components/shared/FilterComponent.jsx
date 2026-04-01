@@ -1,14 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
-import {
-  serviceNameFilterAtom,
-  stackNameFilterAtom,
-  filterTypeAtom,
-} from '../../common/store/atoms/uiAtoms'
-
-// UI imports
 import {
   Form,
   InputGroup,
@@ -17,6 +9,14 @@ import {
   Tooltip,
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
+import {
+  serviceNameFilterAtom,
+  stackNameFilterAtom,
+  filterTypeAtom,
+} from '../../common/store/atoms/uiAtoms'
+
+// UI imports
 
 /**
  * FilterComponent provides a UI for filtering services or stacks.
@@ -35,6 +35,7 @@ const FilterComponent = React.memo(function FilterComponent() {
   )
 
   // Keep local UI state in sync when atoms change externally
+
   useEffect(() => {
     if (serviceFilter) {
       setFilterType('service')
@@ -45,7 +46,8 @@ const FilterComponent = React.memo(function FilterComponent() {
     } else {
       setFilterValue('')
     }
-    // we only want to run when atoms change
+    // setFilterType is stable (atom setter) and doesn't need to be in deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceFilter, stackFilter])
 
   const changeFilterType = (type) => {

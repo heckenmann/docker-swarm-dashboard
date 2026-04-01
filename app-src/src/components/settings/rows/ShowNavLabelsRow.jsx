@@ -1,9 +1,9 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { showNavLabelsAtom } from '../../../common/store/atoms/uiAtoms'
-import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 import { FormCheck, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { showNavLabelsAtom } from '../../../common/store/atoms/uiAtoms'
+import { dashboardSettingsAtom } from '../../../common/store/atoms/foundationAtoms'
 
 /**
  * ShowNavLabelsRow renders the show navigation labels setting row.

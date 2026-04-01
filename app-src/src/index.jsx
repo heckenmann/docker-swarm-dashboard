@@ -1,8 +1,8 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { createStore, Provider } from 'jotai'
 import './index.css'
 import App from './App.jsx'
-import { createStore, Provider } from 'jotai'
 import { networkRequestsAtom } from './common/store/atoms/uiAtoms'
 
 // Wrap global fetch so we can track active network requests and show the loading bar
@@ -84,7 +84,9 @@ try {
 // `src` props on <img> elements.
 try {
   if (typeof window !== 'undefined' && window.Cypress) {
+    // eslint-disable-next-line no-console
     const origConsoleError = console.error.bind(console)
+    // eslint-disable-next-line no-console
     console.error = function (...args) {
       try {
         const msg = args && args[0] ? String(args[0]) : ''

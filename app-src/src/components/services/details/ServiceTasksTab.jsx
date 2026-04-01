@@ -1,14 +1,15 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Table, Button, Spinner } from 'react-bootstrap'
 import { useAtomValue, useAtom } from 'jotai'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useState, useCallback } from 'react'
 import { currentVariantAtom } from '../../../common/store/atoms/themeAtoms'
 import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NodeName from '../../shared/names/NodeName'
 import ServiceStatusBadge from '../ServiceStatusBadge'
 import SortableHeader from '../../shared/SortableHeader.jsx'
 import { sortData } from '../../../common/sortUtils'
-import { useState, useCallback } from 'react'
 import { viewAtom } from '../../../common/store/atoms/navigationAtoms'
 import { tasksDetailId } from '../../../common/navigationConstants'
 import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
@@ -178,7 +179,7 @@ const ServiceTasksTab = React.memo(function ServiceTasksTab({
             sortDirection={sortDirection}
             onSort={handleSort}
           />
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -299,5 +300,11 @@ const ServiceTasksTab = React.memo(function ServiceTasksTab({
     </Table>
   )
 })
+
+ServiceTasksTab.propTypes = {
+  tasksForService: PropTypes.array.isRequired,
+  taskMetrics: PropTypes.object,
+  metricsLoading: PropTypes.bool.isRequired,
+}
 
 export default ServiceTasksTab

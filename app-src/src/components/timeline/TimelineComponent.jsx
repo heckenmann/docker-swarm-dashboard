@@ -1,5 +1,8 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
+import { Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import ReactApexChart from 'react-apexcharts'
 import {
   currentVariantAtom,
   currentVariantClassesAtom,
@@ -10,10 +13,7 @@ import {
   stackNameFilterAtom,
 } from '../../common/store/atoms/uiAtoms'
 import { timelineAtom } from '../../common/store/atoms/dashboardAtoms'
-import { Card } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import FilterComponent from '../shared/FilterComponent'
-import ReactApexChart from 'react-apexcharts'
 
 /**
  * TimelineComponent is a React functional component that renders a timeline chart
@@ -55,7 +55,7 @@ const TimelineComponent = React.memo(function TimelineComponent() {
           : new Date(stoppedRaw).getTime()
 
       // ensure service name is always a string to avoid downstream toLowerCase errors
-      const svcName = task.ServiceName != null ? String(task.ServiceName) : ''
+      const svcName = task.ServiceName !== null ? String(task.ServiceName) : ''
 
       // skip invalid/unnamed entries
       if (isNaN(createdTime) || svcName === '') return null
@@ -151,20 +151,18 @@ const TimelineComponent = React.memo(function TimelineComponent() {
     for (const s of rawSeries) {
       try {
         if (!s || typeof s !== 'object') continue
-        const name = s.name != null ? String(s.name) : ''
+        const name = s.name !== null ? String(s.name) : ''
         if (name.trim() === '') continue
         if (!Array.isArray(s.data) || s.data.length === 0) continue
         const item = s.data[0]
-        const x = item && item.x != null ? String(item.x) : ''
+        const x = item && item.x !== null ? String(item.x) : ''
         const y =
           item && Array.isArray(item.y) ? item.y.map((v) => Number(v)) : null
         if (!x || !y || y.length !== 2 || y.some((n) => Number.isNaN(n)))
           continue
         out.push({ name, data: [{ x, y }] })
-      } catch (err) {
+      } catch {
         // ignore malformed series entries
-
-        console.error('Malformed timeline series entry skipped', err)
       }
     }
     return out
@@ -222,12 +220,6 @@ const TimelineComponent = React.memo(function TimelineComponent() {
         ) : (
           <div style={{ padding: '1rem', color: 'var(--muted)' }}>
             Timeline cannot be rendered: {optionsValidation.msg}
-            {/* log full options for debugging in dev console */}
-            {console.error(
-              'Timeline options validation failed:',
-              options,
-              optionsValidation,
-            )}
           </div>
         )}
       </Card>

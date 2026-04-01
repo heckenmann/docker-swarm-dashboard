@@ -1,8 +1,9 @@
 import React from 'react'
-import { flatten } from '../../common/utils'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
-import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 import { Table } from 'react-bootstrap'
+import { flatten } from '../../common/utils'
+import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 
 /**
  * Renders a table from a JSON object.
@@ -50,5 +51,10 @@ const JsonTable = React.memo(function JsonTable(props) {
     </Table>
   )
 })
+
+JsonTable.propTypes = {
+  json: PropTypes.object.isRequired,
+  variant: PropTypes.string,
+}
 
 export default JsonTable

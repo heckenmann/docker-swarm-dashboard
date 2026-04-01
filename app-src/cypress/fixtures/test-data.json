@@ -1,0 +1,45 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@example.com",
+      "role": "admin"
+    }
+  ],
+  "services": [
+    {
+      "id": "service1",
+      "name": "backend_auth-service",
+      "stack": "backend",
+      "status": "running"
+    },
+    {
+      "id": "service2", 
+      "name": "frontend_user-service",
+      "stack": "frontend",
+      "status": "running"
+    }
+  ],
+  "settings": {
+    "defaultTheme": "light",
+    "defaultTableSize": "sm",
+    "defaultRefreshInterval": 5000,
+    "showNavLabels": false,
+    "showNamesButtons": true
+  },
+  "errorResponses": {
+    "timeout": {
+      "error": "Request timeout",
+      "code": "TIMEOUT"
+    },
+    "serverError": {
+      "error": "Internal server error",
+      "code": "INTERNAL_ERROR"
+    },
+    "notFound": {
+      "error": "Resource not found",
+      "code": "NOT_FOUND"
+    }
+  }
+}

@@ -40,12 +40,13 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx'],
   },
-  devServer: {
+devServer: {
     compress: true,
     port: 3000,
-    open: true,
+    open: false,
     static: {
-      directory: path.join(__dirname, 'public'), // Adjust if your static files are elsewhere
+      directory: path.join(__dirname, 'public'),
     },
+    historyApiFallback: true,
   },
 };

@@ -1,4 +1,7 @@
 import React from 'react'
+import { useAtom, useAtomValue } from 'jotai'
+import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   currentVariantAtom,
   isDarkModeAtom,
@@ -11,15 +14,12 @@ import {
   stackNameFilterAtom,
   tableSizeAtom,
 } from '../../common/store/atoms/uiAtoms'
-import { useAtom, useAtomValue } from 'jotai'
 import {
   servicesDetailId,
   tasksDetailId,
 } from '../../common/navigationConstants'
 import { serviceFilter } from '../../common/utils'
-import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import DSDCard from '../common/DSDCard'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NodeName from '../shared/names/NodeName'
 import ServiceName from '../shared/names/ServiceName'
 import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
@@ -92,7 +92,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
       </div>,
     )
   })
-  theads.push(<th key="dashboardTable-empty"></th>)
+  theads.push(<th key="dashboardTable-empty" />)
 
   nodes.forEach((node) => {
     const dataCols = []
@@ -146,6 +146,18 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                       timestamp: Date.now(),
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      updateView({
+                        id: tasksDetailId,
+                        detail: task.ID,
+                        timestamp: Date.now(),
+                      })
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   <ServiceStatusBadge
                     id={id}
@@ -230,7 +242,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
           {node['IP']}
         </td>
         {dataCols}
-        <td></td>
+        <td />
       </tr>,
     )
   })
@@ -314,6 +326,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   />
                 ),
               )}
+              <th className="fill-col" rowSpan={3} />
             </tr>
             <tr role="row">
               {serviceHeaders.map((h) =>
@@ -340,6 +353,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   />
                 ),
               )}
+              <th className="fill-col" rowSpan={2} />
             </tr>
             <tr role="row">
               {serviceHeaders.map((h) =>

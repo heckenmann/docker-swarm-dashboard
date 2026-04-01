@@ -1,7 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import EntityName from './EntityName'
 import { useAtom, useAtomValue } from 'jotai'
+import EntityName from './EntityName'
 import {
   logsFormServiceIdAtom,
   logsFormServiceNameAtom,
@@ -68,6 +69,13 @@ const ServiceName = React.memo(function ServiceName({
   showFilter = true,
   size = 'sm',
 }) {
+  const [, setFormId] = useAtom(logsFormServiceIdAtom)
+  const [, setFormName] = useAtom(logsFormServiceNameAtom)
+  const [, setLogsConfig] = useAtom(logsConfigAtom)
+  const [logsShowLogsVal, setLogsShowLogs] = useAtom(logsShowLogsAtom)
+  const logsConfigVal = useAtomValue(logsConfigAtom)
+  const [, updateView] = useAtom(viewAtom)
+
   if (!name) return null
 
   const nameNode = (
@@ -90,14 +98,6 @@ const ServiceName = React.memo(function ServiceName({
     ) : (
       nameNode
     )
-
-  const [, setFormId] = useAtom(logsFormServiceIdAtom)
-  const [, setFormName] = useAtom(logsFormServiceNameAtom)
-  const [, setLogsConfig] = useAtom(logsConfigAtom)
-  const [logsShowLogsVal, setLogsShowLogs] = useAtom(logsShowLogsAtom)
-
-  const logsConfigVal = useAtomValue(logsConfigAtom)
-  const [, updateView] = useAtom(viewAtom)
 
   const handleShowLogs = (sid) => {
     handleShowLogsInternal(
@@ -129,5 +129,16 @@ const ServiceName = React.memo(function ServiceName({
     />
   )
 })
+
+ServiceName.propTypes = {
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  nameClass: PropTypes.string,
+  useOverlay: PropTypes.bool,
+  tooltipText: PropTypes.string,
+  showOpen: PropTypes.bool,
+  showFilter: PropTypes.bool,
+  size: PropTypes.string,
+}
 
 export default ServiceName

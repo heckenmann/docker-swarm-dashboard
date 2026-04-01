@@ -46,7 +46,6 @@ describe('Task Details Tests', () => {
     visitBaseUrlAndTest(() => {
       cy.get('a[aria-label="Dashboard"]').click()
       cy.get('main').within(() => { cy.get('button').eq(1).click() })
-      cy.wait(300)
 
       // Find and click a task badge if present, otherwise skip this interaction
       cy.get('body').then(($body) => {

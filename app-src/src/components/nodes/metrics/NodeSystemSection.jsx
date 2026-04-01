@@ -1,9 +1,10 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
-import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { getCommonChartOptions } from '../../../common/chartUtils'
 
 /**
@@ -194,5 +195,11 @@ const NodeSystemSection = React.memo(function NodeSystemSection({
     </>
   )
 })
+
+NodeSystemSection.propTypes = {
+  tcpData: PropTypes.object.isRequired,
+  fdData: PropTypes.object.isRequired,
+  systemData: PropTypes.object.isRequired,
+}
 
 export default NodeSystemSection

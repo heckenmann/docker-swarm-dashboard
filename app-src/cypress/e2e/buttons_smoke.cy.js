@@ -22,7 +22,6 @@ describe('Buttons smoke tests', () => {
           const maxClicks = Math.min(buttons.length, 10)
           for (let i = 0; i < maxClicks; i++) {
             buttons[i].click()
-            cy.wait(150)
           }
         })
 

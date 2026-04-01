@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Card, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -38,9 +39,8 @@ export class ErrorBoundary extends React.Component {
    * @param {Error} error - The error that was thrown.
    * @param {Object} errorInfo - An object with information about the component stack.
    */
-  componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
-    console.log(error, errorInfo)
+  componentDidCatch(_error, _errorInfo) {
+    // Error logging removed - component will handle display via render
   }
 
   /**
@@ -124,4 +124,8 @@ export class ErrorBoundary extends React.Component {
 
     return this.props.children
   }
+}
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
 }

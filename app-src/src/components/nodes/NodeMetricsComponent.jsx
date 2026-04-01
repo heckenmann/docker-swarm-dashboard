@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
+import { Card, Alert, Spinner } from 'react-bootstrap'
 import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
-import { Card, Alert, Spinner } from 'react-bootstrap'
 import NodeInfoHeader from './metrics/NodeInfoHeader'
 import NodeCpuSection from './metrics/NodeCpuSection'
 import NodeMemorySection from './metrics/NodeMemorySection'
@@ -152,5 +153,9 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
     </Card.Body>
   )
 })
+
+NodeMetricsComponent.propTypes = {
+  nodeId: PropTypes.string.isRequired,
+}
 
 export default NodeMetricsComponent

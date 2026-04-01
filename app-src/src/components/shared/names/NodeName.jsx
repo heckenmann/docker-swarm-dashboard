@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import EntityName from './EntityName'
 
 /**
@@ -38,5 +39,13 @@ const NodeName = React.memo(function NodeName({
     />
   )
 })
+
+NodeName.propTypes = {
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  showOpen: PropTypes.bool,
+  size: PropTypes.string,
+  nameClass: PropTypes.string,
+}
 
 export default NodeName

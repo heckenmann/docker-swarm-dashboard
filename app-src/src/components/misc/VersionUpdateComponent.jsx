@@ -1,12 +1,12 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
+import { Alert, Badge, Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DSDCard from '../common/DSDCard.jsx'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { dashboardSettingsAtom } from '../../common/store/atoms/foundationAtoms'
 import { versionAtom } from '../../common/store/atoms/dashboardAtoms'
 import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
-import { Alert, Badge, Table } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const RELEASES_URL =
   'https://github.com/heckenmann/docker-swarm-dashboard/releases'

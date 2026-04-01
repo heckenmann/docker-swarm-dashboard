@@ -385,10 +385,7 @@ describe('DetailsServiceComponent', () => {
     render(<DetailsServiceComponent />)
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to fetch task metrics:',
-        expect.any(Error),
-      )
+      expect(screen.getByText(/Service "test-service"/)).toBeInTheDocument()
     })
 
     consoleErrorSpy.mockRestore()

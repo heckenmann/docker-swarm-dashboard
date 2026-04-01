@@ -19,9 +19,10 @@
  * @returns {JSX.Element|null}
  */
 import React from 'react'
+import PropTypes from 'prop-types'
+import { useAtomValue } from 'jotai'
 import { useEntityActions } from '../../../common/hooks/useEntityActions'
 import NameActions from './NameActions'
-import { useAtomValue } from 'jotai'
 import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
 
 const EntityName = React.memo(function EntityName({
@@ -39,7 +40,14 @@ const EntityName = React.memo(function EntityName({
   nameNode = null,
   entityType = 'service',
 }) {
+  const { onOpen: hookOnOpen, onFilter: hookOnFilter } =
+    useEntityActions(entityType)
+  const showNamesButtons = useAtomValue(showNamesButtonsAtom)
+
   if (!name) return null
+
+  const finalOnOpen = onOpen || hookOnOpen
+  const finalOnFilter = onFilter || hookOnFilter
 
   const defaultNameNode = (
     <span
@@ -49,14 +57,6 @@ const EntityName = React.memo(function EntityName({
       {name}
     </span>
   )
-
-  // Use centralized actions hook to provide defaults when props are omitted.
-  const { onOpen: hookOnOpen, onFilter: hookOnFilter } =
-    useEntityActions(entityType)
-  const finalOnOpen = onOpen || hookOnOpen
-  const finalOnFilter = onFilter || hookOnFilter
-
-  const showNamesButtons = useAtomValue(showNamesButtonsAtom)
 
   const showAnyAction = showOpen || showFilter || showLogs
 
@@ -84,5 +84,21 @@ const EntityName = React.memo(function EntityName({
     </>
   )
 })
+
+EntityName.propTypes = {
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string,
+  onOpen: PropTypes.func,
+  onFilter: PropTypes.func,
+  showOpen: PropTypes.bool,
+  showFilter: PropTypes.bool,
+  showLogs: PropTypes.bool,
+  onLogs: PropTypes.func,
+  size: PropTypes.string,
+  nameClass: PropTypes.string,
+  tooltipText: PropTypes.string,
+  nameNode: PropTypes.node,
+  entityType: PropTypes.string,
+}
 
 export default EntityName

@@ -1,12 +1,12 @@
 import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
+import { FormControl } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   baseUrlAtom,
   dashboardSettingsAtom,
 } from '../../../common/store/atoms/foundationAtoms'
 import { baseUrlDefaultAtom } from '../../../common/store/atoms/uiAtoms'
-import { FormControl } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 /**
  * ApiUrlRow renders the API URL setting row.
@@ -50,7 +50,7 @@ const ApiUrlRow = React.memo(function ApiUrlRow() {
       <td className="small text-muted">
         {String(dashboardSettings?.baseUrl ?? baseUrlDefault)}
       </td>
-      <td></td>
+      <td />
     </tr>
   )
 })

@@ -1,5 +1,8 @@
 import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
+import { Table } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useCallback } from 'react'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { portsAtom } from '../../common/store/atoms/dashboardAtoms'
 import {
@@ -10,14 +13,11 @@ import {
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 
 // UI & internal imports
-import { Table } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ServiceName from '../shared/names/ServiceName'
 import StackName from '../shared/names/StackName'
 import FilterComponent from '../shared/FilterComponent'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
-import { useCallback } from 'react'
 import DSDCard from '../common/DSDCard.jsx'
 
 /**
@@ -127,7 +127,7 @@ const PortsComponent = React.memo(function PortsComponent() {
       >
         <thead>
           <tr>
-            <th style={{ width: '25px' }}></th>
+            <th style={{ width: '25px' }} />
             <SortableHeader
               column="PublishedPort"
               label="PublishedPort"
@@ -136,7 +136,7 @@ const PortsComponent = React.memo(function PortsComponent() {
               onSort={handleSort}
               className="published-port"
             />
-            <th className="arrow"></th>
+            <th className="arrow" />
             <SortableHeader
               column="TargetPort"
               label="TargetPort"

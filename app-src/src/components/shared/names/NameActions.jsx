@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -75,5 +76,18 @@ const NameActions = React.memo(function NameActions({
     </>
   )
 })
+
+NameActions.propTypes = {
+  showOpen: PropTypes.bool,
+  showFilter: PropTypes.bool,
+  size: PropTypes.string,
+  onOpen: PropTypes.func,
+  onFilter: PropTypes.func,
+  onLogs: PropTypes.func,
+  showLogs: PropTypes.bool,
+  name: PropTypes.string,
+  id: PropTypes.string,
+  entityType: PropTypes.string,
+}
 
 export default NameActions

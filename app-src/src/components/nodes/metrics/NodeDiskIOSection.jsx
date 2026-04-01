@@ -1,9 +1,10 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
-import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
-import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
+import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
+import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { getCommonChartOptions } from '../../../common/chartUtils'
 import { formatBytes } from '../../../common/formatUtils'
 
@@ -131,5 +132,9 @@ const NodeDiskIOSection = React.memo(function NodeDiskIOSection({
     </>
   )
 })
+
+NodeDiskIOSection.propTypes = {
+  diskIOData: PropTypes.arrayOf(PropTypes.object).isRequired,
+}
 
 export default NodeDiskIOSection

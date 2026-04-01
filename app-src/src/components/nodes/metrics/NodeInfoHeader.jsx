@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Alert, Row, Col } from 'react-bootstrap'
 import { formatUptime } from '../../../common/formatUtils'
 
@@ -72,5 +73,11 @@ const NodeInfoHeader = React.memo(function NodeInfoHeader({
     </Alert>
   )
 })
+
+NodeInfoHeader.propTypes = {
+  systemData: PropTypes.object.isRequired,
+  ntpData: PropTypes.object.isRequired,
+  serverTime: PropTypes.string.isRequired,
+}
 
 export default NodeInfoHeader
