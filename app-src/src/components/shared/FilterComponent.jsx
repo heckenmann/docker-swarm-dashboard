@@ -35,6 +35,7 @@ const FilterComponent = React.memo(function FilterComponent() {
   )
 
   // Keep local UI state in sync when atoms change externally
+
   useEffect(() => {
     if (serviceFilter) {
       setFilterType('service')

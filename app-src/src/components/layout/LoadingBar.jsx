@@ -50,6 +50,7 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
       window.removeEventListener('network-request-start', onStart)
       window.removeEventListener('network-request-end', onEnd)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // If `force` is true, ensure the bar is shown while mounted/force is true.
@@ -68,6 +69,7 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
         if (requestsRef.current === 0) stop()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [force])
 
   useEffect(() => {
