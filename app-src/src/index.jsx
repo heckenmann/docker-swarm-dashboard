@@ -84,7 +84,9 @@ try {
 // `src` props on <img> elements.
 try {
   if (typeof window !== 'undefined' && window.Cypress) {
+    // eslint-disable-next-line no-console
     const origConsoleError = console.error.bind(console)
+    // eslint-disable-next-line no-console
     console.error = function (...args) {
       try {
         const msg = args && args[0] ? String(args[0]) : ''

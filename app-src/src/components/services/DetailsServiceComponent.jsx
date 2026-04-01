@@ -50,8 +50,7 @@ const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
         } else {
           setTaskMetrics(null)
         }
-      } catch (err) {
-        console.error('Failed to fetch task metrics:', err)
+      } catch {
         setTaskMetrics(null)
       } finally {
         if (mounted) setMetricsLoading(false)

@@ -146,6 +146,18 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                       timestamp: Date.now(),
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      updateView({
+                        id: tasksDetailId,
+                        detail: task.ID,
+                        timestamp: Date.now(),
+                      })
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
                 >
                   <ServiceStatusBadge
                     id={id}

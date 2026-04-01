@@ -114,6 +114,18 @@ const DashboardVerticalComponent = React.memo(
                         timestamp: Date.now(),
                       })
                     }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
+                        })
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
                   >
                     <ServiceStatusBadge
                       id={id}

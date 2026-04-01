@@ -7,7 +7,6 @@ export {
   // foundationAtoms
   parseHashToObj,
   baseUrlAtom,
-  baseUrlDefaultAtom,
   dashboardSettingsAtom,
   createHashAtomWithDefault,
   refreshIntervalDefaultAtom,
@@ -85,6 +84,7 @@ export {
   localeAtom,
   showWelcomeMessageAtom,
   networkRequestsAtom,
+  baseUrlDefaultAtom,
 } from './uiAtoms'
 
 export {

@@ -44,8 +44,7 @@ const DetailsTaskComponent = React.memo(function DetailsTaskComponent() {
           setTaskMetrics(null)
           if (data.message) setMetricsError(data.message)
         }
-      } catch (err) {
-        console.error('Failed to fetch task metrics:', err)
+      } catch {
         setTaskMetrics(null)
         setMetricsError('Failed to fetch metrics from cAdvisor')
       } finally {
