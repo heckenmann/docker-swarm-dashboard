@@ -72,7 +72,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
 
   // Automatic refresh interval using useEffect
   useEffect(() => {
-    if (refreshInterval != null) {
+    if (refreshInterval !== null) {
       const intervalId = setInterval(reloadData, refreshInterval)
       return () => clearInterval(intervalId)
     }

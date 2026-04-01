@@ -55,7 +55,7 @@ const TimelineComponent = React.memo(function TimelineComponent() {
           : new Date(stoppedRaw).getTime()
 
       // ensure service name is always a string to avoid downstream toLowerCase errors
-      const svcName = task.ServiceName != null ? String(task.ServiceName) : ''
+      const svcName = task.ServiceName !== null ? String(task.ServiceName) : ''
 
       // skip invalid/unnamed entries
       if (isNaN(createdTime) || svcName === '') return null
@@ -151,11 +151,11 @@ const TimelineComponent = React.memo(function TimelineComponent() {
     for (const s of rawSeries) {
       try {
         if (!s || typeof s !== 'object') continue
-        const name = s.name != null ? String(s.name) : ''
+        const name = s.name !== null ? String(s.name) : ''
         if (name.trim() === '') continue
         if (!Array.isArray(s.data) || s.data.length === 0) continue
         const item = s.data[0]
-        const x = item && item.x != null ? String(item.x) : ''
+        const x = item && item.x !== null ? String(item.x) : ''
         const y =
           item && Array.isArray(item.y) ? item.y.map((v) => Number(v)) : null
         if (!x || !y || y.length !== 2 || y.some((n) => Number.isNaN(n)))

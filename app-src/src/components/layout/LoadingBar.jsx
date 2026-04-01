@@ -23,7 +23,7 @@ const LoadingBar = React.memo(function LoadingBar({ force = false }) {
 
   useEffect(() => {
     // If atomCount is available, drive visibility from it.
-    if (atomCount != null) {
+    if (atomCount !== null) {
       requestsRef.current = atomCount
       if (atomCount > 0) start()
       else stop()
