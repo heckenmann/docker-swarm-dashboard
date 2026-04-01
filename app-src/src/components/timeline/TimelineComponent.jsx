@@ -161,10 +161,8 @@ const TimelineComponent = React.memo(function TimelineComponent() {
         if (!x || !y || y.length !== 2 || y.some((n) => Number.isNaN(n)))
           continue
         out.push({ name, data: [{ x, y }] })
-      } catch (err) {
+      } catch {
         // ignore malformed series entries
-
-        console.error('Malformed timeline series entry skipped', err)
       }
     }
     return out
@@ -222,12 +220,6 @@ const TimelineComponent = React.memo(function TimelineComponent() {
         ) : (
           <div style={{ padding: '1rem', color: 'var(--muted)' }}>
             Timeline cannot be rendered: {optionsValidation.msg}
-            {/* log full options for debugging in dev console */}
-            {console.error(
-              'Timeline options validation failed:',
-              options,
-              optionsValidation,
-            )}
           </div>
         )}
       </Card>
