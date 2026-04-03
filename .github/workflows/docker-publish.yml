@@ -64,7 +64,7 @@ jobs:
       # Log into the container registry (ghcr.io), skip on pull requests
       - name: Log into registry ${{ env.REGISTRY }}
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4.0.0
+        uses: docker/login-action@v4.1.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -135,7 +135,7 @@ jobs:
     steps:
       # Log into the container registry
       - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v4.0.0
+        uses: docker/login-action@v4.1.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
