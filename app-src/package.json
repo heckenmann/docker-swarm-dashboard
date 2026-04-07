@@ -80,7 +80,7 @@
     "html-webpack-plugin": "^5.6.6",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
-    "jotai": "^2.19.0",
+    "jotai": "^2.19.1",
     "jotai-location": "^0.6.2",
     "json-server": "1.0.0-beta.15",
     "prettier": "^3.8.1",
