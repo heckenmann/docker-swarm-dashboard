@@ -83,7 +83,7 @@
     "jotai": "^2.19.1",
     "jotai-location": "^0.6.2",
     "json-server": "1.0.0-beta.15",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.2",
     "prop-types": "^15.8.1",
     "react": "^19.2.4",
     "react-apexcharts": "^2.1.0",
