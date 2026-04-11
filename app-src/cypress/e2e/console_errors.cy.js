@@ -1,4 +1,3 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Console should not show errors or warnings via navbar clicks', () => {
   const navLabels = [
@@ -15,7 +14,7 @@ describe('Console should not show errors or warnings via navbar clicks', () => {
 
   navLabels.forEach((label) => {
     it(`no console errors/warnings when clicking '${label}' in navbar`, () => {
-      visitBaseUrlAndTest(() => {
+      
         // instrument console on the page before interacting
         cy.window().then((win) => {
           win.__consoleErrors = []
@@ -86,7 +85,7 @@ describe('Console should not show errors or warnings via navbar clicks', () => {
           expect(errors, `console.error after clicking ${label}: ${JSON.stringify(errors.slice(0,10))}`).to.have.length(0)
           expect(warns, `console.warn after clicking ${label}: ${JSON.stringify(warns.slice(0,10))}`).to.have.length(0)
         })
-      })
+      
     })
   })
 })

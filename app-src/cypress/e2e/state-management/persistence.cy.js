@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from '../../support/common'
 
 describe('State Persistence Tests', () => {
   it('should persist dark mode setting across sessions', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Settings"]').click()
       cy.wait(500)
       cy.get('input[aria-label="Toggle dark mode"]').check({ force: true })
@@ -15,11 +14,11 @@ describe('State Persistence Tests', () => {
       
       // Verify dark mode setting persists
       cy.get('input[aria-label="Toggle dark mode"]').should('be.checked')
-    })
+    
   })
 
   it('should persist navigation labels setting across sessions', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Settings"]').click()
       cy.wait(500)
       cy.get('input[aria-label="Toggle navigation labels"]').check({ force: true })
@@ -31,11 +30,11 @@ describe('State Persistence Tests', () => {
       
       // Verify navigation labels setting persists
       cy.get('input[aria-label="Toggle navigation labels"]').should('be.checked')
-    })
+    
   })
 
   it('should reset to defaults when requested', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Settings"]').click()
       cy.wait(500)
       cy.get('input[aria-label="Toggle dark mode"]').check({ force: true })
@@ -50,6 +49,6 @@ describe('State Persistence Tests', () => {
       cy.get('input[aria-label="Toggle dark mode"]').should('not.be.checked')
       cy.get('button:contains("Small (sm)")').should('have.class', 'active')
       cy.get('input[aria-label="Toggle navigation labels"]').should('not.be.checked')
-    })
+    
   })
 })

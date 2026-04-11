@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Task Details Tests', () => {
   it('opens task details from tasks table view details button', () => {
-    visitBaseUrlAndTest(() => {
+    
       // Navigate to Tasks page
       cy.get('a[aria-label="Tasks"]').click()
       cy.get('.table', { timeout: 5000 }).should('exist')
@@ -17,11 +16,11 @@ describe('Task Details Tests', () => {
       cy.contains('button', 'Metrics', { timeout: 5000 }).should('be.visible')
       cy.contains('button', 'Table', { timeout: 5000 }).should('be.visible')
       cy.contains('button', 'JSON', { timeout: 5000 }).should('be.visible')
-    })
+    
   })
 
   it('opens task details by clicking task badge in h-dashboard', () => {
-    visitBaseUrlAndTest(() => {
+    
       // Navigate to Dashboard (horizontal)
       cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
@@ -39,11 +38,11 @@ describe('Task Details Tests', () => {
           cy.log('No badges on horizontal dashboard; skipping badge click assertion')
         }
       })
-    })
+    
   })
 
   it('opens task details by clicking task badge in v-dashboard', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
       cy.get('main').within(() => { cy.get('button').eq(1).click() })
 
@@ -60,11 +59,11 @@ describe('Task Details Tests', () => {
           cy.log('No badges on vertical dashboard; skipping badge click assertion')
         }
       })
-    })
+    
   })
 
   it('displays task metrics in details view', () => {
-    visitBaseUrlAndTest(() => {
+    
       // Navigate to Tasks page
       cy.get('a[aria-label="Tasks"]').click()
       cy.get('.table', { timeout: 5000 }).should('exist')
@@ -78,11 +77,11 @@ describe('Task Details Tests', () => {
       // Verify metrics content is displayed (or message about metrics not available)
       // The metrics might not be available in mock environment, so we check for either
       cy.get('.tab-content', { timeout: 5000 }).should('exist')
-    })
+    
   })
 
   it('displays task information in Table tab', () => {
-    visitBaseUrlAndTest(() => {
+    
       // Navigate to Tasks page
       cy.get('a[aria-label="Tasks"]').click()
       cy.get('.table', { timeout: 5000 }).should('exist')
@@ -95,6 +94,6 @@ describe('Task Details Tests', () => {
 
       // Verify table is displayed
       cy.get('table', { timeout: 5000 }).should('exist')
-    })
+    
   })
 })

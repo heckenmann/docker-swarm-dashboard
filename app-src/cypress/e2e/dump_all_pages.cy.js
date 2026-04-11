@@ -1,4 +1,3 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 const pages = [
   { name: 'dashboard_h', text: 'Dashboard', hash: '/dashboard/h', isDefault: true },
@@ -15,7 +14,7 @@ const pages = [
 describe('Dump all pages', () => {
   pages.forEach((p) => {
     it(`dump ${p.name}`, () => {
-      visitBaseUrlAndTest(() => {
+      
         if (p.isDefault) {
           cy.get(`a[aria-label="${p.text}"]`).click()
         } else if (p.name === 'dashboard_v') {
@@ -33,7 +32,7 @@ describe('Dump all pages', () => {
         })
 
         cy.screenshot(`dump_${p.name}`)
-      })
+      
     })
   })
 })

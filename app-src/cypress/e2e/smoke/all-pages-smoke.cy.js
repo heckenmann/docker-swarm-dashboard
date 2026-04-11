@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from '../../support/common'
 
 describe('All Pages Smoke Test', () => {
   it('should be able to navigate to all main pages without errors', () => {
-    visitBaseUrlAndTest(() => {
+    
       // Test navigation to all main pages
       const pages = [
         'Dashboard',
@@ -21,7 +20,7 @@ describe('All Pages Smoke Test', () => {
         cy.get(`a[aria-label="${page}"]`).click()
         cy.get('nav', { timeout: 5000 }).should('be.visible')
       })
-    })
+    
   })
 
   it('should have all page objects accessible via getPage command', () => {

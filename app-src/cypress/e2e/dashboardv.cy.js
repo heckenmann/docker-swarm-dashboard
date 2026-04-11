@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Dashboard vertical Tests', () => {
   it('Load page', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
       // switch to vertical layout using the small layout toggle (grip-vertical)
       // find the button that contains the grip-vertical SVG and click it
@@ -18,11 +17,11 @@ describe('Dashboard vertical Tests', () => {
   cy.contains('td', 'backend_auth-service').click()
   // assert that manager1 node row/header exists in the vertical layout
   cy.contains('th', 'manager1').should('exist')
-    })
+    
   })
 
   it('Filter by service name', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
       cy.get('main').within(() => {
         cy.get('button').eq(1).should('be.visible').click()
@@ -33,16 +32,16 @@ describe('Dashboard vertical Tests', () => {
   cy.get('input[aria-label="Filter by service name"]').type('backend_')
   cy.contains('td', 'backend_auth-service').should('exist')
   cy.get('input[aria-label="Filter by service name"]').clear()
-    })
+    
   })
 
   it('Filter by stack name', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
   cy.get('main').within(() => { cy.get('button').eq(1).click() })
   cy.get('button[aria-label="Filter by stack"]').click()
   cy.get('input[aria-label="Filter by stack name"]').type('frontend')
   cy.contains('td', 'frontend_user-service').should('exist')
-    })
+    
   })
 })

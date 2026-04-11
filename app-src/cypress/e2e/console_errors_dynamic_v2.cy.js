@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Console errors dynamic (fast)', () => {
   it('visits a few nav pages and clicks detail buttons, failing fast on console or network errors', () => {
-    visitBaseUrlAndTest(() => {
+    
       const MAX_PAGES = 3
       const MAX_BUTTONS = 4
       let interceptedResponses = []
@@ -78,7 +77,7 @@ describe('Console errors dynamic (fast)', () => {
             })
           })
         })
-    })
+    
   })
 })
 

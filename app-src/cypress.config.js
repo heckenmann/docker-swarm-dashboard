@@ -3,6 +3,17 @@ const { defineConfig } = require('cypress')
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
+      on('before:browser:launch', (browser = {}, launchOptions) => {
+        if (browser.name === 'chrome' || browser.name === 'edge') {
+          launchOptions.args.push('--window-size=3840,2160')
+          return launchOptions
+        }
+        if (browser.name === 'electron') {
+          launchOptions.preferences.width = 3840
+          launchOptions.preferences.height = 2160
+          return launchOptions
+        }
+      })
       on('after:run', (results) => {
         if (results) {
           const passed = results.totalTests - results.totalFailures
@@ -24,8 +35,9 @@ module.exports = defineConfig({
     downloadsFolder: 'cypress/downloads',
     video: false,
     screenshotOnRunFailure: false,
-    viewportWidth: 1280,
-    viewportHeight: 720,
+    viewportWidth: 3840,
+    viewportHeight: 2160,
+    autoVisit: true,
     defaultCommandTimeout: 5000,
     execTimeout: 30000,
     taskTimeout: 30000,
@@ -39,7 +51,7 @@ module.exports = defineConfig({
     // Parallelization settings
     experimentalWebKitSupport: false,
     experimentalRunAllSpecs: true,
-    allowCypressEnv: false,
+    allowCypressEnv: true,
     env: {
       mockApiUrl: 'http://localhost:3001',
       testUser: {
@@ -59,7 +71,7 @@ module.exports = defineConfig({
   
   // Optimize for speed
   numTestsKeptInMemory: 0,
-  trashAssetsBeforeRuns: false,
+  trashAssetsBeforeRuns: true,
   
   // Reporter configuration
   reporter: 'spec',

@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Settings Tests', () => {
   it('Load page and toggle settings', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Settings"]').click()
 
       // Set Interval Refresh to 5 seconds (first button in ButtonGroup)
@@ -33,6 +32,6 @@ describe('Settings Tests', () => {
       // Toggle Show names buttons off (default: checked)
       cy.get('input[aria-label="Toggle show buttons in names"]').uncheck({ force: true })
       cy.get('input[aria-label="Toggle show buttons in names"]').should('not.be.checked')
-    })
+    
   })
 })

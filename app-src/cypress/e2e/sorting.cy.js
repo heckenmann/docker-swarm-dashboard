@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Table Sorting Tests', () => {
   it('Nodes table has light arrows and sorting works with 3-click cycle', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Nodes"]').click()
 
       // Before sorting, light arrows should be visible on all headers
@@ -41,11 +40,11 @@ describe('Table Sorting Tests', () => {
         .parent()
         .find('svg')
         .should('exist')
-    })
+    
   })
 
   it('Tasks table sorting works with 3-click cycle', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Tasks"]').click()
 
       // Before sorting, light arrows should be visible
@@ -84,11 +83,11 @@ describe('Table Sorting Tests', () => {
         .parent()
         .find('svg')
         .should('exist')
-    })
+    
   })
 
   it('Ports table sorting works with 3-click cycle', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Ports"]').click()
 
       // Before sorting, light arrows should be visible
@@ -127,11 +126,11 @@ describe('Table Sorting Tests', () => {
         .parent()
         .find('svg')
         .should('exist')
-    })
+    
   })
 
   it('Sort state persists in URL hash', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Nodes"]').click()
 
       // Click to sort by Hostname
@@ -150,6 +149,6 @@ describe('Table Sorting Tests', () => {
         .parent()
         .find('svg')
         .should('exist')
-    })
+    
   })
 })

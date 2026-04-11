@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Header filter buttons', () => {
   it('clicking header filter sets service filter input', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
       cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
 
@@ -14,6 +13,6 @@ describe('Header filter buttons', () => {
 
       // filter input should contain the service name
       cy.get('input[aria-label="Filter by service name"]').should('have.value', 'frontend_user-service')
-    })
+    
   })
 })

@@ -1,8 +1,7 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 describe('Dashboard horizontal Tests', () => {
   it('Dashboard horizontal', () => {
-    visitBaseUrlAndTest(() => {
+    
   cy.get('a[aria-label="Dashboard"]').click()
   // wait for services table to render so subsequent queries find elements
   cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
@@ -30,11 +29,11 @@ describe('Dashboard horizontal Tests', () => {
   // wait for the details panel buttons to render then assert
   cy.contains('button', 'JSON', { timeout: 5000 }).should('be.visible')
   cy.contains('button', 'Table', { timeout: 5000 }).should('be.visible')
-    })
+    
   })
 
   it('Filter by service name', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
   // filter for a known mock service prefix and assert visibility
   cy.get('input[aria-label="Filter by service name"]').type('backend_')
@@ -43,11 +42,11 @@ describe('Dashboard horizontal Tests', () => {
   cy.get('input[aria-label="Filter by service name"]').type('frontend_')
   cy.contains('th .service-name-text', 'frontend_user-service').should('exist')
   cy.get('input[aria-label="Filter by service name"]').clear()
-    })
+    
   })
 
   it('Filter by stack name', () => {
-    visitBaseUrlAndTest(() => {
+    
       cy.get('a[aria-label="Dashboard"]').click()
   // select Stack filter and type 'backend' to match mock-generated stack
   // select the Stack option by value to change filter mode
@@ -57,6 +56,6 @@ describe('Dashboard horizontal Tests', () => {
   // after filtering by stack, assert a known backend service exists
   cy.contains('th .service-name-text', 'backend_auth-service').should('exist')
   cy.get('input[aria-label="Filter by stack name"]').clear()
-    })
+    
   })
 })

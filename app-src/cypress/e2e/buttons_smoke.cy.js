@@ -1,4 +1,3 @@
-import { visitBaseUrlAndTest } from './spec.cy'
 
 const pages = [
   { nav: 'Dashboard' },
@@ -14,7 +13,7 @@ const pages = [
 describe('Buttons smoke tests', () => {
   pages.forEach((p) => {
     it(`visit page and click buttons - ${p.nav}`, () => {
-      visitBaseUrlAndTest(() => {
+      
         cy.get(`a[aria-label="${p.nav}"]`).click()
         cy.document().its('body').should('exist')
 
@@ -26,7 +25,7 @@ describe('Buttons smoke tests', () => {
         })
 
         cy.document().its('body').should('not.contain', 'ERROR')
-      })
+      
     })
   })
 })
