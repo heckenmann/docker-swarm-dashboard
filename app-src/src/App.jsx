@@ -46,10 +46,7 @@ const App = () => {
       </ErrorBoundary>
       <LoadingBar />
       <main role="main">
-        <Container
-          fluid={maxContentWidth === 'fluid'}
-          className="overflow-auto"
-        >
+        <Container fluid={maxContentWidth === 'fluid'}>
           <ErrorBoundary>
             <WelcomeMessageComponent />
             <ContentRouter />

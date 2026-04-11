@@ -91,7 +91,7 @@ const DSDCard = React.memo(function DSDCard({
   }
 
   return (
-    <Card className={`mb-3 shadow-sm ${className}`}>
+    <Card className={`mb-3 shadow-sm w-100 ${className}`}>
       {renderHeader()}
       {body ? (
         <Card.Body className={bodyClassName}>{body}</Card.Body>

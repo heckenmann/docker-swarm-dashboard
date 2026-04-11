@@ -157,7 +157,12 @@ const TasksComponent = React.memo(function TasksComponent() {
   ))
 
   return (
-    <DSDCard icon="tasks" title="Tasks" headerActions={<FilterComponent />}>
+    <DSDCard
+      icon="tasks"
+      title="Tasks"
+      headerActions={<FilterComponent />}
+      bodyClassName="p-0"
+    >
       <Table
         className="tasks-table mb-0"
         variant={currentVariant}

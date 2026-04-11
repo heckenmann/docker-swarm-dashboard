@@ -131,7 +131,7 @@ const NodesComponent = React.memo(function NodesComponent() {
   })
 
   return (
-    <DSDCard icon="server" title="Nodes">
+    <DSDCard icon="server" title="Nodes" bodyClassName="p-0">
       <Table
         variant={currentVariant}
         key="nodesTable"

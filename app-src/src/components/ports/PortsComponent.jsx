@@ -117,7 +117,12 @@ const PortsComponent = React.memo(function PortsComponent() {
   })
 
   return (
-    <DSDCard icon="building" title="Ports" headerActions={<FilterComponent />}>
+    <DSDCard
+      icon="building"
+      title="Ports"
+      headerActions={<FilterComponent />}
+      bodyClassName="p-0"
+    >
       <Table
         id="portsTable"
         className="ports-table mt-2"

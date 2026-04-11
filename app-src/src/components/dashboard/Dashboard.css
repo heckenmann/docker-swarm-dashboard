@@ -1,0 +1,122 @@
+/* Dashboard table layout and wrapper */
+.dashboard-table-wrapper {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  overflow-x: auto;
+}
+
+/* Base table styling */
+.dashboard-table {
+  width: 100%;
+  margin-bottom: 0;
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: collapse;
+  background-color: transparent;
+}
+
+/* Remove default list styles for task lists inside the table */
+.dashboard-table ul,
+.vertical-dashboard ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.dashboard-table ul li,
+.vertical-dashboard ul li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Node attribute columns */
+.dashboard-table .node-attribute,
+.dashboard-table .node-attribute-small {
+  white-space: nowrap;
+}
+
+/* Filler column (.fill-col) expansion logic for fixed layout */
+.fill-col {
+  width: auto;
+  min-width: 120px;
+  background-color: inherit;
+  border-left: 1px solid var(--table-border-color);
+}
+
+/* Header cell styling */
+.dashboard-table thead th {
+  height: auto;
+  color: var(--text);
+  border-bottom: 1px solid var(--table-border-color);
+}
+
+/* Header border behavior for 3-row layout (Horizontal Dashboard) */
+.dashboard-table thead tr:nth-child(1) .data-col,
+.dashboard-table thead tr:nth-child(2) .data-col {
+  border-bottom: none;
+}
+
+/* Explicitly ensure the filler header cell has a bottom border */
+.dashboard-table thead .fill-col {
+  border-bottom: 1px solid var(--table-border-color);
+}
+
+.dashboard-table tbody td {
+  color: var(--text);
+  border-bottom: 1px solid var(--table-border-color);
+}
+
+/* Service columns */
+.dashboard-table .data-col {
+  width: 120px;
+  min-width: 120px;
+}
+
+/* Vertical border logic for services */
+.dashboard-table thead .data-col,
+.dashboard-table tbody [class*="svc-index-"] {
+  border-left: 1px solid var(--table-border-color);
+}
+
+/* No left border for initial node attribute columns */
+.dashboard-table thead .node-attribute,
+.dashboard-table thead .node-attribute-small,
+.dashboard-table tbody .node-attribute,
+.dashboard-table tbody .node-attribute-small {
+  border-left: none;
+}
+
+/* Service header 'flag' styling */
+.dashboard-table thead .service-header {
+  position: relative;
+  padding: 5px 8px;
+  padding-left: 4px;
+  overflow: visible;
+  line-height: 1.05;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.dashboard-table thead .service-header .header-wrap {
+  padding: 0;
+}
+
+/* Center content in service columns vertically */
+.dashboard-table tbody [class*="svc-index-"] {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Vertical Dashboard specific overrides */
+.vertical-dashboard {
+  table-layout: auto;
+}
+
+.vertical-dashboard .stack-column {
+  width: 1px;
+  min-width: 5rem;
+  white-space: nowrap;
+}

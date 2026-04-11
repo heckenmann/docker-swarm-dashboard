@@ -24,6 +24,7 @@ import NodeName from '../shared/names/NodeName'
 import ServiceName from '../shared/names/ServiceName'
 import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
 import DashboardSettingsComponent from './DashboardSettingsComponent'
+import './Dashboard.css'
 
 /**
  * DashboardComponent
@@ -40,7 +41,6 @@ const DashboardComponent = React.memo(function DashboardComponent() {
   const hiddenServiceStates = useAtomValue(hiddenServiceStatesAtom)
   const [, updateView] = useAtom(viewAtom)
 
-  const theads = []
   const trows = []
 
   const dashboardhData = useAtomValue(dashboardHAtom) || {}
@@ -72,28 +72,6 @@ const DashboardComponent = React.memo(function DashboardComponent() {
     serviceHeaders.map((h) => [h.id, h.index]),
   )
 
-  visibleServices.forEach((service) => {
-    theads.push(
-      <div
-        key={
-          'dashboardTable-' +
-          (service && service.ID ? String(service.ID) : 'svc-unknown')
-        }
-        className="data-col"
-        style={{ width: '120px', minWidth: '120px' }}
-      >
-        <ServiceName
-          name={service['Name']}
-          id={service.ID}
-          useOverlay={true}
-          tooltipText={service['Name']}
-          nameClass="text-ellipsis d-inline-block"
-        />
-      </div>,
-    )
-  })
-  theads.push(<th key="dashboardTable-empty" />)
-
   nodes.forEach((node) => {
     const dataCols = []
     for (let s = 0; s < visibleServices.length; s++) {
@@ -113,7 +91,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
           style={{ width: '120px', minWidth: '120px' }}
         >
           {node['Tasks'] && node['Tasks'][service['ID']] && (
-            <ul>
+            <ul className="list-unstyled mb-0">
               {node['Tasks'][service['ID']].map((task, id) => (
                 <li
                   key={
@@ -242,7 +220,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
           {node['IP']}
         </td>
         {dataCols}
-        <td />
+        <td className="fill-col" />
       </tr>,
     )
   })
@@ -252,6 +230,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
       icon="grip"
       title="Dashboard"
       headerActions={<DashboardSettingsComponent />}
+      bodyClassName="p-0"
     >
       <div className="dashboard-table-wrapper table-responsive">
         <Table
@@ -353,7 +332,6 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   />
                 ),
               )}
-              <th className="fill-col" rowSpan={2} />
             </tr>
             <tr role="row">
               {serviceHeaders.map((h) =>

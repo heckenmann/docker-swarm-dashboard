@@ -1,11 +1,15 @@
 /* Add global CSS variables */
 :root {
   --dashboard-badge-width: 72px;
+
+  /* Default table border color if not provided by theme */
+  --table-border-color: rgb(0 0 0 / .12);
 }
 
 /* Ensure the App root fills the viewport and uses the theme background variable */
 .app {
   min-height: 100vh;
+  color: var(--text);
   background: var(--bg);
 }
 
@@ -17,14 +21,10 @@
   z-index: 0;
   display: block;
   width: auto;
-
-  /* limit max size so it doesn't dominate the UI, keep natural aspect ratio */
   max-width: 220px;
   height: auto;
   max-height: 220px;
   pointer-events: none;
-
-  /* subtle stylistic effects */
   filter: grayscale(100%) contrast(.95) brightness(.95);
   mix-blend-mode: multiply;
   opacity: var(--bg-logo-opacity, .07);
@@ -32,179 +32,23 @@
   transform: rotate(-8deg);
 }
 
-/* Reduce prominence on small screens */
-@media (max-width: 768px) {
-  .background-image { display: none; }
-}
-
-/* Theme-aware tweaks */
+/* Theme-aware tweaks for background logo */
 .theme-dark .background-image {
-  filter: grayscale(100%) contrast(1.25) brightness(1.6) drop-shadow(0 6px 18px rgb(0, 0, 0, .45));
+  filter: grayscale(100%) contrast(1.25) brightness(1.6) drop-shadow(0 6px 18px rgb(0 0 0 / .45));
   mix-blend-mode: screen;
-
-  /* Increase visibility in dark mode: lighten and slightly brighten the logo
-       while keeping it decorative and unobtrusive. Use screen blend so the
-       logo appears as a subtle light watermark on dark backgrounds. */
   opacity: .14;
-}
-
-/* Ensure main content renders above the decorative background
-   Exclude the decorative background image to avoid overriding its
-   positioning/z-index when it's a direct child of .app. */
-.app > *:not(.background-image) {
-  position: relative;
-  z-index: 1;
 }
 
 .cursor-pointer {
   cursor: pointer;
 }
 
-/* legacy docker logo rules removed; use #dockerlogo defined above */
-
-.dashboard-table .data-col {
-  /* service columns use inline percent widths; avoid forcing a fixed pixel width */
-  width: auto;
-  min-width: 0;
-}
-
-/* keep headers naturally sized in dashboard table */
-.dashboard-table thead th {
-  height: auto;
-}
-
-/* (removed unused rotated header styles) */
-
-.dashboard-table {
-  table-layout: fixed;
-}
-
-/* For the vertical dashboard we want auto table layout so content-sized columns like
-   the stack-column can shrink to content without overlapping the next columns. */
-.vertical-dashboard {
-  table-layout: auto;
-}
-
-.dashboard-table .node-attribute {
-  white-space: nowrap;
-}
-
-.dashboard-table .node-attribute-small {
-  white-space: nowrap;
-}
-
-/* Make the Stack column only as wide as its longest content */
-.vertical-dashboard .stack-column {
-  width: 1px; /* shrink-to-fit trick for tables */
-  min-width: 5rem; /* make stack column a bit wider */
-  max-width: none;
-  white-space: nowrap;
-}
-
-/* Vertical dashboard layout uses the same svc-index* classes as the
-   horizontal dashboard; no special-case centering rules are required. */
-
-/* Ensure the replication column keeps a reasonable min width so it doesn't collide */
-.dashboard-table [style] {
-  min-width: 120px;
-}
-.stack-column .me-2 {
-  display: inline-block;
-  max-width: none;
-}
-
-/* Ports table columns - leave widths to layout; selectors reserved for future tweaks (no empty rules) */
-
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* theme-aware overlay background (no hard-coded color) */
-  background: var(--overlay-background, transparent);
-}
-
-.loading-card {
-  width: min(460px, 90%);
-  padding: 1rem 1.25rem;
-  background: var(--card-bg);
-  border-radius: 12px;
-
-  /* prefer theme variables for shadow and background */
-  box-shadow: var(--loading-card-shadow, var(--shadow));
-}
-
-/* Loading bar inside the loading dialog */
-.loading-card .loading-bar {
-  position: relative;
-  height: 6px;
-  overflow: hidden;
-  background: var(--loading-card-bar-bg, transparent);
-  border-radius: 6px;
-}
-.loading-card .loading-bar .loading-bar-progress {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
-  box-shadow: none;
-}
-
-.loading-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-.loading-subtitle {
-  margin-top: 6px;
-  font-size: .95rem;
-  color: inherit;
-}
-
-/* Thin loading bar under navbar (rendered directly after the Navbar) */
-.loading-bar {
-  position: relative;
-  z-index: 1050;
-  width: 100%;
-  height: 3px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 200ms ease;
-}
-.loading-bar.visible { opacity: 1; }
-.loading-bar .loading-bar-progress {
-  width: 0%;
-  height: 100%;
-  box-shadow: var(--loading-bar-shadow, var(--shadow));
-  transition: width 180ms ease;
-}
-
-/* Shared background for any loading progress element */
-.loading-bar .loading-bar-progress,
-.loading-card .loading-bar .loading-bar-progress {
-  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
-}
-
-/* if LoadingBar follows the Navbar in the DOM, ensure it's snug to the bottom */
-.navbar + .loading-bar {
-  margin-top: 0;
-}
-
-/* Ensure main content sits below the Navbar (navbar height ~56-64px) */
-
-/* Ensure main content sits below the Navbar. Reduce the default gap so content starts higher. */
-main {
-  padding-top: 16px; /* reduced further */
-}
-@media (min-width: 1200px) {
-  main { padding-top: 32px; } /* reduced further for large screens */
-}
-
+/* Ports table columns */
 .ports-table .arrow {
   width: 50px;
 }
 
+/* Tasks table columns */
 .tasks-table .timestamp-col {
   width: 200px;
 }
@@ -249,25 +93,18 @@ ul li {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
-
-    /* keep CSS variables theme-aware; do not set hard colors here */
-    --overlay: var(--overlay, transparent);
-    --overlay-thumb: var(--overlay-thumb, transparent);
   }
 }
-
-/* Removed custom settings-icon/default-cell styles — use Bootstrap utilities only */
 
 .rotating {
   animation: rotating 2s linear infinite;
 }
 
-.service-status-tooltip {
-  .tooltip-inner {
-    min-width: 250px;
-  }
+.service-status-tooltip .tooltip-inner {
+  min-width: 250px;
 }
 
 /* Modern utility classes */
@@ -277,97 +114,7 @@ ul li {
   box-shadow: var(--shadow);
 }
 
-/* Keep navbar styling mostly to Bootstrap utilities. Avoid custom layout rules here to
-    rely on Bootstrap's responsive behaviour. */
-
-/* Use Bootstrap's default navbar/nav-link/button styles. Custom styles removed to revert to standard look. */
-
-/* No custom color overrides here — Bootstrap utility and color classes control button colors */
-
-/* Navbar-specific overrides removed so Bootstrap defaults apply. */
-
-/* Removed unused header/service-name overflow helpers (no longer referenced) */
-
-/* Header border behavior:
-   - the first two header rows in the dashboard's THEAD should not show a bottom border
-   - only the last header row should display the normal bottom border separating THEAD from TBODY
-*/
-
-/* Only affect the service-name/service header columns (they have class .data-col) */
-.dashboard-table thead tr:nth-child(1) .data-col,
-.dashboard-table thead tr:nth-child(2) .data-col {
-  border-bottom: none;
-}
-
-/* Ensure only the service header columns in the last header row show the separator */
-.dashboard-table thead tr:last-child .data-col {
-  border-bottom: 1px solid var(--table-border-color);
-}
-
-/* Show left border for service columns starting from the header row where the service name sits.
-   Classes applied in the header: svc-start-N (N = 0..2) and svc-index-X for the column.
-   hdr-row-Y marks which header row the TH belongs to (0,1,2). We want the left border to appear
-   for rows >= svc-start.
-*/
-
-/* Header rows: show left border when the header cell's start <= this row */
-.dashboard-table thead .data-col.svc-start-0,
-.dashboard-table thead .data-col.svc-start-1.hdr-row-1,
-.dashboard-table thead .data-col.svc-start-1.hdr-row-2,
-.dashboard-table thead .data-col.svc-start-2.hdr-row-2 {
-  border-left: 1px solid var(--table-border-color);
-}
-
-/* Body cells: any TD with the service column index should show the left border
-   only if the service started at row 0 (then border from top) or row 1 (from its header row)
-   We'll show border for all body cells in that column — visual alignment is handled by thead rules above.
-*/
-.dashboard-table tbody .svc-index-0,
-.dashboard-table tbody .svc-index-1,
-.dashboard-table tbody .svc-index-2,
-.dashboard-table tbody [class*="svc-index-"] {
-  border-left: 1px solid var(--table-border-color);
-}
-
-/* To avoid affecting non-service columns, ensure node/attribute columns do not get svc-index classes */
-.dashboard-table thead .node-attribute,
-.dashboard-table thead .node-attribute-small,
-.dashboard-table tbody .node-attribute,
-.dashboard-table tbody .node-attribute-small {
-  border-left: none;
-}
-
-/* Service header 'flag' — improved pennant styling for service header cells.
-   Adds a small triangular marker at the left, a subtle left->right fade, padding
-   and improved vertical alignment. Only targets actual service header THs. */
-
-/* Header uses secondary badges for service names */
-.dashboard-table thead .service-header {
-  position: relative;
-  padding: 5px 8px; /* slightly reduced from previous */
-  padding-left: 4px; /* match service-name-text left padding */
-  overflow: visible; /* allow overflow into adjacent columns when needed */
-  line-height: 1.05;
-  text-align: left;
-  white-space: nowrap; /* prevent wrapping */
-  vertical-align: middle;
-}
-
-.dashboard-table thead .service-header .header-wrap {
-  padding: 0;
-}
-
-/* Center content in service columns vertically */
-.dashboard-table tbody [class*="svc-index-"] {
-  text-align: center;
-  vertical-align: middle;
-}
-
-/* Subtle magnifier button used in the vertical dashboard Stack column */
-
 /* Shared inline action button base for small header/body buttons */
-
-/* Backwards-compatible selectors: apply base inline-action styles to existing classes */
 .inline-action-btn,
 .name-filter-btn,
 .name-open-btn,
@@ -399,9 +146,6 @@ ul li {
 .name-open-btn:focus,
 .name-logs-btn:hover,
 .name-logs-btn:focus {
-  /* Explicitly override Bootstrap's .btn-primary:hover which injects color:#fff
-     and a blue border. --text resolves to the body text colour in both light
-     (≈#212529) and dark (≈#e6eef8) modes, keeping the icon readable. */
   color: var(--text, #495057);
   text-decoration: none;
   background: transparent;
@@ -411,13 +155,17 @@ ul li {
 }
 
 /* stack-filter specific small offset */
-.name-filter-btn { margin-left: 0; }
-.name-open-btn { margin-left: 0; }
-.name-logs-btn { margin-left: 0; }
+.name-filter-btn {
+  margin-left: 0;
+}
 
-/* Body-specific offsets if needed may be added here later. Shared rules above
-    apply to both header and body buttons for consistent styling. */
+.name-open-btn {
+  margin-left: 0;
+}
 
+.name-logs-btn {
+  margin-left: 0;
+}
 
 /* Pulsing animation for the version-update badge dot in the navbar */
 @keyframes version-badge-pulse {
@@ -426,6 +174,7 @@ ul li {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: .75;
     transform: translate(-50%, -50%) scale(1.35);
@@ -438,4 +187,14 @@ ul li {
   font-size: .6rem;
   line-height: 1.1rem;
   animation: version-badge-pulse 1.6s ease-in-out infinite;
+}
+
+main {
+  padding-top: 16px;
+}
+
+@media (min-width: 1200px) {
+  main {
+    padding-top: 32px;
+  }
 }

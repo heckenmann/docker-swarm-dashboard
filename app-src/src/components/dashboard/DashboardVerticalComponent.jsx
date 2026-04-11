@@ -21,6 +21,7 @@ import StackName from '../shared/names/StackName'
 import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
 import DashboardSettingsComponent from './DashboardSettingsComponent'
 import { tasksDetailId } from '../../common/navigationConstants'
+import './Dashboard.css'
 
 /**
  * DashboardVerticalComponent is a React functional component that renders
@@ -81,7 +82,7 @@ const DashboardVerticalComponent = React.memo(
             style={{ width: '120px', minWidth: '120px' }}
           >
             {service['Tasks'][node['ID']] && (
-              <ul>
+              <ul className="list-unstyled mb-0">
                 {service['Tasks'][node['ID']].map((task, id) => (
                   <li
                     key={
@@ -166,6 +167,7 @@ const DashboardVerticalComponent = React.memo(
         icon="grip-vertical"
         title="Dashboard"
         headerActions={<DashboardSettingsComponent />}
+        bodyClassName="p-0"
       >
         <div className="table-responsive">
           <Table
