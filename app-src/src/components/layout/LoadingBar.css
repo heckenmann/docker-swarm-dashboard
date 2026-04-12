@@ -1,0 +1,25 @@
+.loading-bar {
+  position: relative;
+  z-index: 1050;
+  width: 100%;
+  height: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.loading-bar.visible {
+  opacity: 1;
+}
+
+.loading-bar .loading-bar-progress {
+  width: 0%;
+  height: 100%;
+  box-shadow: var(--loading-bar-shadow, var(--shadow));
+  transition: width 180ms ease;
+  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
+}
+
+.navbar + .loading-bar {
+  margin-top: 0;
+}

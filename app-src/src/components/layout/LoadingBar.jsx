@@ -3,6 +3,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { networkRequestsAtom } from '../../common/store/atoms/uiAtoms'
+import './LoadingBar.css'
 
 /**
  * LoadingBar: shows a thin progress bar while there are active network requests.
