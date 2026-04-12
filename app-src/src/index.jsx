@@ -19,6 +19,12 @@ window.fetch = async function (...args) {
   } catch {}
   try {
     const res = await originalFetch.apply(this, args)
+    if (!res.ok) {
+      const url = typeof args[0] === 'string' ? args[0] : args[0]?.url
+      if (url && String(url).includes('/ui/')) {
+        throw new Error(`API Error: ${res.status} ${res.statusText}`)
+      }
+    }
     return res
   } finally {
     try {
