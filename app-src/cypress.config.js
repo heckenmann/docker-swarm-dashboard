@@ -3,6 +3,18 @@ const { defineConfig } = require('cypress')
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
+      on('before:browser:launch', (browser = {}, launchOptions) => {
+        if (browser.name === 'chrome' || browser.name === 'edge') {
+          launchOptions.args.push('--window-size=1920,1080')
+          launchOptions.args.push('--disable-dev-shm-usage')
+          return launchOptions
+        }
+        if (browser.name === 'electron') {
+          launchOptions.preferences.width = 1920
+          launchOptions.preferences.height = 1080
+          return launchOptions
+        }
+      })
       on('after:run', (results) => {
         if (results) {
           const passed = results.totalTests - results.totalFailures
@@ -15,6 +27,10 @@ module.exports = defineConfig({
         }
       })
     },
+    // Memory management
+    experimentalMemoryManagement: true,
+    numTestsKeptInMemory: 0,
+    
     baseUrl: 'http://localhost:3000',
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.js',
@@ -24,8 +40,9 @@ module.exports = defineConfig({
     downloadsFolder: 'cypress/downloads',
     video: false,
     screenshotOnRunFailure: false,
-    viewportWidth: 1280,
-    viewportHeight: 720,
+    viewportWidth: 1920,
+    viewportHeight: 1080,
+    autoVisit: true,
     defaultCommandTimeout: 5000,
     execTimeout: 30000,
     taskTimeout: 30000,
@@ -39,7 +56,7 @@ module.exports = defineConfig({
     // Parallelization settings
     experimentalWebKitSupport: false,
     experimentalRunAllSpecs: true,
-    allowCypressEnv: false,
+    allowCypressEnv: true,
     env: {
       mockApiUrl: 'http://localhost:3001',
       testUser: {
@@ -57,9 +74,7 @@ module.exports = defineConfig({
     supportFile: 'cypress/support/component.js'
   },
   
-  // Optimize for speed
-  numTestsKeptInMemory: 0,
-  trashAssetsBeforeRuns: false,
+  trashAssetsBeforeRuns: true,
   
   // Reporter configuration
   reporter: 'spec',

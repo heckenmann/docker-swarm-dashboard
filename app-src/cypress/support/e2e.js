@@ -15,6 +15,7 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+import { setupConsoleInstrumentation, assertNoConsoleErrors } from './common'
 
 Cypress.on('uncaught:exception', (err) => {
   if (err.message && err.message.includes('Script error')) {
@@ -64,17 +65,29 @@ Cypress.Commands.add('getPage', (pageName) => {
 
 // Global before each hook
 beforeEach(() => {
-  // Reset viewport to default
-  cy.viewport(Cypress.config('viewportWidth'), Cypress.config('viewportHeight'))
-  
+  // Default to 4K, but allow override via env
+  const width = Cypress.env("viewportWidth") || 3840
+  const height = Cypress.env("viewportHeight") || 2160
+  cy.viewport(width, height)
+
   // Clear cookies and localStorage between tests
   cy.clearCookies()
   cy.clearTestLocalStorage()
+  
+  // Setup console instrumentation for every test
+  setupConsoleInstrumentation()
+
+  // Auto-visit if not explicitly disabled
+  if (Cypress.config("autoVisit") !== false) {
+    cy.visit("/#base=http%3A%2F%2Flocalhost%3A3001%2F")
+    cy.get("nav", { timeout: 10000 }).should("be.visible")
+  }
 })
 
 // Global after each hook
 afterEach(() => {
-  // Any cleanup needed after each test
+  // Check for console errors after every test
+  assertNoConsoleErrors()
 })
 
 // Add tab command for keyboard navigation testing

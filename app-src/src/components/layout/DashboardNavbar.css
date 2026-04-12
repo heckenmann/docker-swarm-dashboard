@@ -1,0 +1,21 @@
+/* Pulsing animation for the version-update badge dot in the navbar */
+@keyframes version-badge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    opacity: .75;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+
+.version-update-badge {
+  min-width: 1.1rem;
+  padding: 0 .25rem;
+  font-size: .6rem;
+  line-height: 1.1rem;
+  animation: version-badge-pulse 1.6s ease-in-out infinite;
+}

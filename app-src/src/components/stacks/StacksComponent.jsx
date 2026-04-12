@@ -145,6 +145,7 @@ const StacksComponent = React.memo(function StacksComponent() {
       <DSDCard
         icon="cubes"
         title={<StackName name={stack['Name']} />}
+        bodyClassName="p-0"
         body={
           <Table variant={currentVariant} size="sm" hover>
             <thead>

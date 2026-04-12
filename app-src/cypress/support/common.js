@@ -60,30 +60,5 @@ export function clearConsoleErrors() {
   })
 }
 
-/**
- * Helper function for visiting base URL and testing with console error checking
- * This is the recommended way to write tests
- * 
- * Usage:
- *   visitBaseUrlAndTest(() => {
- *     // Your test code here
- *     // Console errors are automatically checked at the end
- *   })
- */
-export function visitBaseUrlAndTest(testFn) {
-  cy.visit(CY_BASE_URL, { timeout: 10000 })
-  
-  // Wait for navbar to be visible (indicates React has hydrated)
-  cy.get('nav', { timeout: 5000 }).should('be.visible')
-  
-  // Setup console instrumentation
-  setupConsoleInstrumentation()
-  
-  // Run the specific test function
-  testFn()
-  
-  // Check for console errors after test execution
-  assertNoConsoleErrors()
-}
 
 export { CY_BASE_URL }

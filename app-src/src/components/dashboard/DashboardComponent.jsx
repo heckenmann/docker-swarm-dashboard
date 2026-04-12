@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { startTransition } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -24,6 +24,7 @@ import NodeName from '../shared/names/NodeName'
 import ServiceName from '../shared/names/ServiceName'
 import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
 import DashboardSettingsComponent from './DashboardSettingsComponent'
+import './Dashboard.css'
 
 /**
  * DashboardComponent
@@ -40,7 +41,6 @@ const DashboardComponent = React.memo(function DashboardComponent() {
   const hiddenServiceStates = useAtomValue(hiddenServiceStatesAtom)
   const [, updateView] = useAtom(viewAtom)
 
-  const theads = []
   const trows = []
 
   const dashboardhData = useAtomValue(dashboardHAtom) || {}
@@ -57,12 +57,15 @@ const DashboardComponent = React.memo(function DashboardComponent() {
     id: service.ID,
     name: service.Name || service['Name'],
     style: { width: '120px', minWidth: '120px' },
-    onClick: () =>
-      updateView((prev) => ({
-        ...prev,
-        id: servicesDetailId,
-        detail: service.ID,
-      })),
+    onClick: () => {
+      startTransition(() => {
+        updateView((prev) => ({
+          ...prev,
+          id: servicesDetailId,
+          detail: service.ID,
+        }))
+      })
+    },
     key: `dashboardTable-${service.ID}`,
     index: idx,
   }))
@@ -71,28 +74,6 @@ const DashboardComponent = React.memo(function DashboardComponent() {
   const serviceIndexMap = Object.fromEntries(
     serviceHeaders.map((h) => [h.id, h.index]),
   )
-
-  visibleServices.forEach((service) => {
-    theads.push(
-      <div
-        key={
-          'dashboardTable-' +
-          (service && service.ID ? String(service.ID) : 'svc-unknown')
-        }
-        className="data-col"
-        style={{ width: '120px', minWidth: '120px' }}
-      >
-        <ServiceName
-          name={service['Name']}
-          id={service.ID}
-          useOverlay={true}
-          tooltipText={service['Name']}
-          nameClass="text-ellipsis d-inline-block"
-        />
-      </div>,
-    )
-  })
-  theads.push(<th key="dashboardTable-empty" />)
 
   nodes.forEach((node) => {
     const dataCols = []
@@ -113,7 +94,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
           style={{ width: '120px', minWidth: '120px' }}
         >
           {node['Tasks'] && node['Tasks'][service['ID']] && (
-            <ul>
+            <ul className="list-unstyled mb-0">
               {node['Tasks'][service['ID']].map((task, id) => (
                 <li
                   key={
@@ -140,19 +121,23 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   }
                   style={{ cursor: 'pointer' }}
                   onClick={() =>
-                    updateView({
-                      id: tasksDetailId,
-                      detail: task.ID,
-                      timestamp: Date.now(),
+                    startTransition(() => {
+                      updateView({
+                        id: tasksDetailId,
+                        detail: task.ID,
+                        timestamp: Date.now(),
+                      })
                     })
                   }
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      updateView({
-                        id: tasksDetailId,
-                        detail: task.ID,
-                        timestamp: Date.now(),
+                      startTransition(() => {
+                        updateView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
+                        })
                       })
                     }
                   }}
@@ -181,29 +166,31 @@ const DashboardComponent = React.memo(function DashboardComponent() {
         className={node['StatusState'] === 'ready' ? null : 'danger'}
       >
         <td
-          className="align-middle"
+          className="align-middle node-attribute"
           style={{ width: '250px', minWidth: '250px' }}
         >
-          <NodeName name={node['Hostname']} id={node.ID} />
-          {node['Leader'] && (
-            <OverlayTrigger
-              placement="top"
-              overlay={<Tooltip id={`leader-tt-${node.ID}`}>Leader</Tooltip>}
-            >
-              <span className="ms-1">
-                <FontAwesomeIcon icon="star" />
-              </span>
-            </OverlayTrigger>
-          )}
+          <div className="d-flex align-items-center flex-nowrap">
+            <NodeName name={node['Hostname']} id={node.ID} />
+            {node['Leader'] && (
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id={`leader-tt-${node.ID}`}>Leader</Tooltip>}
+              >
+                <span className="ms-1 flex-shrink-0">
+                  <FontAwesomeIcon icon="star" />
+                </span>
+              </OverlayTrigger>
+            )}
+          </div>
         </td>
         <td
-          className="align-middle"
+          className="align-middle node-attribute-small"
           style={{ width: '120px', minWidth: '120px' }}
         >
           {node['Role']}
         </td>
         <td
-          className="align-middle"
+          className="align-middle node-attribute-small"
           style={{ width: '120px', minWidth: '120px' }}
         >
           {(node['StatusState'] === 'ready' && (
@@ -222,7 +209,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
             )}
         </td>
         <td
-          className="align-middle"
+          className="align-middle node-attribute-small"
           style={{ width: '120px', minWidth: '120px' }}
         >
           {(node['Availability'] === 'active' && (
@@ -236,13 +223,13 @@ const DashboardComponent = React.memo(function DashboardComponent() {
           )}
         </td>
         <td
-          className="align-middle"
+          className="align-middle node-attribute-small"
           style={{ width: '120px', minWidth: '120px' }}
         >
           {node['IP']}
         </td>
         {dataCols}
-        <td />
+        <td className="fill-col" />
       </tr>,
     )
   })
@@ -252,140 +239,185 @@ const DashboardComponent = React.memo(function DashboardComponent() {
       icon="grip"
       title="Dashboard"
       headerActions={<DashboardSettingsComponent />}
-    >
-      <div className="dashboard-table-wrapper table-responsive">
-        <Table
-          variant={isDarkMode ? currentVariant : null}
-          id="dashboardTable"
-          key="dashboardTable"
-          className="dashboard-table"
-          striped
-          size={tableSize}
-          role="table"
-          aria-label="Docker Swarm Dashboard"
-        >
-          <thead role="rowgroup">
-            {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
-            <tr role="row">
-              <th
-                className="node-attribute"
-                rowSpan={3}
-                style={{ width: '250px', minWidth: '250px' }}
-              >
-                Node
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                Role
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                State
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                Availability
-              </th>
-              <th
-                className="node-attribute-small"
-                rowSpan={3}
-                style={{ width: '120px', minWidth: '120px' }}
-              >
-                IP
-              </th>
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 0 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
-                    style={h.style}
-                  >
-                    <ServiceName
-                      name={h.name}
-                      id={h.id}
-                      useOverlay={false}
-                      tooltipText={h.name}
-                      nameClass="service-name-text"
-                    />
-                  </th>
+      bodyClassName="p-0"
+      body={
+        <div className="dashboard-table-wrapper table-responsive">
+          <Table
+            variant={isDarkMode ? currentVariant : null}
+            id="dashboardTable"
+            key="dashboardTable"
+            className="dashboard-table"
+            striped
+            size={tableSize}
+            role="table"
+            aria-label="Docker Swarm Dashboard"
+          >
+            <colgroup>
+              <col style={{ width: '250px', minWidth: '250px' }} />
+              <col style={{ width: '120px', minWidth: '120px' }} />
+              <col style={{ width: '120px', minWidth: '120px' }} />
+              <col style={{ width: '120px', minWidth: '120px' }} />
+              <col style={{ width: '120px', minWidth: '120px' }} />
+              {visibleServices.map((service) => (
+                <col
+                  key={`col-${service.ID}`}
+                  style={{ width: '120px', minWidth: '120px' }}
+                />
+              ))}
+              <col className="fill-col" />
+            </colgroup>
+            <thead role="rowgroup">
+              {/* three header rows: fixed attributes span 3 rows, services distributed across rows */}
+              <tr role="row">
+                <th className="node-attribute" rowSpan={3}>
+                  Node
+                </th>
+                <th className="node-attribute-small" rowSpan={3}>
+                  Role
+                </th>
+                <th className="node-attribute-small" rowSpan={3}>
+                  State
+                </th>
+                <th className="node-attribute-small" rowSpan={3}>
+                  Availability
+                </th>
+                <th className="node-attribute-small" rowSpan={3}>
+                  IP
+                </th>
+                {serviceHeaders.length > 0 ? (
+                  serviceHeaders.map((h, idx) => {
+                    const isLastColumn = idx === serviceHeaders.length - 1
+                    if (h.index % 3 === 0) {
+                      return (
+                        <th
+                          key={h.key}
+                          data-index={h.index}
+                          onClick={h.onClick}
+                          className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                          style={
+                            isLastColumn
+                              ? { ...h.style, width: 'auto' }
+                              : h.style
+                          }
+                          colSpan={isLastColumn ? 2 : 1}
+                        >
+                          <div className="service-name-container">
+                            <ServiceName
+                              name={h.name}
+                              id={h.id}
+                              useOverlay={false}
+                              tooltipText={h.name}
+                              nameClass="service-name-text"
+                            />
+                          </div>
+                        </th>
+                      )
+                    } else {
+                      return (
+                        <th
+                          key={`ph-${h.key}`}
+                          className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
+                          style={
+                            isLastColumn
+                              ? { ...h.style, width: 'auto' }
+                              : h.style
+                          }
+                          colSpan={isLastColumn ? 2 : 1}
+                        />
+                      )
+                    }
+                  })
                 ) : (
-                  <th
-                    key={`ph-${h.key}`}
-                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
-                    style={h.style}
-                  />
-                ),
-              )}
-              <th className="fill-col" rowSpan={3} />
-            </tr>
-            <tr role="row">
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 1 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
-                    style={h.style}
-                  >
-                    <ServiceName
-                      name={h.name}
-                      id={h.id}
-                      useOverlay={false}
-                      tooltipText={h.name}
-                      nameClass="service-name-text"
-                    />
-                  </th>
-                ) : (
-                  <th
-                    key={`ph2-${h.key}`}
-                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
-                    style={h.style}
-                  />
-                ),
-              )}
-              <th className="fill-col" rowSpan={2} />
-            </tr>
-            <tr role="row">
-              {serviceHeaders.map((h) =>
-                h.index % 3 === 2 ? (
-                  <th
-                    key={h.key}
-                    data-index={h.index}
-                    className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
-                    style={h.style}
-                  >
-                    <ServiceName
-                      name={h.name}
-                      id={h.id}
-                      useOverlay={false}
-                      tooltipText={h.name}
-                      nameClass="service-name-text"
-                    />
-                  </th>
-                ) : (
-                  <th
-                    key={`ph3-${h.key}`}
-                    className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
-                    style={h.style}
-                  />
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>{trows}</tbody>
-        </Table>
-      </div>
-    </DSDCard>
+                  <th className="fill-col" rowSpan={3} />
+                )}
+                {/* Filler column is now merged with the last service in row 0 */}
+              </tr>
+              <tr role="row">
+                {serviceHeaders.map((h, idx) => {
+                  const isLastColumn = idx === serviceHeaders.length - 1
+                  if (h.index % 3 === 1) {
+                    return (
+                      <th
+                        key={h.key}
+                        data-index={h.index}
+                        onClick={h.onClick}
+                        className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                        style={
+                          isLastColumn ? { ...h.style, width: 'auto' } : h.style
+                        }
+                        colSpan={isLastColumn ? 2 : 1}
+                      >
+                        <div className="service-name-container">
+                          <ServiceName
+                            name={h.name}
+                            id={h.id}
+                            useOverlay={false}
+                            tooltipText={h.name}
+                            nameClass="service-name-text"
+                          />
+                        </div>
+                      </th>
+                    )
+                  } else {
+                    return (
+                      <th
+                        key={`ph2-${h.key}`}
+                        className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
+                        style={
+                          isLastColumn ? { ...h.style, width: 'auto' } : h.style
+                        }
+                        colSpan={isLastColumn ? 2 : 1}
+                      />
+                    )
+                  }
+                })}
+              </tr>
+              <tr role="row">
+                {serviceHeaders.map((h, idx) => {
+                  const isLastColumn = idx === serviceHeaders.length - 1
+                  if (h.index % 3 === 2) {
+                    return (
+                      <th
+                        key={h.key}
+                        data-index={h.index}
+                        onClick={h.onClick}
+                        className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                        style={
+                          isLastColumn ? { ...h.style, width: 'auto' } : h.style
+                        }
+                        colSpan={isLastColumn ? 2 : 1}
+                      >
+                        <div className="service-name-container">
+                          <ServiceName
+                            name={h.name}
+                            id={h.id}
+                            useOverlay={false}
+                            tooltipText={h.name}
+                            nameClass="service-name-text"
+                          />
+                        </div>
+                      </th>
+                    )
+                  } else {
+                    return (
+                      <th
+                        key={`ph3-${h.key}`}
+                        className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
+                        style={
+                          isLastColumn ? { ...h.style, width: 'auto' } : h.style
+                        }
+                        colSpan={isLastColumn ? 2 : 1}
+                      />
+                    )
+                  }
+                })}
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
+        </div>
+      }
+    />
   )
 })
 

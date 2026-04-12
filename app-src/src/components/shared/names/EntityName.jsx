@@ -24,6 +24,7 @@ import { useAtomValue } from 'jotai'
 import { useEntityActions } from '../../../common/hooks/useEntityActions'
 import NameActions from './NameActions'
 import { showNamesButtonsAtom } from '../../../common/store/atoms/uiAtoms'
+import './NameActions.css'
 
 const EntityName = React.memo(function EntityName({
   name,
@@ -61,12 +62,10 @@ const EntityName = React.memo(function EntityName({
   const showAnyAction = showOpen || showFilter || showLogs
 
   return (
-    <>
+    <div className="entity-name-wrapper">
       {nameNode || defaultNameNode}
-      <div
-        className={`${showAnyAction && showNamesButtons ? 'ms-1' : 'ms-0'} d-inline-flex gap-1`}
-      >
-        {showAnyAction && showNamesButtons && (
+      {showAnyAction && showNamesButtons && (
+        <div className="entity-name-actions">
           <NameActions
             showOpen={showOpen}
             showFilter={showFilter}
@@ -79,9 +78,9 @@ const EntityName = React.memo(function EntityName({
             id={id}
             entityType={entityType}
           />
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   )
 })
 

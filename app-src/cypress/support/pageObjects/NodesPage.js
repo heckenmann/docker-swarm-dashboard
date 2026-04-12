@@ -5,40 +5,26 @@ import { CY_BASE_URL } from '../constants'
  */
 class NodesPage {
   visit() {
-    cy.visit(CY_BASE_URL)
     cy.get('nav', { timeout: 10000 }).should('be.visible')
     cy.get('a[aria-label="Nodes"]').click()
     return this
   }
   
-  getNodeCards() {
-    return cy.get('[data-cy="node-card"]')
+  getNodeRows() {
+    return cy.get('table tbody tr')
   }
   
-  getNodeByName(nodeName) {
-    return cy.contains('[data-cy="node-name"]', nodeName)
+  getNodeRowByName(nodeName) {
+    return cy.contains('td', nodeName)
   }
   
-  clickNodeDetails(nodeName) {
-    this.getNodeByName(nodeName).click()
+  clickNodeRow(nodeName) {
+    this.getNodeRowByName(nodeName).click()
     return this
-  }
-  
-  getMetricsSection() {
-    return cy.get('[data-cy="node-metrics"]')
-  }
-  
-  getTasksTab() {
-    return cy.get('[data-cy="node-tasks-tab"]')
   }
   
   assertNodeExists(nodeName) {
-    this.getNodeByName(nodeName).should('exist')
-    return this
-  }
-  
-  assertNodeCount(count) {
-    this.getNodeCards().should('have.length', count)
+    this.getNodeRowByName(nodeName).should('exist')
     return this
   }
 }

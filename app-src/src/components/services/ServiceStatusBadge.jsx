@@ -9,6 +9,7 @@ import {
   timeZoneAtom,
   localeAtom,
 } from '../../common/store/atoms/uiAtoms'
+import './ServiceStatusBadge.css'
 
 /**
  * Component to display a service status badge with optional tooltip information.

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { startTransition } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Table } from 'react-bootstrap'
 import {
@@ -21,12 +21,11 @@ import StackName from '../shared/names/StackName'
 import ServiceStatusBadge from '../services/ServiceStatusBadge.jsx'
 import DashboardSettingsComponent from './DashboardSettingsComponent'
 import { tasksDetailId } from '../../common/navigationConstants'
+import './Dashboard.css'
 
 /**
  * DashboardVerticalComponent is a React functional component that renders
  * a vertical dashboard table with nodes and services information.
- * It uses various atoms from Jotai for state management and filters services
- * based on the provided filters.
  */
 const DashboardVerticalComponent = React.memo(
   function DashboardVerticalComponent() {
@@ -38,32 +37,42 @@ const DashboardVerticalComponent = React.memo(
     const stackNameFilter = useAtomValue(stackNameFilterAtom)
     const [, setView] = useAtom(viewAtom)
 
+    const dashboardvData = useAtomValue(dashboardVAtom) || {}
+    const nodes = dashboardvData['Nodes'] || []
+    const services = dashboardvData['Services'] || []
+
     const theads = []
     const trows = []
 
-    const dashboardvData = useAtomValue(dashboardVAtom)
-    const nodes = dashboardvData['Nodes']
-    const services = dashboardvData['Services']
+    // Header Columns
+    if (nodes.length > 0) {
+      nodes.forEach((node, idx) => {
+        const isLast = idx === nodes.length - 1
+        theads.push(
+          <th
+            key={'dashboardTable-' + (node?.ID || idx)}
+            className="service-header data-col"
+            style={
+              isLast ? { width: 'auto' } : { width: '120px', minWidth: '120px' }
+            }
+            colSpan={isLast ? 2 : 1}
+          >
+            <div className="service-name-container">
+              <NodeName
+                name={node?.Hostname || 'Unknown'}
+                id={node?.ID}
+                showFilter={false}
+                nameClass="service-name-text"
+              />
+            </div>
+          </th>,
+        )
+      })
+    } else {
+      theads.push(<th key="fill-col-empty" className="fill-col" />)
+    }
 
-    // Columns
-    nodes.forEach((node) => {
-      theads.push(
-        <th
-          key={'dashboardTable-' + node['ID']}
-          className="service-header data-col"
-          style={{ width: '120px', minWidth: '120px' }}
-        >
-          <NodeName
-            name={node['Hostname']}
-            id={node.ID}
-            showFilter={false}
-            nameClass="service-name-text"
-          />
-        </th>,
-      )
-    })
-    theads.push(<th key="dashboardTable-empty" />)
-
+    // Data Rows
     services
       .filter((service) =>
         serviceFilter(service, serviceNameFilter, stackNameFilter),
@@ -74,53 +83,43 @@ const DashboardVerticalComponent = React.memo(
             className={`align-middle svc-index-${idx}`}
             key={
               'td-' +
-              (node && node.ID ? String(node.ID) : 'node-unknown') +
+              (node && node.ID ? String(node.ID) : `node-${idx}`) +
               '-' +
               (service && service.ID ? String(service.ID) : 'service-unknown')
             }
             style={{ width: '120px', minWidth: '120px' }}
           >
-            {service['Tasks'][node['ID']] && (
-              <ul>
-                {service['Tasks'][node['ID']].map((task, id) => (
+            {service?.Tasks?.[node?.ID] && (
+              <ul className="list-unstyled mb-0">
+                {service?.Tasks?.[node?.ID].map((task, id) => (
                   <li
                     key={
                       'badge-' +
-                      (task && task.NodeID
-                        ? String(task.NodeID)
-                        : `node-idx-${id}`) +
+                      (task?.NodeID || 'no-node') +
                       '-' +
-                      (task && task.ServiceID
-                        ? String(task.ServiceID)
-                        : `svc-idx-${id}`) +
+                      (task?.ID || id) +
                       '-' +
-                      (task && task.ID
-                        ? String(task.ID) + `-${id}`
-                        : `task-idx-${id}`) +
-                      '-' +
-                      (task && task.Status
-                        ? String(
-                            task.Status?.Timestamp ??
-                              task.Status?.State ??
-                              `status-idx-${id}`,
-                          )
-                        : `status-idx-${id}`)
+                      (task?.Status?.State || 'no-state')
                     }
                     style={{ cursor: 'pointer' }}
                     onClick={() =>
-                      setView({
-                        id: tasksDetailId,
-                        detail: task.ID,
-                        timestamp: Date.now(),
+                      startTransition(() => {
+                        setView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
+                        })
                       })
                     }
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
-                        setView({
-                          id: tasksDetailId,
-                          detail: task.ID,
-                          timestamp: Date.now(),
+                        startTransition(() => {
+                          setView({
+                            id: tasksDetailId,
+                            detail: task.ID,
+                            timestamp: Date.now(),
+                          })
                         })
                       }
                     }}
@@ -129,14 +128,12 @@ const DashboardVerticalComponent = React.memo(
                   >
                     <ServiceStatusBadge
                       id={id}
-                      serviceState={task['Status']['State']}
-                      createdAt={task['CreatedAt']}
-                      updatedAt={task['UpdatedAt']}
-                      serviceError={task['Status']['Err']}
+                      serviceState={task?.Status?.State}
+                      createdAt={task?.CreatedAt}
+                      updatedAt={task?.UpdatedAt}
+                      serviceError={task?.Status?.Err}
                       hiddenStates={
-                        dashboardSettings
-                          ? dashboardSettings.hiddenServiceStates
-                          : []
+                        dashboardSettings?.hiddenServiceStates || []
                       }
                     />
                   </li>
@@ -147,16 +144,16 @@ const DashboardVerticalComponent = React.memo(
         ))
 
         trows.push(
-          <tr key={'tr' + service['ID']}>
-            <td>
-              <ServiceName name={service['Name']} id={service.ID} />
+          <tr key={'tr-' + (service?.ID || service?.Name)}>
+            <td className="align-middle">
+              <ServiceName name={service?.Name} id={service?.ID} />
             </td>
-            <td className="stack-column">
-              <StackName name={service['Stack']} />
+            <td className="align-middle stack-column">
+              <StackName name={service?.Stack} />
             </td>
-            <td>{service['Replication']}</td>
+            <td className="align-middle">{service?.Replication}</td>
             {dataCols}
-            <td />
+            <td className="fill-col" />
           </tr>,
         )
       })
@@ -166,32 +163,46 @@ const DashboardVerticalComponent = React.memo(
         icon="grip-vertical"
         title="Dashboard"
         headerActions={<DashboardSettingsComponent />}
-      >
-        <div className="table-responsive">
-          <Table
-            variant={isDarkMode ? currentVariant : null}
-            id="dashboardTable"
-            key="dashboardTable"
-            className="dashboard-table vertical-dashboard"
-            striped
-            size={tableSize}
-            role="table"
-            aria-label="Docker Swarm Dashboard (vertical)"
-          >
-            <thead role="rowgroup">
-              <tr role="row">
-                <th className="col-md-4">Service</th>
-                <th className="stack-column">Stack</th>
-                <th style={{ width: '120px', minWidth: '120px' }}>
-                  Replication
-                </th>
-                {theads}
-              </tr>
-            </thead>
-            <tbody>{trows}</tbody>
-          </Table>
-        </div>
-      </DSDCard>
+        bodyClassName="p-0"
+        body={
+          <div className="table-responsive">
+            <Table
+              variant={isDarkMode ? currentVariant : null}
+              id="dashboardTable"
+              key="dashboardTable"
+              className="dashboard-table vertical-dashboard"
+              striped
+              size={tableSize}
+              role="table"
+              aria-label="Docker Swarm Dashboard (vertical)"
+            >
+              <colgroup>
+                <col className="service-col-v" />
+                <col className="stack-column" />
+                <col style={{ width: '120px', minWidth: '120px' }} />
+                {nodes.map((node, idx) => (
+                  <col
+                    key={`col-${node?.ID || idx}`}
+                    style={{ width: '120px', minWidth: '120px' }}
+                  />
+                ))}
+                <col className="fill-col" />
+              </colgroup>
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th className="service-col-v">Service</th>
+                  <th className="stack-column">Stack</th>
+                  <th style={{ width: '120px', minWidth: '120px' }}>
+                    Replication
+                  </th>
+                  {theads}
+                </tr>
+              </thead>
+              <tbody>{trows}</tbody>
+            </Table>
+          </div>
+        }
+      />
     )
   },
 )

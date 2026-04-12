@@ -218,6 +218,7 @@ Within each group, sort alphabetically.
 - All commit messages, code comments, JSDoc, and documentation in English only
 - Keep JSDoc @param/@returns comments current on all exported functions/components
 - Add comments for non-obvious implementation details
+- Update or remove outdated and redundant comments
 
 ---
 
@@ -239,59 +240,41 @@ Within each group, sort alphabetically.
 - **Devcontainer changes:** prefer `.devcontainer/init.sh` / `postCreateCommand` over editing the application `Dockerfile`.
 - **JSDoc:** keep `@param` / `@returns` comments current on all exported functions and components.
 - **UI styling:** Bootstrap utility classes first; custom CSS only as last resort.
+- **CSS Modularization:** Prefer component-specific `.css` files (e.g., `DSDCard.css`) over global `App.css`.
+- **DSDCard:** Always use the `body` prop for table content to ensure the `.card-body` wrapper (and thus proper padding/background) is rendered.
+- **Table Layout & Density:**
+    - Header height is fixed at **28px** for high data density.
+    - Entity names (Services, Nodes, Stacks) must have `white-space: nowrap`.
+    - Dashboard headers use a `service-name-container` for a "flag effect" (overflow without wrapping).
+    - The last column in dashboard headers must use `colSpan={2}` to merge with the filler column for layout stability.
 - **`postinstall` downloads assets** via `node download-files.js` — offline builds will fail without them.
 
 ---
 
-## 5. Development Environment
+## 7. Error Investigation & Verification Workflow
 
-### Dev Container
-- Based on javascript-node:22-bookworm
-- Includes Go 1.25 and Docker-in-Docker
-- Ports forwarded: 3000 (dev server), 3001 (mock API), 8080 (backend)
+When an issue is reported or a test fails, follow this hierarchical investigation strategy:
 
-### Initialization Script
-Located at `.devcontainer/init.sh`:
-- Sets up Git safe directory
-- Installs dependencies with Yarn
-- Installs Cypress dependencies
+- **Targeted Execution:** Whenever possible, execute tests specifically for the affected component or package (e.g., `yarn test path/to/file.test.js` or `go test ./path/to/pkg`) to speed up feedback loops.
+- **Full Suite:** Only run the entire test suite as a final verification step before committing changes.
 
-### Environment Variables
-
-#### Development
-- **DSD_HTTP_PORT:** HTTP port for the backend (default: `8080`)
-- **DSD_PATH_PREFIX:** URL path prefix for the dashboard (default: `/`)
-
-#### UI Default Settings (persisted in URL hash)
-- **DSD_TABLE_SIZE:** Default table size (`sm` or `lg`, default: `sm`)
-- **DSD_DARK_MODE:** Enable dark mode by default (`true` or `false`, default: `false`)
-- **DSD_SHOW_NAMES_BUTTONS:** Show action buttons in entity names (`true` or `false`, default: `true`)
-- **DSD_SHOW_NAV_LABELS:** Show navigation labels (`true` or `false`, default: `false`)
-- **DSD_MAX_CONTENT_WIDTH:** Maximum content width (`fluid` or `fixed`, default: `fluid`)
-- **DSD_LOGS_NUMBER_OF_LINES:** Default number of log lines to fetch (default: `100`)
+1.  **Code Analysis:** First, attempt to identify the cause by analyzing the source code and logic.
+2.  **Unit Testing:** If the cause is not obvious, attempt to reproduce the issue using unit tests (Jest for frontend, `go test` for backend).
+3.  **Cypress E2E Testing:** If unit tests are insufficient (e.g., for layout or integration issues), use Cypress to reproduce the failure.
+4.  **DOM Analysis:** Within a Cypress test, analyze the rendered HTML/DOM to identify structural or state-related anomalies.
+5.  **Visual Analysis (Screenshots):** If the issue is visual or cannot be identified through DOM analysis, generate and analyze a Cypress screenshot to visually diagnose the problem.
 
 ---
 
-## 6. CI/CD Information
-
-### GitHub Actions Workflows
-- **ci-frontend.yml:** Jest coverage (90% threshold), ESLint, Stylelint, Prettier
-- **go-test-server-src.yml:** Go tests with race detector and 90% coverage threshold
-- **cypress.yml:** End-to-end tests across multiple browsers
-
-### Pre-commit Hooks
-- Check for tests/mock files in production paths
-- Verify all tests pass before committing
-
----
-
-## 7. Non-obvious Gotchas
+## 8. Non-obvious Gotchas
 
 - **Cypress: never pipe/grep output.** Run `yarn run cy:run --browser electron` unfiltered. All results and failure details are in the final summary table — read it once.
 - **Nav link selectors:** `showNavLabelsAtom` defaults to `false`, so text labels are hidden. `cy.contains('a', 'Dashboard')` will time out. Use `cy.get('a[aria-label="Dashboard"]')`. All main nav links in `DashboardNavbar.js` have `aria-label` set.
 - **FilterComponent selectors:** uses icon-only toggle buttons + a `Form.Control`, no `Form.Select`. Old selectors (`select.flex-grow-1.form-select`, `input.flex-grow-1.form-control`, `input[placeholder="Filter services by service name"]`) no longer exist. Use `button[aria-label="Filter by service"]`, `button[aria-label="Filter by stack"]`, `input[aria-label="Filter by service name"]`, `input[aria-label="Filter by stack name"]`.
 - **Stack names in Cypress:** rendered in `.card-header strong`, not `h5`. Use `cy.contains('.card-header strong', 'dsd')`.
 - **`atomWithHash` in E2E tests:** derived atoms are not auto-populated from `Provider initialValues`. Set the URL hash directly or navigate via UI.
+- **Table Structure Verification:** When verifying that header and body columns match, tests must sum the `colspan` attributes of header cells rather than just counting `th` elements.
+- **Flex-Nowrap for Icons:** Entity names (Nodes/Services) with icons (stars, search, etc.) must be wrapped in a `d-flex flex-nowrap` container to prevent icons from jumping to the next line.
 - **Combined test file ordering (`*.combined.test.js`):** `require()` modules that use real jotai exports *before* modules with top-level `jest.mock('jotai', ...)` — mock hoisting contaminates later requires.
 - **`jest.spyOn` target:** spy on the module the component actually imports from, not a re-export shim — spying on a shim fails with "Cannot redefine property".
 - **Re-export shims:** when moving a file, leave a `@deprecated` re-export shim at the old path until all consumers are updated.

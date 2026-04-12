@@ -36,8 +36,17 @@ jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
-  useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtomValue: (atom) => {
+    if (atom && atom.__loadable) {
+      return { state: 'hasData', data: mockUseAtomValue(atom.__loadable) }
+    }
+    return mockUseAtomValue(atom)
+  },
   useAtom: (...args) => mockUseAtom(...args),
+}))
+
+jest.mock('jotai/utils', () => ({
+  loadable: (atom) => ({ __loadable: atom }),
 }))
 
 jest.mock('../../../src/common/store/reducers', () => ({
@@ -98,13 +107,19 @@ function setup({ maxContentWidth = 'fluid', showNavLabels = false, currentVarian
   const mockIncrVer = jest.fn((updater) => {
     if (typeof updater === 'function') updater(0)
   })
+  const mockToggleRefresh = jest.fn()
   mockUseAtom.mockImplementation((atom) => {
-    if (atom === 'refreshIntervalAtom') return [refreshInterval, jest.fn()]
+    if (atom === 'refreshIntervalAtom') return [refreshInterval, mockToggleRefresh]
     if (atom === 'viewAtom') return [{ id: 'dashboardH' }, mockUpdateView]
     if (atom === 'versionRefreshAtom') return [0, mockIncrVer]
     return [null, jest.fn()]
   })
-  return { ...render(<DashboardNavbar />), mockUpdateView, mockIncrVer }
+  return {
+    ...render(<DashboardNavbar />),
+    mockUpdateView,
+    mockIncrVer,
+    mockToggleRefresh,
+  }
 }
 
 describe('DashboardNavbar (combined)', () => {
@@ -184,6 +199,15 @@ describe('DashboardNavbar (combined)', () => {
     expect(result.id).toBe('dashboardV')
   })
 
+  test('clicking navbar brand navigates to default layout', () => {
+    const { mockUpdateView } = setup({ defaultLayout: 'dashboardV' })
+    fireEvent.click(screen.getByText(/Docker Swarm Dashboard/))
+    expect(mockUpdateView).toHaveBeenCalled()
+    const updater = mockUpdateView.mock.calls[0][0]
+    const result = updater({ id: 'dashboardH' })
+    expect(result.id).toBe('dashboardV')
+  })
+
   test('clicking Timeline nav link calls updateView with timelineId', () => {
     const { mockUpdateView } = setup()
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }))
@@ -226,6 +250,39 @@ describe('DashboardNavbar (combined)', () => {
     fireEvent.click(refreshBtn)
     expect(mockUpdateView).toHaveBeenCalled()
     expect(mockIncrVer).toHaveBeenCalled()
+  })
+
+  test('clicking refresh button toggles auto-refresh when interval is active', () => {
+    const { mockToggleRefresh } = setup({ refreshInterval: 1000 })
+    const refreshBtn = document.querySelector('.btn-group button')
+    fireEvent.click(refreshBtn)
+    expect(mockToggleRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  test('uses loadable fallbacks when atom values are loading', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'maxContentWidthAtom') return 'fluid'
+      if (atom === 'showNavLabelsAtom') return false
+      if (atom === 'versionAtom') return { state: 'loading' }
+      if (atom === 'logsShowLogsAtom') return false
+      if (atom === 'logsConfigAtom') return { follow: false }
+      if (atom === 'dashboardSettingsAtom') return { state: 'loading' }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return { state: 'loading' }
+      }
+      return null
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'refreshIntervalAtom') return [null, jest.fn()]
+      if (atom === 'viewAtom') return [{ id: 'dashboardH' }, jest.fn()]
+      if (atom === 'versionRefreshAtom') return [0, jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    const { container } = render(<DashboardNavbar />)
+    expect(container.querySelector('nav')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Logs' })).toBeNull()
   })
 
   // ---- Additional coverage for missing branches ----

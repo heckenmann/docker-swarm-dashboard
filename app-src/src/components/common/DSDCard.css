@@ -1,0 +1,6 @@
+/* Modern utility classes for DSDCard */
+.card-elevated {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}

@@ -25,6 +25,7 @@ import FilterComponent from '../shared/FilterComponent'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { tasksDetailId } from '../../common/navigationConstants'
+import './TasksComponent.css'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks
@@ -157,7 +158,12 @@ const TasksComponent = React.memo(function TasksComponent() {
   ))
 
   return (
-    <DSDCard icon="tasks" title="Tasks" headerActions={<FilterComponent />}>
+    <DSDCard
+      icon="tasks"
+      title="Tasks"
+      headerActions={<FilterComponent />}
+      bodyClassName="p-0"
+    >
       <Table
         className="tasks-table mb-0"
         variant={currentVariant}
