@@ -218,6 +218,7 @@ Within each group, sort alphabetically.
 - All commit messages, code comments, JSDoc, and documentation in English only
 - Keep JSDoc @param/@returns comments current on all exported functions/components
 - Add comments for non-obvious implementation details
+- Update or remove outdated and redundant comments
 
 ---
 
