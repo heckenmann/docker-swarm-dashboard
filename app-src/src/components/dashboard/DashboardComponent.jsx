@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { startTransition } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -58,11 +58,13 @@ const DashboardComponent = React.memo(function DashboardComponent() {
     name: service.Name || service['Name'],
     style: { width: '120px', minWidth: '120px' },
     onClick: () => {
-      updateView((prev) => ({
-        ...prev,
-        id: servicesDetailId,
-        detail: service.ID,
-      }))
+      startTransition(() => {
+        updateView((prev) => ({
+          ...prev,
+          id: servicesDetailId,
+          detail: service.ID,
+        }))
+      })
     },
     key: `dashboardTable-${service.ID}`,
     index: idx,
@@ -119,19 +121,23 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                   }
                   style={{ cursor: 'pointer' }}
                   onClick={() =>
-                    updateView({
-                      id: tasksDetailId,
-                      detail: task.ID,
-                      timestamp: Date.now(),
+                    startTransition(() => {
+                      updateView({
+                        id: tasksDetailId,
+                        detail: task.ID,
+                        timestamp: Date.now(),
+                      })
                     })
                   }
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      updateView({
-                        id: tasksDetailId,
-                        detail: task.ID,
-                        timestamp: Date.now(),
+                      startTransition(() => {
+                        updateView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
+                        })
                       })
                     }
                   }}

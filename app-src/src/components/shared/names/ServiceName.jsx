@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { startTransition } from 'react'
 import PropTypes from 'prop-types'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useAtom, useAtomValue } from 'jotai'
@@ -35,8 +35,6 @@ export function handleShowLogsInternal(
   // Prefill the logs form but DO NOT start streaming or set the active logs config.
   setFormId(sid)
   setFormName(name)
-  // Only set the service id/name for the logs form; do NOT modify other
-  // form atoms so we don't overwrite user state.
 
   // Navigate to logs view; the form will be shown because logsShowLogs is false
   updateView((prev) => ({ ...prev, id: logsId }))
@@ -44,20 +42,7 @@ export function handleShowLogsInternal(
 
 /**
  * ServiceName
- * Presentational wrapper for service names. Optionally wraps the rendered name
- * with a Bootstrap Overlay/Tooltip and delegates action rendering to
- * `EntityName`.
- *
- * @param {Object} props
- * @param {string} props.name
- * @param {string} props.id
- * @param {string} [props.nameClass]
- * @param {boolean} [props.useOverlay=false]
- * @param {string|null} [props.tooltipText]
- * (Handlers are centralized; callers should not pass onOpen/onFilter)
- * @param {boolean} [props.showOpen=true]
- * @param {boolean} [props.showFilter=true]
- * @param {string} [props.size='sm']
+ * Presentational wrapper for service names.
  */
 const ServiceName = React.memo(function ServiceName({
   name,
@@ -100,17 +85,19 @@ const ServiceName = React.memo(function ServiceName({
     )
 
   const handleShowLogs = (sid) => {
-    handleShowLogsInternal(
-      sid,
-      name,
-      logsShowLogsVal,
-      logsConfigVal,
-      setLogsShowLogs,
-      setLogsConfig,
-      setFormId,
-      setFormName,
-      updateView,
-    )
+    startTransition(() => {
+      handleShowLogsInternal(
+        sid,
+        name,
+        logsShowLogsVal,
+        logsConfigVal,
+        setLogsShowLogs,
+        setLogsConfig,
+        setFormId,
+        setFormName,
+        updateView,
+      )
+    })
   }
 
   return (

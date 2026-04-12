@@ -36,8 +36,17 @@ jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
 jest.mock('jotai', () => ({
-  useAtomValue: (...args) => mockUseAtomValue(...args),
+  useAtomValue: (atom) => {
+    if (atom && atom.__loadable) {
+      return { state: 'hasData', data: mockUseAtomValue(atom.__loadable) }
+    }
+    return mockUseAtomValue(atom)
+  },
   useAtom: (...args) => mockUseAtom(...args),
+}))
+
+jest.mock('jotai/utils', () => ({
+  loadable: (atom) => ({ __loadable: atom }),
 }))
 
 jest.mock('../../../src/common/store/reducers', () => ({

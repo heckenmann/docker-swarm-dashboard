@@ -1,14 +1,11 @@
+import React, { Suspense } from 'react'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
-//import 'bootswatch/dist/cosmo/bootstrap.min.css';
-//import '../node_modules/@fortawesome/fontawesome/styles.css';
-// Provider is intentionally omitted here; the app-level Provider with a
-// dedicated store is created in `index.js` so components read from that
-// single store instance.
 import { useAtomValue } from 'jotai'
+import { loadable } from 'jotai/utils'
 import { Container } from 'react-bootstrap'
 import { ErrorBoundary } from './common/ErrorBoundary.jsx'
 import LoadingBar from './components/layout/LoadingBar.jsx'
@@ -25,10 +22,33 @@ import bgLogo from './assets/docker.png'
 
 library.add(fab, fas, far)
 
-const App = () => {
-  const currentVariant = useAtomValue(currentVariantAtom)
-  const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
-  const maxContentWidth = useAtomValue(maxContentWidthAtom)
+const currentVariantLoadable = loadable(currentVariantAtom)
+const currentVariantClassesLoadable = loadable(currentVariantClassesAtom)
+const maxContentWidthLoadable = loadable(maxContentWidthAtom)
+
+/**
+ * AppContent handles the main layout and theme-dependent styling.
+ */
+const AppContent = () => {
+  const currentVariantRes = useAtomValue(currentVariantLoadable)
+  const currentVariantClassesRes = useAtomValue(currentVariantClassesLoadable)
+  const maxContentWidthRes = useAtomValue(maxContentWidthLoadable)
+
+  // Use data if available, or fallbacks to avoid suspension of the shell
+  const currentVariant =
+    currentVariantRes.state === 'hasData' ? currentVariantRes.data : 'light'
+  const currentVariantClasses =
+    currentVariantClassesRes.state === 'hasData'
+      ? currentVariantClassesRes.data
+      : 'bg-light text-dark'
+  const maxContentWidth =
+    maxContentWidthRes.state === 'hasData' ? maxContentWidthRes.data : 'fluid'
+
+  // If we have an error in these fundamental settings, trigger the ErrorBoundary.
+  if (currentVariantRes.state === 'hasError') throw currentVariantRes.error
+  if (currentVariantClassesRes.state === 'hasError')
+    throw currentVariantClassesRes.error
+  if (maxContentWidthRes.state === 'hasError') throw maxContentWidthRes.error
 
   return (
     <div
@@ -41,19 +61,31 @@ const App = () => {
         src={bgLogo}
         alt=""
       />
-      <ErrorBoundary>
-        <DashboardNavbar />
-      </ErrorBoundary>
+
+      <DashboardNavbar />
+
       <LoadingBar />
+
       <main role="main">
         <Container fluid={maxContentWidth === 'fluid'}>
-          <ErrorBoundary>
+          <Suspense fallback={null}>
             <WelcomeMessageComponent />
             <ContentRouter />
-          </ErrorBoundary>
+          </Suspense>
         </Container>
       </main>
     </div>
+  )
+}
+
+/**
+ * Main App component.
+ */
+const App = () => {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
   )
 }
 

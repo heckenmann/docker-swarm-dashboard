@@ -5,6 +5,9 @@ import './index.css'
 import App from './App.jsx'
 import { networkRequestsAtom } from './common/store/atoms/uiAtoms'
 
+// Create a dedicated Jotai store instance so we can update atoms from outside React.
+const store = createStore()
+
 // Wrap global fetch so we can track active network requests and show the loading bar
 const originalFetch = window.fetch
 window.fetch = async function (...args) {
@@ -42,11 +45,7 @@ window.fetch = async function (...args) {
 const container = document.getElementById('root')
 const root = createRoot(container)
 
-// Create a dedicated Jotai store instance so we can update atoms from outside React.
-const store = createStore()
-
 // Defensive shim: coerce non-primitive `src` props on <img> elements to strings
-// to avoid React warnings when some data accidentally contains objects.
 try {
   if (React && React.createElement) {
     const origCreateElement = React.createElement
@@ -108,8 +107,6 @@ try {
     }
   }
 } catch {}
-
-// don't expose the internal store in production
 
 root.render(
   <Provider store={store}>

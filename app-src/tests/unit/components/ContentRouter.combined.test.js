@@ -13,7 +13,16 @@ jest.mock('../../../src/common/store/atoms/dashboardAtoms', () => ({
 // Mock jotai
 const mockUseAtomValue = jest.fn()
 jest.mock('jotai', () => ({
-  useAtomValue: (atom) => mockUseAtomValue(atom),
+  useAtomValue: (atom) => {
+    if (atom && atom.__loadable) {
+      return { state: 'hasData', data: mockUseAtomValue(atom.__loadable) }
+    }
+    return mockUseAtomValue(atom)
+  },
+}))
+
+jest.mock('jotai/utils', () => ({
+  loadable: (atom) => ({ __loadable: atom }),
 }))
 
 // Mock all components to test routing logic only

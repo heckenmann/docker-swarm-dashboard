@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { startTransition } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Table } from 'react-bootstrap'
 import {
@@ -103,19 +103,23 @@ const DashboardVerticalComponent = React.memo(
                     }
                     style={{ cursor: 'pointer' }}
                     onClick={() =>
-                      setView({
-                        id: tasksDetailId,
-                        detail: task.ID,
-                        timestamp: Date.now(),
+                      startTransition(() => {
+                        setView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
+                        })
                       })
                     }
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
-                        setView({
-                          id: tasksDetailId,
-                          detail: task.ID,
-                          timestamp: Date.now(),
+                        startTransition(() => {
+                          setView({
+                            id: tasksDetailId,
+                            detail: task.ID,
+                            timestamp: Date.now(),
+                          })
                         })
                       }
                     }}

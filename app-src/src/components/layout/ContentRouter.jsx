@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { loadable } from 'jotai/utils'
 import React from 'react'
 import {
   aboutId,
@@ -35,6 +36,11 @@ import LogsComponent from '../logs/LogsComponent.jsx'
 import DebugComponent from '../misc/DebugComponent'
 import VersionUpdateComponent from '../misc/VersionUpdateComponent.jsx'
 
+const viewLoadableAtom = loadable(viewAtom)
+const defaultLayoutLoadableAtom = loadable(
+  dashboardSettingsDefaultLayoutViewIdAtom,
+)
+
 /**
  * ContentRouter component that determines which view to render
  * based on the current view ID from the state.
@@ -42,8 +48,15 @@ import VersionUpdateComponent from '../misc/VersionUpdateComponent.jsx'
  * @returns {JSX.Element} The component corresponding to the current view ID.
  */
 const ContentRouter = React.memo(function ContentRouter() {
-  const getView = useAtomValue(viewAtom)
-  const defaultLayout = useAtomValue(dashboardSettingsDefaultLayoutViewIdAtom)
+  const getViewRes = useAtomValue(viewLoadableAtom)
+  const defaultLayoutRes = useAtomValue(defaultLayoutLoadableAtom)
+
+  if (getViewRes.state === 'hasError') throw getViewRes.error
+  if (defaultLayoutRes.state === 'hasError') throw defaultLayoutRes.error
+
+  const getView = getViewRes.state === 'hasData' ? getViewRes.data : {}
+  const defaultLayout =
+    defaultLayoutRes.state === 'hasData' ? defaultLayoutRes.data : dashboardHId
 
   const idToRenderInitial = getView.id
 
@@ -73,11 +86,7 @@ const ContentRouter = React.memo(function ContentRouter() {
     [versionUpdateId]: <VersionUpdateComponent />,
   }
 
-  return (
-    <div key={idToRender}>
-      {componentMap[idToRender] || <DashboardComponent />}
-    </div>
-  )
+  return componentMap[idToRender] || <DashboardComponent />
 })
 
 export default ContentRouter
