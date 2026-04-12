@@ -15,9 +15,9 @@
 .loading-bar .loading-bar-progress {
   width: 0%;
   height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
   box-shadow: var(--loading-bar-shadow, var(--shadow));
   transition: width 180ms ease;
-  background: linear-gradient(90deg, var(--accent), var(--accent-end, var(--accent)));
 }
 
 .navbar + .loading-bar {
