@@ -5,12 +5,13 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       on('before:browser:launch', (browser = {}, launchOptions) => {
         if (browser.name === 'chrome' || browser.name === 'edge') {
-          launchOptions.args.push('--window-size=3840,2160')
+          launchOptions.args.push('--window-size=1920,1080')
+          launchOptions.args.push('--disable-dev-shm-usage')
           return launchOptions
         }
         if (browser.name === 'electron') {
-          launchOptions.preferences.width = 3840
-          launchOptions.preferences.height = 2160
+          launchOptions.preferences.width = 1920
+          launchOptions.preferences.height = 1080
           return launchOptions
         }
       })
@@ -26,6 +27,10 @@ module.exports = defineConfig({
         }
       })
     },
+    // Memory management
+    experimentalMemoryManagement: true,
+    numTestsKeptInMemory: 0,
+    
     baseUrl: 'http://localhost:3000',
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.js',
@@ -35,8 +40,8 @@ module.exports = defineConfig({
     downloadsFolder: 'cypress/downloads',
     video: false,
     screenshotOnRunFailure: false,
-    viewportWidth: 3840,
-    viewportHeight: 2160,
+    viewportWidth: 1920,
+    viewportHeight: 1080,
     autoVisit: true,
     defaultCommandTimeout: 5000,
     execTimeout: 30000,
@@ -69,8 +74,6 @@ module.exports = defineConfig({
     supportFile: 'cypress/support/component.js'
   },
   
-  // Optimize for speed
-  numTestsKeptInMemory: 0,
   trashAssetsBeforeRuns: true,
   
   // Reporter configuration

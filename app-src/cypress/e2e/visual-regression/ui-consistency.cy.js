@@ -11,11 +11,10 @@ describe('UI Consistency Tests', () => {
   it('should maintain visual consistency with dark mode', () => {
     
       cy.get('a[aria-label="Settings"]').click()
-      cy.wait(300)
-      cy.get('input[aria-label="Toggle dark mode"]').check({ force: true })
+      cy.get('input[aria-label="Toggle dark mode"]').should('be.visible').check({ force: true })
       
       cy.get('a[aria-label="Dashboard"]').click()
-      cy.wait(300)
+      cy.get('#dashboardTable').should('be.visible')
       
       cy.get('table').should('exist')
     

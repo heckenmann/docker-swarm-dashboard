@@ -5,7 +5,6 @@ import { CY_BASE_URL } from '../constants'
  */
 class DashboardPage {
   visitHorizontal() {
-    cy.visit(CY_BASE_URL)
     cy.get('nav', { timeout: 10000 }).should('be.visible')
     cy.get('a[aria-label="Dashboard"]').click()
     cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
@@ -13,11 +12,11 @@ class DashboardPage {
   }
   
   visitVertical() {
-    cy.visit(CY_BASE_URL)
     cy.get('nav', { timeout: 10000 }).should('be.visible')
     // First visit horizontal then switch to vertical
     cy.get('a[aria-label="Dashboard"]').click()
     cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
+    cy.get('main').within(() => { cy.get('button').eq(1).click() })
     return this
   }
   

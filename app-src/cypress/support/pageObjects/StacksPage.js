@@ -5,45 +5,26 @@ import { CY_BASE_URL } from '../constants'
  */
 class StacksPage {
   visit() {
-    cy.visit(CY_BASE_URL)
     cy.get('nav', { timeout: 10000 }).should('be.visible')
     cy.get('a[aria-label="Stacks"]').click()
     return this
   }
   
-  getStackCards() {
-    return cy.get('[data-cy="stack-card"]')
+  getStackRowByName(stackName) {
+    return cy.contains('td', stackName)
   }
   
-  getStackByName(stackName) {
-    return cy.contains('[data-cy="stack-name"]', stackName)
+  getStackHeaderByName(stackName) {
+    return cy.contains('.card-header strong', stackName)
   }
   
-  clickStackDetails(stackName) {
-    this.getStackByName(stackName).click()
+  assertStackRowVisible(stackName) {
+    this.getStackRowByName(stackName).should('be.visible')
     return this
   }
   
-  getServiceList() {
-    return cy.get('[data-cy="service-list"]')
-  }
-  
-  getFilterInput() {
-    return cy.get('input[aria-label="Filter by stack name"]')
-  }
-  
-  filterByStackName(name) {
-    this.getFilterInput().clear().type(name)
-    return this
-  }
-  
-  assertStackExists(stackName) {
-    this.getStackByName(stackName).should('exist')
-    return this
-  }
-  
-  assertStackCount(count) {
-    this.getStackCards().should('have.length', count)
+  assertStackHeaderVisible(stackName) {
+    this.getStackHeaderByName(stackName).should('be.visible')
     return this
   }
 }
