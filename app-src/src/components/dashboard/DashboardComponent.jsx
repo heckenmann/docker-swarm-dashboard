@@ -57,12 +57,13 @@ const DashboardComponent = React.memo(function DashboardComponent() {
     id: service.ID,
     name: service.Name || service['Name'],
     style: { width: '120px', minWidth: '120px' },
-    onClick: () =>
+    onClick: () => {
       updateView((prev) => ({
         ...prev,
         id: servicesDetailId,
         detail: service.ID,
-      })),
+      }))
+    },
     key: `dashboardTable-${service.ID}`,
     index: idx,
   }))
@@ -285,6 +286,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                         <th
                           key={h.key}
                           data-index={h.index}
+                          onClick={h.onClick}
                           className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                           style={
                             isLastColumn
@@ -332,6 +334,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                       <th
                         key={h.key}
                         data-index={h.index}
+                        onClick={h.onClick}
                         className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                         style={
                           isLastColumn ? { ...h.style, width: 'auto' } : h.style
@@ -371,6 +374,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                       <th
                         key={h.key}
                         data-index={h.index}
+                        onClick={h.onClick}
                         className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                         style={
                           isLastColumn ? { ...h.style, width: 'auto' } : h.style

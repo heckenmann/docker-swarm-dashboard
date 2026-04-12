@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -19,7 +20,10 @@ import FilterComponent from '../shared/FilterComponent'
  * TimelineComponent is a React functional component that renders a timeline chart
  * using ReactApexChart. It filters and maps tasks data to display them in a range bar chart.
  */
-const TimelineComponent = React.memo(function TimelineComponent() {
+const TimelineComponent = React.memo(function TimelineComponent({
+  grouped = true,
+  optionsOverride = null,
+}) {
   const currentVariant = useAtomValue(currentVariantAtom)
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
   const isDark = useAtomValue(isDarkModeAtom)
@@ -27,7 +31,6 @@ const TimelineComponent = React.memo(function TimelineComponent() {
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
 
   const tasks = useAtomValue(timelineAtom)
-  const grouped = true
 
   const series = (tasks || [])
     .filter((task) =>
@@ -194,7 +197,7 @@ const TimelineComponent = React.memo(function TimelineComponent() {
     }
   }
 
-  const optionsValidation = validateOptions(options)
+  const optionsValidation = validateOptions(optionsOverride || options)
 
   return (
     <>
@@ -209,7 +212,7 @@ const TimelineComponent = React.memo(function TimelineComponent() {
         {optionsValidation.ok ? (
           sanitizedSeries.length ? (
             <ReactApexChart
-              options={options}
+              options={optionsOverride || options}
               series={sanitizedSeries}
               height={chartHeight()}
               type="rangeBar"
@@ -226,5 +229,10 @@ const TimelineComponent = React.memo(function TimelineComponent() {
     </>
   )
 })
+
+TimelineComponent.propTypes = {
+  grouped: PropTypes.bool,
+  optionsOverride: PropTypes.object,
+}
 
 export default TimelineComponent

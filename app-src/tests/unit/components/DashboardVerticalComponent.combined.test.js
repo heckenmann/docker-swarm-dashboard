@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import React from 'react'
 
 // Mock memo to avoid re-render issues in tests
@@ -111,5 +111,63 @@ describe('DashboardVerticalComponent', () => {
     setupMocks({ serviceNameFilterAtom: 'non-existent' })
     render(<DashboardVerticalComponent />)
     expect(screen.queryByTestId('service-name')).not.toBeInTheDocument()
+  })
+
+  test('navigates to task detail on click and keydown', () => {
+    const mockSetView = jest.fn()
+    setupMocks()
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return [null, mockSetView]
+      return [null, jest.fn()]
+    })
+    render(<DashboardVerticalComponent />)
+
+    const taskItem = screen.getByRole('button')
+    fireEvent.click(taskItem)
+    expect(mockSetView).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'tasksDetail',
+      detail: 't1'
+    }))
+
+    mockSetView.mockClear()
+    fireEvent.keyDown(taskItem, { key: 'Enter' })
+    expect(mockSetView).toHaveBeenCalled()
+
+    mockSetView.mockClear()
+    fireEvent.keyDown(taskItem, { key: ' ' })
+    expect(mockSetView).toHaveBeenCalled()
+  })
+
+  test('handles empty dashboard data', () => {
+    setupMocks({ dashboardVAtom: null })
+    render(<DashboardVerticalComponent />)
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+  })
+
+  test('handles missing tasks or node ID', () => {
+    setupMocks({
+      dashboardVAtom: {
+        Nodes: [{ ID: null, Hostname: 'node1' }],
+        Services: [{ ID: 's1', Name: 's1', Tasks: { 'null': [{ ID: 't1' }] } }]
+      }
+    })
+    render(<DashboardVerticalComponent />)
+    expect(screen.getByTestId('service-status-badge')).toBeInTheDocument()
+  })
+
+  test('covers more branch logic', () => {
+    setupMocks({
+      dashboardVAtom: {
+        Nodes: [
+          { ID: 'n1', Hostname: 'node1' },
+          { ID: 'n2', Hostname: 'node2' }
+        ],
+        Services: [
+          { ID: 's1', Name: 's1' }
+        ]
+      }
+    })
+    render(<DashboardVerticalComponent />)
+    expect(screen.getAllByTestId('node-name')).toHaveLength(2)
   })
 })

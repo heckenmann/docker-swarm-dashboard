@@ -70,4 +70,25 @@ describe('ContentRouter', () => {
     render(<ContentRouter />)
     expect(screen.getByTestId('node-details')).toBeInTheDocument()
   })
+
+  test('renders default dashboard when id is invalid', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return { id: 'invalid-id' }
+      return null
+    })
+
+    render(<ContentRouter />)
+    expect(screen.getByTestId('dashboard-h')).toBeInTheDocument()
+  })
+
+  test('uses default layout when view id is missing', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return { id: null }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return 'dashboardV'
+      return null
+    })
+
+    render(<ContentRouter />)
+    expect(screen.getByTestId('dashboard-v')).toBeInTheDocument()
+  })
 })
