@@ -43,6 +43,7 @@ import {
   timelineId,
   versionUpdateId,
 } from '../../common/navigationConstants'
+import './DashboardNavbar.css'
 
 /**
  * DashboardNavbar component renders the navigation bar for the dashboard.

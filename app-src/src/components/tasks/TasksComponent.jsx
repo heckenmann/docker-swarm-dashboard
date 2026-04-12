@@ -25,6 +25,7 @@ import FilterComponent from '../shared/FilterComponent'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import { tasksDetailId } from '../../common/navigationConstants'
+import './TasksComponent.css'
 
 /**
  * TasksComponent is a React functional component that displays a list of tasks

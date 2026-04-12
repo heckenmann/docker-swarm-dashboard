@@ -8,7 +8,8 @@
 
 /* Base table styling */
 .dashboard-table {
-  width: 100%;
+  width: auto;
+  min-width: 100%;
   margin-bottom: 0;
   table-layout: fixed;
   border-spacing: 0;
@@ -40,15 +41,15 @@
 /* Filler column (.fill-col) expansion logic for fixed layout */
 .fill-col {
   width: auto;
-  min-width: 120px;
-  background-color: inherit;
+  min-width: 240px;
   border-left: 1px solid var(--table-border-color);
 }
 
 /* Header cell styling */
 .dashboard-table thead th {
-  height: auto;
+  height: 28px; /* Compact uniform header rows */
   color: var(--text);
+  vertical-align: middle;
   border-bottom: 1px solid var(--table-border-color);
 }
 
@@ -72,7 +73,32 @@
 .dashboard-table .data-col {
   width: 120px;
   min-width: 120px;
+  max-width: 120px;
 }
+
+/* Service header 'flag' styling */
+.dashboard-table thead .service-header {
+  position: relative;
+  padding: 5px 8px;
+  padding-left: 4px;
+  overflow: visible; /* Crucial for long names to overflow */
+  line-height: 1.05;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.dashboard-table thead .service-header .service-name-container {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  z-index: 10;
+  display: block; /* The inner entity-name-wrapper will handle flex */
+  overflow: visible;
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+
 
 /* Vertical border logic for services */
 .dashboard-table thead .data-col,
@@ -88,22 +114,6 @@
   border-left: none;
 }
 
-/* Service header 'flag' styling */
-.dashboard-table thead .service-header {
-  position: relative;
-  padding: 5px 8px;
-  padding-left: 4px;
-  overflow: visible;
-  line-height: 1.05;
-  text-align: left;
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-.dashboard-table thead .service-header .header-wrap {
-  padding: 0;
-}
-
 /* Center content in service columns vertically */
 .dashboard-table tbody [class*="svc-index-"] {
   text-align: center;
@@ -112,11 +122,12 @@
 
 /* Vertical Dashboard specific overrides */
 .vertical-dashboard {
-  table-layout: auto;
+  width: auto;
+  min-width: 100%;
+  table-layout: fixed;
 }
 
 .vertical-dashboard .stack-column {
   width: 1px;
-  min-width: 5rem;
   white-space: nowrap;
 }

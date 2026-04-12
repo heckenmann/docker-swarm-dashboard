@@ -85,17 +85,19 @@ const NodesComponent = React.memo(function NodesComponent() {
           <FontAwesomeIcon icon="server" />
         </td>
         <td className="align-middle text-nowrap">
-          <NodeName name={node['Hostname']} id={node.ID} />
-          {node['Leader'] && (
-            <OverlayTrigger
-              placement="top"
-              overlay={<Tooltip id={`leader-tt-${node.ID}`}>Leader</Tooltip>}
-            >
-              <span className="ms-1">
-                <FontAwesomeIcon icon="star" />
-              </span>
-            </OverlayTrigger>
-          )}
+          <div className="d-flex align-items-center flex-nowrap">
+            <NodeName name={node['Hostname']} id={node.ID} />
+            {node['Leader'] && (
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id={`leader-tt-${node.ID}`}>Leader</Tooltip>}
+              >
+                <span className="ms-1 flex-shrink-0">
+                  <FontAwesomeIcon icon="star" />
+                </span>
+              </OverlayTrigger>
+            )}
+          </div>
         </td>
         <td className="align-middle col-md-1">{node['Role']}</td>
         <td className="align-middle col-md-1">

@@ -19,6 +19,7 @@ import FilterComponent from '../shared/FilterComponent'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import DSDCard from '../common/DSDCard.jsx'
+import './PortsComponent.css'
 
 /**
  * PortsComponent is a React functional component that renders a table of port mappings.

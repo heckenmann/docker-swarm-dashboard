@@ -43,32 +43,6 @@
   cursor: pointer;
 }
 
-/* Ports table columns */
-.ports-table .arrow {
-  width: 50px;
-}
-
-/* Tasks table columns */
-.tasks-table .timestamp-col {
-  width: 200px;
-}
-
-.tasks-table .state-col {
-  width: 100px;
-}
-
-.tasks-table .desired-state-col {
-  width: 200px;
-}
-
-.tasks-table .service-col {
-  max-width: 300px;
-}
-
-.tasks-table .node-col {
-  width: 200px;
-}
-
 table ul {
   padding: 0;
   margin: 0;
@@ -101,92 +75,6 @@ ul li {
 
 .rotating {
   animation: rotating 2s linear infinite;
-}
-
-.service-status-tooltip .tooltip-inner {
-  min-width: 250px;
-}
-
-/* Modern utility classes */
-.card-elevated {
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-/* Shared inline action button base for small header/body buttons */
-.inline-action-btn,
-.name-filter-btn,
-.name-open-btn,
-.name-logs-btn {
-  position: static;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  color: var(--muted, #6c757d);
-  background: transparent;
-  border: none;
-  opacity: .85;
-}
-
-.inline-action-btn svg,
-.name-filter-btn svg,
-.name-open-btn svg,
-.name-logs-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-.inline-action-btn:hover,
-.inline-action-btn:focus,
-.name-filter-btn:hover,
-.name-filter-btn:focus,
-.name-open-btn:hover,
-.name-open-btn:focus,
-.name-logs-btn:hover,
-.name-logs-btn:focus {
-  color: var(--text, #495057);
-  text-decoration: none;
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-  opacity: 1;
-}
-
-/* stack-filter specific small offset */
-.name-filter-btn {
-  margin-left: 0;
-}
-
-.name-open-btn {
-  margin-left: 0;
-}
-
-.name-logs-btn {
-  margin-left: 0;
-}
-
-/* Pulsing animation for the version-update badge dot in the navbar */
-@keyframes version-badge-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  50% {
-    opacity: .75;
-    transform: translate(-50%, -50%) scale(1.35);
-  }
-}
-
-.version-update-badge {
-  min-width: 1.1rem;
-  padding: 0 .25rem;
-  font-size: .6rem;
-  line-height: 1.1rem;
-  animation: version-badge-pulse 1.6s ease-in-out infinite;
 }
 
 main {

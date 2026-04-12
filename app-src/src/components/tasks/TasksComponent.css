@@ -1,0 +1,20 @@
+/* Tasks table columns */
+.tasks-table .timestamp-col {
+  width: 200px;
+}
+
+.tasks-table .state-col {
+  width: 100px;
+}
+
+.tasks-table .desired-state-col {
+  width: 200px;
+}
+
+.tasks-table .service-col {
+  max-width: 300px;
+}
+
+.tasks-table .node-col {
+  width: 200px;
+}
