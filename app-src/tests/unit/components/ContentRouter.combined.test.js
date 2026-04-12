@@ -15,7 +15,9 @@ const mockUseAtomValue = jest.fn()
 jest.mock('jotai', () => ({
   useAtomValue: (atom) => {
     if (atom && atom.__loadable) {
-      return { state: 'hasData', data: mockUseAtomValue(atom.__loadable) }
+      const value = mockUseAtomValue(atom.__loadable)
+      if (value && typeof value === 'object' && value.state) return value
+      return { state: 'hasData', data: value }
     }
     return mockUseAtomValue(atom)
   },
@@ -99,5 +101,42 @@ describe('ContentRouter', () => {
 
     render(<ContentRouter />)
     expect(screen.getByTestId('dashboard-v')).toBeInTheDocument()
+  })
+
+  test('falls back to dashboardH when default layout is loading', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return { state: 'loading' }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return { state: 'loading' }
+      }
+      return null
+    })
+
+    render(<ContentRouter />)
+    expect(screen.getByTestId('dashboard-h')).toBeInTheDocument()
+  })
+
+  test('throws when view loadable has error', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'viewAtom') {
+        return { state: 'hasError', error: new Error('view failed') }
+      }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') return 'dashboardH'
+      return null
+    })
+
+    expect(() => render(<ContentRouter />)).toThrow('view failed')
+  })
+
+  test('throws when default layout loadable has error', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return { id: null }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return { state: 'hasError', error: new Error('layout failed') }
+      }
+      return null
+    })
+
+    expect(() => render(<ContentRouter />)).toThrow('layout failed')
   })
 })
