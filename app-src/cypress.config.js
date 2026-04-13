@@ -32,7 +32,10 @@ module.exports = defineConfig({
     numTestsKeptInMemory: 0,
     
     baseUrl: 'http://localhost:3000',
-    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    specPattern: [
+      'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+      '!cypress/utils/**/*.cy.{js,jsx,ts,tsx}'
+    ],
     supportFile: 'cypress/support/e2e.js',
     fixturesFolder: 'cypress/fixtures',
     screenshotsFolder: 'cypress/screenshots',

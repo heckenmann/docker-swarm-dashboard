@@ -80,6 +80,7 @@ const DashboardVerticalComponent = React.memo(
       .forEach((service) => {
         const dataCols = nodes.map((node, idx) => (
           <td
+            data-cy={`vertical-node-column-${idx}`}
             className={`align-middle svc-index-${idx}`}
             key={
               'td-' +
@@ -153,7 +154,7 @@ const DashboardVerticalComponent = React.memo(
             </td>
             <td className="align-middle">{service?.Replication}</td>
             {dataCols}
-            <td className="fill-col" />
+            <td data-cy="vertical-filler-column" className="fill-col" />
           </tr>,
         )
       })

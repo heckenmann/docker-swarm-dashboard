@@ -11,8 +11,9 @@ describe('Dump Dashboard Table HTML', () => {
     cy.get('a[aria-label="Dashboard"]').click()
     cy.get('#dashboardTable', { timeout: 10000 }).should('exist')
     
-    // Wait a bit for everything to settle
-    cy.wait(2000);
+    // Wait for animations to complete by checking table visibility and stability
+    cy.get('#dashboardTable').should('be.visible')
+    cy.get('tbody tr').should('have.length.at.least', 1)
     
     // Dump the HTML of #dashboardTable
     cy.get('#dashboardTable').then(($table) => {

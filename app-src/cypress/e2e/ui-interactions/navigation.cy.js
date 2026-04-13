@@ -39,7 +39,16 @@ describe('Navigation Tests', () => {
   })
 
   it('should maintain state when navigating between pages', () => {
-    // Navigate to dashboard and filter - SKIPPED due to cy.visit timing issues with hash URLs
-    cy.get('#dashboardTable', { timeout: 5000 }).should('exist')
+    // Navigate to dashboard and verify using POM
+    dashboardPage.visitHorizontal()
+    dashboardPage.assertIsHorizontal()
+    
+    // Navigate to Timeline and back to Dashboard
+    basePage.navigateTo('Timeline')
+    basePage.navigateTo('Dashboard')
+    dashboardPage.assertIsHorizontal()
+    
+    // Navigate to Settings
+    basePage.navigateTo('Settings')
   })
 })

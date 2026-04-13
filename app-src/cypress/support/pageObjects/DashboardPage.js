@@ -70,6 +70,63 @@ class DashboardPage {
     })
     return this
   }
+
+  // Layout-specific methods for layout_specs tests
+  getTable() {
+    return cy.get('#dashboardTable')
+  }
+
+  getTableHeaderRows() {
+    return cy.get('#dashboardTable thead tr')
+  }
+
+  getNodeAttributeHeaders() {
+    return cy.get('#dashboardTable thead th.node-attribute')
+  }
+
+  getTableBodyRows() {
+    return cy.get('#dashboardTable tbody tr')
+  }
+
+  getServiceColumnByIndex(index = 0) {
+    return cy.get(`[data-cy="service-column-${index}"]`)
+  }
+
+  getFillerColumn() {
+    return cy.get('[data-cy="filler-column"]')
+  }
+
+  getVerticalDashboardTable() {
+    return cy.get('.vertical-dashboard')
+  }
+
+  getVerticalDashboardHeaderRows() {
+    return cy.get('.vertical-dashboard thead tr')
+  }
+
+  getVerticalDashboardBodyRows() {
+    return cy.get('.vertical-dashboard tbody tr')
+  }
+
+  switchToHorizontal() {
+    cy.get('svg[data-icon="grip"]').closest('button').click()
+    return this
+  }
+
+  switchToVertical() {
+    cy.get('svg[data-icon="grip-vertical"]').closest('button').click()
+    return this
+  }
+
+  assertIsHorizontal() {
+    this.getTable().should('be.visible').and('not.have.class', 'vertical-dashboard')
+    return this
+  }
+
+  assertIsVertical() {
+    this.getVerticalDashboardTable().should('be.visible')
+    return this
+  }
 }
 
 export default DashboardPage

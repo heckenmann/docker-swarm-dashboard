@@ -20,7 +20,8 @@
     "cy:run": "yarn cypress run",
     "cy:run:all-res": "yarn cypress run --env viewportWidth=3840,viewportHeight=2160 && yarn cypress run --env viewportWidth=1920,viewportHeight=1080",
     "cy:spec": "yarn cypress run --spec",
-    "dev:cy:run": "xvfb-run yarn cypress run"
+    "dev:cy:run": "xvfb-run yarn cypress run",
+    "test:e2e": "start-server-and-test 'yarn start:servers' 'wait-on tcp:3000 tcp:3001' cy:run"
   },
   "files": [
     {
@@ -92,10 +93,12 @@
     "react-dom": "^19.2.4",
     "react-transition-group": "^4.4.5",
     "react-use-websocket": "^4.13.0",
+    "start-server-and-test": "^3.0.2",
     "style-loader": "^4.0.0",
     "stylelint": "^17.6.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-config-twbs-bootstrap": "^16.1.0",
+    "wait-on": "^9.0.5",
     "webpack": "5.106.1",
     "webpack-cli": "^7.0.2",
     "webpack-dev-server": "^5.2.3",
