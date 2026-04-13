@@ -9275,7 +9275,7 @@ w3c-xmlserializer@^5.0.0:
   dependencies:
     xml-name-validator "^5.0.0"
 
-wait-on@9.0.5:
+wait-on@9.0.5, wait-on@^9.0.5:
   version "9.0.5"
   resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-9.0.5.tgz#9569a31ee3669abb67b1284622fd1d5b1f0163fc"
   integrity sha512-qgnbHDfDTRIp73ANEJNRW/7kn8CrDUcvZz18xotJQku/P4saTGkbIzvnMZebPmVvVNUiRq1qWAPyqCH+W4H8KA==

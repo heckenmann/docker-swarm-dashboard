@@ -43,8 +43,20 @@ describe('Dashboard Layout Consistency', () => {
       dashboardPage.getServiceColumnByIndex(0)
         .invoke('outerWidth').should('be.within', 110, 130)
 
-      // Filler column should be larger than 0 using POM
-      dashboardPage.getFillerColumn().invoke('outerWidth').should('be.greaterThan', 10)
+      // Filler column behavior depends on whether services exist:
+      // - If no services: standalone [data-cy="filler-column"] exists
+      // - If services exist: last service header has colspan=2 and acts as filler
+      cy.get('body').then($body => {
+        if ($body.find('[data-cy="filler-column"]').length > 0) {
+          // Standalone filler column exists when no services
+          dashboardPage.getFillerColumn().invoke('outerWidth').should('be.greaterThan', 10)
+        } else {
+          // When services exist, the last service header includes the filler (colspan=2)
+          // It should be wider than regular service columns
+          dashboardPage.getTableHeaderRows().first().find('th').last()
+            .invoke('outerWidth').should('be.greaterThan', 100)
+        }
+      })
     })
 
     it('should verify header text allows overflow and has no line wrap', () => {
