@@ -331,7 +331,11 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                     }
                   })
                 ) : (
-                  <th data-cy="filler-column" className="fill-col" rowSpan={3} />
+                  <th
+                    data-cy="filler-column"
+                    className="fill-col"
+                    rowSpan={3}
+                  />
                 )}
                 {/* Filler column is now merged with the last service in row 0 */}
               </tr>
