@@ -89,6 +89,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
 
       dataCols.push(
         <td
+          data-cy={`service-column-${idx}`}
           className={`align-middle svc-index-${idx}`}
           key={tdKey}
           style={{ width: '120px', minWidth: '120px' }}
@@ -291,6 +292,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                       return (
                         <th
                           key={h.key}
+                          data-cy={`service-header-${h.index}`}
                           data-index={h.index}
                           onClick={h.onClick}
                           className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
@@ -316,6 +318,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                       return (
                         <th
                           key={`ph-${h.key}`}
+                          data-cy={`service-header-placeholder-${h.index}`}
                           className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-0`}
                           style={
                             isLastColumn
@@ -328,7 +331,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                     }
                   })
                 ) : (
-                  <th className="fill-col" rowSpan={3} />
+                  <th data-cy="filler-column" className="fill-col" rowSpan={3} />
                 )}
                 {/* Filler column is now merged with the last service in row 0 */}
               </tr>
@@ -339,6 +342,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                     return (
                       <th
                         key={h.key}
+                        data-cy={`service-header-${h.index}`}
                         data-index={h.index}
                         onClick={h.onClick}
                         className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
@@ -362,6 +366,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                     return (
                       <th
                         key={`ph2-${h.key}`}
+                        data-cy={`service-header-placeholder-${h.index}`}
                         className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-1`}
                         style={
                           isLastColumn ? { ...h.style, width: 'auto' } : h.style
@@ -379,6 +384,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                     return (
                       <th
                         key={h.key}
+                        data-cy={`service-header-${h.index}`}
                         data-index={h.index}
                         onClick={h.onClick}
                         className={`service-header row-${h.index % 3} data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
@@ -402,6 +408,7 @@ const DashboardComponent = React.memo(function DashboardComponent() {
                     return (
                       <th
                         key={`ph3-${h.key}`}
+                        data-cy={`service-header-placeholder-${h.index}`}
                         className={`data-col svc-index-${h.index} svc-start-${h.index % 3} hdr-row-2`}
                         style={
                           isLastColumn ? { ...h.style, width: 'auto' } : h.style
