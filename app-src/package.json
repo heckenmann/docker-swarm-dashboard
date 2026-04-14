@@ -21,7 +21,7 @@
     "cy:run:all-res": "yarn cypress run --env viewportWidth=3840,viewportHeight=2160 && yarn cypress run --env viewportWidth=1920,viewportHeight=1080",
     "cy:spec": "yarn cypress run --spec",
     "dev:cy:run": "xvfb-run yarn cypress run",
-    "test:e2e": "yarn start:servers & SERVERS_PID=$!; ./node_modules/.bin/wait-on tcp:3000 tcp:3001; yarn cy:run; kill $SERVERS_PID 2>/dev/null || true"
+    "test:e2e": "node scripts/run-e2e.js"
   },
   "files": [
     {
