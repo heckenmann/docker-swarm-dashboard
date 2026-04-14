@@ -21,7 +21,7 @@
     "cy:run:all-res": "yarn cypress run --env viewportWidth=3840,viewportHeight=2160 && yarn cypress run --env viewportWidth=1920,viewportHeight=1080",
     "cy:spec": "yarn cypress run --spec",
     "dev:cy:run": "xvfb-run yarn cypress run",
-    "test:e2e": "start-server-and-test 'yarn start:servers' 'wait-on tcp:3000 tcp:3001' cy:run"
+    "test:e2e": "node scripts/run-e2e.js"
   },
   "files": [
     {
@@ -87,10 +87,10 @@
     "json-server": "1.0.0-beta.15",
     "prettier": "^3.8.2",
     "prop-types": "^15.8.1",
-    "react": "^19.2.4",
+    "react": "^19.2.5",
     "react-apexcharts": "^2.1.0",
     "react-bootstrap": "^2.10.10",
-    "react-dom": "^19.2.4",
+    "react-dom": "^19.2.5",
     "react-transition-group": "^4.4.5",
     "react-use-websocket": "^4.13.0",
     "start-server-and-test": "^3.0.2",
