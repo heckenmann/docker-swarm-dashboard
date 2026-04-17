@@ -786,13 +786,17 @@ func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
 	if err != nil {
 		errMsg := "Error listing tasks: " + err.Error()
-		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg})
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
+			log.Printf("Failed to encode error response: %v", encodeErr)
+		}
 		return
 	}
 
 	if len(tasks) == 0 {
 		msg := "Node-exporter service found, but no running tasks were detected. Ensure it's deployed as a global service."
-		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg})
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg}); encodeErr != nil {
+			log.Printf("Failed to encode message response: %v", encodeErr)
+		}
 		return
 	}
 
@@ -858,11 +862,13 @@ func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if nodesWithMetrics == 0 && startedGoroutines > 0 {
 		errMsg := "Failed to fetch metrics from node exporter instances. Check network connectivity."
-		json.NewEncoder(w).Encode(clusterMetricsResponse{
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{
 			Available: true,
 			Error:     &errMsg,
 			NodeCount: len(nodes),
-		})
+		}); encodeErr != nil {
+			log.Printf("Failed to encode error response: %v", encodeErr)
+		}
 		return
 	}
 
