@@ -147,7 +147,7 @@ func TestLoadNodeExporterLabelFromEnv(t *testing.T) {
 
 	// Test default value
 	_ = os.Unsetenv("DSD_NODE_EXPORTER_LABEL")
-	loadNodeExporterLabelFromEnv()
+	loadMetricsLabelsFromEnv()
 	if nodeExporterLabel != "dsd.node-exporter" {
 		t.Errorf("Expected default label 'dsd.node-exporter', got '%s'", nodeExporterLabel)
 	}
@@ -155,7 +155,7 @@ func TestLoadNodeExporterLabelFromEnv(t *testing.T) {
 	// Test custom value
 	_ = os.Setenv("DSD_NODE_EXPORTER_LABEL", "custom.label")
 	defer func() { _ = os.Unsetenv("DSD_NODE_EXPORTER_LABEL") }()
-	loadNodeExporterLabelFromEnv()
+	loadMetricsLabelsFromEnv()
 	if nodeExporterLabel != "custom.label" {
 		t.Errorf("Expected custom label 'custom.label', got '%s'", nodeExporterLabel)
 	}
@@ -1626,5 +1626,116 @@ func TestNodeMetricsHandler_GetEndpointResolutionError(t *testing.T) {
 	}
 	if resp.Error == nil {
 		t.Error("expected error to be set when endpoint cannot be resolved")
+	}
+}
+
+func TestClusterMetricsHandler_FullSuccess(t *testing.T) {
+	// 1. Mock Node Exporter
+	metricsData := "node_memory_MemTotal_bytes 1000\nnode_memory_MemAvailable_bytes 200\nnode_cpu_seconds_total{cpu=\"0\",mode=\"idle\"} 100\nnode_filesystem_size_bytes{mountpoint=\"/\"} 500\nnode_filesystem_avail_bytes{mountpoint=\"/\"} 100\n"
+	mockExporter := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(metricsData))
+	}))
+	defer mockExporter.Close()
+
+	u, _ := url.Parse(mockExporter.URL)
+	host, portStr, _ := net.SplitHostPort(u.Host)
+	port, _ := strconv.Atoi(portStr)
+
+	// 2. Mock Docker API
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/nodes":
+			nodes := []swarm.Node{{ID: "n1"}, {ID: "n2"}}
+			json.NewEncoder(w).Encode(nodes)
+		case "/v1.35/services":
+			services := []swarm.Service{{
+				ID: "s-exporter",
+				Spec: swarm.ServiceSpec{
+					Annotations: swarm.Annotations{
+						Labels: map[string]string{nodeExporterLabel: "true"},
+					},
+				},
+				Endpoint: swarm.Endpoint{
+					Ports: []swarm.PortConfig{{TargetPort: uint32(port)}},
+				},
+			}}
+			json.NewEncoder(w).Encode(services)
+		case "/v1.35/tasks":
+			tasks := []swarm.Task{
+				{
+					NodeID: "n1",
+					Status: swarm.TaskStatus{State: swarm.TaskStateRunning},
+					NetworksAttachments: []swarm.NetworkAttachment{{
+						Addresses: []string{host + "/24"},
+					}},
+				},
+				{
+					NodeID: "n2",
+					Status: swarm.TaskStatus{State: swarm.TaskStateRunning},
+					NetworksAttachments: []swarm.NetworkAttachment{{
+						Addresses: []string{host + "/24"},
+					}},
+				},
+			}
+			json.NewEncoder(w).Encode(tasks)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
+	w := httptest.NewRecorder()
+
+	clusterMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	var resp clusterMetricsResponse
+	json.NewDecoder(w.Body).Decode(&resp)
+
+	if !resp.Available {
+		t.Errorf("expected available=true, got error: %v", resp.Error)
+	}
+	if resp.NodeCount != 2 {
+		t.Errorf("expected 2 nodes, got %d", resp.NodeCount)
+	}
+	// 2 nodes * 1000 bytes = 2000 total memory
+	if resp.TotalMemory != 2000 {
+		t.Errorf("expected 2000 total memory, got %f", resp.TotalMemory)
+	}
+}
+
+func TestClusterMetricsHandler_NoExporterService(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/nodes":
+			json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
+		case "/v1.35/services":
+			json.NewEncoder(w).Encode([]swarm.Service{}) // No exporter service
+		}
+	}))
+	defer server.Close()
+
+	SetCli(makeClientForServer(t, server.URL))
+	defer ResetCli()
+
+	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
+	w := httptest.NewRecorder()
+	clusterMetricsHandler(w, req)
+
+	var resp clusterMetricsResponse
+	json.NewDecoder(w.Body).Decode(&resp)
+	if resp.Available {
+		t.Error("expected available=false")
+	}
+	if resp.Message == nil || !strings.Contains(*resp.Message, "not found") {
+		t.Errorf("expected 'not found' message, got %v", resp.Message)
 	}
 }

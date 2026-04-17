@@ -455,6 +455,23 @@ function sendResource(res, resource, resourceName, id) {
   }
 }
 
+// Mock cluster metrics endpoint
+app.get('/docker/nodes/metrics', (req, res) => {
+  const nodeCount = db.data?.nodes?.length || 5
+  res.json({
+    available: true,
+    totalCpu: nodeCount * 4,
+    totalMemory: nodeCount * 8 * 1024 * 1024 * 1024, // 8GB per node
+    usedMemory: nodeCount * 4 * 1024 * 1024 * 1024, // 4GB per node
+    memoryPercent: 50.0,
+    totalDisk: nodeCount * 100 * 1024 * 1024 * 1024, // 100GB per node
+    usedDisk: nodeCount * 50 * 1024 * 1024 * 1024, // 50GB per node
+    diskPercent: 50.0,
+    nodeCount: nodeCount,
+    nodesAvailable: nodeCount,
+  })
+})
+
 app.get('/ui/nodes/:id', (req, res) => {
   const node = findResource(db.data?.nodes, req.params.id)
   if (node) {
