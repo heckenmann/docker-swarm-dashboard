@@ -91,7 +91,6 @@ func TestGetLocalVersion_EnvVarTakesPrecedence(t *testing.T) {
 	}
 }
 
-
 // TestGetLocalVersion_Success ensures getLocalVersion reads the env variable.
 func TestGetLocalVersion_Success(t *testing.T) {
 	_ = os.Setenv("DSD_VERSION", "3.2.1")
