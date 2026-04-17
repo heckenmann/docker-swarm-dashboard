@@ -50,6 +50,20 @@ export const nodesAtomNew = atom(async (get) => {
 })
 
 /**
+ * Cluster metrics: fetches aggregated CPU, Memory and Disk metrics for the entire swarm.
+ * Revalidates when the current view changes.
+ */
+export const clusterMetricsAtom = atom(async (get) => {
+  get(viewAtom)
+  try {
+    const response = await fetch(get(baseUrlAtom) + 'docker/nodes/metrics')
+    return await response.json()
+  } catch (err) {
+    return { available: false }
+  }
+})
+
+/**
  * Tasks list: fetches all Docker tasks from the backend.
  * Revalidates when the current view changes.
  */

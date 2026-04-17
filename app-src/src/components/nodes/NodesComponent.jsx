@@ -13,6 +13,7 @@ import NodeName from '../shared/names/NodeName'
 import SortableHeader from '../shared/SortableHeader.jsx'
 import { sortData } from '../../common/sortUtils'
 import DSDCard from '../common/DSDCard.jsx'
+import ClusterMetricsHeader from './ClusterMetricsHeader'
 
 /**
  * NodesComponent is a React functional component that renders a table of nodes.
@@ -133,64 +134,67 @@ const NodesComponent = React.memo(function NodesComponent() {
   })
 
   return (
-    <DSDCard icon="server" title="Nodes" bodyClassName="p-0">
-      <Table
-        variant={currentVariant}
-        key="nodesTable"
-        id="nodes-table"
-        striped
-        hover
-        size={tableSize}
-      >
-        <thead>
-          <tr>
-            <th style={{ width: '25px' }} />
-            <SortableHeader
-              column="Hostname"
-              label="Node"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="node-attribute"
-            />
-            <SortableHeader
-              column="Role"
-              label="Role"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="node-attribute-small"
-            />
+    <div className="nodes-container">
+      <ClusterMetricsHeader />
+      <DSDCard icon="server" title="Nodes" bodyClassName="p-0">
+        <Table
+          variant={currentVariant}
+          key="nodesTable"
+          id="nodes-table"
+          striped
+          hover
+          size={tableSize}
+        >
+          <thead>
+            <tr>
+              <th style={{ width: '25px' }} />
+              <SortableHeader
+                column="Hostname"
+                label="Node"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="node-attribute"
+              />
+              <SortableHeader
+                column="Role"
+                label="Role"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="node-attribute-small"
+              />
 
-            <SortableHeader
-              column="State"
-              label="State"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="node-attribute-small"
-            />
-            <SortableHeader
-              column="Availability"
-              label="Availability"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="node-attribute-small"
-            />
-            <SortableHeader
-              column="StatusAddr"
-              label="IP"
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              className="node-attribute-small"
-            />
-          </tr>
-        </thead>
-        <tbody>{trows}</tbody>
-      </Table>
-    </DSDCard>
+              <SortableHeader
+                column="State"
+                label="State"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="node-attribute-small"
+              />
+              <SortableHeader
+                column="Availability"
+                label="Availability"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="node-attribute-small"
+              />
+              <SortableHeader
+                column="StatusAddr"
+                label="IP"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="node-attribute-small"
+              />
+            </tr>
+          </thead>
+          <tbody>{trows}</tbody>
+        </Table>
+      </DSDCard>
+    </div>
   )
 })
 
