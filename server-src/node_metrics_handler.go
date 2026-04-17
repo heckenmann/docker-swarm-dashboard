@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -755,7 +756,9 @@ func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	nodes, err := cli.NodeList(context.Background(), swarm.NodeListOptions{})
 	if err != nil {
 		errMsg := "Error listing nodes: " + err.Error()
-		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg})
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
+			log.Printf("Failed to encode error response: %v", encodeErr)
+		}
 		return
 	}
 
@@ -763,12 +766,16 @@ func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	service, err := findNodeExporterService(cli)
 	if err != nil {
 		errMsg := "Error finding node-exporter service: " + err.Error()
-		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg})
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
+			log.Printf("Failed to encode error response: %v", encodeErr)
+		}
 		return
 	}
 	if service == nil {
 		msg := fmt.Sprintf("Node-exporter service not found. Deploy a global service with label '%s' to enable cluster metrics.", nodeExporterLabel)
-		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg})
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg}); encodeErr != nil {
+			log.Printf("Failed to encode message response: %v", encodeErr)
+		}
 		return
 	}
 
