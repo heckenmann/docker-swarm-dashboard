@@ -67,6 +67,8 @@ jest.mock('jotai/utils', () => ({
     atomFn.default = initialValue
     return atomFn
   }),
+  atomFamily: (v) => v,
+  loadable: (v) => v,
 }))
 import {
   baseUrlAtom,
@@ -218,6 +220,8 @@ describe('UI Settings Atoms with Server Defaults', () => {
     jest.doMock('jotai/utils', () => ({
       atomWithReducer: jest.fn((initialValue) => initialValue),
       atomWithReset: jest.fn((initialValue) => initialValue),
+      atomFamily: (v) => v,
+      loadable: (v) => v,
     }))
 
     // Re-import the module to apply mocks

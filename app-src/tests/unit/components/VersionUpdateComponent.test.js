@@ -12,6 +12,8 @@ jest.mock('jotai', () => ({ atom: (v) => v, useAtomValue: jest.fn() }))
 jest.mock('jotai/utils', () => ({
   atomWithReducer: (v) => v,
   atomWithReset: (v) => v,
+  atomFamily: (v) => v,
+  loadable: (v) => v,
 }))
 jest.mock('jotai-location', () => ({ atomWithHash: (_k, def) => def }))
 jest.mock('@fortawesome/react-fontawesome', () => ({

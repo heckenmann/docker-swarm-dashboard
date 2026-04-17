@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types/filters"
@@ -17,30 +16,6 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/model"
 )
-
-var (
-	cadvisorLabel = ""
-)
-
-const (
-	// onePiBInBytes represents 1 PiB (pebibyte) in bytes.
-	// cAdvisor may set extremely large values (e.g., 2^64-1) when no memory limit is configured.
-	// We treat values >= 1 PiB as "no limit" to distinguish from actual configured limits.
-	onePiBInBytes = 1125899906842624
-)
-
-func init() {
-	loadCAdvisorLabelFromEnv()
-}
-
-// loadCAdvisorLabelFromEnv reads the DSD_CADVISOR_LABEL environment variable.
-func loadCAdvisorLabelFromEnv() {
-	if label, labelSet := os.LookupEnv("DSD_CADVISOR_LABEL"); labelSet {
-		cadvisorLabel = label
-	} else {
-		cadvisorLabel = "dsd.cadvisor"
-	}
-}
 
 // ContainerMemoryMetrics represents memory metrics for a single container/task
 type ContainerMemoryMetrics struct {
@@ -81,89 +56,16 @@ type serviceMetricsResponse struct {
 	Message   *string               `json:"message,omitempty"`
 }
 
-// findCAdvisorService discovers the cadvisor service by label
-func findCAdvisorService(cli *client.Client) (*swarm.Service, error) {
-	services, err := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	// Look for a service with the configured label
-	for _, service := range services {
-		if service.Spec.Labels != nil {
-			if _, hasLabel := service.Spec.Labels[cadvisorLabel]; hasLabel {
-				return &service, nil
-			}
-		}
-	}
-
-	return nil, nil // Not found but no error
-}
-
 // getCAdvisorEndpoint returns the endpoint URL for the cadvisor service
 // It prefers the task's overlay network address so the dashboard can query the cadvisor
 // instance running on the same node as the target service task.
 func getCAdvisorEndpoint(cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	if service == nil {
-		return "", fmt.Errorf("service is nil")
-	}
-
-	// Determine port to use: prefer target port if configured, default 8080
-	port := 8080
-	if len(service.Endpoint.Ports) > 0 {
-		if int(service.Endpoint.Ports[0].TargetPort) != 0 {
-			port = int(service.Endpoint.Ports[0].TargetPort)
-		} else if int(service.Endpoint.Ports[0].PublishedPort) != 0 {
-			port = int(service.Endpoint.Ports[0].PublishedPort)
-		}
-	}
-
-	// Try to find a task for this service running on the requested node and read its network address
-	serviceID := service.ID
-	if serviceID == "" && service.Spec.Name != "" {
-		// Fallback to service name DNS when ID is not available (tests)
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
-	}
-
-	f := filters.NewArgs()
-	f.Add("service", serviceID)
-	if nodeID != "" {
-		f.Add("node", nodeID)
-	}
-
-	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
-	if err != nil {
-		if service.Spec.Name != "" {
-			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
-		}
-		return "", fmt.Errorf("failed to list tasks: %w", err)
-	}
-
-	for _, t := range tasks {
-		if t.Status.State != swarm.TaskStateRunning {
-			continue
-		}
-		for _, na := range t.NetworksAttachments {
-			if len(na.Addresses) > 0 {
-				addr := na.Addresses[0]
-				if strings.Contains(addr, "/") {
-					addr = strings.SplitN(addr, "/", 2)[0]
-				}
-				return fmt.Sprintf("http://%s:%d/metrics", addr, port), nil
-			}
-		}
-	}
-
-	if service.Spec.Name != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
-	}
-
-	return "", fmt.Errorf("no task address found for service %s on node %s", serviceID, nodeID)
+	return resolveServiceEndpoint(cli, service, nodeID, 8080)
 }
 
 // fetchMetricsFromCAdvisor fetches metrics from the cadvisor endpoint
 func fetchMetricsFromCAdvisor(url string) (string, error) {
-	resp, err := http.Get(url)
+	resp, err := metricsHttpClient.Get(url)
 	if err != nil {
 		return "", err
 	}
@@ -497,7 +399,7 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 	}
 
 	// Calculate usage percentages and aggregate totals
-	var totalUsage, totalLimit float64
+	var totalUsage, totalLimit, usageWithLimit float64
 	var containerCount int
 	containers := make([]ContainerMemoryMetrics, 0, len(containerMetrics))
 
@@ -510,6 +412,7 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 		totalUsage += cm.Usage
 		if cm.Limit > 0 {
 			totalLimit += cm.Limit
+			usageWithLimit += cm.Usage
 		}
 		containerCount++
 		containers = append(containers, *cm)
@@ -520,7 +423,7 @@ func parseCAdvisorMetrics(metricsText string, serviceID string, serviceName stri
 	if containerCount > 0 {
 		avgUsage = totalUsage / float64(containerCount)
 		if totalLimit > 0 {
-			avgPercent = (totalUsage / totalLimit) * 100
+			avgPercent = (usageWithLimit / totalLimit) * 100
 		}
 	}
 
@@ -633,17 +536,14 @@ func serviceMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Collect metrics from all nodes where service tasks are running
-	// For simplicity, we'll query one cadvisor instance (from first running task's node)
-	// and rely on that cadvisor to have visibility of all containers on that node
-	var nodeID string
+	nodeIDs := make(map[string]bool)
 	for _, task := range tasks {
 		if task.Status.State == swarm.TaskStateRunning {
-			nodeID = task.NodeID
-			break
+			nodeIDs[task.NodeID] = true
 		}
 	}
 
-	if nodeID == "" {
+	if len(nodeIDs) == 0 {
 		errMsg := "No running tasks found for service"
 		response := serviceMetricsResponse{
 			Available: true,
@@ -654,10 +554,51 @@ func serviceMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the endpoint URL (resolve task IP for the node)
-	endpoint, err := getCAdvisorEndpoint(cli, cadvisorService, nodeID)
-	if err != nil {
-		errMsg := "Error constructing cadvisor endpoint: " + err.Error()
+	// Fetch metrics from all relevant nodes in parallel
+	type nodeResult struct {
+		metrics *ServiceMemoryMetrics
+		err     error
+	}
+	resultsChan := make(chan nodeResult, len(nodeIDs))
+
+	for nID := range nodeIDs {
+		go func(nodeID string) {
+			endpoint, err := getCAdvisorEndpoint(cli, cadvisorService, nodeID)
+			if err != nil {
+				resultsChan <- nodeResult{err: err}
+				return
+			}
+			metricsText, err := fetchMetricsFromCAdvisor(endpoint)
+			if err != nil {
+				resultsChan <- nodeResult{err: err}
+				return
+			}
+			parsed, err := parseCAdvisorMetrics(metricsText, serviceID, serviceName)
+			resultsChan <- nodeResult{metrics: parsed, err: err}
+		}(nID)
+	}
+
+	// Aggregate results from all nodes
+	var aggregatedMetrics ServiceMemoryMetrics
+	aggregatedMetrics.ContainerMetrics = []ContainerMemoryMetrics{}
+	nodesWithMetrics := 0
+
+	for i := 0; i < len(nodeIDs); i++ {
+		res := <-resultsChan
+		if res.err == nil && res.metrics != nil {
+			nodesWithMetrics++
+			aggregatedMetrics.TotalUsage += res.metrics.TotalUsage
+			aggregatedMetrics.TotalLimit += res.metrics.TotalLimit
+			aggregatedMetrics.ContainerMetrics = append(aggregatedMetrics.ContainerMetrics, res.metrics.ContainerMetrics...)
+			if res.metrics.ServerTime > aggregatedMetrics.ServerTime {
+				aggregatedMetrics.ServerTime = res.metrics.ServerTime
+			}
+		}
+	}
+
+	if nodesWithMetrics == 0 {
+		errMsg := "Failed to fetch metrics from any node"
+		// If we couldn't get any metrics, we consider it not available for this request
 		response := serviceMetricsResponse{
 			Available: false,
 			Error:     &errMsg,
@@ -667,36 +608,19 @@ func serviceMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch metrics from cadvisor
-	metricsText, err := fetchMetricsFromCAdvisor(endpoint)
-	if err != nil {
-		errMsg := "Error fetching metrics from cadvisor: " + err.Error()
-		response := serviceMetricsResponse{
-			Available: true, // Service is available but request failed
-			Error:     &errMsg,
+	// Recalculate averages
+	containerCount := len(aggregatedMetrics.ContainerMetrics)
+	if containerCount > 0 {
+		aggregatedMetrics.AverageUsage = aggregatedMetrics.TotalUsage / float64(containerCount)
+		if aggregatedMetrics.TotalLimit > 0 {
+			aggregatedMetrics.AveragePercent = (aggregatedMetrics.TotalUsage / aggregatedMetrics.TotalLimit) * 100
 		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	// Parse metrics
-	parsedMetrics, err := parseCAdvisorMetrics(metricsText, serviceID, serviceName)
-	if err != nil {
-		errMsg := "Error parsing metrics: " + err.Error()
-		response := serviceMetricsResponse{
-			Available: true,
-			Error:     &errMsg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
 	}
 
 	// Success
 	response := serviceMetricsResponse{
 		Available: true,
-		Metrics:   parsedMetrics,
+		Metrics:   &aggregatedMetrics,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(response)

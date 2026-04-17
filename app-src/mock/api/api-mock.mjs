@@ -455,6 +455,23 @@ function sendResource(res, resource, resourceName, id) {
   }
 }
 
+// Mock cluster metrics endpoint
+app.get('/docker/nodes/metrics', (req, res) => {
+  const nodeCount = db.data?.nodes?.length || 5
+  res.json({
+    available: true,
+    totalCpu: nodeCount * 4,
+    totalMemory: nodeCount * 8 * 1024 * 1024 * 1024, // 8GB per node
+    usedMemory: nodeCount * 4 * 1024 * 1024 * 1024, // 4GB per node
+    memoryPercent: 50.0,
+    totalDisk: nodeCount * 100 * 1024 * 1024 * 1024, // 100GB per node
+    usedDisk: nodeCount * 50 * 1024 * 1024 * 1024, // 50GB per node
+    diskPercent: 50.0,
+    nodeCount: nodeCount,
+    nodesAvailable: nodeCount,
+  })
+})
+
 app.get('/ui/nodes/:id', (req, res) => {
   const node = findResource(db.data?.nodes, req.params.id)
   if (node) {
@@ -631,33 +648,33 @@ app.get('/docker/nodes/:id/metrics', (req, res) => {
         { mode: 'user', value: 1735.79 }
       ],
       memory: {
-        total: 8589934592,        // 8GB
-        free: 2147483648,         // 2GB
-        available: 4294967296,    // 4GB
-        buffers: 134217728,       // 128 MB buffers
-        cached: 1073741824,       // 1 GB cached
-        swapTotal: 2147483648,    // 2GB swap
-        swapFree: 1073741824,     // 1GB free
-        swapUsed: 1073741824,     // 1GB used
-        swapUsedPercent: 50.0
+        total: 8589934592, // 8GB
+        free: 2147483648, // 2GB
+        available: 4294967296, // 4GB
+        buffers: 134217728, // 128 MB buffers
+        cached: 1073741824, // 1 GB cached
+        swapTotal: 2147483648, // 2GB swap
+        swapFree: 1073741824, // 1GB free
+        swapUsed: 1073741824, // 1GB used
+        swapUsedPercent: 50.0,
       },
       filesystem: [
         {
           device: '/dev/sda1',
           mountpoint: '/',
-          size: 107374182400,      // 100GB
-          available: 53687091200,  // 50GB
-          used: 53687091200,       // 50GB
-          usedPercent: 50.0
+          size: 107374182400, // 100GB
+          available: 53687091200, // 50GB
+          used: 53687091200, // 50GB
+          usedPercent: 50.0,
         },
         {
           device: '/dev/sdb1',
           mountpoint: '/var/lib/docker',
-          size: 536870912000,      // 500GB
+          size: 536870912000, // 500GB
           available: 268435456000, // 250GB
-          used: 268435456000,      // 250GB
-          usedPercent: 50.0
-        }
+          used: 268435456000, // 250GB
+          usedPercent: 50.0,
+        },
       ],
       network: [
         {

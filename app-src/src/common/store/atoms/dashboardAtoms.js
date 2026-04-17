@@ -1,4 +1,5 @@
 import { atom } from 'jotai'
+import { atomFamily } from 'jotai/utils'
 import { baseUrlAtom } from './foundationAtoms'
 import { viewAtom } from './navigationAtoms'
 import { defaultLayoutAtom } from './uiAtoms'
@@ -48,6 +49,39 @@ export const nodesAtomNew = atom(async (get) => {
   get(viewAtom)
   return (await fetch(get(baseUrlAtom) + 'ui/nodes')).json()
 })
+
+/**
+ * Cluster metrics: fetches aggregated CPU, Memory and Disk metrics for the entire swarm.
+ * Revalidates when the current view changes.
+ */
+export const clusterMetricsAtom = atom(async (get) => {
+  get(viewAtom)
+  try {
+    const response = await fetch(get(baseUrlAtom) + 'docker/nodes/metrics')
+    return await response.json()
+  } catch {
+    return { available: false }
+  }
+})
+
+/**
+ * Node metrics: fetches real-time metrics for a specific node ID.
+ * Uses atomFamily to cache the request per node and prevent redundant fetches.
+ */
+export const nodeMetricsAtomFamily = atomFamily((nodeId) =>
+  atom(async (get) => {
+    // We don't trigger re-validation on viewAtom changes here because
+    // these atoms are usually mounted/unmounted with the components.
+    try {
+      const response = await fetch(
+        `${get(baseUrlAtom)}docker/nodes/${nodeId}/metrics`,
+      )
+      return await response.json()
+    } catch {
+      return { available: false }
+    }
+  }),
+)
 
 /**
  * Tasks list: fetches all Docker tasks from the backend.

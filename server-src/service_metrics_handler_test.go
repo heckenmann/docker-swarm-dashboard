@@ -160,7 +160,7 @@ func TestLoadCAdvisorLabelFromEnv(t *testing.T) {
 
 	// Test default value
 	_ = os.Unsetenv("DSD_CADVISOR_LABEL")
-	loadCAdvisorLabelFromEnv()
+	loadMetricsLabelsFromEnv()
 	if cadvisorLabel != "dsd.cadvisor" {
 		t.Errorf("Expected default label 'dsd.cadvisor', got '%s'", cadvisorLabel)
 	}
@@ -168,7 +168,7 @@ func TestLoadCAdvisorLabelFromEnv(t *testing.T) {
 	// Test custom value
 	_ = os.Setenv("DSD_CADVISOR_LABEL", "custom.cadvisor")
 	defer func() { _ = os.Unsetenv("DSD_CADVISOR_LABEL") }()
-	loadCAdvisorLabelFromEnv()
+	loadMetricsLabelsFromEnv()
 	if cadvisorLabel != "custom.cadvisor" {
 		t.Errorf("Expected custom label 'custom.cadvisor', got '%s'", cadvisorLabel)
 	}
@@ -1088,15 +1088,15 @@ func TestServiceMetricsHandler_FetchMetricsError(t *testing.T) {
 		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	// Should be Available: true but with error about fetching metrics
-	if !response.Available {
-		t.Error("Expected Available to be true when metrics fetch fails")
+	// Should be Available: false when metrics fetch fails
+	if response.Available {
+		t.Error("Expected Available to be false when metrics fetch fails for all nodes")
 	}
 	if response.Error == nil {
 		t.Fatal("Expected Error to be set")
 	}
-	if !strings.Contains(*response.Error, "Error fetching metrics from cadvisor") {
-		t.Errorf("Expected error about fetching metrics, got: %s", *response.Error)
+	if !strings.Contains(*response.Error, "Failed to fetch metrics from any node") {
+		t.Errorf("Expected error message about failing to fetch from any node, got: %s", *response.Error)
 	}
 }
 

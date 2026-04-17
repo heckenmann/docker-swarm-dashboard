@@ -27,6 +27,20 @@ class NodesPage {
     this.getNodeRowByName(nodeName).should('exist')
     return this
   }
+
+  assertClusterMetricsVisible() {
+    cy.contains('Cluster CPU').should('be.visible')
+    cy.contains('Cluster Memory').should('be.visible')
+    cy.contains('Cluster Disk').should('be.visible')
+    return this
+  }
+
+  assertClusterCpuCores(cores) {
+    cy.contains('.card', 'Cluster CPU')
+      .contains(cores)
+      .should('be.visible')
+    return this
+  }
 }
 
 export default NodesPage

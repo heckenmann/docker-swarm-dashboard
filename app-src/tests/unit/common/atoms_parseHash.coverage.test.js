@@ -15,6 +15,8 @@ describe('parseHashToObj', () => {
         atomWithReducer: (v) => v,
         atomWithReset: (v) => v,
         selectAtom: (a) => a,
+        atomFamily: (v) => v,
+        loadable: (v) => v,
       }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -34,6 +36,8 @@ describe('parseHashToObj', () => {
         atomWithReducer: (v) => v,
         atomWithReset: (v) => v,
         selectAtom: (a) => a,
+        atomFamily: (v) => v,
+        loadable: (v) => v,
       }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -55,6 +59,8 @@ describe('parseHashToObj', () => {
         atomWithReducer: (v) => v,
         atomWithReset: (v) => v,
         selectAtom: (a) => a,
+        atomFamily: (v) => v,
+        loadable: (v) => v,
       }))
       jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 

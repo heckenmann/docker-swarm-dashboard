@@ -3,6 +3,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
 import { Card, Alert, Spinner } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import NodeInfoHeader from './metrics/NodeInfoHeader'
@@ -36,6 +37,7 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
       try {
         setLoading(true)
         setError(null)
+        setAvailable(false)
 
         const response = await fetch(`${baseURL}docker/nodes/${nodeId}/metrics`)
         const data = await response.json()
@@ -58,6 +60,7 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
         if (mounted) {
           setError('Failed to fetch metrics: ' + err.message)
           setMetricsData(null)
+          setAvailable(true) // Treat fetch exceptions as hard errors (warning)
         }
       } finally {
         if (mounted) {
@@ -76,34 +79,60 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
   if (loading) {
     return (
       <Card.Body>
-        <div className="text-center">
-          <Spinner animation="border" role="status">
+        <div className="text-center py-4">
+          <Spinner animation="border" role="status" variant="primary">
             <span className="visually-hidden">Loading metrics...</span>
           </Spinner>
-          <p className="mt-2">Loading metrics...</p>
+          <p className="mt-2 text-muted small text-uppercase fw-bold">
+            Fetching Node Metrics
+          </p>
         </div>
       </Card.Body>
     )
   }
 
-  if (error || !available) {
+  if (error && available) {
     return (
       <Card.Body>
-        <Alert variant="info">
-          <Alert.Heading>Node Metrics Not Available</Alert.Heading>
-          <p>{error || 'Node-exporter service not found.'}</p>
-          <hr />
-          <p className="mb-0">
-            To enable node metrics, deploy node-exporter as a global service
-            with the label:
-          </p>
-          <code className="d-block mt-2">
-            dsd.node-exporter: &quot;true&quot;
-          </code>
+        <Alert variant="warning" className="shadow-sm">
+          <Alert.Heading className="h6">
+            <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+            Metrics Collection Warning
+          </Alert.Heading>
+          <p className="mb-0 small">{error}</p>
+        </Alert>
+      </Card.Body>
+    )
+  }
 
-          <p className="mt-3 mb-0">
-            See README.md for full configuration instructions and example
-            docker-compose.yml.
+  if (!available) {
+    return (
+      <Card.Body>
+        <Alert variant="info" className="bg-light-subtle border-0 shadow-sm">
+          <Alert.Heading className="h6 text-info">
+            <FontAwesomeIcon icon="info-circle" className="me-2" />
+            Node Metrics Not Configured
+          </Alert.Heading>
+          <p className="small mb-2">
+            {error ||
+              'Node-level metrics (CPU, RAM, Disk) require node-exporter.'}
+            {!error && (
+              <>
+                {' '}
+                To enable them, deploy node-exporter as a global service with
+                the following label:
+              </>
+            )}
+          </p>
+          {!error && (
+            <code className="d-block p-2 bg-dark text-light rounded small mb-3">
+              dsd.node-exporter: &quot;true&quot;
+            </code>
+          )}
+
+          <p className="extra-small text-muted mb-0">
+            Check the documentation for a complete{' '}
+            <code>docker-compose.yml</code> example.
           </p>
         </Alert>
       </Card.Body>

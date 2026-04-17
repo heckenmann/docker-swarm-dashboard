@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
 import { Alert, Spinner, Row, Col, Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ReactApexChart from 'react-apexcharts'
 import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
 import { isDarkModeAtom } from '../../common/store/atoms/themeAtoms'
@@ -37,6 +38,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
       try {
         setLoading(true)
         setError(null)
+        setAvailable(false)
 
         const response = await fetch(
           `${baseURL}docker/services/${serviceId}/metrics`,
@@ -61,6 +63,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
         if (mounted) {
           setError('Failed to fetch metrics: ' + err.message)
           setMetricsData(null)
+          setAvailable(true)
         }
       } finally {
         if (mounted) {
@@ -79,31 +82,57 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
   if (loading) {
     return (
       <Card.Body>
-        <div className="text-center">
-          <Spinner animation="border" role="status">
+        <div className="text-center py-4">
+          <Spinner animation="border" role="status" variant="primary">
             <span className="visually-hidden">Loading metrics...</span>
           </Spinner>
-          <p className="mt-2">Loading metrics...</p>
+          <p className="mt-2 text-muted small text-uppercase fw-bold">
+            Fetching Service Metrics
+          </p>
         </div>
       </Card.Body>
     )
   }
 
-  if (error || !available) {
+  if (error && available) {
     return (
       <Card.Body>
-        <Alert variant="info">
-          <Alert.Heading>Service Metrics Not Available</Alert.Heading>
-          <p>{error || 'cAdvisor service not found.'}</p>
-          <hr />
-          <p className="mb-0">
-            To enable service memory metrics, deploy cAdvisor as a global
-            service with the label:
+        <Alert variant="warning" className="shadow-sm">
+          <Alert.Heading className="h6">
+            <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+            cAdvisor Metrics Warning
+          </Alert.Heading>
+          <p className="mb-0 small">{error}</p>
+        </Alert>
+      </Card.Body>
+    )
+  }
+
+  if (!available) {
+    return (
+      <Card.Body>
+        <Alert variant="info" className="bg-light-subtle border-0 shadow-sm">
+          <Alert.Heading className="h6 text-info">
+            <FontAwesomeIcon icon="info-circle" className="me-2" />
+            Service Metrics Not Configured
+          </Alert.Heading>
+          <p className="small mb-2">
+            {error || 'Detailed container metrics require cAdvisor.'}
+            {!error && (
+              <>
+                {' '}
+                To enable them, deploy cAdvisor as a global service with the
+                following label:
+              </>
+            )}
           </p>
-          <code className="d-block mt-2">dsd.cadvisor: &quot;true&quot;</code>
-          <p className="mt-3 mb-0">
-            See README.md for full configuration instructions and example
-            docker-compose.yml.
+          {!error && (
+            <code className="d-block p-2 bg-dark text-light rounded small mb-3">
+              dsd.cadvisor: &quot;true&quot;
+            </code>
+          )}
+          <p className="extra-small text-muted mb-0">
+            Refer to the README for setup instructions.
           </p>
         </Alert>
       </Card.Body>

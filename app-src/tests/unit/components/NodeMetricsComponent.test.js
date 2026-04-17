@@ -141,7 +141,7 @@ describe('NodeMetricsComponent', () => {
 
     await act(async () => render(<NodeMetricsComponent nodeId="node-1" />))
     await waitFor(() => {
-      expect(screen.getByText(/not available/i)).toBeInTheDocument()
+      expect(screen.getByText(/Not Configured/i)).toBeInTheDocument()
     })
   })
 
@@ -297,7 +297,7 @@ describe('NodeMetricsComponent', () => {
 
     await act(async () => render(<NodeMetricsComponent nodeId="node-1" />))
     await waitFor(() => {
-      expect(screen.getByText(/not available/i)).toBeInTheDocument()
+      expect(screen.getByText(/Metrics Collection Warning/i)).toBeInTheDocument()
     })
   })
 
@@ -625,6 +625,20 @@ describe('NodeMetricsComponent', () => {
     await waitFor(() => {
       const charts = screen.getAllByTestId(/^apex-chart-/)
       expect(charts.length).toBeGreaterThan(0)
+    })
+  })
+
+  test('renders disk IO table with missing fields (covers || 0 branches)', async () => {
+    mockUseAtomValue.mockImplementation(baseAtomValues())
+    global.fetch.mockResolvedValue({
+      json: async () => mkNodeMetrics({
+        diskIO: [{ device: 'sdb' }] // Only device name, other fields missing
+      })
+    })
+
+    await act(async () => render(<NodeMetricsComponent nodeId="node-1" />))
+    await waitFor(() => {
+      expect(screen.getByText('Disk I/O Details')).toBeInTheDocument()
     })
   })
 
