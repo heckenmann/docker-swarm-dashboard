@@ -7,6 +7,7 @@ describe('atoms branch coverage (logsWebsocketUrlAtom)', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -28,6 +29,7 @@ describe('atoms branch coverage (logsWebsocketUrlAtom)', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -76,6 +78,7 @@ describe('atoms branch coverage (logsWebsocketUrlAtom)', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -114,6 +117,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -128,6 +132,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     global.fetch = jest.fn(() =>
@@ -146,6 +151,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -160,6 +166,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -177,6 +184,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     // Simulate no hash by setting window.location.hash to empty and re-requiring atoms
     const origHash = window.location.hash
@@ -193,6 +201,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -222,6 +231,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -251,6 +261,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -280,6 +291,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -312,6 +324,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     global.fetch = jest.fn(() =>
@@ -331,6 +344,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -388,6 +402,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     global.fetch = jest.fn(() =>
@@ -407,6 +422,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     global.fetch = jest.fn(() =>
@@ -426,6 +442,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -464,6 +481,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')
@@ -493,6 +511,7 @@ describe('detail atoms guards and fetch', () => {
       atomWithReducer: (v) => v,
       atomWithReset: (v) => v,
       selectAtom: (a) => a,
+      atomFamily: (v) => v,
     }))
     jest.doMock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
     const atoms = require('../../../src/common/store/atoms')

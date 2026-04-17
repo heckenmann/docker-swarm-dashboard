@@ -4,6 +4,8 @@ jest.mock('jotai/utils', () => ({
   atomWithReducer: (v) => v,
   atomWithReset: (v) => v,
   selectAtom: (a) => a,
+  atomFamily: (v) => v,
+  loadable: (v) => v,
 }))
 jest.mock('jotai-location', () => ({ atomWithHash: (k, def) => def }))
 
@@ -75,6 +77,8 @@ describe('logsWebsocketUrlAtom extra branches', () => {
         atomWithReducer: (v) => v,
         atomWithReset: (v) => v,
         selectAtom: (a) => a,
+        atomFamily: (v) => v,
+        loadable: (v) => v,
       }))
       const {
         logsWebsocketUrlAtom,
@@ -92,6 +96,8 @@ describe('logsWebsocketUrlAtom extra branches', () => {
         atomWithReducer: (v) => v,
         atomWithReset: (v) => v,
         selectAtom: (a) => a,
+        atomFamily: (v) => v,
+        loadable: (v) => v,
       }))
       const {
         logsWebsocketUrlAtom,
@@ -129,6 +135,8 @@ describe('logsWebsocketUrlAtom extra branches', () => {
         atomWithReducer: (v) => v,
         atomWithReset: (v) => v,
         selectAtom: (a) => a,
+        atomFamily: (v) => v,
+        loadable: (v) => v,
       }))
       const {
         logsWebsocketUrlAtom,

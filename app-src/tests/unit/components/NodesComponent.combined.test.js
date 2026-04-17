@@ -18,14 +18,21 @@ jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
 jest.mock('../../../src/common/store/atoms/dashboardAtoms', () => ({
   nodesAtomNew: { debugLabel: 'nodesAtomNew' },
   clusterMetricsAtom: { debugLabel: 'clusterMetricsAtom' },
+  nodeMetricsAtomFamily: (id) => ({ debugLabel: 'nodeMetricsAtomFamily', id }),
+}))
+
+jest.mock('../../../src/common/store/atoms/foundationAtoms', () => ({
+  baseUrlAtom: { debugLabel: 'baseUrlAtom' },
 }))
 
 // provide mockable hooks
 const mockUseAtomValue = jest.fn()
 const mockUseAtom = jest.fn()
+const mockAtom = jest.fn((fn) => ({ __type: 'atom', fn }))
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
+  atom: (fn) => mockAtom(fn),
 }))
 
 // Mock ClusterMetricsHeader
