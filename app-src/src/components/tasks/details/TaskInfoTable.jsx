@@ -45,7 +45,9 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
                   entityType="service"
                 />
                 {taskObj.ServiceName && taskObj.ServiceID && (
-                  <small className="text-muted ms-2">({taskObj.ServiceID})</small>
+                  <small className="text-muted ms-2">
+                    ({taskObj.ServiceID})
+                  </small>
                 )}
               </div>
             </td>
