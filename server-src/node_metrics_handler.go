@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types/filters"
@@ -17,23 +16,6 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/model"
 )
-
-var (
-	nodeExporterLabel = ""
-)
-
-func init() {
-	loadNodeExporterLabelFromEnv()
-}
-
-// loadNodeExporterLabelFromEnv reads the DSD_NODE_EXPORTER_LABEL environment variable.
-func loadNodeExporterLabelFromEnv() {
-	if label, labelSet := os.LookupEnv("DSD_NODE_EXPORTER_LABEL"); labelSet {
-		nodeExporterLabel = label
-	} else {
-		nodeExporterLabel = "dsd.node-exporter"
-	}
-}
 
 // CPUMetric represents CPU time data for a specific mode
 type CPUMetric struct {
@@ -148,90 +130,16 @@ type nodeMetricsResponse struct {
 	Message   *string        `json:"message,omitempty"`
 }
 
-// findNodeExporterService discovers the node-exporter service by label
-func findNodeExporterService(cli *client.Client) (*swarm.Service, error) {
-	services, err := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	// Look for a service with the configured label
-	for _, service := range services {
-		if service.Spec.Labels != nil {
-			if _, hasLabel := service.Spec.Labels[nodeExporterLabel]; hasLabel {
-				return &service, nil
-			}
-		}
-	}
-
-	return nil, nil // Not found but no error
-}
-
-// getNodeExporterEndpoint returns the endpoint URL for the node-exporter service
 // getNodeExporterEndpoint resolves the node-exporter endpoint for a specific node.
 // It prefers the task's overlay network address so the dashboard can query the exact
 // node instance instead of hitting the service VIP.
 func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	if service == nil {
-		return "", fmt.Errorf("service is nil")
-	}
-
-	// Determine port to use: prefer target port if configured, default 9100
-	port := 9100
-	if len(service.Endpoint.Ports) > 0 {
-		if int(service.Endpoint.Ports[0].TargetPort) != 0 {
-			port = int(service.Endpoint.Ports[0].TargetPort)
-		} else if int(service.Endpoint.Ports[0].PublishedPort) != 0 {
-			port = int(service.Endpoint.Ports[0].PublishedPort)
-		}
-	}
-
-	// Try to find a task for this service running on the requested node and read its network address
-	serviceID := service.ID
-	if serviceID == "" && service.Spec.Name != "" {
-		// Fallback to service name DNS when ID is not available (tests)
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
-	}
-
-	f := filters.NewArgs()
-	f.Add("service", serviceID)
-	if nodeID != "" {
-		f.Add("node", nodeID)
-	}
-
-	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
-	if err != nil {
-		if service.Spec.Name != "" {
-			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
-		}
-		return "", fmt.Errorf("failed to list tasks: %w", err)
-	}
-
-	for _, t := range tasks {
-		if t.Status.State != swarm.TaskStateRunning {
-			continue
-		}
-		for _, na := range t.NetworksAttachments {
-			if len(na.Addresses) > 0 {
-				addr := na.Addresses[0]
-				if strings.Contains(addr, "/") {
-					addr = strings.SplitN(addr, "/", 2)[0]
-				}
-				return fmt.Sprintf("http://%s:%d/metrics", addr, port), nil
-			}
-		}
-	}
-
-	if service.Spec.Name != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
-	}
-
-	return "", fmt.Errorf("no task address found for service %s on node %s", serviceID, nodeID)
+	return resolveServiceEndpoint(cli, service, nodeID, 9100)
 }
 
 // fetchMetricsFromNodeExporter fetches metrics from the node-exporter endpoint
 func fetchMetricsFromNodeExporter(url string) (string, error) {
-	resp, err := http.Get(url)
+	resp, err := metricsHttpClient.Get(url)
 	if err != nil {
 		return "", err
 	}
@@ -820,6 +728,164 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(response)
+}
+
+// clusterMetricsResponse represents the response structure for cluster metrics endpoint
+type clusterMetricsResponse struct {
+	Available      bool    `json:"available"`
+	TotalCPU       int     `json:"totalCpu"`
+	TotalMemory    float64 `json:"totalMemory"`
+	UsedMemory     float64 `json:"usedMemory"`
+	MemoryPercent  float64 `json:"memoryPercent"`
+	TotalDisk      float64 `json:"totalDisk"`
+	UsedDisk       float64 `json:"usedDisk"`
+	DiskPercent    float64 `json:"diskPercent"`
+	NodeCount      int     `json:"nodeCount"`
+	NodesAvailable int     `json:"nodesAvailable"`
+	Message        *string `json:"message,omitempty"`
+	Error          *string `json:"error,omitempty"`
+}
+
+// clusterMetricsHandler handles requests for aggregated cluster metrics
+func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
+	cli := getCli()
+	w.Header().Set("Content-Type", "application/json")
+
+	// 1. Get all nodes to count them
+	nodes, err := cli.NodeList(context.Background(), swarm.NodeListOptions{})
+	if err != nil {
+		errMsg := "Error listing nodes: " + err.Error()
+		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg})
+		return
+	}
+
+	// 2. Find node-exporter service
+	service, err := findNodeExporterService(cli)
+	if err != nil {
+		errMsg := "Error finding node-exporter service: " + err.Error()
+		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg})
+		return
+	}
+	if service == nil {
+		msg := fmt.Sprintf("Node-exporter service not found. Deploy a global service with label '%s' to enable cluster metrics.", nodeExporterLabel)
+		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg})
+		return
+	}
+
+	// 3. Get all running tasks for node-exporter
+	f := filters.NewArgs()
+	f.Add("service", service.ID)
+	f.Add("desired-state", string(swarm.TaskStateRunning))
+	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
+	if err != nil {
+		errMsg := "Error listing tasks: " + err.Error()
+		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg})
+		return
+	}
+
+	if len(tasks) == 0 {
+		msg := "Node-exporter service found, but no running tasks were detected. Ensure it's deployed as a global service."
+		json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg})
+		return
+	}
+
+	// 4. Fetch metrics from all tasks in parallel
+	type nodeResult struct {
+		metrics *ParsedMetrics
+		err     error
+	}
+	resultsChan := make(chan nodeResult, len(tasks))
+	startedGoroutines := 0
+
+	for _, task := range tasks {
+		if task.Status.State != swarm.TaskStateRunning {
+			continue
+		}
+		startedGoroutines++
+		go func(t swarm.Task) {
+			endpoint, err := getNodeExporterEndpoint(cli, service, t.NodeID)
+			if err != nil {
+				resultsChan <- nodeResult{err: err}
+				return
+			}
+			metricsText, err := fetchMetricsFromNodeExporter(endpoint)
+			if err != nil {
+				resultsChan <- nodeResult{err: err}
+				return
+			}
+			parsed, err := parsePrometheusMetrics(metricsText)
+			resultsChan <- nodeResult{metrics: parsed, err: err}
+		}(task)
+	}
+
+	// 5. Aggregate results
+	var totalCPU int
+	var totalMemory, availableMemory float64
+	var totalDisk, availDisk float64
+	nodesWithMetrics := 0
+
+	for i := 0; i < startedGoroutines; i++ {
+		res := <-resultsChan
+		if res.err == nil && res.metrics != nil {
+			nodesWithMetrics++
+			totalCPU += res.metrics.System.NumCPUs
+			totalMemory += res.metrics.Memory.Total
+			availableMemory += res.metrics.Memory.Available
+
+			// For disk, we sum up "/" if available, otherwise first filesystem
+			foundRoot := false
+			for _, fs := range res.metrics.Filesystem {
+				if fs.Mountpoint == "/" {
+					totalDisk += fs.Size
+					availDisk += fs.Available
+					foundRoot = true
+					break
+				}
+			}
+			if !foundRoot && len(res.metrics.Filesystem) > 0 {
+				totalDisk += res.metrics.Filesystem[0].Size
+				availDisk += res.metrics.Filesystem[0].Available
+			}
+		}
+	}
+
+	if nodesWithMetrics == 0 && startedGoroutines > 0 {
+		errMsg := "Failed to fetch metrics from node exporter instances. Check network connectivity."
+		json.NewEncoder(w).Encode(clusterMetricsResponse{
+			Available: true,
+			Error:     &errMsg,
+			NodeCount: len(nodes),
+		})
+		return
+	}
+
+	usedMemory := totalMemory - availableMemory
+	memPercent := 0.0
+	if totalMemory > 0 {
+		memPercent = (usedMemory / totalMemory) * 100
+	}
+
+	usedDisk := totalDisk - availDisk
+	diskPercent := 0.0
+	if totalDisk > 0 {
+		diskPercent = (usedDisk / totalDisk) * 100
+	}
+
+	response := clusterMetricsResponse{
+		Available:      true,
+		TotalCPU:       totalCPU,
+		TotalMemory:    totalMemory,
+		UsedMemory:     usedMemory,
+		MemoryPercent:  memPercent,
+		TotalDisk:      totalDisk,
+		UsedDisk:       usedDisk,
+		DiskPercent:    diskPercent,
+		NodeCount:      len(nodes),
+		NodesAvailable: nodesWithMetrics,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 // filterMetricsForNode is no longer needed as parsing handles this
