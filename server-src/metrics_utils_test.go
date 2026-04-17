@@ -23,8 +23,8 @@ func TestGetDashboardNetworks(t *testing.T) {
 func TestResolveServiceEndpoint(t *testing.T) {
 	// Mock server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case r.URL.Path == "/v1.35/tasks":
+		switch path := r.URL.Path; path {
+		case "/v1.35/tasks":
 			tasks := []swarm.Task{
 				{
 					ID: "t1",
@@ -40,7 +40,7 @@ func TestResolveServiceEndpoint(t *testing.T) {
 					NodeID: "node1",
 				},
 			}
-			json.NewEncoder(w).Encode(tasks)
+			_ = json.NewEncoder(w).Encode(tasks)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -77,7 +77,9 @@ func TestClusterMetricsHandler_ErrorListingNodes(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`{"message":"error"}`))
+			if _, err := w.Write([]byte(`{"message":"error"}`)); err != nil {
+				t.Fatalf("failed to write response: %v", err)
+			}
 			return
 		}
 		w.WriteHeader(http.StatusNotFound)
@@ -95,7 +97,9 @@ func TestClusterMetricsHandler_ErrorListingNodes(t *testing.T) {
 		t.Errorf("expected 200, got %d", w.Code)
 	}
 	var resp clusterMetricsResponse
-	json.NewDecoder(w.Body).Decode(&resp)
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if resp.Available {
 		t.Error("expected available to be false")
 	}
@@ -111,19 +115,31 @@ func TestLoadMetricsLabelsFromEnv(t *testing.T) {
 		nodeExporterLabel = origNode
 		cadvisorLabel = origCadvisor
 		if nodeSet {
-			os.Setenv("DSD_NODE_EXPORTER_LABEL", origEnvNode)
+			if err := os.Setenv("DSD_NODE_EXPORTER_LABEL", origEnvNode); err != nil {
+				t.Fatalf("failed to set DSD_NODE_EXPORTER_LABEL: %v", err)
+			}
 		} else {
-			os.Unsetenv("DSD_NODE_EXPORTER_LABEL")
+			if err := os.Unsetenv("DSD_NODE_EXPORTER_LABEL"); err != nil {
+				t.Fatalf("failed to unset DSD_NODE_EXPORTER_LABEL: %v", err)
+			}
 		}
 		if cadvisorSet {
-			os.Setenv("DSD_CADVISOR_LABEL", origEnvCadvisor)
+			if err := os.Setenv("DSD_CADVISOR_LABEL", origEnvCadvisor); err != nil {
+				t.Fatalf("failed to set DSD_CADVISOR_LABEL: %v", err)
+			}
 		} else {
-			os.Unsetenv("DSD_CADVISOR_LABEL")
+			if err := os.Unsetenv("DSD_CADVISOR_LABEL"); err != nil {
+				t.Fatalf("failed to unset DSD_CADVISOR_LABEL: %v", err)
+			}
 		}
 	}()
 
-	os.Setenv("DSD_NODE_EXPORTER_LABEL", "test-node-label")
-	os.Setenv("DSD_CADVISOR_LABEL", "test-cadvisor-label")
+	if err := os.Setenv("DSD_NODE_EXPORTER_LABEL", "test-node-label"); err != nil {
+		t.Fatalf("failed to set DSD_NODE_EXPORTER_LABEL: %v", err)
+	}
+	if err := os.Setenv("DSD_CADVISOR_LABEL", "test-cadvisor-label"); err != nil {
+		t.Fatalf("failed to set DSD_CADVISOR_LABEL: %v", err)
+	}
 	loadMetricsLabelsFromEnv()
 
 	if nodeExporterLabel != "test-node-label" {

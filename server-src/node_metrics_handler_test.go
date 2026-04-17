@@ -1634,7 +1634,9 @@ func TestClusterMetricsHandler_FullSuccess(t *testing.T) {
 	metricsData := "node_memory_MemTotal_bytes 1000\nnode_memory_MemAvailable_bytes 200\nnode_cpu_seconds_total{cpu=\"0\",mode=\"idle\"} 100\nnode_filesystem_size_bytes{mountpoint=\"/\"} 500\nnode_filesystem_avail_bytes{mountpoint=\"/\"} 100\n"
 	mockExporter := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(metricsData))
+		if _, err := w.Write([]byte(metricsData)); err != nil {
+			t.Fatalf("failed to write metrics data: %v", err)
+		}
 	}))
 	defer mockExporter.Close()
 
@@ -1647,7 +1649,7 @@ func TestClusterMetricsHandler_FullSuccess(t *testing.T) {
 		switch r.URL.Path {
 		case "/v1.35/nodes":
 			nodes := []swarm.Node{{ID: "n1"}, {ID: "n2"}}
-			json.NewEncoder(w).Encode(nodes)
+			_ = json.NewEncoder(w).Encode(nodes)
 		case "/v1.35/services":
 			services := []swarm.Service{{
 				ID: "s-exporter",
@@ -1660,7 +1662,7 @@ func TestClusterMetricsHandler_FullSuccess(t *testing.T) {
 					Ports: []swarm.PortConfig{{TargetPort: uint32(port)}},
 				},
 			}}
-			json.NewEncoder(w).Encode(services)
+			_ = json.NewEncoder(w).Encode(services)
 		case "/v1.35/tasks":
 			tasks := []swarm.Task{
 				{
@@ -1678,7 +1680,7 @@ func TestClusterMetricsHandler_FullSuccess(t *testing.T) {
 					}},
 				},
 			}
-			json.NewEncoder(w).Encode(tasks)
+			_ = json.NewEncoder(w).Encode(tasks)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1698,7 +1700,9 @@ func TestClusterMetricsHandler_FullSuccess(t *testing.T) {
 	}
 
 	var resp clusterMetricsResponse
-	json.NewDecoder(w.Body).Decode(&resp)
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 
 	if !resp.Available {
 		t.Errorf("expected available=true, got error: %v", resp.Error)
@@ -1716,9 +1720,9 @@ func TestClusterMetricsHandler_NoExporterService(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/v1.35/nodes":
-			json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
+			_ = json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
 		case "/v1.35/services":
-			json.NewEncoder(w).Encode([]swarm.Service{}) // No exporter service
+			_ = json.NewEncoder(w).Encode([]swarm.Service{}) // No exporter service
 		}
 	}))
 	defer server.Close()
@@ -1731,7 +1735,9 @@ func TestClusterMetricsHandler_NoExporterService(t *testing.T) {
 	clusterMetricsHandler(w, req)
 
 	var resp clusterMetricsResponse
-	json.NewDecoder(w.Body).Decode(&resp)
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if resp.Available {
 		t.Error("expected available=false")
 	}

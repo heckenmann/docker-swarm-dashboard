@@ -22,7 +22,9 @@ func TestFindNodeExporterService_Advanced(t *testing.T) {
 					},
 				},
 			}
-			json.NewEncoder(w).Encode(services)
+			if err := json.NewEncoder(w).Encode(services); err != nil {
+				t.Fatalf("failed to encode services: %v", err)
+			}
 			return
 		}
 	}))
@@ -54,7 +56,9 @@ func TestFindCAdvisorService_Advanced(t *testing.T) {
 					},
 				},
 			}
-			json.NewEncoder(w).Encode(services)
+			if err := json.NewEncoder(w).Encode(services); err != nil {
+				t.Fatalf("failed to encode services: %v", err)
+			}
 			return
 		}
 	}))
@@ -76,7 +80,9 @@ func TestFindCAdvisorService_Advanced(t *testing.T) {
 func TestResolveServiceEndpoint_NoTasksFallback(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks" {
-			json.NewEncoder(w).Encode([]swarm.Task{})
+			if err := json.NewEncoder(w).Encode([]swarm.Task{}); err != nil {
+				t.Fatalf("failed to encode empty tasks: %v", err)
+			}
 			return
 		}
 	}))
