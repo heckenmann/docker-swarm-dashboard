@@ -43,8 +43,8 @@ const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
         if (data.available && data.metrics?.containers) {
           const metricsMap = {}
           data.metrics.containers.forEach((container) => {
-            const key = container.taskName || container.taskId
-            if (key) metricsMap[key] = container
+            if (container.taskId) metricsMap[container.taskId] = container
+            if (container.taskName) metricsMap[container.taskName] = container
           })
           setTaskMetrics(metricsMap)
         } else {

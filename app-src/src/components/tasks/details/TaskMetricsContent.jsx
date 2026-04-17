@@ -76,7 +76,12 @@ const TaskMetricsContent = React.memo(function TaskMetricsContent({
               <Col xs={12} md={6} className="mb-1 mb-md-0">
                 <strong>Container:</strong>{' '}
                 <code>
-                  {taskMetrics.containerId?.split('/').pop().substring(0, 12)}
+                  {taskMetrics.containerId
+                    ?.split('/')
+                    .pop()
+                    .replace('docker-', '')
+                    .replace('.scope', '')
+                    .substring(0, 12)}
                 </code>
               </Col>
               <Col xs={12} md={6}>

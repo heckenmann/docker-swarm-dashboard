@@ -38,11 +38,18 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
               <strong>Service</strong>
             </td>
             <td>
-              <EntityName
-                name={taskObj.ServiceName || taskObj.ServiceID}
-                id={taskObj.ServiceID}
-                entityType="service"
-              />
+              <div className="d-flex align-items-center">
+                <EntityName
+                  name={taskObj.ServiceName || taskObj.ServiceID}
+                  id={taskObj.ServiceID}
+                  entityType="service"
+                />
+                {taskObj.ServiceName && taskObj.ServiceID && (
+                  <small className="text-muted ms-2">
+                    ({taskObj.ServiceID})
+                  </small>
+                )}
+              </div>
             </td>
           </tr>
           <tr>
@@ -50,12 +57,17 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
               <strong>Node</strong>
             </td>
             <td>
-              <EntityName
-                name={taskObj.NodeName || taskObj.NodeID}
-                id={taskObj.NodeID}
-                entityType="node"
-                showFilter={false}
-              />
+              <div className="d-flex align-items-center">
+                <EntityName
+                  name={taskObj.NodeName || taskObj.NodeID}
+                  id={taskObj.NodeID}
+                  entityType="node"
+                  showFilter={false}
+                />
+                {taskObj.NodeName && taskObj.NodeID && (
+                  <small className="text-muted ms-2">({taskObj.NodeID})</small>
+                )}
+              </div>
             </td>
           </tr>
           <tr>

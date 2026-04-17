@@ -268,7 +268,12 @@ const ServiceTasksTab = React.memo(function ServiceTasksTab({
                   {metrics && metrics.containerId ? (
                     <small>
                       <code>
-                        {metrics.containerId.split('/').pop().substring(0, 12)}
+                        {metrics.containerId
+                          .split('/')
+                          .pop()
+                          .replace('docker-', '')
+                          .replace('.scope', '')
+                          .substring(0, 12)}
                       </code>
                     </small>
                   ) : (
