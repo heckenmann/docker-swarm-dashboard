@@ -23,7 +23,10 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
     )
   }
 
-  if (metricsRes.state === 'hasError' || (metricsRes.data && metricsRes.data.error)) {
+  if (
+    metricsRes.state === 'hasError' ||
+    (metricsRes.data && metricsRes.data.error)
+  ) {
     return (
       <Alert variant="warning" className="mx-2">
         <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
@@ -39,7 +42,14 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
     return (
       <Alert variant="info" className="mx-2 shadow-sm border-0 bg-light-subtle">
         <FontAwesomeIcon icon="info-circle" className="me-2 text-info" />
-        Cluster-wide metrics are not enabled. Deploy <strong>node-exporter</strong> as a global service with the label <code>{metricsRes.data?.message?.includes('dsd.') ? 'dsd.node-exporter=true' : 'your configured label'}</code> to visualize cluster resources.
+        Cluster-wide metrics are not enabled. Deploy{' '}
+        <strong>node-exporter</strong> as a global service with the label{' '}
+        <code>
+          {metricsRes.data?.message?.includes('dsd.')
+            ? 'dsd.node-exporter=true'
+            : 'your configured label'}
+        </code>{' '}
+        to visualize cluster resources.
       </Alert>
     )
   }
@@ -65,12 +75,23 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
         <DSDCard title="Cluster Memory" icon="memory">
           <div className="p-3">
             <div className="d-flex justify-content-between mb-1">
-              <span>{formatBytes(metrics.usedMemory)} / {formatBytes(metrics.totalMemory)}</span>
-              <span className="fw-bold">{metrics.memoryPercent.toFixed(1)}%</span>
+              <span>
+                {formatBytes(metrics.usedMemory)} /{' '}
+                {formatBytes(metrics.totalMemory)}
+              </span>
+              <span className="fw-bold">
+                {metrics.memoryPercent.toFixed(1)}%
+              </span>
             </div>
-            <ProgressBar 
-              now={metrics.memoryPercent} 
-              variant={metrics.memoryPercent > 90 ? 'danger' : metrics.memoryPercent > 75 ? 'warning' : 'success'}
+            <ProgressBar
+              now={metrics.memoryPercent}
+              variant={
+                metrics.memoryPercent > 90
+                  ? 'danger'
+                  : metrics.memoryPercent > 75
+                    ? 'warning'
+                    : 'success'
+              }
               style={{ height: '8px' }}
               className="mt-2"
             />
@@ -81,12 +102,21 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
         <DSDCard title="Cluster Disk" icon="hdd">
           <div className="p-3">
             <div className="d-flex justify-content-between mb-1">
-              <span>{formatBytes(metrics.usedDisk)} / {formatBytes(metrics.totalDisk)}</span>
+              <span>
+                {formatBytes(metrics.usedDisk)} /{' '}
+                {formatBytes(metrics.totalDisk)}
+              </span>
               <span className="fw-bold">{metrics.diskPercent.toFixed(1)}%</span>
             </div>
-            <ProgressBar 
-              now={metrics.diskPercent} 
-              variant={metrics.diskPercent > 90 ? 'danger' : metrics.diskPercent > 75 ? 'warning' : 'success'}
+            <ProgressBar
+              now={metrics.diskPercent}
+              variant={
+                metrics.diskPercent > 90
+                  ? 'danger'
+                  : metrics.diskPercent > 75
+                    ? 'warning'
+                    : 'success'
+              }
               style={{ height: '8px' }}
               className="mt-2"
             />

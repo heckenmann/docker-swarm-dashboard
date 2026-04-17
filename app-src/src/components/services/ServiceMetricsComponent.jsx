@@ -86,7 +86,9 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
           <Spinner animation="border" role="status" variant="primary">
             <span className="visually-hidden">Loading metrics...</span>
           </Spinner>
-          <p className="mt-2 text-muted small text-uppercase fw-bold">Fetching Service Metrics</p>
+          <p className="mt-2 text-muted small text-uppercase fw-bold">
+            Fetching Service Metrics
+          </p>
         </div>
       </Card.Body>
     )

@@ -83,7 +83,9 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
           <Spinner animation="border" role="status" variant="primary">
             <span className="visually-hidden">Loading metrics...</span>
           </Spinner>
-          <p className="mt-2 text-muted small text-uppercase fw-bold">Fetching Node Metrics</p>
+          <p className="mt-2 text-muted small text-uppercase fw-bold">
+            Fetching Node Metrics
+          </p>
         </div>
       </Card.Body>
     )
@@ -129,7 +131,8 @@ const NodeMetricsComponent = React.memo(function NodeMetricsComponent({
           )}
 
           <p className="extra-small text-muted mb-0">
-            Check the documentation for a complete <code>docker-compose.yml</code> example.
+            Check the documentation for a complete{' '}
+            <code>docker-compose.yml</code> example.
           </p>
         </Alert>
       </Card.Body>
