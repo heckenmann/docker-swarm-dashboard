@@ -104,5 +104,8 @@
     "webpack-cli": "^7.0.2",
     "webpack-dev-server": "^5.2.3",
     "whatwg-fetch": "^3.6.20"
+  },
+  "dependencies": {
+    "jotai-family": "^1.0.1"
   }
 }

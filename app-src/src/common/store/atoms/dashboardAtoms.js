@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomFamily } from 'jotai/utils'
+import { atomFamily } from 'jotai-family'
 import { baseUrlAtom } from './foundationAtoms'
 import { viewAtom } from './navigationAtoms'
 import { defaultLayoutAtom } from './uiAtoms'
@@ -66,7 +66,7 @@ export const clusterMetricsAtom = atom(async (get) => {
 
 /**
  * Node metrics: fetches real-time metrics for a specific node ID.
- * Uses atomFamily to cache the request per node and prevent redundant fetches.
+ * Uses atomFamily from jotai-family to cache the request per node and prevent redundant fetches.
  */
 export const nodeMetricsAtomFamily = atomFamily((nodeId) =>
   atom(async (get) => {
