@@ -2,6 +2,21 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Row, Col } from 'react-bootstrap'
 
+/**
+ * MetricGrid - A layout component for arranging metric cards in a responsive grid.
+ *
+ * Automatically pairs children into rows with two columns each (on medium screens and up).
+ * Falls back to single column layout for smaller screens.
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} [props.children] - Metric cards or other content to arrange
+ * @param {string} [props.className=''] - Additional CSS classes for the container
+ * @param {Object} [props.cols={ base: 12, md: 6 }] - Column configuration for responsive layout
+ * @param {number} [props.cols.base=12] - Column width for base (mobile) screens
+ * @param {number} [props.cols.md=6] - Column width for medium screens and up
+ * @param {string} [props.gutterClass='mb-3'] - CSS class for row gutters/spacing
+ * @returns {JSX.Element}
+ */
 const MetricGrid = ({
   children,
   className = '',
@@ -36,12 +51,18 @@ const MetricGrid = ({
 }
 
 MetricGrid.propTypes = {
+  /** Metric cards or other content to arrange */
   children: PropTypes.node,
+  /** Additional CSS classes for the container */
   className: PropTypes.string,
+  /** Column configuration for responsive layout */
   cols: PropTypes.shape({
+    /** Column width for base (mobile) screens */
     base: PropTypes.number,
+    /** Column width for medium screens and up */
     md: PropTypes.number,
   }),
+  /** CSS class for row gutters/spacing */
   gutterClass: PropTypes.string,
 }
 

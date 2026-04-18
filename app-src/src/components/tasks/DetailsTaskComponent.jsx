@@ -14,8 +14,13 @@ import TaskMetricsContent from './details/TaskMetricsContent.jsx'
 import MetricCard from '../shared/MetricCard.jsx'
 
 /**
- * Displays full details for a single task: an info table, container metrics
- * charts, a structured table view and a raw JSON tab.
+ * DetailsTaskComponent - Displays comprehensive details for a Docker Swarm task.
+ *
+ * Shows task information (service, node, state), container metrics charts
+ * (memory, CPU, network, filesystem), a structured properties table, and raw JSON view.
+ * Fetches container metrics from cAdvisor via the backend API.
+ *
+ * @returns {JSX.Element|null} The task details view or null if no task is selected
  */
 const DetailsTaskComponent = React.memo(function DetailsTaskComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

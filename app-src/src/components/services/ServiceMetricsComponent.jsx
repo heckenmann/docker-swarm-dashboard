@@ -20,9 +20,15 @@ const NO_LIMIT_TEXT = 'No Limit'
 const UNKNOWN_CONTAINER_TEXT = 'Container N/A'
 
 /**
- * Component to display service memory metrics from cAdvisor
+ * ServiceMetricsComponent - Displays memory metrics for a Docker service.
+ *
+ * Fetches and visualizes container-level memory metrics from cAdvisor.
+ * Shows total service memory usage as a donut chart and per-container
+ * memory usage as a horizontal bar chart.
+ *
  * @param {object} props - Component props
  * @param {string} props.serviceId - The ID of the service to fetch metrics for
+ * @returns {JSX.Element} Memory metrics visualization or error/loading states
  */
 const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
   serviceId,

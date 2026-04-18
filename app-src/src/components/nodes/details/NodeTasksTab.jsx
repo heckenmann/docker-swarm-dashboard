@@ -13,8 +13,12 @@ import { sortData } from '../../../common/sortUtils'
 import MetricCard from '../../shared/MetricCard.jsx'
 
 /**
- * Sortable tasks table rendered inside the node detail "Tasks" tab.
- * Reads the node detail atom directly to source its tasks.
+ * NodeTasksTab - Displays a sortable table of tasks running on a specific node.
+ *
+ * Shows task service names, current states, desired states, and timestamps.
+ * Supports 3-click sorting cycle (asc → desc → reset) on all sortable columns.
+ *
+ * @returns {JSX.Element} The tasks table wrapped in a MetricCard
  */
 const NodeTasksTab = React.memo(function NodeTasksTab() {
   const currentVariant = useAtomValue(currentVariantAtom)

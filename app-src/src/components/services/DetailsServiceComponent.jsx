@@ -17,8 +17,13 @@ import ServiceTasksTab from './details/ServiceTasksTab'
 import MetricCard from '../shared/MetricCard.jsx'
 
 /**
- * Displays full details for a service: metrics, tasks table with per-task
- * metrics, a structured table view and a raw JSON tab.
+ * DetailsServiceComponent - Displays comprehensive details for a Docker service.
+ *
+ * Shows service metrics (memory usage charts), a tasks table with per-task
+ * metrics (memory, CPU), structured properties table, and raw JSON view.
+ * Fetches task metrics from the backend API.
+ *
+ * @returns {JSX.Element|null} The service details view or null if no service is selected
  */
 const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)

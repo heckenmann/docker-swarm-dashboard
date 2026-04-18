@@ -11,7 +11,12 @@ import NodeTasksTab from './details/NodeTasksTab'
 import MetricCard from '../shared/MetricCard.jsx'
 
 /**
- * Displays full details for a node: metrics, tasks, structured table and raw JSON.
+ * DetailsNodeComponent - Displays comprehensive details for a single Docker Swarm node.
+ *
+ * Shows node metrics (CPU, memory, disk, network), running tasks, a structured
+ * properties table, and raw JSON output in tabbed sections.
+ *
+ * @returns {JSX.Element|null} The node details view or null if no node is selected
  */
 const DetailsNodeComponent = React.memo(function DetailsNodeComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)

@@ -5,6 +5,24 @@ import { Card, Spinner, Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { currentVariantClassesAtom } from '../../common/store/atoms/themeAtoms'
 
+/**
+ * MetricCard - A reusable card component for displaying metric data with consistent styling.
+ *
+ * Provides standardized loading, error, and content states for metric visualizations.
+ * Automatically adapts to the current Bootstrap theme variant.
+ *
+ * @param {Object} props
+ * @param {string} [props.title] - The title displayed in the card header
+ * @param {string} [props.icon] - FontAwesome icon name for the header
+ * @param {boolean} [props.loading=false] - Whether to show loading state
+ * @param {string} [props.error=null] - Error message to display (trumps content)
+ * @param {React.ReactNode} [props.children] - Content to render inside the card
+ * @param {string} [props.className=''] - Additional CSS classes for the card
+ * @param {string} [props.bodyClassName=''] - Additional CSS classes for card body
+ * @param {boolean} [props.chartContent=false] - Whether content is a chart (applies p-2 padding)
+ * @param {boolean} [props.noBody=false] - Whether to render children without Card.Body wrapper
+ * @returns {JSX.Element}
+ */
 const MetricCard = ({
   title,
   icon,
@@ -68,14 +86,23 @@ const MetricCard = ({
 }
 
 MetricCard.propTypes = {
+  /** The title displayed in the card header */
   title: PropTypes.string,
+  /** FontAwesome icon name for the header */
   icon: PropTypes.string,
+  /** Whether to show loading state */
   loading: PropTypes.bool,
+  /** Error message to display (trumps content) */
   error: PropTypes.string,
+  /** Content to render inside the card */
   children: PropTypes.node,
+  /** Additional CSS classes for the card */
   className: PropTypes.string,
+  /** Additional CSS classes for card body */
   bodyClassName: PropTypes.string,
+  /** Whether content is a chart (applies p-2 padding) */
   chartContent: PropTypes.bool,
+  /** Whether to render children without Card.Body wrapper */
   noBody: PropTypes.bool,
 }
 
