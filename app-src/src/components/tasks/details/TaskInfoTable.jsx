@@ -8,6 +8,8 @@ import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
 import EntityName from '../../shared/names/EntityName'
 import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 
+import MetricCard from '../../shared/MetricCard.jsx'
+
 /**
  * Determines if slot information should be displayed
  * Extracted for better testability
@@ -29,9 +31,17 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
   if (!taskObj) return null
 
   return (
-    <div className="mb-3">
-      <h5>Task Information</h5>
-      <Table size={tableSize} bordered className={currentVariantClasses}>
+    <MetricCard
+      title="Task Information"
+      icon="info-circle"
+      className="mb-3"
+      noBody={true}
+    >
+      <Table
+        size={tableSize}
+        bordered
+        className={`mb-0 ${currentVariantClasses}`}
+      >
         <tbody>
           <tr>
             <td>
@@ -109,7 +119,7 @@ const TaskInfoTable = React.memo(function TaskInfoTable({ taskObj }) {
           </tr>
         </tbody>
       </Table>
-    </div>
+    </MetricCard>
   )
 })
 

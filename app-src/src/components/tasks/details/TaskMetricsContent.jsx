@@ -1,11 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { useAtomValue } from 'jotai'
-import { Alert, Row, Col, Spinner } from 'react-bootstrap'
+import { Alert, Row, Col, Spinner, Badge } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ReactApexChart from 'react-apexcharts'
 import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
-import { getCommonChartOptions } from '../../../common/chartUtils'
+import {
+  getCommonChartOptions,
+  METRIC_THRESHOLDS,
+} from '../../../common/chartUtils'
 import {
   formatBytesCompact as formatBytes,
   pctClass,
@@ -14,6 +17,199 @@ import { buildMemoryCharts } from './MemoryCharts.jsx'
 import { buildCPUCharts } from './CpuCharts.jsx'
 import { buildNetworkChart } from './NetworkChart.jsx'
 import { buildFSChart } from './fsChart.jsx'
+import MetricCard from '../../shared/MetricCard.jsx'
+import MetricGrid from '../../shared/MetricGrid.jsx'
+
+const KpiBadge = ({ icon, label, value, colorClass }) => (
+  <div className="d-flex align-items-center me-3 mb-1">
+    <FontAwesomeIcon
+      icon={icon}
+      className={`me-2 ${colorClass || 'text-muted'}`}
+    />
+    <span className="text-muted small me-1">{label}:</span>
+    <span className={`fw-medium ${colorClass || ''}`}>{value}</span>
+  </div>
+)
+
+KpiBadge.propTypes = {
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  colorClass: PropTypes.string,
+}
+
+KpiBadge.defaultProps = {
+  colorClass: '',
+}
+
+const KpiHeader = ({ taskMetrics, hasNetwork }) => {
+  const containerId =
+    (taskMetrics.containerId?.split('/') || [])
+      .pop()
+      ?.replace('docker-', '')
+      ?.replace('.scope', '')
+      ?.substring(0, 12) || 'N/A'
+
+  const cpuStatusClass =
+    taskMetrics.cpuPercent > METRIC_THRESHOLDS.critical
+      ? 'bg-danger'
+      : taskMetrics.cpuPercent > METRIC_THRESHOLDS.warning
+        ? 'bg-warning text-dark'
+        : 'bg-success'
+
+  const memStatusClass =
+    taskMetrics.usagePercent > METRIC_THRESHOLDS.critical
+      ? 'bg-danger'
+      : taskMetrics.usagePercent > METRIC_THRESHOLDS.warning
+        ? 'bg-warning text-dark'
+        : 'bg-success'
+
+  return (
+    <MetricCard title="Container Summary" icon="info-circle" className="mb-3">
+      <div className="d-flex flex-wrap align-items-center">
+        <div className="me-auto mb-1">
+          <span className="text-muted small me-1">Container:</span>
+          <code className="fs-6">{containerId}</code>
+        </div>
+        <KpiBadge
+          icon="memory"
+          label="Memory"
+          value={`${formatBytes(taskMetrics.usage || 0)}${taskMetrics.limit > 0 ? ` / ${formatBytes(taskMetrics.limit)}` : ''}`}
+        />
+        {taskMetrics.usagePercent > 0 && (
+          <Badge className={`ms-1 ${memStatusClass}`}>
+            {taskMetrics.usagePercent.toFixed(1)}%
+          </Badge>
+        )}
+        <KpiBadge
+          icon="microchip"
+          label="CPU"
+          value={`${(taskMetrics.cpuUsage || 0).toFixed(2)}s`}
+          colorClass={
+            taskMetrics.cpuPercent > METRIC_THRESHOLDS.critical
+              ? 'text-danger'
+              : taskMetrics.cpuPercent > METRIC_THRESHOLDS.warning
+                ? 'text-warning'
+                : ''
+          }
+        />
+        {taskMetrics.cpuPercent > 0 && (
+          <Badge className={`ms-1 ${cpuStatusClass}`}>
+            {taskMetrics.cpuPercent.toFixed(1)}%
+          </Badge>
+        )}
+        {hasNetwork && (
+          <KpiBadge
+            icon="network-wired"
+            label="Network"
+            value={`↓ ${formatBytes(taskMetrics.networkRxBytes || 0)} / ↑ ${formatBytes(taskMetrics.networkTxBytes || 0)}`}
+          />
+        )}
+      </div>
+    </MetricCard>
+  )
+}
+
+KpiHeader.propTypes = {
+  taskMetrics: PropTypes.shape({
+    containerId: PropTypes.string,
+    cpuPercent: PropTypes.number,
+    cpuUsage: PropTypes.number,
+    usage: PropTypes.number,
+    usagePercent: PropTypes.number,
+    limit: PropTypes.number,
+    networkRxBytes: PropTypes.number,
+    networkTxBytes: PropTypes.number,
+  }).isRequired,
+  hasNetwork: PropTypes.bool.isRequired,
+}
+
+KpiBadge.defaultProps = {
+  colorClass: '',
+}
+
+const KpiHeader = ({ taskMetrics, hasNetwork }) => {
+  const containerId =
+    taskMetrics.containerId
+      ?.split('/')
+      .pop()
+      ?.replace('docker-', '')
+      ?.replace('.scope', '')
+      ?.substring(0, 12) || 'N/A'
+
+  const cpuStatusClass =
+    taskMetrics.cpuPercent > 90
+      ? 'bg-danger'
+      : taskMetrics.cpuPercent > 75
+        ? 'bg-warning text-dark'
+        : 'bg-success'
+
+  const memStatusClass =
+    taskMetrics.usagePercent > 90
+      ? 'bg-danger'
+      : taskMetrics.usagePercent > 75
+        ? 'bg-warning text-dark'
+        : 'bg-success'
+
+  return (
+    <MetricCard title="Container Summary" icon="info-circle" className="mb-3">
+      <div className="d-flex flex-wrap align-items-center">
+        <div className="me-auto mb-1">
+          <span className="text-muted small me-1">Container:</span>
+          <code className="fs-6">{containerId}</code>
+        </div>
+        <KpiBadge
+          icon="memory"
+          label="Memory"
+          value={`${formatBytes(taskMetrics.usage || 0)}${taskMetrics.limit > 0 ? ` / ${formatBytes(taskMetrics.limit)}` : ''}`}
+        />
+        {taskMetrics.usagePercent > 0 && (
+          <Badge className={`ms-1 ${memStatusClass}`}>
+            {taskMetrics.usagePercent.toFixed(1)}%
+          </Badge>
+        )}
+        <KpiBadge
+          icon="microchip"
+          label="CPU"
+          value={`${(taskMetrics.cpuUsage || 0).toFixed(2)}s`}
+          colorClass={
+            taskMetrics.cpuPercent > 90
+              ? 'text-danger'
+              : taskMetrics.cpuPercent > 75
+                ? 'text-warning'
+                : ''
+          }
+        />
+        {taskMetrics.cpuPercent > 0 && (
+          <Badge className={`ms-1 ${cpuStatusClass}`}>
+            {taskMetrics.cpuPercent.toFixed(1)}%
+          </Badge>
+        )}
+        {hasNetwork && (
+          <KpiBadge
+            icon="network-wired"
+            label="Network"
+            value={`↓ ${formatBytes(taskMetrics.networkRxBytes || 0)} / ↑ ${formatBytes(taskMetrics.networkTxBytes || 0)}`}
+          />
+        )}
+      </div>
+    </MetricCard>
+  )
+}
+
+KpiHeader.propTypes = {
+  taskMetrics: PropTypes.shape({
+    containerId: PropTypes.string,
+    cpuPercent: PropTypes.number,
+    cpuUsage: PropTypes.number,
+    usage: PropTypes.number,
+    usagePercent: PropTypes.number,
+    limit: PropTypes.number,
+    networkRxBytes: PropTypes.number,
+    networkTxBytes: PropTypes.number,
+  }).isRequired,
+  hasNetwork: PropTypes.bool.isRequired,
+}
 
 /**
  * Container metrics section for a task: summary row, memory/CPU/network/FS
@@ -70,142 +266,95 @@ const TaskMetricsContent = React.memo(function TaskMetricsContent({
 
       {!metricsLoading && !metricsError && taskMetrics && (
         <>
-          {/* Summary row */}
-          <Alert variant="secondary" className="py-2 mb-3">
-            <Row>
-              <Col xs={12} md={6} className="mb-1 mb-md-0">
-                <strong>Container:</strong>{' '}
-                <code>
-                  {taskMetrics.containerId
-                    ?.split('/')
-                    .pop()
-                    .replace('docker-', '')
-                    .replace('.scope', '')
-                    .substring(0, 12)}
-                </code>
-              </Col>
-              <Col xs={12} md={6}>
-                <strong>Memory:</strong> {formatBytes(taskMetrics.usage || 0)}
-                {taskMetrics.limit > 0 &&
-                  ` / ${formatBytes(taskMetrics.limit)}`}
-                {taskMetrics.usagePercent > 0 && (
-                  <span
-                    className={`ms-2 ${pctClass(taskMetrics.usagePercent)}`}
-                  >
-                    ({taskMetrics.usagePercent.toFixed(1)}%)
-                  </span>
-                )}
-              </Col>
-            </Row>
-            <Row className="mt-1">
-              <Col xs={12} md={6} className="mb-1 mb-md-0">
-                <strong>CPU Total:</strong>{' '}
-                {(taskMetrics.cpuUsage || 0).toFixed(2)}s
-                {taskMetrics.cpuPercent > 0 && (
-                  <span className={`ms-2 ${pctClass(taskMetrics.cpuPercent)}`}>
-                    ({taskMetrics.cpuPercent.toFixed(1)}% of quota)
-                  </span>
-                )}
-              </Col>
-              {hasNetwork && (
-                <Col xs={12} md={6}>
-                  <strong>Network:</strong> ↓{' '}
-                  {formatBytes(taskMetrics.networkRxBytes || 0)} / ↑{' '}
-                  {formatBytes(taskMetrics.networkTxBytes || 0)}
-                </Col>
+          <KpiHeader taskMetrics={taskMetrics} hasNetwork={hasNetwork} />
+
+          <MetricGrid>
+            <MetricCard title="Memory Usage" icon="memory" chartContent>
+              {taskMetrics.limit > 0 || taskMetrics.usagePercent > 0 ? (
+                <Row>
+                  <Col xs={12} md={5} className="mb-3 mb-md-0">
+                    <ReactApexChart
+                      options={memCharts.memGaugeOptions}
+                      series={memCharts.memGaugeSeries}
+                      type="radialBar"
+                      height={280}
+                    />
+                  </Col>
+                  <Col xs={12} md={7}>
+                    <ReactApexChart
+                      options={memCharts.memDonutOptions}
+                      series={memCharts.memDonutSeries}
+                      type="donut"
+                      height={280}
+                    />
+                  </Col>
+                </Row>
+              ) : (
+                <Alert variant="info" className="mb-0">
+                  No memory limit configured
+                </Alert>
               )}
-            </Row>
-          </Alert>
+            </MetricCard>
 
-          {/* Memory charts */}
-          <Row className="mb-3">
-            {taskMetrics.limit > 0 || taskMetrics.usagePercent > 0 ? (
-              <Col xs={12} md={5} className="mb-3 mb-md-0">
-                <ReactApexChart
-                  options={memCharts.memGaugeOptions}
-                  series={memCharts.memGaugeSeries}
-                  type="radialBar"
-                  height={280}
-                />
-              </Col>
-            ) : null}
-            <Col
-              xs={12}
-              md={
-                taskMetrics.limit > 0 || taskMetrics.usagePercent > 0 ? 7 : 12
-              }
-            >
-              <ReactApexChart
-                options={memCharts.memDonutOptions}
-                series={memCharts.memDonutSeries}
-                type="donut"
-                height={280}
-              />
-            </Col>
-          </Row>
-
-          {/* CPU charts */}
-          <Row className="mb-3">
-            {taskMetrics.cpuPercent > 0 && (
-              <Col
-                xs={12}
-                md={hasCPUBreakdown ? 5 : 12}
-                className="mb-3 mb-md-0"
-              >
-                <ReactApexChart
-                  options={cpuCharts.cpuGaugeOptions}
-                  series={cpuCharts.cpuGaugeSeries}
-                  type="radialBar"
-                  height={280}
-                />
-              </Col>
-            )}
-            {hasCPUBreakdown && (
-              <Col xs={12} md={taskMetrics.cpuPercent > 0 ? 7 : 12}>
-                <ReactApexChart
-                  options={cpuCharts.cpuBreakdownOptions}
-                  series={cpuCharts.cpuBreakdownSeries}
-                  type="pie"
-                  height={280}
-                />
-              </Col>
-            )}
-            {!taskMetrics.cpuPercent && !hasCPUBreakdown && (
-              <Col xs={12}>
-                <Alert variant="info">
+            <MetricCard title="CPU Usage" icon="microchip" chartContent>
+              {taskMetrics.cpuPercent > 0 ? (
+                <Row>
+                  <Col
+                    xs={12}
+                    md={hasCPUBreakdown ? 5 : 12}
+                    className="mb-3 mb-md-0"
+                  >
+                    <ReactApexChart
+                      options={cpuCharts.cpuGaugeOptions}
+                      series={cpuCharts.cpuGaugeSeries}
+                      type="radialBar"
+                      height={280}
+                    />
+                  </Col>
+                  {hasCPUBreakdown && (
+                    <Col xs={12} md={7}>
+                      <ReactApexChart
+                        options={cpuCharts.cpuBreakdownOptions}
+                        series={cpuCharts.cpuBreakdownSeries}
+                        type="pie"
+                        height={280}
+                      />
+                    </Col>
+                  )}
+                </Row>
+              ) : (
+                <Alert variant="info" className="mb-0">
                   CPU details not available (no quota configured)
                 </Alert>
-              </Col>
-            )}
-          </Row>
+              )}
+            </MetricCard>
 
-          {/* Network chart */}
-          {hasNetwork && (
-            <Row className="mb-3">
-              <Col xs={12} md={6}>
+            {hasNetwork && (
+              <MetricCard
+                title="Network Traffic"
+                icon="network-wired"
+                chartContent
+              >
                 <ReactApexChart
                   options={netCharts.networkChartOptions}
                   series={netCharts.networkChartSeries}
                   type="bar"
                   height={200}
                 />
-              </Col>
-            </Row>
-          )}
+              </MetricCard>
+            )}
 
-          {/* Filesystem chart */}
-          {hasFS && (
-            <Row className="mb-3">
-              <Col xs={12} md={6}>
+            {hasFS && (
+              <MetricCard title="Filesystem Usage" icon="hdd" chartContent>
                 <ReactApexChart
                   options={fsCharts.fsChartOptions}
                   series={fsCharts.fsChartSeries}
                   type="bar"
                   height={200}
                 />
-              </Col>
-            </Row>
-          )}
+              </MetricCard>
+            )}
+          </MetricGrid>
         </>
       )}
 

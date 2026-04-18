@@ -11,6 +11,8 @@ import JsonTable from '../shared/JsonTable.jsx'
 import TaskInfoTable from './details/TaskInfoTable.jsx'
 import TaskMetricsContent from './details/TaskMetricsContent.jsx'
 
+import MetricCard from '../shared/MetricCard.jsx'
+
 /**
  * Displays full details for a single task: an info table, container metrics
  * charts, a structured table view and a raw JSON tab.
@@ -78,10 +80,16 @@ const DetailsTaskComponent = React.memo(function DetailsTaskComponent() {
               />
             </Tab>
             <Tab eventKey="table" title="Table">
-              <JsonTable json={currentTask} />
+              <MetricCard title="Task Properties" icon="table" noBody={true}>
+                <JsonTable json={currentTask} />
+              </MetricCard>
             </Tab>
             <Tab eventKey="json" title="JSON">
-              <pre>{JSON.stringify(currentTask, null, 2)}</pre>
+              <MetricCard title="Raw JSON" icon="code">
+                <pre className="mb-0">
+                  {JSON.stringify(currentTask, null, 2)}
+                </pre>
+              </MetricCard>
             </Tab>
           </Tabs>
         </Card.Body>
