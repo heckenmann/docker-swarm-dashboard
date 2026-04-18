@@ -12,6 +12,10 @@ jest.mock('jotai', () => ({
 
 jest.mock('../../../../../src/common/utils/chartUtils', () => ({
   getCommonChartOptions: jest.fn(),
+  METRIC_THRESHOLDS: {
+    warning: 75,
+    critical: 90,
+  },
   CHART_PALETTES: {
     cpu: ['#0d6efd', '#6f42c1', '#20c997', '#6610f2'],
     memory: ['#28a745', '#20c997', '#17a2b8', '#198754'],
