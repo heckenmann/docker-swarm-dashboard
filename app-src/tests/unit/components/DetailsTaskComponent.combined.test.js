@@ -81,4 +81,57 @@ describe('DetailsTaskComponent', () => {
     render(<DetailsTaskComponent />)
     expect(screen.getByText(/Task doesn't exist/)).toBeInTheDocument()
   })
+
+  test('handles fetch error', async () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'taskDetailAtom') return mockTaskData
+      if (atom === 'baseUrlAtom') return 'http://api/'
+      if (atom === 'viewAtom') return {}
+      return null
+    })
+
+    fetch.mockRejectedValue(new Error('Network error'))
+
+    render(<DetailsTaskComponent />)
+
+    expect(screen.getByText('Task Details')).toBeInTheDocument()
+    
+    // Should still render without crashing on fetch error
+    await waitFor(() => {
+      expect(screen.getByTestId('task-metrics-content')).toBeInTheDocument()
+    })
+  })
+
+  test('handles null task data', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'taskDetailAtom') return null
+      if (atom === 'baseUrlAtom') return 'http://api/'
+      if (atom === 'viewAtom') return {}
+      return null
+    })
+
+    render(<DetailsTaskComponent />)
+    expect(screen.getByText(/Task doesn't exist/)).toBeInTheDocument()
+  })
+
+  test('renders raw JSON tab', async () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'taskDetailAtom') return mockTaskData
+      if (atom === 'baseUrlAtom') return 'http://api/'
+      if (atom === 'viewAtom') return {}
+      return null
+    })
+
+    fetch.mockResolvedValue({
+      json: async () => ({ available: false })
+    })
+
+    render(<DetailsTaskComponent />)
+
+    // Look for the JSON tab
+    expect(screen.getByText('Raw JSON')).toBeInTheDocument()
+  })
 })

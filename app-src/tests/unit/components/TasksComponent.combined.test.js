@@ -654,4 +654,5 @@ describe('TasksComponent (combined)', () => {
       expect.objectContaining({ detail: 'task-xyz' }),
     )
   })
+
 })
