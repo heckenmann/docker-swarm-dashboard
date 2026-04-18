@@ -4,7 +4,7 @@
  * action buttons (open / filter). Callers can pass a custom `nameNode` to
  * control how the name itself is rendered (for example an OverlayTrigger).
  *
- * @param {Object} props
+ * @param {object} props
  * @param {string} props.name - Display name for the entity
  * @param {string|null} [props.id] - Optional entity id used by open handler
  * @param {function(string):void} [props.onOpen] - Optional handler to open details

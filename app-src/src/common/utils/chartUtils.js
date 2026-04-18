@@ -15,11 +15,13 @@ export function getCssVar(varName, fallback) {
 }
 
 /**
- * Get chart theme configuration based on dark mode.
- * @param {boolean} isDarkMode - Whether dark mode is enabled
- * @returns {object} Theme configuration for ApexCharts
+ * Color palettes for different chart types and metric statuses.
+ * Uses CSS variables for theming support.
+ * @returns {object} Color palette configuration with cpu, memory, network, filesystem, and status getters
  */
+
 export const CHART_PALETTES = {
+  /** @returns {string[]} CPU chart colors */
   get cpu() {
     return [
       getCssVar('--chart-cpu', '#0d6efd'),
@@ -28,6 +30,7 @@ export const CHART_PALETTES = {
       getCssVar('--bs-cyan', '#0dcaf0'),
     ]
   },
+  /** @returns {string[]} Memory chart colors */
   get memory() {
     return [
       getCssVar('--chart-mem', '#198754'),
@@ -36,6 +39,7 @@ export const CHART_PALETTES = {
       getCssVar('--bs-info', '#0dcaf0'),
     ]
   },
+  /** @returns {string[]} Network chart colors */
   get network() {
     return [
       getCssVar('--chart-net', '#6610f2'),
@@ -44,6 +48,7 @@ export const CHART_PALETTES = {
       getCssVar('--bs-indigo', '#6610f2'),
     ]
   },
+  /** @returns {string[]} Filesystem chart colors */
   get filesystem() {
     return [
       getCssVar('--chart-fs', '#fd7e14'),
@@ -53,22 +58,31 @@ export const CHART_PALETTES = {
     ]
   },
   status: {
+    /** @returns {string} Normal status color */
     get normal() {
       return getCssVar('--chart-normal', '#198754')
     },
+    /** @returns {string} Warning status color */
     get warning() {
       return getCssVar('--chart-warning', '#ffc107')
     },
+    /** @returns {string} Critical status color */
     get critical() {
       return getCssVar('--chart-critical', '#dc3545')
     },
   },
 }
 
+/**
+ * Default configuration for gauge charts.
+ * Includes start/end angles, hollow size, track background, and font sizes.
+ */
+
 export const GAUGE_DEFAULTS = {
   startAngle: -130,
   endAngle: 130,
   hollowSize: '55%',
+  /** @returns {string} Track background color */
   get trackBackground() {
     return getCssVar('--chart-gauge-track', '#e0e0e0')
   },
@@ -76,6 +90,10 @@ export const GAUGE_DEFAULTS = {
   nameFontSize: '14px',
 }
 
+/**
+ * Returns the gauge track background color from defaults.
+ * @returns {string} CSS color value for gauge track
+ */
 export const getGaugeTrackBackground = () => GAUGE_DEFAULTS.trackBackground
 
 /**

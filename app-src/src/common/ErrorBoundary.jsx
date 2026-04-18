@@ -6,8 +6,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 /**
  * ErrorBoundary is a React component that catches JavaScript errors anywhere in its child component tree,
  * logs those errors, and displays a fallback UI instead of the component tree that crashed.
+ *
+ * @param {object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components to render.
  */
 export class ErrorBoundary extends React.Component {
+  /**
+   * Creates an instance of ErrorBoundary.
+   * @param {object} props - Component props.
+   */
   constructor(props) {
     super(props)
     this.state = { hasError: false }
@@ -19,7 +26,7 @@ export class ErrorBoundary extends React.Component {
    * It updates the state to indicate that an error has occurred.
    *
    * @param {Error} error - The error that was thrown.
-   * @returns {Object} An object to update the state with the error information.
+   * @returns {object} An object to update the state with the error information.
    */
   static getDerivedStateFromError(error) {
     // Prefer stack when available so we show useful details; fall back to message/string
@@ -36,8 +43,8 @@ export class ErrorBoundary extends React.Component {
    * This lifecycle method is invoked after an error has been thrown by a descendant component.
    * It is used to log error information.
    *
-   * @param {Error} error - The error that was thrown.
-   * @param {Object} errorInfo - An object with information about the component stack.
+   * @param {Error} _error - The error that was thrown.
+   * @param {object} _errorInfo - An object with information about the component stack.
    */
   componentDidCatch(_error, _errorInfo) {
     // Error logging removed - component will handle display via render

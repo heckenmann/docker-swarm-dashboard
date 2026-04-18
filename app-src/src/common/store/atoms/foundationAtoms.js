@@ -31,7 +31,7 @@ const createHashAtomWithDefault = (key, defaultAtom) => {
  * Surrounding or embedded quotes are removed to normalize values.
  *
  * @param {string} hashString - The hash string to parse (may start with `#`).
- * @returns {Object<string,string>} A map of parsed key/value pairs.
+ * @returns {{[key: string]: string}} A map of parsed key/value pairs.
  */
 export function parseHashToObj(hashString) {
   const hash = typeof hashString === 'string' ? hashString : ''

@@ -138,7 +138,7 @@ module.exports = [
       "no-console": "warn",
 
       // JSDoc rules (informative, not blocking)
-      "jsdoc/require-description": "warn",
+      "jsdoc/require-description": ["warn", {"descriptionStyle": "any", "contexts":["FunctionDeclaration", "MethodDefinition", "ClassDeclaration"]}],
       "jsdoc/require-param-description": "off",
       "jsdoc/require-returns-description": "off",
       "jsdoc/require-jsdoc": ["warn", {

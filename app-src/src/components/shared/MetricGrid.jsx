@@ -8,12 +8,10 @@ import { Row, Col } from 'react-bootstrap'
  * Automatically pairs children into rows with two columns each (on medium screens and up).
  * Falls back to single column layout for smaller screens.
  *
- * @param {Object} props
+ * @param {object} props
  * @param {React.ReactNode} [props.children] - Metric cards or other content to arrange
  * @param {string} [props.className=''] - Additional CSS classes for the container
- * @param {Object} [props.cols={ base: 12, md: 6 }] - Column configuration for responsive layout
- * @param {number} [props.cols.base=12] - Column width for base (mobile) screens
- * @param {number} [props.cols.md=6] - Column width for medium screens and up
+ * @param {object} [props.cols={ base: 12, md: 6 }] - Column configuration for responsive layout with base and md keys
  * @param {string} [props.gutterClass='mb-3'] - CSS class for row gutters/spacing
  * @returns {JSX.Element}
  */

@@ -8,7 +8,7 @@ import EntityName from './EntityName'
  * show a filter button. Navigation and filtering handlers are provided
  * centrally; callers should not pass `onOpen`.
  *
- * @param {Object} props
+ * @param {object} props
  * @param {string} props.name
  * @param {string} props.id
  * @param {function(string):void} [props.onOpen]

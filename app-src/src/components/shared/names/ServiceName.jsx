@@ -15,6 +15,16 @@ import { logsId } from '../../../common/navigationConstants'
 /**
  * Internal function to handle logs button click
  * Extracted for better testability
+ *
+ * @param {string} sid - Service ID
+ * @param {string} name - Service name
+ * @param {boolean} logsShowLogsVal - Whether logs are currently being shown
+ * @param {object} logsConfigVal - Current logs configuration
+ * @param {Function} setLogsShowLogs - Setter for logs visibility
+ * @param {Function} setLogsConfig - Setter for logs configuration
+ * @param {Function} setFormId - Setter for form service ID
+ * @param {Function} setFormName - Setter for form service name
+ * @param {Function} updateView - Function to update the view
  */
 export function handleShowLogsInternal(
   sid,

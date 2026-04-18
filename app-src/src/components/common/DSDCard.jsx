@@ -12,7 +12,7 @@ import './DSDCard.css'
  * This component standardizes the styling and structure of cards across the dashboard.
  * It supports customizable headers, bodies, and additional classes for flexibility.
  *
- * @param {Object} props - Component props.
+ * @param {object} props - Component props.
  * @param {React.ReactNode} [props.header] - Content for the card header (legacy, use icon/title instead).
  * @param {string} [props.icon] - FontAwesome icon name for the card header.
  * @param {string} [props.title] - Title text for the card header.

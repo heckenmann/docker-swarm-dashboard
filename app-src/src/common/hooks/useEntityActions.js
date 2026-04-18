@@ -25,6 +25,12 @@ import {
   tasksId,
 } from '../constants/navigationConstants'
 
+/**
+ * Hook implementation for entity actions
+ *
+ * @param {string} entityType - Type of entity ('service', 'node', 'task', 'stack')
+ * @returns {{ onOpen: Function, onFilter: Function }} Action handlers
+ */
 export function useEntityActions(entityType = 'service') {
   const [, updateView] = useAtom(viewAtom)
   const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)

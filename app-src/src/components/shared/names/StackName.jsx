@@ -8,7 +8,7 @@ import EntityName from './EntityName'
  * the filter action and delegates filtering to centralized handlers when
  * callers omit `onFilter`.
  *
- * @param {Object} props
+ * @param {object} props
  * @param {string} props.name
  * (Handlers are centralized; callers should not pass onFilter)
  * @param {boolean} [props.showFilter=true]

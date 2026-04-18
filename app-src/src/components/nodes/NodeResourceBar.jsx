@@ -13,7 +13,7 @@ import { formatBytesCompact } from '../../common/utils/formatUtils'
  * It fetches real-time metrics for the given node and handles root partition
  * resolution for disk metrics.
  *
- * @param {Object} props
+ * @param {object} props
  * @param {string} props.nodeId - The unique identifier of the Docker node.
  * @param {'memory' | 'disk'} props.type - The type of resource to visualize.
  */

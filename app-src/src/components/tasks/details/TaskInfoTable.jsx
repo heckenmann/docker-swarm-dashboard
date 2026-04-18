@@ -13,6 +13,8 @@ import MetricCard from '../../shared/MetricCard.jsx'
 /**
  * Determines if slot information should be displayed
  * Extracted for better testability
+ *
+ * @param {*} slot - The slot value to check
  */
 export function shouldShowSlot(slot) {
   return slot !== null && slot !== undefined && slot !== ''

@@ -9,7 +9,7 @@ import './NameActions.css'
  * Stateless component that renders action buttons next to an entity name.
  * Each button stops propagation and calls the provided handlers.
  *
- * @param {Object} props
+ * @param {object} props
  * @param {boolean} [props.showOpen=true]
  * @param {boolean} [props.showFilter=true]
  * @param {string} [props.size='sm']

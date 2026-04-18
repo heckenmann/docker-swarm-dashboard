@@ -9,6 +9,8 @@ import {
 /**
  * Calculates memory metrics for donut chart
  * Extracted for better testability
+ *
+ * @param {object} m - Memory metrics object
  */
 export function calculateMemoryMetrics(m) {
   const memCache = m.memoryCache || 0
@@ -27,6 +29,10 @@ export function calculateMemoryMetrics(m) {
 /**
  * Creates memory donut chart options
  * Extracted for better testability
+ *
+ * @param {object} m - Memory metrics object
+ * @param {object} commonOpts - Base ApexCharts options
+ * @param {Function} formatBytes - Function to format bytes
  */
 export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
   const {} = calculateMemoryMetrics(m)

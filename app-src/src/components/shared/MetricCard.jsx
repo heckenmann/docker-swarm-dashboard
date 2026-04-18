@@ -11,7 +11,7 @@ import { currentVariantClassesAtom } from '../../common/store/atoms/themeAtoms'
  * Provides standardized loading, error, and content states for metric visualizations.
  * Automatically adapts to the current Bootstrap theme variant.
  *
- * @param {Object} props
+ * @param {object} props
  * @param {string} [props.title] - The title displayed in the card header
  * @param {string} [props.icon] - FontAwesome icon name for the header
  * @param {boolean} [props.loading=false] - Whether to show loading state
