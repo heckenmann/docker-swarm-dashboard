@@ -1,4 +1,5 @@
 import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
+import { CHART_PALETTES } from '../../../common/utils/chartUtils'
 
 /**
  * Build network bar chart configuration.
@@ -17,8 +18,8 @@ export function buildNetworkChart(m, commonOpts) {
       labels: { formatter: (val) => formatBytes(val) },
       title: { text: 'Bytes' },
     },
-    title: { text: 'Network Traffic (Total)', align: 'center' },
     legend: { show: false },
+    colors: CHART_PALETTES.network,
   }
   const networkChartSeries = [
     { name: 'Bytes', data: [m.networkRxBytes || 0, m.networkTxBytes || 0] },

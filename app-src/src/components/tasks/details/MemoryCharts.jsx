@@ -1,4 +1,10 @@
 import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
+import {
+  CHART_PALETTES,
+  GAUGE_DEFAULTS,
+  getGaugeTrackBackground,
+  getStatusColor,
+} from '../../../common/utils/chartUtils'
 
 /**
  * Calculates memory metrics for donut chart
@@ -34,7 +40,6 @@ export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'donut' },
     labels: labels,
-    title: { text: 'Memory Breakdown', align: 'center' },
     plotOptions: {
       pie: {
         donut: {
@@ -51,6 +56,7 @@ export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
       },
     },
     dataLabels: { formatter: (val) => val.toFixed(1) + '%' },
+    colors: CHART_PALETTES.memory,
   }
 }
 
@@ -58,36 +64,29 @@ export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
  * Build memory gauge + donut chart configurations.
  * @param {object} m - Task metrics object
  * @param {object} commonOpts - Base ApexCharts options
- * @param {boolean} isDarkMode
  * @returns {{ memGaugeOptions, memGaugeSeries, memDonutOptions, memDonutSeries }}
  */
-export function buildMemoryCharts(m, commonOpts, isDarkMode) {
+export function buildMemoryCharts(m, commonOpts) {
   const memGaugeOptions = {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'radialBar' },
     plotOptions: {
       radialBar: {
-        startAngle: -130,
-        endAngle: 130,
-        hollow: { size: '55%' },
+        startAngle: GAUGE_DEFAULTS.startAngle,
+        endAngle: GAUGE_DEFAULTS.endAngle,
+        hollow: { size: GAUGE_DEFAULTS.hollowSize },
         dataLabels: {
-          name: { fontSize: '14px', offsetY: -10 },
+          name: { fontSize: GAUGE_DEFAULTS.nameFontSize, offsetY: -10 },
           value: {
-            fontSize: '22px',
+            fontSize: GAUGE_DEFAULTS.valueFontSize,
             formatter: (val) => `${parseFloat(val).toFixed(1)}%`,
           },
         },
-        track: { background: isDarkMode ? '#444' : '#e0e0e0' },
+        track: { background: getGaugeTrackBackground() },
       },
     },
-    colors:
-      m.usagePercent > 90
-        ? ['#dc3545']
-        : m.usagePercent > 75
-          ? ['#fd7e14']
-          : ['#28a745'],
+    colors: [getStatusColor(m.usagePercent)],
     labels: ['Memory'],
-    title: { text: 'Memory Usage', align: 'center' },
   }
   const memGaugeSeries = [parseFloat((m.usagePercent || 0).toFixed(1))]
 

@@ -1,3 +1,5 @@
+import { CHART_PALETTES } from '../../../common/utils/chartUtils'
+
 /**
  * Build filesystem stacked-bar chart configuration.
  * @param {object} m - Task metrics object
@@ -13,7 +15,7 @@ export function buildFSChart(m, commonOpts) {
     plotOptions: { bar: { horizontal: true } },
     dataLabels: { enabled: false },
     xaxis: { categories: ['Filesystem'], title: { text: 'GB' } },
-    title: { text: 'Filesystem Usage', align: 'center' },
+    colors: CHART_PALETTES.filesystem,
   }
   const fsChartSeries = [
     {

@@ -1,37 +1,37 @@
+import {
+  CHART_PALETTES,
+  GAUGE_DEFAULTS,
+  getGaugeTrackBackground,
+  getStatusColor,
+} from '../../../common/utils/chartUtils'
+
 /**
  * Build CPU gauge + pie chart configurations.
  * @param {object} m - Task metrics object
  * @param {object} commonOpts - Base ApexCharts options
- * @param {boolean} isDarkMode
  * @returns {{ cpuGaugeOptions, cpuGaugeSeries, cpuBreakdownOptions, cpuBreakdownSeries }}
  */
-export function buildCPUCharts(m, commonOpts, isDarkMode) {
+export function buildCPUCharts(m, commonOpts) {
   const cpuGaugeOptions = {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'radialBar' },
     plotOptions: {
       radialBar: {
-        startAngle: -130,
-        endAngle: 130,
-        hollow: { size: '55%' },
+        startAngle: GAUGE_DEFAULTS.startAngle,
+        endAngle: GAUGE_DEFAULTS.endAngle,
+        hollow: { size: GAUGE_DEFAULTS.hollowSize },
         dataLabels: {
-          name: { fontSize: '14px', offsetY: -10 },
+          name: { fontSize: GAUGE_DEFAULTS.nameFontSize, offsetY: -10 },
           value: {
-            fontSize: '22px',
+            fontSize: GAUGE_DEFAULTS.valueFontSize,
             formatter: (val) => `${parseFloat(val).toFixed(1)}%`,
           },
         },
-        track: { background: isDarkMode ? '#444' : '#e0e0e0' },
+        track: { background: getGaugeTrackBackground() },
       },
     },
-    colors:
-      m.cpuPercent > 90
-        ? ['#dc3545']
-        : m.cpuPercent > 75
-          ? ['#fd7e14']
-          : ['#0d6efd'],
+    colors: [getStatusColor(m.cpuPercent)],
     labels: ['CPU Quota'],
-    title: { text: 'CPU vs Quota', align: 'center' },
   }
   const cpuGaugeSeries = [
     Math.min(parseFloat((m.cpuPercent || 0).toFixed(1)), 100),
@@ -43,8 +43,8 @@ export function buildCPUCharts(m, commonOpts, isDarkMode) {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'pie' },
     labels: ['User', 'System'],
-    title: { text: 'CPU Time Split', align: 'center' },
     dataLabels: { formatter: (val) => val.toFixed(1) + '%' },
+    colors: CHART_PALETTES.cpu,
   }
   const cpuBreakdownSeries = [userSec, sysSec]
 
