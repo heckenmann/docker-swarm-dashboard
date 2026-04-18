@@ -98,8 +98,10 @@ export const METRIC_THRESHOLDS = {
 }
 
 export const getStatusColor = (percentage) => {
-  if (percentage > METRIC_THRESHOLDS.critical) return CHART_PALETTES.status.critical
-  if (percentage > METRIC_THRESHOLDS.warning) return CHART_PALETTES.status.warning
+  if (percentage > METRIC_THRESHOLDS.critical)
+    return CHART_PALETTES.status.critical
+  if (percentage > METRIC_THRESHOLDS.warning)
+    return CHART_PALETTES.status.warning
   return CHART_PALETTES.status.normal
 }
 

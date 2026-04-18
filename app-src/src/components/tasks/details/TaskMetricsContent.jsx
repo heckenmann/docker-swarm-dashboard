@@ -9,10 +9,7 @@ import {
   getCommonChartOptions,
   METRIC_THRESHOLDS,
 } from '../../../common/chartUtils'
-import {
-  formatBytesCompact as formatBytes,
-  pctClass,
-} from '../../../common/formatUtils'
+import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
 import { buildMemoryCharts } from './MemoryCharts.jsx'
 import { buildCPUCharts } from './CpuCharts.jsx'
 import { buildNetworkChart } from './NetworkChart.jsx'
@@ -89,93 +86,6 @@ const KpiHeader = ({ taskMetrics, hasNetwork }) => {
             taskMetrics.cpuPercent > METRIC_THRESHOLDS.critical
               ? 'text-danger'
               : taskMetrics.cpuPercent > METRIC_THRESHOLDS.warning
-                ? 'text-warning'
-                : ''
-          }
-        />
-        {taskMetrics.cpuPercent > 0 && (
-          <Badge className={`ms-1 ${cpuStatusClass}`}>
-            {taskMetrics.cpuPercent.toFixed(1)}%
-          </Badge>
-        )}
-        {hasNetwork && (
-          <KpiBadge
-            icon="network-wired"
-            label="Network"
-            value={`↓ ${formatBytes(taskMetrics.networkRxBytes || 0)} / ↑ ${formatBytes(taskMetrics.networkTxBytes || 0)}`}
-          />
-        )}
-      </div>
-    </MetricCard>
-  )
-}
-
-KpiHeader.propTypes = {
-  taskMetrics: PropTypes.shape({
-    containerId: PropTypes.string,
-    cpuPercent: PropTypes.number,
-    cpuUsage: PropTypes.number,
-    usage: PropTypes.number,
-    usagePercent: PropTypes.number,
-    limit: PropTypes.number,
-    networkRxBytes: PropTypes.number,
-    networkTxBytes: PropTypes.number,
-  }).isRequired,
-  hasNetwork: PropTypes.bool.isRequired,
-}
-
-KpiBadge.defaultProps = {
-  colorClass: '',
-}
-
-const KpiHeader = ({ taskMetrics, hasNetwork }) => {
-  const containerId =
-    taskMetrics.containerId
-      ?.split('/')
-      .pop()
-      ?.replace('docker-', '')
-      ?.replace('.scope', '')
-      ?.substring(0, 12) || 'N/A'
-
-  const cpuStatusClass =
-    taskMetrics.cpuPercent > 90
-      ? 'bg-danger'
-      : taskMetrics.cpuPercent > 75
-        ? 'bg-warning text-dark'
-        : 'bg-success'
-
-  const memStatusClass =
-    taskMetrics.usagePercent > 90
-      ? 'bg-danger'
-      : taskMetrics.usagePercent > 75
-        ? 'bg-warning text-dark'
-        : 'bg-success'
-
-  return (
-    <MetricCard title="Container Summary" icon="info-circle" className="mb-3">
-      <div className="d-flex flex-wrap align-items-center">
-        <div className="me-auto mb-1">
-          <span className="text-muted small me-1">Container:</span>
-          <code className="fs-6">{containerId}</code>
-        </div>
-        <KpiBadge
-          icon="memory"
-          label="Memory"
-          value={`${formatBytes(taskMetrics.usage || 0)}${taskMetrics.limit > 0 ? ` / ${formatBytes(taskMetrics.limit)}` : ''}`}
-        />
-        {taskMetrics.usagePercent > 0 && (
-          <Badge className={`ms-1 ${memStatusClass}`}>
-            {taskMetrics.usagePercent.toFixed(1)}%
-          </Badge>
-        )}
-        <KpiBadge
-          icon="microchip"
-          label="CPU"
-          value={`${(taskMetrics.cpuUsage || 0).toFixed(2)}s`}
-          colorClass={
-            taskMetrics.cpuPercent > 90
-              ? 'text-danger'
-              : taskMetrics.cpuPercent > 75
                 ? 'text-warning'
                 : ''
           }
