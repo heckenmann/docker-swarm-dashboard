@@ -153,4 +153,108 @@ describe('NodeResourceBar', () => {
     render(<NodeResourceBar nodeId="node-1" type="disk" />)
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
+
+  test('applies correct variants based on usage percentage', () => {
+    // 95% usage -> danger
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          memory: { total: 100, available: 5 },
+        },
+      },
+    })
+    const { rerender } = render(<NodeResourceBar nodeId="node-1" type="memory" />)
+    expect(screen.getByRole('progressbar')).toHaveClass('bg-danger')
+
+    // 80% usage -> warning
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          memory: { total: 100, available: 20 },
+        },
+      },
+    })
+    render(<NodeResourceBar nodeId="node-1-warning" type="memory" />)
+    expect(screen.getAllByRole('progressbar')[1]).toHaveClass('bg-warning')
+
+    // 50% usage -> success
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          memory: { total: 100, available: 50 },
+        },
+      },
+    })
+    render(<NodeResourceBar nodeId="node-1-success" type="memory" />)
+    expect(screen.getAllByRole('progressbar')[2]).toHaveClass('bg-success')
+  })
+
+  test('supports PascalCase keys for disk metrics', () => {
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          Filesystem: [
+            {
+              Mountpoint: '/',
+              Size: 1000,
+              Used: 500,
+            },
+          ],
+        },
+      },
+    })
+    render(<NodeResourceBar nodeId="node-1" type="disk" />)
+    expect(screen.getAllByRole('progressbar').length).toBeGreaterThan(0)
+  })
+
+  test('renders N/A when type is disk but filesystem metrics are missing', () => {
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          memory: { total: 1000, available: 500 },
+          // filesystem missing
+        },
+      },
+    })
+    render(<NodeResourceBar nodeId="node-disk-missing" type="disk" />)
+    expect(screen.getByText('N/A')).toBeInTheDocument()
+  })
+
+  test('handles zero size filesystem', () => {
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          filesystem: [{ mountpoint: '/', size: 0, used: 0 }],
+        },
+      },
+    })
+    render(<NodeResourceBar nodeId="node-disk-zero" type="disk" />)
+    expect(screen.getByText('N/A')).toBeInTheDocument()
+  })
+
+  test('handles empty filesystem array', () => {
+    mockUseAtomValue.mockReturnValue({
+      state: 'hasData',
+      data: {
+        available: true,
+        metrics: {
+          filesystem: [],
+        },
+      },
+    })
+    render(<NodeResourceBar nodeId="node-disk-empty" type="disk" />)
+    expect(screen.getByText('N/A')).toBeInTheDocument()
+  })
 })

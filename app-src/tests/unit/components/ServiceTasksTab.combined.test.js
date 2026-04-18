@@ -6,6 +6,10 @@ import React from 'react'
 // Mock react-bootstrap first - must be before any imports
 jest.mock('react-bootstrap', () => {
   const React = require('react')
+  const Card = function(props) { return React.createElement('div', props, props.children) }
+  Card.Header = function(props) { return React.createElement('div', props, props.children) }
+  Card.Body = function(props) { return React.createElement('div', props, props.children) }
+
   return {
     __esModule: true,
     Table: function(props) { return React.createElement('table', props, props.children) },
@@ -14,6 +18,7 @@ jest.mock('react-bootstrap', () => {
     Spinner: function(props) { return React.createElement('div', props, props.children) },
     OverlayTrigger: function(props) { return React.createElement('div', props, props.children) },
     Tooltip: function(props) { return React.createElement('div', props, props.children) },
+    Card: Card,
   }
 })
 
@@ -148,7 +153,7 @@ describe('ServiceTasksTab', () => {
 
   test('shows loading spinner when metricsLoading is true', () => {
     setup({ metricsLoading: true, tasksForService: [] })
-    expect(screen.getByText(/Loading metrics/)).toBeInTheDocument()
+    expect(screen.getByText(/Loading.../)).toBeInTheDocument()
   })
 
   test('handleSort: three-click cycle asc → desc → reset', () => {

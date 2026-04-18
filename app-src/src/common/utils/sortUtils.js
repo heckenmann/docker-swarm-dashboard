@@ -3,7 +3,7 @@
  * @param {Array} data - The array to sort
  * @param {string|null} sortBy - The property to sort by
  * @param {string} sortDirection - The sort direction ('asc' or 'desc')
- * @param {Object} columnTypes - Map of column names to their types ('string', 'number', 'date')
+ * @param {object} columnTypes - Map of column names to their types ('string', 'number', 'date')
  * @returns {Array} The sorted array
  */
 export function sortData(data, sortBy, sortDirection, columnTypes = {}) {

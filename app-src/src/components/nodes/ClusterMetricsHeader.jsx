@@ -9,6 +9,14 @@ import DSDCard from '../common/DSDCard'
 
 const clusterMetricsLoadable = loadable(clusterMetricsAtom)
 
+/**
+ * ClusterMetricsHeader - Displays aggregated cluster-wide metrics in a header row.
+ *
+ * Shows CPU, Memory, and Disk usage across all nodes in the swarm cluster.
+ * Handles loading, error, and unavailable states gracefully.
+ *
+ * @returns {JSX.Element}
+ */
 const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
   const metricsRes = useAtomValue(clusterMetricsLoadable)
 

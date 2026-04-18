@@ -26,5 +26,3 @@ module.exports.coverageThreshold = {
     statements: 90
   },
 }
-
-

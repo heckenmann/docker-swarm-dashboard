@@ -12,6 +12,36 @@ jest.mock('jotai', () => ({
 
 jest.mock('../../../../../src/common/utils/chartUtils', () => ({
   getCommonChartOptions: jest.fn(),
+  METRIC_THRESHOLDS: {
+    warning: 75,
+    critical: 90,
+  },
+  CHART_PALETTES: {
+    cpu: ['#0d6efd', '#6f42c1', '#20c997', '#6610f2'],
+    memory: ['#28a745', '#20c997', '#17a2b8', '#198754'],
+    network: ['#6f42c1', '#8530d0', '#9b59b6', '#a355c7'],
+    filesystem: ['#fd7e14', '#d9740a', '#c76a09', '#b36108'],
+    status: {
+      normal: '#28a745',
+      warning: '#fd7e14',
+      critical: '#dc3545',
+    },
+  },
+  GAUGE_DEFAULTS: {
+    startAngle: -130,
+    endAngle: 130,
+    hollowSize: '55%',
+    trackBackgroundLight: '#e0e0e0',
+    trackBackgroundDark: '#444',
+    valueFontSize: '22px',
+    nameFontSize: '14px',
+  },
+  getGaugeTrackBackground: jest.fn(() => '#e0e0e0'),
+  getStatusColor: jest.fn((percentage) => {
+    if (percentage > 90) return '#dc3545'
+    if (percentage > 75) return '#fd7e14'
+    return '#28a745'
+  }),
 }))
 
 jest.mock('../../../../../src/common/formatUtils', () => ({
@@ -33,6 +63,28 @@ jest.mock('react-bootstrap', () => ({
     <span data-testid="mock-spinner" className={className}>
       {animation}-{size}
     </span>
+  ),
+  Card: ({ children, className }) => (
+    <div data-testid="mock-card" className={className}>{children}</div>
+  ),
+  CardHeader: ({ children }) => <div data-testid="mock-card-header">{children}</div>,
+  CardBody: ({ children }) => <div data-testid="mock-card-body">{children}</div>,
+  Badge: ({ children, className }) => <span data-testid="mock-badge" className={className}>{children}</span>,
+}))
+
+jest.mock('../../../../../src/components/shared/MetricCard', () => ({
+  __esModule: true,
+  default: ({ title, icon, children, chartContent }) => (
+    <div data-testid="mock-metric-card" data-title={title} data-icon={icon} data-chart-content={chartContent}>
+      {children}
+    </div>
+  ),
+}))
+
+jest.mock('../../../../../src/components/shared/MetricGrid', () => ({
+  __esModule: true,
+  default: ({ children }) => (
+    <div data-testid="mock-metric-grid">{children}</div>
   ),
 }))
 
@@ -145,7 +197,7 @@ describe('TaskMetricsContent', () => {
     })
 
     test('renders memory charts', () => {
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={taskMetrics}
           metricsLoading={false}
@@ -153,16 +205,15 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      const charts = container.querySelectorAll('[data-testid="mock-chart"]')
-      const memoryCharts = Array.from(charts).filter(chart => {
-        const options = JSON.parse(chart.getAttribute('data-options'))
-        return options.title.text.includes('Memory')
-      })
-      expect(memoryCharts).toHaveLength(2) // memory(2)
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const memoryCard = cards.find((c) => c.getAttribute('data-title') === 'Memory Usage')
+      expect(memoryCard).toBeDefined()
+      const charts = memoryCard.querySelectorAll('[data-testid="mock-chart"]')
+      expect(charts).toHaveLength(2)
     })
 
     test('renders CPU charts', () => {
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={taskMetrics}
           metricsLoading={false}
@@ -170,16 +221,15 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      const charts = container.querySelectorAll('[data-testid="mock-chart"]')
-      const cpuCharts = Array.from(charts).filter(chart => {
-        const options = JSON.parse(chart.getAttribute('data-options'))
-        return options.title.text.includes('CPU')
-      })
-      expect(cpuCharts).toHaveLength(2) // cpu(2)
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const cpuCard = cards.find((c) => c.getAttribute('data-title') === 'CPU Usage')
+      expect(cpuCard).toBeDefined()
+      const charts = cpuCard.querySelectorAll('[data-testid="mock-chart"]')
+      expect(charts).toHaveLength(2)
     })
 
     test('renders network chart', () => {
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={taskMetrics}
           metricsLoading={false}
@@ -187,16 +237,15 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      const charts = container.querySelectorAll('[data-testid="mock-chart"]')
-      const networkCharts = Array.from(charts).filter(chart => {
-        const options = JSON.parse(chart.getAttribute('data-options'))
-        return options.title.text.includes('Network')
-      })
-      expect(networkCharts).toHaveLength(1) // network(1)
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const networkCard = cards.find((c) => c.getAttribute('data-title') === 'Network Traffic')
+      expect(networkCard).toBeDefined()
+      const chart = networkCard.querySelector('[data-testid="mock-chart"]')
+      expect(chart).not.toBeNull()
     })
 
     test('renders filesystem chart', () => {
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={taskMetrics}
           metricsLoading={false}
@@ -204,12 +253,11 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      const charts = container.querySelectorAll('[data-testid="mock-chart"]')
-      const fsCharts = Array.from(charts).filter(chart => {
-        const options = JSON.parse(chart.getAttribute('data-options'))
-        return options.title.text.includes('Filesystem')
-      })
-      expect(fsCharts).toHaveLength(1) // fs(1)
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const fsCard = cards.find((c) => c.getAttribute('data-title') === 'Filesystem Usage')
+      expect(fsCard).toBeDefined()
+      const chart = fsCard.querySelector('[data-testid="mock-chart"]')
+      expect(chart).not.toBeNull()
     })
 
     test('hides network chart when no network data', () => {
@@ -219,7 +267,7 @@ describe('TaskMetricsContent', () => {
         networkTxBytes: 0,
       }
 
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={metricsWithoutNetwork}
           metricsLoading={false}
@@ -227,12 +275,9 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      const charts = container.querySelectorAll('[data-testid="mock-chart"]')
-      const networkCharts = Array.from(charts).filter(chart => {
-        const options = JSON.parse(chart.getAttribute('data-options'))
-        return options.title.text.includes('Network')
-      })
-      expect(networkCharts).toHaveLength(0) // no network
+      const cards = screen.queryAllByTestId('mock-metric-card')
+      const networkCard = cards.find((c) => c.getAttribute('data-title') === 'Network Traffic')
+      expect(networkCard).toBeUndefined()
     })
 
     test('hides filesystem chart when no fs data', () => {
@@ -241,7 +286,7 @@ describe('TaskMetricsContent', () => {
         fsUsage: 0,
       }
 
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={metricsWithoutFS}
           metricsLoading={false}
@@ -249,12 +294,9 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      const charts = container.querySelectorAll('[data-testid="mock-chart"]')
-      const fsCharts = Array.from(charts).filter(chart => {
-        const options = JSON.parse(chart.getAttribute('data-options'))
-        return options.title.text.includes('Filesystem')
-      })
-      expect(fsCharts).toHaveLength(0) // no fs
+      const cards = screen.queryAllByTestId('mock-metric-card')
+      const fsCard = cards.find((c) => c.getAttribute('data-title') === 'Filesystem Usage')
+      expect(fsCard).toBeUndefined()
     })
 
     test('shows CPU info alert when no quota configured', () => {
@@ -305,7 +347,7 @@ describe('TaskMetricsContent', () => {
         cpuSystemSeconds: 0,
       }
 
-      const { container } = render(
+      render(
         <TaskMetricsContent
           taskMetrics={metricsWithoutCPU}
           metricsLoading={false}
@@ -313,8 +355,12 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      // CPU breakdown should not be present
-      expect(container.querySelector('[data-testid="mock-chart"]')).not.toContainHTML('CPU Time Split')
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const cpuCard = cards.find((c) => c.getAttribute('data-title') === 'CPU Usage')
+      expect(cpuCard).toBeDefined()
+      // Should only have 1 chart (gauge) instead of 2 (gauge + breakdown)
+      const charts = cpuCard.querySelectorAll('[data-testid="mock-chart"]')
+      expect(charts).toHaveLength(1)
     })
   })
 })

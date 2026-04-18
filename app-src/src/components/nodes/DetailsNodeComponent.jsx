@@ -8,8 +8,15 @@ import JsonTable from '../shared/JsonTable.jsx'
 import NodeMetricsComponent from './NodeMetricsComponent'
 import NodeTasksTab from './details/NodeTasksTab'
 
+import MetricCard from '../shared/MetricCard.jsx'
+
 /**
- * Displays full details for a node: metrics, tasks, structured table and raw JSON.
+ * DetailsNodeComponent - Displays comprehensive details for a single Docker Swarm node.
+ *
+ * Shows node metrics (CPU, memory, disk, network), running tasks, a structured
+ * properties table, and raw JSON output in tabbed sections.
+ *
+ * @returns {JSX.Element|null} The node details view or null if no node is selected
  */
 const DetailsNodeComponent = React.memo(function DetailsNodeComponent() {
   const currentVariantClasses = useAtomValue(currentVariantClassesAtom)
@@ -39,18 +46,29 @@ const DetailsNodeComponent = React.memo(function DetailsNodeComponent() {
                   <NodeTasksTab />
                 </Tab>
                 <Tab eventKey="table" title="Table">
-                  <JsonTable json={currentNode.node} />
+                  <MetricCard
+                    title="Node Properties"
+                    icon="table"
+                    noBody={true}
+                  >
+                    <JsonTable json={currentNode.node} />
+                  </MetricCard>
                 </Tab>
                 <Tab eventKey="json" title="JSON">
-                  <pre
-                    style={{
-                      whiteSpace: 'pre-wrap',
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    }}
-                  >
-                    <code>{JSON.stringify(currentNode.node, null, '\t')}</code>
-                  </pre>
+                  <MetricCard title="Raw JSON" icon="code">
+                    <pre
+                      style={{
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      }}
+                      className="mb-0"
+                    >
+                      <code>
+                        {JSON.stringify(currentNode.node, null, '\t')}
+                      </code>
+                    </pre>
+                  </MetricCard>
                 </Tab>
               </Tabs>
             </Card.Body>

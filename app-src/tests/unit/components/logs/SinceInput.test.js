@@ -259,7 +259,7 @@ describe('SinceInput', () => {
       const setSinceError = jest.fn()
       setupMocks({ logsFormSinceIsISOAtom: true })
       mockUseAtom.mockImplementation((atom) => {
-        if (atom === 'logsFormSinceAtom') return ['not-valid-iso', setSinceError]
+        if (atom === 'logsFormSinceAtom') return ['not-valid-iso', jest.fn()]
         if (atom === 'logsFormSinceAmountAtom') return ['5', jest.fn()]
         if (atom === 'logsFormSinceUnitAtom') return ['m', jest.fn()]
         if (atom === 'logsFormSinceIsISOAtom') return [true, jest.fn()]
@@ -269,8 +269,28 @@ describe('SinceInput', () => {
       render(<SinceInput />)
       const input = screen.getByRole('textbox')
       // Simulate blur - the component checks isValidSince(since)
-      input.blur()
+      fireEvent.blur(input)
       // setSinceError is called if isValidSince returns false
+      expect(setSinceError).toHaveBeenCalledWith('Invalid ISO timestamp')
+    })
+
+    test('does not show validation error on blur with valid ISO', () => {
+      const setSinceError = jest.fn()
+      setupMocks({ logsFormSinceIsISOAtom: true })
+      mockUseAtom.mockImplementation((atom) => {
+        if (atom === 'logsFormSinceAtom') return ['2023-01-01T12:00:00Z', jest.fn()]
+        if (atom === 'logsFormSinceAmountAtom') return ['5', jest.fn()]
+        if (atom === 'logsFormSinceUnitAtom') return ['m', jest.fn()]
+        if (atom === 'logsFormSinceIsISOAtom') return [true, jest.fn()]
+        if (atom === 'logsFormSinceErrorAtom') return [null, setSinceError]
+        return [defaultAtoms[atom] || null, jest.fn()]
+      })
+      render(<SinceInput />)
+      const input = screen.getByRole('textbox')
+      // Simulate blur with valid ISO
+      fireEvent.blur(input)
+      // setSinceError should NOT be called for valid ISO
+      expect(setSinceError).not.toHaveBeenCalledWith('Invalid ISO timestamp')
     })
 
     test('clears error when typing in ISO input', () => {

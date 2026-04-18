@@ -139,6 +139,13 @@ const TimelineComponent = React.memo(function TimelineComponent({
       position: 'right',
     },
     tooltip: {
+      /**
+       * Custom tooltip formatter for the timeline chart.
+       * @param {object} opts - Tooltip options from ApexCharts.
+       * @param {number} opts.y1 - Start timestamp.
+       * @param {number} opts.y2 - End timestamp.
+       * @returns {string} Formatted tooltip HTML string.
+       */
       custom: function (opts) {
         return (
           'Created:' + new Date(opts.y1) + '<br/>Stopped:' + new Date(opts.y2)

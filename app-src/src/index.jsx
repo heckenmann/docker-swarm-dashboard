@@ -8,8 +8,17 @@ import { networkRequestsAtom } from './common/store/atoms/uiAtoms'
 // Create a dedicated Jotai store instance so we can update atoms from outside React.
 const store = createStore()
 
-// Wrap global fetch so we can track active network requests and show the loading bar
+/**
+ * Wraps global fetch to track active network requests and show the loading bar.
+ * @param {...*} args - Arguments passed to fetch.
+ * @returns {Promise<Response>} The fetch response.
+ */
+
 const originalFetch = window.fetch
+/**
+ *
+ * @param {...any} args
+ */
 window.fetch = async function (...args) {
   try {
     // Increment the network request counter in the Jotai store asynchronously.
@@ -49,6 +58,13 @@ const root = createRoot(container)
 try {
   if (React && React.createElement) {
     const origCreateElement = React.createElement
+    /**
+     * Wrapped React.createElement to coerce non-primitive src props on img elements.
+     * @param {string|Function} type - Element type.
+     * @param {object} [props] - Element props.
+     * @param {...*} children - Child elements.
+     * @returns {React.Element} The created element.
+     */
     React.createElement = function (type, props, ...children) {
       try {
         if (type === 'img' && props && typeof props.src === 'object') {
@@ -68,6 +84,10 @@ try {
     if (desc && typeof desc.set === 'function') {
       const origSrcSet = desc.set
       Object.defineProperty(imgProto, 'src', {
+        /**
+         * Setter for HTMLImageElement.src that coerces objects to strings.
+         * @param {*} v - The value to set.
+         */
         set: function (v) {
           try {
             if (typeof v === 'object') {
@@ -91,6 +111,16 @@ try {
   if (typeof window !== 'undefined' && window.Cypress) {
     // eslint-disable-next-line no-console
     const origConsoleError = console.error.bind(console)
+
+    /**
+     * Wrapped console.error to filter specific React dev warnings during Cypress tests.
+     * @param {...*} args - Arguments passed to console.error.
+     */
+
+    /**
+     *
+     * @param {...any} args
+     */
     // eslint-disable-next-line no-console
     console.error = function (...args) {
       try {

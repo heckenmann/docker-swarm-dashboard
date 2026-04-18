@@ -108,5 +108,34 @@ describe('sortUtils', () => {
       expect(result[0].id).toBe(1)
       expect(result[1].id).toBe(2)
     })
+
+    it('handles falsy number values (0)', () => {
+      const data = [{ port: 0 }, { port: 80 }, { port: 443 }]
+      const result = sortData(data, 'port', 'asc', { port: 'number' })
+      expect(result[0].port).toBe(0)
+      expect(result[1].port).toBe(80)
+      expect(result[2].port).toBe(443)
+    })
+
+    it('handles falsy date values (empty string)', () => {
+      const data = [
+        { timestamp: '' },
+        { timestamp: '2023-01-01' },
+        { timestamp: '2023-02-01' },
+      ]
+      const result = sortData(data, 'timestamp', 'asc', { timestamp: 'date' })
+      // Empty string becomes epoch (0)
+      expect(result[0].timestamp).toBe('')
+      expect(result[1].timestamp).toBe('2023-01-01')
+      expect(result[2].timestamp).toBe('2023-02-01')
+    })
+
+    it('handles falsy string values (empty string)', () => {
+      const data = [{ name: '' }, { name: 'alice' }, { name: 'bob' }]
+      const result = sortData(data, 'name', 'asc', { name: 'string' })
+      expect(result[0].name).toBe('')
+      expect(result[1].name).toBe('alice')
+      expect(result[2].name).toBe('bob')
+    })
   })
 })

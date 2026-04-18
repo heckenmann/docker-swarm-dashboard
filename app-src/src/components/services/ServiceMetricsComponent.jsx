@@ -2,23 +2,33 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { Alert, Spinner, Row, Col, Card } from 'react-bootstrap'
+import { Alert, Spinner, Row, Col } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ReactApexChart from 'react-apexcharts'
 import { baseUrlAtom } from '../../common/store/atoms/foundationAtoms'
 import { isDarkModeAtom } from '../../common/store/atoms/themeAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
-import { getCommonChartOptions } from '../../common/chartUtils'
+import {
+  getCommonChartOptions,
+  CHART_PALETTES,
+} from '../../common/utils/chartUtils'
 import { formatBytes, bytesToMB } from '../../common/formatUtils'
+import MetricCard from '../shared/MetricCard.jsx'
 
 // Constants
 const NO_LIMIT_TEXT = 'No Limit'
 const UNKNOWN_CONTAINER_TEXT = 'Container N/A'
 
 /**
- * Component to display service memory metrics from cAdvisor
+ * ServiceMetricsComponent - Displays memory metrics for a Docker service.
+ *
+ * Fetches and visualizes container-level memory metrics from cAdvisor.
+ * Shows total service memory usage as a donut chart and per-container
+ * memory usage as a horizontal bar chart.
+ *
  * @param {object} props - Component props
  * @param {string} props.serviceId - The ID of the service to fetch metrics for
+ * @returns {JSX.Element} Memory metrics visualization or error/loading states
  */
 const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
   serviceId,
@@ -81,70 +91,60 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
 
   if (loading) {
     return (
-      <Card.Body>
-        <div className="text-center py-4">
-          <Spinner animation="border" role="status" variant="primary">
-            <span className="visually-hidden">Loading metrics...</span>
-          </Spinner>
-          <p className="mt-2 text-muted small text-uppercase fw-bold">
-            Fetching Service Metrics
-          </p>
-        </div>
-      </Card.Body>
+      <div className="text-center py-4">
+        <Spinner animation="border" role="status" variant="primary">
+          <span className="visually-hidden">Loading metrics...</span>
+        </Spinner>
+        <p className="mt-2 text-muted small text-uppercase fw-bold">
+          Fetching Service Metrics
+        </p>
+      </div>
     )
   }
 
   if (error && available) {
     return (
-      <Card.Body>
-        <Alert variant="warning" className="shadow-sm">
-          <Alert.Heading className="h6">
-            <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
-            cAdvisor Metrics Warning
-          </Alert.Heading>
-          <p className="mb-0 small">{error}</p>
-        </Alert>
-      </Card.Body>
+      <Alert variant="warning" className="shadow-sm">
+        <Alert.Heading className="h6">
+          <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+          cAdvisor Metrics Warning
+        </Alert.Heading>
+        <p className="mb-0 small">{error}</p>
+      </Alert>
     )
   }
 
   if (!available) {
     return (
-      <Card.Body>
-        <Alert variant="info" className="bg-light-subtle border-0 shadow-sm">
-          <Alert.Heading className="h6 text-info">
-            <FontAwesomeIcon icon="info-circle" className="me-2" />
-            Service Metrics Not Configured
-          </Alert.Heading>
-          <p className="small mb-2">
-            {error || 'Detailed container metrics require cAdvisor.'}
-            {!error && (
-              <>
-                {' '}
-                To enable them, deploy cAdvisor as a global service with the
-                following label:
-              </>
-            )}
-          </p>
+      <Alert variant="info" className="bg-light-subtle border-0 shadow-sm">
+        <Alert.Heading className="h6 text-info">
+          <FontAwesomeIcon icon="info-circle" className="me-2" />
+          Service Metrics Not Configured
+        </Alert.Heading>
+        <p className="small mb-2">
+          {error || 'Detailed container metrics require cAdvisor.'}
           {!error && (
-            <code className="d-block p-2 bg-dark text-light rounded small mb-3">
-              dsd.cadvisor: &quot;true&quot;
-            </code>
+            <>
+              {' '}
+              To enable them, deploy cAdvisor as a global service with the
+              following label:
+            </>
           )}
-          <p className="extra-small text-muted mb-0">
-            Refer to the README for setup instructions.
-          </p>
-        </Alert>
-      </Card.Body>
+        </p>
+        {!error && (
+          <code className="d-block p-2 bg-dark text-light rounded small mb-3">
+            dsd.cadvisor: &quot;true&quot;
+          </code>
+        )}
+        <p className="extra-small text-muted mb-0">
+          Refer to the README for setup instructions.
+        </p>
+      </Alert>
     )
   }
 
   if (!metricsData) {
-    return (
-      <Card.Body>
-        <Alert variant="warning">No metrics data available</Alert>
-      </Card.Body>
-    )
+    return <Alert variant="warning">No metrics data available</Alert>
   }
 
   const containerMetrics = metricsData.containers || []
@@ -170,10 +170,6 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
       height: 350,
     },
     labels: ['Used', 'Available'],
-    title: {
-      text: 'Total Service Memory',
-      align: 'center',
-    },
     plotOptions: {
       pie: {
         donut: {
@@ -193,6 +189,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
       enabled: true,
       formatter: (val) => val.toFixed(1) + '%',
     },
+    colors: CHART_PALETTES.memory,
   }
 
   const totalMemoryChartSeries =
@@ -227,10 +224,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
         text: 'Memory (MB)',
       },
     },
-    title: {
-      text: 'Container Memory Usage',
-      align: 'center',
-    },
+    colors: CHART_PALETTES.memory,
   }
 
   const containerMemoryChartSeries = [
@@ -247,9 +241,12 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
   ]
 
   return (
-    <Card.Body>
-      {/* System Info Header */}
-      <Alert variant="secondary" className="mb-3 py-2">
+    <>
+      <MetricCard
+        title="Service Information"
+        icon="info-circle"
+        className="mb-3"
+      >
         <Row>
           <Col xs={12} md={6} className="mb-1 mb-md-0">
             <strong>Server Time:</strong> {serverTime}
@@ -275,37 +272,43 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
             </Col>
           </Row>
         )}
-      </Alert>
+      </MetricCard>
 
-      {/* Memory Charts */}
       <Row className="mb-3">
-        <Col xs={12} lg={6} className="mb-3 mb-lg-0">
-          {totalUsage > 0 ? (
-            <ReactApexChart
-              options={totalMemoryChartOptions}
-              series={totalMemoryChartSeries}
-              type="donut"
-              height={350}
-            />
-          ) : (
-            <Alert variant="info">No memory usage data available</Alert>
-          )}
+        <Col xs={12} md={6} className="mb-3 mb-md-0">
+          <MetricCard title="Total Service Memory" icon="memory" chartContent>
+            {totalUsage > 0 ? (
+              <ReactApexChart
+                options={totalMemoryChartOptions}
+                series={totalMemoryChartSeries}
+                type="donut"
+                height={350}
+              />
+            ) : (
+              <Alert variant="info" className="mb-0">
+                No memory usage data available
+              </Alert>
+            )}
+          </MetricCard>
         </Col>
-        <Col xs={12} lg={6}>
-          {containerMetrics.length > 0 ? (
-            <ReactApexChart
-              options={containerMemoryChartOptions}
-              series={containerMemoryChartSeries}
-              type="bar"
-              height={350}
-            />
-          ) : (
-            <Alert variant="info">No container metrics available</Alert>
-          )}
+        <Col xs={12} md={6}>
+          <MetricCard title="Container Memory Usage" icon="memory" chartContent>
+            {containerMetrics.length > 0 ? (
+              <ReactApexChart
+                options={containerMemoryChartOptions}
+                series={containerMemoryChartSeries}
+                type="bar"
+                height={350}
+              />
+            ) : (
+              <Alert variant="info" className="mb-0">
+                No container metrics available
+              </Alert>
+            )}
+          </MetricCard>
         </Col>
       </Row>
 
-      {/* Footer Info */}
       <Row>
         <Col>
           <small className="text-muted">
@@ -313,7 +316,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
           </small>
         </Col>
       </Row>
-    </Card.Body>
+    </>
   )
 })
 

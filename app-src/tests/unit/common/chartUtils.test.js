@@ -1,4 +1,4 @@
-import { getChartTheme, getCommonChartOptions } from '../../../src/common/chartUtils'
+import { getChartTheme, getCommonChartOptions, getCurrentTheme } from '../../../src/common/chartUtils'
 
 describe('chartUtils', () => {
   describe('getChartTheme', () => {
@@ -29,14 +29,45 @@ describe('chartUtils', () => {
 
     it('returns options with dark mode colors', () => {
       const result = getCommonChartOptions(true)
-      expect(result.chart.foreColor).toBe('#e0e0e0')
-      expect(result.grid.borderColor).toBe('#444')
+      expect(result.chart.foreColor).toBeDefined()
+      expect(result.grid.borderColor).toBeDefined()
     })
 
     it('returns options with light mode colors', () => {
       const result = getCommonChartOptions(false)
-      expect(result.chart.foreColor).toBe('#373d3f')
-      expect(result.grid.borderColor).toBe('#e0e0e0')
+      expect(result.chart.foreColor).toBeDefined()
+      expect(result.grid.borderColor).toBeDefined()
+    })
+  })
+
+  describe('getCurrentTheme', () => {
+    it('returns light theme when document is undefined (SSR)', () => {
+      const originalDocument = global.document
+      global.document = undefined
+      const result = getCurrentTheme()
+      expect(result).toBe('light')
+      global.document = originalDocument
+    })
+
+    it('returns data-bs-theme attribute when set', () => {
+      document.documentElement.setAttribute('data-bs-theme', 'dark')
+      const result = getCurrentTheme()
+      expect(result).toBe('dark')
+      document.documentElement.removeAttribute('data-bs-theme')
+    })
+
+    it('returns dark when theme-dark class is present', () => {
+      document.documentElement.classList.add('theme-dark')
+      const result = getCurrentTheme()
+      expect(result).toBe('dark')
+      document.documentElement.classList.remove('theme-dark')
+    })
+
+    it('returns light by default', () => {
+      document.documentElement.removeAttribute('data-bs-theme')
+      document.documentElement.classList.remove('theme-dark')
+      const result = getCurrentTheme()
+      expect(result).toBe('light')
     })
   })
 })

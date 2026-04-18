@@ -10,7 +10,7 @@ export const RefreshIntervalToggleReducer = (prev, newInterval) => {
 /**
  * Reducer to manage messages.
  * @param {Array} prev - The previous state of the messages.
- * @param {Object} action - The action to be performed on the messages.
+ * @param {object} action - The action to be performed on the messages.
  * @param {string} action.type - The type of action ('add' or 'remove').
  * @param {*} action.value - The value to be added or removed.
  * @returns {Array} - The new state of the messages.

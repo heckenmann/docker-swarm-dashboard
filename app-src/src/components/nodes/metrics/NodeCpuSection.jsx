@@ -4,7 +4,12 @@ import { useAtomValue } from 'jotai'
 import { Alert, Row, Col } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
-import { getCommonChartOptions } from '../../../common/chartUtils'
+import {
+  getCommonChartOptions,
+  CHART_PALETTES,
+  getGaugeTrackBackground,
+} from '../../../common/utils/chartUtils'
+import MetricCard from '../../shared/MetricCard.jsx'
 
 /**
  * Renders CPU mode distribution donut chart and load average radialBar gauge.
@@ -21,17 +26,17 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
   const textColor = isDarkMode ? '#e0e0e0' : '#373d3f'
   const numCPUs = systemData.numCPUs || 1
 
-  // ── CPU Mode Distribution Donut ────────────────────────────────────────────
   const totalCPUSeconds = cpuData.reduce((sum, m) => sum + m.value, 0)
 
   const cpuChartOptions = {
     ...commonOpts,
-    chart: { ...commonOpts.chart, type: 'donut', height: 350 },
-    labels: cpuData.map((m) => m.mode),
-    title: {
-      text: `CPU Mode Distribution (${systemData.numCPUs || '?'} cores)`,
-      align: 'center',
+    chart: {
+      ...commonOpts.chart,
+      type: 'donut',
+      height: 350,
+      id: 'cpu-mode-donut',
     },
+    labels: cpuData.map((m) => m.mode),
     plotOptions: {
       pie: {
         donut: {
@@ -59,6 +64,7 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
         },
       },
     },
+    colors: CHART_PALETTES.cpu,
   }
 
   const cpuChartSeries = cpuData.map((m) =>
@@ -67,10 +73,14 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
       : 0,
   )
 
-  // ── Load Average Gauge (relative to CPU count) ─────────────────────────────
   const loadGaugeOptions = {
     ...commonOpts,
-    chart: { ...commonOpts.chart, type: 'radialBar', height: 350 },
+    chart: {
+      ...commonOpts.chart,
+      type: 'radialBar',
+      height: 350,
+      id: 'load-gauge',
+    },
     plotOptions: {
       radialBar: {
         offsetY: 0,
@@ -94,10 +104,10 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
             },
           },
         },
-        track: { background: isDarkMode ? '#444' : '#e0e0e0' },
+        track: { background: getGaugeTrackBackground() },
       },
     },
-    colors: ['#0d6efd', '#6f42c1', '#20c997'],
+    colors: CHART_PALETTES.cpu,
     labels: ['1m', '5m', '15m'],
     legend: {
       show: true,
@@ -111,7 +121,6 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
         return `${seriesName}: ${(rawLoads[opts.seriesIndex] ?? 0).toFixed(2)}`
       },
     },
-    title: { text: `Load Average (${numCPUs} cores)`, align: 'center' },
   }
 
   const loadGaugeSeries = [
@@ -132,28 +141,36 @@ const NodeCpuSection = React.memo(function NodeCpuSection({
   return (
     <Row className="mb-3">
       <Col xs={12} md={6} className="mb-3 mb-md-0">
-        {cpuData.length > 0 ? (
-          <ReactApexChart
-            options={cpuChartOptions}
-            series={cpuChartSeries}
-            type="donut"
-            height={350}
-          />
-        ) : (
-          <Alert variant="info">No CPU metrics available</Alert>
-        )}
+        <MetricCard title="CPU Mode Distribution" icon="microchip" chartContent>
+          {cpuData.length > 0 ? (
+            <ReactApexChart
+              options={cpuChartOptions}
+              series={cpuChartSeries}
+              type="donut"
+              height={350}
+            />
+          ) : (
+            <Alert variant="info" className="mb-0">
+              No CPU metrics available
+            </Alert>
+          )}
+        </MetricCard>
       </Col>
       <Col xs={12} md={6}>
-        {systemData.load1 !== undefined ? (
-          <ReactApexChart
-            options={loadGaugeOptions}
-            series={loadGaugeSeries}
-            type="radialBar"
-            height={350}
-          />
-        ) : (
-          <Alert variant="info">No load average available</Alert>
-        )}
+        <MetricCard title="Load Average" icon="clock" chartContent>
+          {systemData.load1 !== undefined ? (
+            <ReactApexChart
+              options={loadGaugeOptions}
+              series={loadGaugeSeries}
+              type="radialBar"
+              height={350}
+            />
+          ) : (
+            <Alert variant="info" className="mb-0">
+              No load average available
+            </Alert>
+          )}
+        </MetricCard>
       </Col>
     </Row>
   )

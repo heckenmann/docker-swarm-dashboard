@@ -11,18 +11,25 @@
   --shadow: 0 6px 18px rgb(13, 110, 253, .08);
   --shadow-hover: 0 10px 26px rgb(0, 0, 0, .12);
   --card-bg: var(--bs-body-bg, #fff);
+
+  /* Chart Palettes - mapped to Bootstrap semantic colors */
+  --chart-cpu: var(--bs-primary, #0d6efd);
+  --chart-mem: var(--bs-success, #198754);
+  --chart-net: var(--bs-indigo, #6610f2);
+  --chart-fs: var(--bs-orange, #fd7e14);
+  --chart-critical: var(--bs-danger, #dc3545);
+  --chart-warning: var(--bs-warning, #ffc107);
+  --chart-normal: var(--bs-success, #198754);
+  --chart-info: var(--bs-info, #0dcaf0);
+  --chart-gauge-track: var(--bs-secondary-bg, #e9ecef);
+
+  /* Chart text colors */
+  --chart-text: var(--bs-body-color, #212529);
+  --chart-grid: var(--bs-border-color, #dee2e6);
 }
 
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-  font-size: 14px;
-  color: var(--text);
-  background: transparent; /* App container provides the themed background */
-}
-
-.theme-dark {
+/* Dark mode when data-bs-theme="dark" is set on html element */
+[data-bs-theme="dark"] {
   --bg: #0b1220;
   --text: #e6eef8;
   --accent: #4da3ff;
@@ -32,6 +39,27 @@ body {
   --overlay-thumb: rgb(255, 255, 255, .12);
   --shadow-hover: 0 10px 26px rgb(255, 255, 255, .04);
   --table-border-color: rgb(255, 255, 255, .06);
+
+  /* Chart Palettes - use Bootstrap semantic colors with dark mode fallbacks */
+  --chart-cpu: var(--bs-primary, #4da3ff);
+  --chart-mem: var(--bs-success, #75b798);
+  --chart-net: var(--bs-indigo, #9ea5f2);
+  --chart-fs: var(--bs-orange, #ff9c6a);
+  --chart-warning: var(--bs-warning, #ffda6a);
+  --chart-gauge-track: var(--bs-secondary-bg, #343a40);
+
+  /* Chart text colors - dark mode overrides */
+  --chart-text: var(--bs-body-color, #e6eef8);
+  --chart-grid: var(--bs-border-color, #495057);
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
 }
 
 /* If needed, Bootstrap utility classes control spacing for name/actions. */

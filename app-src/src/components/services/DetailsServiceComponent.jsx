@@ -14,9 +14,16 @@ import JsonTable from '../shared/JsonTable.jsx'
 import ServiceMetricsComponent from './ServiceMetricsComponent'
 import ServiceTasksTab from './details/ServiceTasksTab'
 
+import MetricCard from '../shared/MetricCard.jsx'
+
 /**
- * Displays full details for a service: metrics, tasks table with per-task
- * metrics, a structured table view and a raw JSON tab.
+ * DetailsServiceComponent - Displays comprehensive details for a Docker service.
+ *
+ * Shows service metrics (memory usage charts), a tasks table with per-task
+ * metrics (memory, CPU), structured properties table, and raw JSON view.
+ * Fetches task metrics from the backend API.
+ *
+ * @returns {JSX.Element|null} The service details view or null if no service is selected
  */
 const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
@@ -119,18 +126,23 @@ const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
             />
           </Tab>
           <Tab eventKey="table" title="Table">
-            <JsonTable json={sanitizedService} variant={currentVariant} />
+            <MetricCard title="Service Properties" icon="table" noBody={true}>
+              <JsonTable json={sanitizedService} variant={currentVariant} />
+            </MetricCard>
           </Tab>
           <Tab eventKey="json" title="JSON">
-            <pre
-              style={{
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'monospace',
-                fontSize: 12,
-              }}
-            >
-              <code>{JSON.stringify(sanitizedService, null, '\t')}</code>
-            </pre>
+            <MetricCard title="Raw JSON" icon="code">
+              <pre
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                }}
+                className="mb-0"
+              >
+                <code>{JSON.stringify(sanitizedService, null, '\t')}</code>
+              </pre>
+            </MetricCard>
           </Tab>
         </Tabs>
       </Card.Body>

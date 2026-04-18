@@ -83,9 +83,121 @@ describe('NodesComponent (combined)', () => {
     mockUseAtom.mockReturnValue([{ sortBy: null, sortDirection: 'asc' }, mockSetView])
     render(<NodesComponent />)
     
-    fireEvent.click(screen.getByText('Node'))
+    // Click on the Node header specifically (using closest('th') to get the sortable header)
+    const nodeHeader = screen.getAllByText('Node').find(el => el.tagName === 'TH')
+    fireEvent.click(nodeHeader)
     expect(mockSetView).toHaveBeenCalled()
     let updater = mockSetView.mock.calls[0][0]
     expect(updater({})).toEqual(expect.objectContaining({ sortBy: 'Hostname', sortDirection: 'asc' }))
+  })
+
+  test('renders node with Leader star', () => {
+    const nodes = [
+      { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'active', Leader: true },
+    ]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      return 'sm'
+    })
+    render(<NodesComponent />)
+    expect(screen.getByText('node1')).toBeInTheDocument()
+  })
+
+  test('renders active availability badge', () => {
+    const nodes = [
+      { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'active' },
+    ]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      return 'sm'
+    })
+    render(<NodesComponent />)
+    expect(screen.getByText('active')).toBeInTheDocument()
+  })
+
+  test('renders drain availability badge', () => {
+    const nodes = [
+      { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'drain' },
+    ]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      return 'sm'
+    })
+    render(<NodesComponent />)
+    expect(screen.getByText('drain')).toBeInTheDocument()
+  })
+
+  test('cycles sort: asc -> desc -> null', () => {
+    const mockSetView = jest.fn()
+    mockUseAtom.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'viewAtom') return [{}, mockSetView]
+      return [null, jest.fn()]
+    })
+    
+    render(<NodesComponent />)
+    // Click on the Node header specifically
+    const nodeHeader = screen.getAllByText('Node').find(el => el.tagName === 'TH')
+    fireEvent.click(nodeHeader)
+    expect(mockSetView).toHaveBeenCalled()
+    
+    // Test descending sort
+    mockSetView.mockClear()
+    mockUseAtom.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'viewAtom') {
+        return [{ sortBy: 'Hostname', sortDirection: 'asc' }, mockSetView]
+      }
+      return [null, jest.fn()]
+    })
+    
+    const { rerender } = render(<NodesComponent />)
+    const nodeHeader2 = screen.getAllByText('Node').find(el => el.tagName === 'TH')
+    fireEvent.click(nodeHeader2)
+    const updater = mockSetView.mock.calls[0][0]
+    expect(updater({ sortBy: 'Hostname', sortDirection: 'asc' })).toEqual({ sortBy: 'Hostname', sortDirection: 'asc' })
+  })
+
+  test('switches sort when different column clicked', () => {
+    const mockSetView = jest.fn()
+    mockUseAtom.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'viewAtom') {
+        return [{ sortBy: 'Hostname', sortDirection: 'desc' }, mockSetView]
+      }
+      return [null, jest.fn()]
+    })
+    
+    render(<NodesComponent />)
+    fireEvent.click(screen.getByText('Role'))
+    expect(mockSetView).toHaveBeenCalled()
+    const updater = mockSetView.mock.calls[0][0]
+    expect(updater({ sortBy: 'Hostname', sortDirection: 'desc' })).toEqual({ sortBy: 'Role', sortDirection: 'asc' })
+  })
+
+  test('renders table with striped and hover classes', () => {
+    const nodes = [
+      { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'active' },
+    ]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      return 'sm'
+    })
+    
+    const { container } = render(<NodesComponent />)
+    const table = container.querySelector('#nodes-table')
+    expect(table).toHaveClass('table-striped')
+    expect(table).toHaveClass('table-hover')
+  })
+
+  test('renders warning class for non-ready state', () => {
+    const nodes = [
+      { ID: 'n1', Hostname: 'node1', State: 'down', Availability: 'active' },
+    ]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      return 'sm'
+    })
+    
+    const { container } = render(<NodesComponent />)
+    const row = container.querySelector('tbody tr')
+    expect(row).toHaveClass('table-warning')
   })
 })

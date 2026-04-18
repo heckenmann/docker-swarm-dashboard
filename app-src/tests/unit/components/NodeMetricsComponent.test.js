@@ -653,9 +653,8 @@ describe('NodeMetricsComponent', () => {
     })
 
     const captured = ReactApexChartMock.getCaptured()
-    // The load gauge key includes numCPUs
-    const loadKey = Object.keys(captured).find((k) => k.startsWith('radialBar-Load Average'))
-    expect(loadKey).toBeDefined()
+    const loadKey = 'load-gauge'
+    expect(captured[loadKey]).toBeDefined()
     const valFmt = captured[loadKey].options?.plotOptions?.radialBar?.dataLabels?.value?.formatter
     // Call with undefined opts to trigger ?? 0 branch
     expect(typeof valFmt(50, undefined)).toBe('string')
@@ -676,8 +675,8 @@ describe('NodeMetricsComponent', () => {
     })
 
     const captured = ReactApexChartMock.getCaptured()
-    const cpuKey = Object.keys(captured).find((k) => k.startsWith('donut-CPU Mode'))
-    expect(cpuKey).toBeDefined()
+    const cpuKey = 'cpu-mode-donut'
+    expect(captured[cpuKey]).toBeDefined()
     const tooltipFmt = captured[cpuKey].options?.tooltip?.y?.formatter
     // Call with seriesIndex pointing to nonexistent entry
     expect(typeof tooltipFmt(50, { seriesIndex: 99 })).toBe('string')

@@ -29,12 +29,19 @@ jest.mock('../../../../../src/common/chartUtils', () => ({
   }),
 }))
 
-jest.mock('react-bootstrap', () => ({
-  Alert: ({ children, variant }) => <div>{children}</div>,
-  Row: ({ children }) => <div>{children}</div>,
-  Col: ({ children }) => <div>{children}</div>,
-  Table: ({ children }) => <table>{children}</table>,
-}))
+jest.mock('react-bootstrap', () => {
+  const React = require('react')
+  const Alert = ({ children }) => <div>{children}</div>
+  const Row = ({ children }) => <div>{children}</div>
+  const Col = ({ children }) => <div>{children}</div>
+  const Table = ({ children }) => <table>{children}</table>
+  const Card = ({ children }) => <div>{children}</div>
+  Card.Header = ({ children }) => <div>{children}</div>
+  Card.Body = ({ children }) => <div>{children}</div>
+  const Spinner = () => <span>Loading...</span>
+
+  return { Alert, Row, Col, Table, Card, Spinner }
+})
 
 const mockDiskIOData = [
   {

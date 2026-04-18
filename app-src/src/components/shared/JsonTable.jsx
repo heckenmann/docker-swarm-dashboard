@@ -8,8 +8,8 @@ import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 /**
  * Renders a table from a JSON object.
  *
- * @param {Object} props - The properties object.
- * @param {Object} props.json - The JSON object to be displayed in the table.
+ * @param {object} props - The properties object.
+ * @param {object} props.json - The JSON object to be displayed in the table.
  * @param {string} [props.variant] - The variant of the table.
  */
 const JsonTable = React.memo(function JsonTable(props) {

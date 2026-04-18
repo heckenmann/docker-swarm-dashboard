@@ -10,20 +10,25 @@ const React = require('react')
  * @returns {React.Element}
  */
 
-/** Stores all captured chart instances keyed by "type-title". */
+/** Stores all captured chart instances keyed by "type-title" or "type-id". */
 const capturedCharts = {}
 
 function ReactApexChart({ type, series, options, height }) {
   // Store props for programmatic access in tests
-  const key = `${type}-${options && options.title ? options.title.text : type}`
+  // Prioritize chart ID, then title, then type as a fallback
+  const titleText = options && options.title ? options.title.text : ''
+  const chartId = options && options.chart ? options.chart.id : ''
+  const key = chartId || (titleText ? `${type}-${titleText}` : `${type}-${Object.keys(capturedCharts).length}`)
+  
   capturedCharts[key] = { type, series, options, height }
 
   return React.createElement('div', {
     'data-testid': `apex-chart-${type}`,
     'data-chart-type': type,
+    'data-chart-id': chartId,
     'data-height': height,
     'data-series-length': Array.isArray(series) ? series.length : 0,
-    'aria-label': options && options.title ? options.title.text : type,
+    'aria-label': titleText || chartId || type,
   })
 }
 

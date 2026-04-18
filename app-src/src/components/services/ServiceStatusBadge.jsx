@@ -14,7 +14,7 @@ import './ServiceStatusBadge.css'
 /**
  * Component to display a service status badge with optional tooltip information.
  *
- * @param {Object} props - The properties object.
+ * @param {object} props - The properties object.
  * @param {number} props.id - The unique identifier for the service.
  * @param {string} props.serviceState - The current state of the service.
  * @param {string} [props.createdAt] - The creation timestamp of the service.
