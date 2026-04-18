@@ -161,6 +161,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
   // Total Memory Usage Chart (Donut)
   const totalMemUsed = totalUsage
   const totalMemAvailable = totalLimit > 0 ? totalLimit - totalUsage : 0
+  const hasTotalLimit = totalLimit > 0
 
   const totalMemoryChartOptions = {
     ...commonOpts,
@@ -169,7 +170,7 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
       type: 'donut',
       height: 350,
     },
-    labels: ['Used', 'Available'],
+    labels: hasTotalLimit ? ['Used', 'Available'] : ['Used'],
     plotOptions: {
       pie: {
         donut: {
@@ -177,9 +178,11 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
             show: true,
             total: {
               show: true,
-              label: 'Total Limit',
+              label: hasTotalLimit ? 'Total Limit' : 'Total Used',
               formatter: () =>
-                totalLimit > 0 ? formatBytes(totalLimit) : NO_LIMIT_TEXT,
+                hasTotalLimit
+                  ? formatBytes(totalLimit)
+                  : formatBytes(totalMemUsed),
             },
           },
         },
@@ -192,8 +195,10 @@ const ServiceMetricsComponent = React.memo(function ServiceMetricsComponent({
     colors: CHART_PALETTES.memory,
   }
 
-  const totalMemoryChartSeries =
-    totalLimit > 0 ? [totalMemUsed, totalMemAvailable] : [totalMemUsed, 0]
+  // Without limit, only show the used slice
+  const totalMemoryChartSeries = hasTotalLimit
+    ? [totalMemUsed, totalMemAvailable]
+    : [totalMemUsed]
 
   // Container Memory Usage Bar Chart
   const containerMemoryChartOptions = {

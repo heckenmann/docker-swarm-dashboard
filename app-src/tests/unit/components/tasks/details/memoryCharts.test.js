@@ -204,15 +204,23 @@ describe('memoryCharts', () => {
 
     test('builds memory charts without limit', () => {
       const m = {
-        usagePercent: 50,
+        usagePercent: 0,
         memoryCache: 100,
         workingSet: 200,
         usage: 500
       }
       const result = buildMemoryCharts(m, commonOpts, false)
       
+      // Donut chart without limit should only have 3 categories (no Available)
       expect(result.memDonutOptions.labels).toEqual(['Working Set', 'Cache', 'Other Used'])
       expect(result.memDonutSeries).toEqual([200, 100, 200])
+      
+      // Gauge should show 0 series value (empty gauge) when no limit
+      expect(result.memGaugeSeries).toEqual([0])
+      
+      // Gauge formatter should show absolute usage value
+      const formatter = result.memGaugeOptions.plotOptions.radialBar.dataLabels.value.formatter
+      expect(formatter(0)).toBe('500 B')
     })
 
     test('builds memory charts with missing usagePercent', () => {

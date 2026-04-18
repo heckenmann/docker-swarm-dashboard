@@ -196,7 +196,29 @@ describe('TaskMetricsContent', () => {
       expect(screen.getByText('↓ 1000 B / ↑ 2000 B')).toBeInTheDocument()
     })
 
-    test('renders memory charts', () => {
+    test('renders memory charts even without limit', () => {
+      const metricsNoLimit = {
+        ...taskMetrics,
+        limit: 0,
+        usagePercent: 0,
+      }
+      render(
+        <TaskMetricsContent
+          taskMetrics={metricsNoLimit}
+          metricsLoading={false}
+          metricsError={null}
+        />
+      )
+
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const memoryCard = cards.find((c) => c.getAttribute('data-title') === 'Memory Usage')
+      expect(memoryCard).toBeDefined()
+      // Should show donut chart even without limit (working set, cache, other used)
+      const charts = memoryCard.querySelectorAll('[data-testid="mock-chart"]')
+      expect(charts).toHaveLength(2)
+    })
+
+    test('renders memory charts with limit', () => {
       render(
         <TaskMetricsContent
           taskMetrics={taskMetrics}
@@ -299,10 +321,36 @@ describe('TaskMetricsContent', () => {
       expect(fsCard).toBeUndefined()
     })
 
-    test('shows CPU info alert when no quota configured', () => {
+    test('renders CPU gauge even without quota when has usage', () => {
+      const metricsWithUsageNoQuota = {
+        ...taskMetrics,
+        cpuPercent: 0,
+        cpuUsage: 123.456,
+        cpuUserSeconds: 0,
+        cpuSystemSeconds: 0,
+      }
+
+      render(
+        <TaskMetricsContent
+          taskMetrics={metricsWithUsageNoQuota}
+          metricsLoading={false}
+          metricsError={null}
+        />
+      )
+
+      const cards = screen.getAllByTestId('mock-metric-card')
+      const cpuCard = cards.find((c) => c.getAttribute('data-title') === 'CPU Usage')
+      expect(cpuCard).toBeDefined()
+      // Should show gauge chart even without quota
+      const charts = cpuCard.querySelectorAll('[data-testid="mock-chart"]')
+      expect(charts.length).toBeGreaterThanOrEqual(1)
+    })
+
+    test('shows no CPU data alert when no CPU data at all', () => {
       const metricsWithoutCPU = {
         ...taskMetrics,
         cpuPercent: 0,
+        cpuUsage: 0,
         cpuUserSeconds: 0,
         cpuSystemSeconds: 0,
       }
@@ -315,7 +363,7 @@ describe('TaskMetricsContent', () => {
         />
       )
 
-      expect(screen.getByText('CPU details not available (no quota configured)')).toBeInTheDocument()
+      expect(screen.getByText('No CPU data available')).toBeInTheDocument()
     })
 
     test('renders with dark mode', () => {
@@ -340,8 +388,9 @@ describe('TaskMetricsContent', () => {
       expect(screen.getByText('Container:')).toBeInTheDocument()
     })
 
-    test('hides CPU breakdown when no CPU data', () => {
-      const metricsWithoutCPU = {
+    test('hides CPU breakdown when no user/system data', () => {
+      // Has CPU usage but no user/system breakdown
+      const metricsWithoutBreakdown = {
         ...taskMetrics,
         cpuUserSeconds: 0,
         cpuSystemSeconds: 0,
@@ -349,7 +398,7 @@ describe('TaskMetricsContent', () => {
 
       render(
         <TaskMetricsContent
-          taskMetrics={metricsWithoutCPU}
+          taskMetrics={metricsWithoutBreakdown}
           metricsLoading={false}
           metricsError={null}
         />

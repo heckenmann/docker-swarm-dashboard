@@ -180,7 +180,7 @@ const TaskMetricsContent = React.memo(function TaskMetricsContent({
 
           <MetricGrid>
             <MetricCard title="Memory Usage" icon="memory" chartContent>
-              {taskMetrics.limit > 0 || taskMetrics.usagePercent > 0 ? (
+              {taskMetrics.usage > 0 || taskMetrics.workingSet > 0 ? (
                 <Row>
                   <Col xs={12} md={5} className="mb-3 mb-md-0">
                     <ReactApexChart
@@ -201,13 +201,15 @@ const TaskMetricsContent = React.memo(function TaskMetricsContent({
                 </Row>
               ) : (
                 <Alert variant="info" className="mb-0">
-                  No memory limit configured
+                  No memory data available
                 </Alert>
               )}
             </MetricCard>
 
             <MetricCard title="CPU Usage" icon="microchip" chartContent>
-              {taskMetrics.cpuPercent > 0 ? (
+              {taskMetrics.cpuUsage > 0 ||
+              taskMetrics.cpuUserSeconds > 0 ||
+              taskMetrics.cpuSystemSeconds > 0 ? (
                 <Row>
                   <Col
                     xs={12}
@@ -234,7 +236,7 @@ const TaskMetricsContent = React.memo(function TaskMetricsContent({
                 </Row>
               ) : (
                 <Alert variant="info" className="mb-0">
-                  CPU details not available (no quota configured)
+                  No CPU data available
                 </Alert>
               )}
             </MetricCard>
