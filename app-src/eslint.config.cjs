@@ -56,6 +56,7 @@ module.exports = [
       "jsx-a11y": require("eslint-plugin-jsx-a11y"),
       "react-hooks": require("eslint-plugin-react-hooks"),
       import: require("eslint-plugin-import"),
+      jsdoc: require("eslint-plugin-jsdoc"),
     },
     rules: {
       // React Hooks rules
@@ -135,6 +136,37 @@ module.exports = [
       "no-var": "error",
       "eqeqeq": ["error", "always"],
       "no-console": "warn",
+
+      // JSDoc rules (informative, not blocking)
+      "jsdoc/require-description": "warn",
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns-description": "off",
+      "jsdoc/require-jsdoc": ["warn", {
+        "require": {
+          "FunctionDeclaration": true,
+          "MethodDefinition": true,
+          "ClassDeclaration": true,
+          "ArrowFunctionExpression": false,
+          "FunctionExpression": true
+        }
+      }],
+      "jsdoc/check-alignment": "error",
+      "jsdoc/check-indentation": "off",
+      "jsdoc/check-line-alignment": "off",
+      "jsdoc/check-param-names": "warn",
+      "jsdoc/check-property-names": "warn",
+      "jsdoc/check-tag-names": "warn",
+      "jsdoc/check-types": "warn",
+      "jsdoc/empty-tags": "warn",
+      "jsdoc/multiline-blocks": "warn",
+      "jsdoc/no-multi-asterisks": "warn",
+      "jsdoc/require-param": "warn",
+      "jsdoc/require-param-name": "warn",
+      "jsdoc/require-param-type": "off",
+      "jsdoc/require-returns": "off",
+      "jsdoc/require-returns-check": "warn",
+      "jsdoc/require-returns-type": "off",
+      "jsdoc/valid-types": "warn",
     },
   },
 ];
