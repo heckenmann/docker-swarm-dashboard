@@ -5,8 +5,12 @@ import { Alert, Row, Col, Table } from 'react-bootstrap'
 import ReactApexChart from 'react-apexcharts'
 import { isDarkModeAtom } from '../../../common/store/atoms/themeAtoms'
 import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
-import { getCommonChartOptions } from '../../../common/chartUtils'
+import {
+  getCommonChartOptions,
+  CHART_PALETTES,
+} from '../../../common/chartUtils'
 import { formatBytes } from '../../../common/formatUtils'
+import MetricCard from '../../shared/MetricCard.jsx'
 
 /**
  * Renders filesystem usage bar chart, network traffic bar chart and a
@@ -21,10 +25,15 @@ const NodeFilesystemNetworkSection = React.memo(
     const tableSize = useAtomValue(tableSizeAtom)
     const commonOpts = getCommonChartOptions(isDarkMode)
 
-    // ── Filesystem Bar Chart ───────────────────────────────────────────────────
     const filesystemChartOptions = {
       ...commonOpts,
-      chart: { ...commonOpts.chart, type: 'bar', height: 300, stacked: true },
+      chart: {
+        ...commonOpts.chart,
+        type: 'bar',
+        height: 300,
+        stacked: true,
+        id: 'filesystem-bar',
+      },
       plotOptions: { bar: { horizontal: true } },
       dataLabels: { enabled: false },
       xaxis: {
@@ -32,7 +41,7 @@ const NodeFilesystemNetworkSection = React.memo(
         categories: filesystemData.map((fs) => fs.mountpoint || fs.device),
         title: { text: 'Storage (GB)' },
       },
-      title: { text: 'Filesystem Usage', align: 'center' },
+      colors: CHART_PALETTES.filesystem,
     }
 
     const filesystemChartSeries = [
@@ -50,10 +59,14 @@ const NodeFilesystemNetworkSection = React.memo(
       },
     ]
 
-    // ── Network Traffic Bar Chart ──────────────────────────────────────────────
     const networkChartOptions = {
       ...commonOpts,
-      chart: { ...commonOpts.chart, type: 'bar', height: 350 },
+      chart: {
+        ...commonOpts.chart,
+        type: 'bar',
+        height: 350,
+        id: 'network-bar',
+      },
       plotOptions: { bar: { horizontal: true } },
       dataLabels: { enabled: true, formatter: (val) => formatBytes(val) },
       xaxis: {
@@ -61,7 +74,7 @@ const NodeFilesystemNetworkSection = React.memo(
         categories: networkData.map((net) => net.interface),
         title: { text: 'Bytes' },
       },
-      title: { text: 'Network Traffic', align: 'center' },
+      colors: CHART_PALETTES.network,
     }
 
     const networkChartSeries = [
@@ -74,83 +87,102 @@ const NodeFilesystemNetworkSection = React.memo(
 
     return (
       <>
-        {/* Filesystem + Network Charts */}
         <Row className="mb-3">
-          <Col xs={12} lg={6} className="mb-3 mb-lg-0">
-            {filesystemData.length > 0 ? (
-              <ReactApexChart
-                options={filesystemChartOptions}
-                series={filesystemChartSeries}
-                type="bar"
-                height={350}
-              />
-            ) : (
-              <Alert variant="info">No filesystem metrics available</Alert>
-            )}
+          <Col xs={12} md={6} className="mb-3 mb-md-0">
+            <MetricCard title="Filesystem Usage" icon="hdd" chartContent>
+              {filesystemData.length > 0 ? (
+                <ReactApexChart
+                  options={filesystemChartOptions}
+                  series={filesystemChartSeries}
+                  type="bar"
+                  height={350}
+                />
+              ) : (
+                <Alert variant="info" className="mb-0">
+                  No filesystem metrics available
+                </Alert>
+              )}
+            </MetricCard>
           </Col>
-          <Col xs={12} lg={6}>
-            {networkData.length > 0 ? (
-              <ReactApexChart
-                options={networkChartOptions}
-                series={networkChartSeries}
-                type="bar"
-                height={350}
-              />
-            ) : (
-              <Alert variant="info">No network metrics available</Alert>
-            )}
+          <Col xs={12} md={6}>
+            <MetricCard
+              title="Network Traffic"
+              icon="network-wired"
+              chartContent
+            >
+              {networkData.length > 0 ? (
+                <ReactApexChart
+                  options={networkChartOptions}
+                  series={networkChartSeries}
+                  type="bar"
+                  height={350}
+                />
+              ) : (
+                <Alert variant="info" className="mb-0">
+                  No network metrics available
+                </Alert>
+              )}
+            </MetricCard>
           </Col>
         </Row>
 
-        {/* Network Details Table */}
         {networkData.length > 0 && (
           <Row className="mb-3">
             <Col>
-              <h6>Network Details</h6>
-              <Table
-                striped
-                bordered
-                hover
-                size={tableSize}
-                variant={isDarkMode ? 'dark' : 'light'}
+              <MetricCard
+                title="Network Details"
+                icon="network-wired"
+                noBody={true}
               >
-                <thead>
-                  <tr>
-                    <th>Interface</th>
-                    <th>RX Packets</th>
-                    <th>TX Packets</th>
-                    <th>RX Errors</th>
-                    <th>TX Errors</th>
-                    <th>RX Dropped</th>
-                    <th>TX Dropped</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {networkData.map((net) => (
-                    <tr key={net.interface}>
-                      <td>{net.interface}</td>
-                      <td>{net.receivePackets?.toLocaleString() || 0}</td>
-                      <td>{net.transmitPackets?.toLocaleString() || 0}</td>
-                      <td className={net.receiveErrs > 0 ? 'text-warning' : ''}>
-                        {net.receiveErrs?.toLocaleString() || 0}
-                      </td>
-                      <td
-                        className={net.transmitErrs > 0 ? 'text-warning' : ''}
-                      >
-                        {net.transmitErrs?.toLocaleString() || 0}
-                      </td>
-                      <td className={net.receiveDrop > 0 ? 'text-warning' : ''}>
-                        {net.receiveDrop?.toLocaleString() || 0}
-                      </td>
-                      <td
-                        className={net.transmitDrop > 0 ? 'text-warning' : ''}
-                      >
-                        {net.transmitDrop?.toLocaleString() || 0}
-                      </td>
+                <Table
+                  striped
+                  bordered
+                  hover
+                  size={tableSize}
+                  variant={isDarkMode ? 'dark' : 'light'}
+                >
+                  <thead>
+                    <tr>
+                      <th>Interface</th>
+                      <th>RX Packets</th>
+                      <th>TX Packets</th>
+                      <th>RX Errors</th>
+                      <th>TX Errors</th>
+                      <th>RX Dropped</th>
+                      <th>TX Dropped</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
+                  </thead>
+                  <tbody>
+                    {networkData.map((net) => (
+                      <tr key={net.interface}>
+                        <td>{net.interface}</td>
+                        <td>{net.receivePackets?.toLocaleString() || 0}</td>
+                        <td>{net.transmitPackets?.toLocaleString() || 0}</td>
+                        <td
+                          className={net.receiveErrs > 0 ? 'text-warning' : ''}
+                        >
+                          {net.receiveErrs?.toLocaleString() || 0}
+                        </td>
+                        <td
+                          className={net.transmitErrs > 0 ? 'text-warning' : ''}
+                        >
+                          {net.transmitErrs?.toLocaleString() || 0}
+                        </td>
+                        <td
+                          className={net.receiveDrop > 0 ? 'text-warning' : ''}
+                        >
+                          {net.receiveDrop?.toLocaleString() || 0}
+                        </td>
+                        <td
+                          className={net.transmitDrop > 0 ? 'text-warning' : ''}
+                        >
+                          {net.transmitDrop?.toLocaleString() || 0}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </MetricCard>
             </Col>
           </Row>
         )}

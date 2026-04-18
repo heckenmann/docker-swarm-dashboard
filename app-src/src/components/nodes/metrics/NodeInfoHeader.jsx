@@ -1,7 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Alert, Row, Col } from 'react-bootstrap'
+import { Row, Col } from 'react-bootstrap'
 import { formatUptime } from '../../../common/formatUtils'
+
+import MetricCard from '../../shared/MetricCard.jsx'
 
 /**
  * System info header for node metrics — displays server time, load average,
@@ -17,7 +19,7 @@ const NodeInfoHeader = React.memo(function NodeInfoHeader({
   serverTime,
 }) {
   return (
-    <Alert variant="secondary" className="mb-3 py-2">
+    <MetricCard title="Node Information" icon="server" className="mb-3">
       <Row>
         <Col xs={12} md={6} className="mb-1 mb-md-0">
           <strong>Server Time:</strong> {serverTime}
@@ -70,7 +72,7 @@ const NodeInfoHeader = React.memo(function NodeInfoHeader({
           )}
         </Col>
       </Row>
-    </Alert>
+    </MetricCard>
   )
 })
 

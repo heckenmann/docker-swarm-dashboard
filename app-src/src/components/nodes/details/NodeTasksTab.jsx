@@ -10,6 +10,8 @@ import ServiceStatusBadge from '../../services/ServiceStatusBadge'
 import SortableHeader from '../../shared/SortableHeader.jsx'
 import { sortData } from '../../../common/sortUtils'
 
+import MetricCard from '../../shared/MetricCard.jsx'
+
 /**
  * Sortable tasks table rendered inside the node detail "Tasks" tab.
  * Reads the node detail atom directly to source its tasks.
@@ -80,71 +82,82 @@ const NodeTasksTab = React.memo(function NodeTasksTab() {
   )
 
   return (
-    <Table striped bordered hover size={tableSize} variant={currentVariant}>
-      <thead>
-        <tr>
-          <SortableHeader
-            column="ServiceName"
-            label="Service"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="State"
-            label="State"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="DesiredState"
-            label="Desired State"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="CreatedAt"
-            label="Created"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="UpdatedAt"
-            label="Updated"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-        </tr>
-      </thead>
-      <tbody>
-        {sortedTasks &&
-          sortedTasks.map((task, idx) => (
-            <tr
-              key={(task?.ID ? String(task.ID) : `task-idx-${idx}`) + `-${idx}`}
-            >
-              <td>
-                <ServiceName
-                  name={taskServiceName(task)}
-                  id={taskServiceId(task)}
-                />
-              </td>
-              <td>
-                <ServiceStatusBadge
-                  id={task.ID}
-                  serviceState={task.Status?.State || task.State}
-                />
-              </td>
-              <td>{task.DesiredState}</td>
-              <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
-              <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
-            </tr>
-          ))}
-      </tbody>
-    </Table>
+    <MetricCard title="Tasks on this Node" icon="tasks" noBody={true}>
+      <Table
+        striped
+        bordered
+        hover
+        size={tableSize}
+        variant={currentVariant}
+        className="mb-0"
+      >
+        <thead>
+          <tr>
+            <SortableHeader
+              column="ServiceName"
+              label="Service"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="State"
+              label="State"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="DesiredState"
+              label="Desired State"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="CreatedAt"
+              label="Created"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="UpdatedAt"
+              label="Updated"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+          </tr>
+        </thead>
+        <tbody>
+          {sortedTasks &&
+            sortedTasks.map((task, idx) => (
+              <tr
+                key={
+                  (task?.ID ? String(task.ID) : `task-idx-${idx}`) + `-${idx}`
+                }
+              >
+                <td>
+                  <ServiceName
+                    name={taskServiceName(task)}
+                    id={taskServiceId(task)}
+                  />
+                </td>
+                <td>
+                  <ServiceStatusBadge
+                    id={task.ID}
+                    serviceState={task.Status?.State || task.State}
+                  />
+                </td>
+                <td>{task.DesiredState}</td>
+                <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
+                <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+              </tr>
+            ))}
+        </tbody>
+      </Table>
+    </MetricCard>
   )
 })
 
