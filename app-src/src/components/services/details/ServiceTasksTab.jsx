@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Table, Button, Spinner } from 'react-bootstrap'
+import { Table, Button } from 'react-bootstrap'
 import { useAtomValue, useAtom } from 'jotai'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState, useCallback } from 'react'
@@ -14,6 +14,8 @@ import { viewAtom } from '../../../common/store/atoms/navigationAtoms'
 import { tasksDetailId } from '../../../common/navigationConstants'
 import { formatBytesCompact as formatBytes } from '../../../common/formatUtils'
 import { toDefaultDateTimeString } from '../../../common/DefaultDateTimeFormat'
+
+import MetricCard from '../../shared/MetricCard.jsx'
 
 /**
  * Returns metrics for a given task from the metrics map.
@@ -112,197 +114,205 @@ const ServiceTasksTab = React.memo(function ServiceTasksTab({
   )
 
   return (
-    <Table striped bordered hover size={tableSize} variant={currentVariant}>
-      <thead>
-        <tr>
-          <SortableHeader
-            column="NodeName"
-            label="Node"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="State"
-            label="State"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="MemoryUsage"
-            label="Usage"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="WorkingSet"
-            label="Working Set"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="MemoryLimit"
-            label="Limit"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="MemoryUsagePercent"
-            label="Usage %"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="CPUUsage"
-            label="CPU"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <th>Container ID</th>
-          <SortableHeader
-            column="CreatedAt"
-            label="Created"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <SortableHeader
-            column="UpdatedAt"
-            label="Updated"
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {metricsLoading && (
+    <MetricCard
+      title="Tasks in this Service"
+      icon="tasks"
+      loading={metricsLoading}
+      noBody={true}
+    >
+      <Table
+        striped
+        bordered
+        hover
+        size={tableSize}
+        variant={currentVariant}
+        className="mb-0"
+      >
+        <thead>
           <tr>
-            <td colSpan="11" className="text-center">
-              <Spinner animation="border" size="sm" /> Loading metrics...
-            </td>
+            <SortableHeader
+              column="NodeName"
+              label="Node"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="State"
+              label="State"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="MemoryUsage"
+              label="Usage"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="WorkingSet"
+              label="Working Set"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="MemoryLimit"
+              label="Limit"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="MemoryUsagePercent"
+              label="Usage %"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="CPUUsage"
+              label="CPU"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <th>Container ID</th>
+            <SortableHeader
+              column="CreatedAt"
+              label="Created"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              column="UpdatedAt"
+              label="Updated"
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+            />
+            <th />
           </tr>
-        )}
-        {!metricsLoading &&
-          sortedTasks &&
-          sortedTasks.map((task, idx) => {
-            const metrics = getTaskMetrics(task, taskMetrics)
-            return (
-              <tr
-                key={
-                  (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
-                  `-${idx}`
-                }
-              >
-                <td>
-                  <NodeName
-                    name={task.NodeName}
-                    id={task.Node && task.Node.ID ? task.Node.ID : task.NodeID}
-                  />
-                </td>
-                <td>
-                  <ServiceStatusBadge
-                    id={task.ID}
-                    serviceState={task.Status?.State || task.State}
-                  />
-                </td>
-                <td>
-                  {metrics ? (
-                    <span>{formatBytes(metrics.usage)}</span>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </td>
-                <td>
-                  {metrics && metrics.workingSet ? (
-                    <span>{formatBytes(metrics.workingSet)}</span>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </td>
-                <td>
-                  {metrics && metrics.limit > 0 ? (
-                    <span>{formatBytes(metrics.limit)}</span>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </td>
-                <td
-                  className={
-                    metrics && metrics.usagePercent > 90
-                      ? 'text-danger'
-                      : metrics && metrics.usagePercent > 75
-                        ? 'text-warning'
-                        : ''
+        </thead>
+        <tbody>
+          {sortedTasks &&
+            sortedTasks.map((task, idx) => {
+              const metrics = getTaskMetrics(task, taskMetrics)
+              return (
+                <tr
+                  key={
+                    (task && task.ID ? String(task.ID) : `task-idx-${idx}`) +
+                    `-${idx}`
                   }
                 >
-                  {metrics && metrics.limit > 0 ? (
-                    <span>{metrics.usagePercent.toFixed(2)}%</span>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </td>
-                <td>
-                  {metrics && metrics.cpuUsage !== undefined ? (
-                    <span>
-                      {metrics.cpuUsage.toFixed(1)}s
-                      {metrics.cpuPercent !== undefined && (
-                        <small className="text-muted">
-                          {' '}
-                          ({metrics.cpuPercent.toFixed(0)}%)
-                        </small>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </td>
-                <td>
-                  {metrics && metrics.containerId ? (
-                    <small>
-                      <code>
-                        {metrics.containerId
-                          .split('/')
-                          .pop()
-                          .replace('docker-', '')
-                          .replace('.scope', '')
-                          .substring(0, 12)}
-                      </code>
-                    </small>
-                  ) : (
-                    <span className="text-muted">-</span>
-                  )}
-                </td>
-                <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
-                <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
-                <td>
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    onClick={() =>
-                      setView({
-                        id: tasksDetailId,
-                        detail: task.ID,
-                        timestamp: Date.now(),
-                      })
+                  <td>
+                    <NodeName
+                      name={task.NodeName}
+                      id={
+                        task.Node && task.Node.ID ? task.Node.ID : task.NodeID
+                      }
+                    />
+                  </td>
+                  <td>
+                    <ServiceStatusBadge
+                      id={task.ID}
+                      serviceState={task.Status?.State || task.State}
+                    />
+                  </td>
+                  <td>
+                    {metrics ? (
+                      <span>{formatBytes(metrics.usage)}</span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
+                  <td>
+                    {metrics && metrics.workingSet ? (
+                      <span>{formatBytes(metrics.workingSet)}</span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
+                  <td>
+                    {metrics && metrics.limit > 0 ? (
+                      <span>{formatBytes(metrics.limit)}</span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
+                  <td
+                    className={
+                      metrics && metrics.usagePercent > 90
+                        ? 'text-danger'
+                        : metrics && metrics.usagePercent > 75
+                          ? 'text-warning'
+                          : ''
                     }
                   >
-                    <FontAwesomeIcon icon="info-circle" className="me-1" />
-                    Details
-                  </Button>
-                </td>
-              </tr>
-            )
-          })}
-      </tbody>
-    </Table>
+                    {metrics && metrics.limit > 0 ? (
+                      <span>{metrics.usagePercent.toFixed(2)}%</span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
+                  <td>
+                    {metrics && metrics.cpuUsage !== undefined ? (
+                      <span>
+                        {metrics.cpuUsage.toFixed(1)}s
+                        {metrics.cpuPercent !== undefined && (
+                          <small className="text-muted">
+                            {' '}
+                            ({metrics.cpuPercent.toFixed(0)}%)
+                          </small>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
+                  <td>
+                    {metrics && metrics.containerId ? (
+                      <small>
+                        <code>
+                          {metrics.containerId
+                            .split('/')
+                            .pop()
+                            .replace('docker-', '')
+                            .replace('.scope', '')
+                            .substring(0, 12)}
+                        </code>
+                      </small>
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </td>
+                  <td>{toDefaultDateTimeString(task.CreatedAt)}</td>
+                  <td>{toDefaultDateTimeString(task.UpdatedAt)}</td>
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      onClick={() =>
+                        setView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
+                        })
+                      }
+                    >
+                      <FontAwesomeIcon icon="info-circle" className="me-1" />
+                      Details
+                    </Button>
+                  </td>
+                </tr>
+              )
+            })}
+        </tbody>
+      </Table>
+    </MetricCard>
   )
 })
 
