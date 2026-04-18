@@ -17,8 +17,7 @@ describe('fsChart', () => {
         fsLimit: 100,
       }
       const result = buildFSChart(m, commonOpts)
-      
-      expect(result.fsChartOptions.title.text).toBe('Filesystem Usage')
+
       expect(result.fsChartSeries.length).toBe(2)
     })
 

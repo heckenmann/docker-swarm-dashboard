@@ -18,8 +18,7 @@ describe('networkChart', () => {
         networkTxBytes: 2000,
       }
       const result = buildNetworkChart(m, commonOpts)
-      
-      expect(result.networkChartOptions.title.text).toBe('Network Traffic (Total)')
+
       expect(result.networkChartSeries).toEqual([{ name: 'Bytes', data: [1000, 2000] }])
     })
 

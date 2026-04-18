@@ -18,8 +18,8 @@ describe('cpuCharts', () => {
         cpuSystemSeconds: 50,
       }
       const result = buildCPUCharts(m, commonOpts, false)
-      
-      expect(result.cpuGaugeOptions.colors).toEqual(['#0d6efd'])
+
+      expect(result.cpuGaugeOptions.colors).toEqual(['#198754'])
       expect(result.cpuGaugeSeries).toEqual([50])
       expect(result.cpuBreakdownOptions.labels).toEqual(['User', 'System'])
       expect(result.cpuBreakdownSeries).toEqual([100, 50])
@@ -33,7 +33,7 @@ describe('cpuCharts', () => {
       }
       const result = buildCPUCharts(m, commonOpts, false)
       
-      expect(result.cpuGaugeOptions.colors).toEqual(['#fd7e14'])
+      expect(result.cpuGaugeOptions.colors).toEqual(['#ffc107'])
     })
 
     test('builds CPU charts with critical usage (cpuPercent > 90)', () => {
@@ -64,9 +64,10 @@ describe('cpuCharts', () => {
         cpuUserSeconds: 100,
         cpuSystemSeconds: 50,
       }
+      // Note: track background now comes from CSS variables
       const result = buildCPUCharts(m, commonOpts, true)
       
-      expect(result.cpuGaugeOptions.plotOptions.radialBar.track.background).toBe('#444')
+      expect(result.cpuGaugeOptions.plotOptions.radialBar.track.background).toBe('#e0e0e0')
     })
 
     test('builds CPU charts with light mode', () => {

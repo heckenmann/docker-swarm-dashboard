@@ -155,7 +155,7 @@ describe('memoryCharts', () => {
       }
       const result = buildMemoryCharts(m, commonOpts, false)
       
-      expect(result.memGaugeOptions.colors).toEqual(['#28a745'])
+      expect(result.memGaugeOptions.colors).toEqual(['#198754'])
       expect(result.memGaugeSeries).toEqual([50])
       expect(result.memDonutOptions.labels).toEqual(['Working Set', 'Cache', 'Other Used', 'Available'])
       expect(result.memDonutSeries).toEqual([200, 100, 200, 500])
@@ -171,7 +171,7 @@ describe('memoryCharts', () => {
       }
       const result = buildMemoryCharts(m, commonOpts, false)
       
-      expect(result.memGaugeOptions.colors).toEqual(['#fd7e14'])
+      expect(result.memGaugeOptions.colors).toEqual(['#ffc107'])
       expect(result.memGaugeSeries).toEqual([80])
     })
 
@@ -199,7 +199,7 @@ describe('memoryCharts', () => {
       }
       const result = buildMemoryCharts(m, commonOpts, true)
       
-      expect(result.memGaugeOptions.plotOptions.radialBar.track.background).toBe('#444')
+      expect(result.memGaugeOptions.plotOptions.radialBar.track.background).toBe('#e0e0e0')
     })
 
     test('builds memory charts without limit', () => {

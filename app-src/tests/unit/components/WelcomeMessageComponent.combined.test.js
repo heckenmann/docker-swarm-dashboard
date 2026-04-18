@@ -252,12 +252,7 @@ describe('WelcomeMessageComponent (combined)', () => {
     })
   })
 
-  // This test is skipped because jest.isolateModules + jest.doMock
-  // doesn't properly mock Jotai atoms in this context.
-  // The contentClassName behavior is implicitly tested via
-  // isDarkModeAtom -> currentVariantAtom -> currentVariantClassesAtom chain
-  // in other component tests (DashboardNavbar, etc.)
-  test.skip('applies contentClassName from currentVariantClassesAtom', () => {
+  test('applies contentClassName from currentVariantClassesAtom', () => {
     jest.isolateModules(() => {
       jest.doMock('react-bootstrap', () => {
         const Modal = ({ show, contentClassName, children }) =>
@@ -285,11 +280,18 @@ describe('WelcomeMessageComponent (combined)', () => {
         return { Modal, Button }
       })
 
-      jest.doMock('../../../src/common/store/atoms', () => ({
-        showWelcomeMessageAtom: 'showWelcomeMessageAtom',
-        dashboardSettingsAtom: { welcomeMessage: 'hello' },
-        currentVariantClassesAtom: 'my-variant',
+      // Mock individual atom modules (not the main atoms module)
+      jest.doMock('../../../src/common/store/atoms/themeAtoms', () => ({
+        currentVariantClassesAtom: 'currentVariantClassesAtom',
       }))
+      jest.doMock('../../../src/common/store/atoms/foundationAtoms', () => ({
+        dashboardSettingsAtom: 'dashboardSettingsAtom',
+      }))
+      jest.doMock('../../../src/common/store/atoms/uiAtoms', () => ({
+        showWelcomeMessageAtom: 'showWelcomeMessageAtom',
+      }))
+      
+      // Mock jotai with proper atom values
       jest.doMock('jotai', () => ({
         atom: (v) => v,
         useAtom: (a) => {
@@ -320,15 +322,27 @@ describe('WelcomeMessageComponent (combined)', () => {
   test('Close button calls setShowWelcomeMessage(false)', () => {
     jest.isolateModules(() => {
       const mockSet = jest.fn()
-      jest.doMock('../../../src/common/store/atoms', () => ({
-        showWelcomeMessageAtom: true,
-        dashboardSettingsAtom: { welcomeMessage: 'bye' },
+      // Mock individual atom modules
+      jest.doMock('../../../src/common/store/atoms/themeAtoms', () => ({
         currentVariantClassesAtom: 'cls',
+      }))
+      jest.doMock('../../../src/common/store/atoms/foundationAtoms', () => ({
+        dashboardSettingsAtom: 'dashboardSettingsAtom',
+      }))
+      jest.doMock('../../../src/common/store/atoms/uiAtoms', () => ({
+        showWelcomeMessageAtom: 'showWelcomeMessageAtom',
       }))
       jest.doMock('jotai', () => ({
         atom: (v) => v,
-        useAtom: () => [true, mockSet],
-        useAtomValue: (a) => a,
+        useAtom: (a) => {
+          if (a === 'showWelcomeMessageAtom') return [true, mockSet]
+          return [null, jest.fn()]
+        },
+        useAtomValue: (a) => {
+          if (a === 'dashboardSettingsAtom') return { welcomeMessage: 'bye' }
+          if (a === 'currentVariantClassesAtom') return 'cls'
+          return null
+        },
       }))
       jest.doMock('react-bootstrap', () => {
         const Modal = ({ show, children, contentClassName }) =>
@@ -344,7 +358,7 @@ describe('WelcomeMessageComponent (combined)', () => {
         const Title = ({ children }) =>
           React.createElement('div', null, children)
         const Body = ({ children }) =>
-          React.createElement('div', null, children)
+          React.createElement('div', { 'data-testid': 'modal-body' }, children)
         const Footer = ({ children }) =>
           React.createElement('div', null, children)
         Modal.Header = Header
