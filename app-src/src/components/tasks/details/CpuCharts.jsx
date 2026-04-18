@@ -12,6 +12,8 @@ import {
  * @returns {{ cpuGaugeOptions, cpuGaugeSeries, cpuBreakdownOptions, cpuBreakdownSeries }}
  */
 export function buildCPUCharts(m, commonOpts) {
+  const hasQuota = m.cpuPercent > 0
+
   const cpuGaugeOptions = {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'radialBar' },
@@ -24,17 +26,24 @@ export function buildCPUCharts(m, commonOpts) {
           name: { fontSize: GAUGE_DEFAULTS.nameFontSize, offsetY: -10 },
           value: {
             fontSize: GAUGE_DEFAULTS.valueFontSize,
-            formatter: (val) => `${parseFloat(val).toFixed(1)}%`,
+            formatter: (val) => {
+              if (hasQuota) {
+                return `${parseFloat(val).toFixed(1)}%`
+              }
+              // Without quota, show absolute CPU time
+              return `${(m.cpuUsage || 0).toFixed(2)}s`
+            },
           },
         },
         track: { background: getGaugeTrackBackground() },
       },
     },
-    colors: [getStatusColor(m.cpuPercent)],
-    labels: ['CPU Quota'],
+    colors: [hasQuota ? getStatusColor(m.cpuPercent) : CHART_PALETTES.cpu[0]],
+    labels: [hasQuota ? 'CPU Quota' : 'CPU Time'],
   }
+  // Without quota, show empty gauge
   const cpuGaugeSeries = [
-    Math.min(parseFloat((m.cpuPercent || 0).toFixed(1)), 100),
+    hasQuota ? Math.min(parseFloat((m.cpuPercent || 0).toFixed(1)), 100) : 0,
   ]
 
   const userSec = m.cpuUserSeconds || 0

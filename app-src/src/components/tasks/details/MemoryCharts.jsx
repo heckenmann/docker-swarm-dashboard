@@ -73,6 +73,9 @@ export function createMemoryDonutOptions(m, commonOpts, formatBytes) {
  * @returns {{ memGaugeOptions, memGaugeSeries, memDonutOptions, memDonutSeries }}
  */
 export function buildMemoryCharts(m, commonOpts) {
+  const hasLimit = m.limit > 0
+
+  // Gauge: shows percentage if limit exists, otherwise shows absolute usage
   const memGaugeOptions = {
     ...commonOpts,
     chart: { ...commonOpts.chart, type: 'radialBar' },
@@ -85,16 +88,27 @@ export function buildMemoryCharts(m, commonOpts) {
           name: { fontSize: GAUGE_DEFAULTS.nameFontSize, offsetY: -10 },
           value: {
             fontSize: GAUGE_DEFAULTS.valueFontSize,
-            formatter: (val) => `${parseFloat(val).toFixed(1)}%`,
+            formatter: (val) => {
+              if (hasLimit) {
+                return `${parseFloat(val).toFixed(1)}%`
+              }
+              // Without limit, show absolute value
+              return formatBytes(m.usage || 0)
+            },
           },
         },
         track: { background: getGaugeTrackBackground() },
       },
     },
-    colors: [getStatusColor(m.usagePercent)],
+    colors: [
+      hasLimit ? getStatusColor(m.usagePercent) : CHART_PALETTES.memory[0],
+    ],
     labels: ['Memory'],
   }
-  const memGaugeSeries = [parseFloat((m.usagePercent || 0).toFixed(1))]
+  // Without limit, show empty gauge or minimal fill
+  const memGaugeSeries = [
+    hasLimit ? parseFloat((m.usagePercent || 0).toFixed(1)) : 0,
+  ]
 
   const { memCache, workingSet, otherUsed, memAvailable } =
     calculateMemoryMetrics(m)

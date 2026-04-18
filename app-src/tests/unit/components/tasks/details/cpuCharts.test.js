@@ -121,11 +121,51 @@ describe('cpuCharts', () => {
       expect(result.cpuBreakdownSeries).toEqual([0, 50])
     })
 
-    test('cpuGaugeOptions formatter function formats value correctly', () => {
-      const m = { cpuPercent: 50, cpuUserSeconds: 100, cpuSystemSeconds: 50 }
+    test('builds CPU charts without quota but with usage', () => {
+      const m = {
+        cpuPercent: 0,
+        cpuUsage: 123.456,
+        cpuUserSeconds: 50,
+        cpuSystemSeconds: 30,
+      }
+      const result = buildCPUCharts(m, commonOpts, false)
+
+      // Gauge should show 0 series value (empty gauge) when no quota
+      expect(result.cpuGaugeSeries).toEqual([0])
+      
+      // Label should show 'CPU Time' instead of 'CPU Quota'
+      expect(result.cpuGaugeOptions.labels).toEqual(['CPU Time'])
+      
+      // Formatter should show absolute CPU time
+      const formatter = result.cpuGaugeOptions.plotOptions.radialBar.dataLabels.value.formatter
+      expect(formatter(0)).toBe('123.46s')
+    })
+
+    test('builds CPU charts with zero usage and no quota', () => {
+      const m = {
+        cpuPercent: 0,
+        cpuUsage: 0,
+        cpuUserSeconds: 0,
+        cpuSystemSeconds: 0,
+      }
+      const result = buildCPUCharts(m, commonOpts, false)
+
+      expect(result.cpuGaugeSeries).toEqual([0])
+      expect(result.cpuGaugeOptions.labels).toEqual(['CPU Time'])
+    })
+
+    test('cpuGaugeOptions formatter function formats value correctly with quota', () => {
+      const m = { cpuPercent: 50, cpuUsage: 2.5, cpuUserSeconds: 100, cpuSystemSeconds: 50 }
       const result = buildCPUCharts(m, commonOpts, false)
       const formatter = result.cpuGaugeOptions.plotOptions.radialBar.dataLabels.value.formatter
       expect(formatter(75.123)).toBe('75.1%')
+    })
+
+    test('cpuGaugeOptions formatter shows absolute time without quota', () => {
+      const m = { cpuPercent: 0, cpuUsage: 123.456, cpuUserSeconds: 100, cpuSystemSeconds: 50 }
+      const result = buildCPUCharts(m, commonOpts, false)
+      const formatter = result.cpuGaugeOptions.plotOptions.radialBar.dataLabels.value.formatter
+      expect(formatter(0)).toBe('123.46s')
     })
 
     test('cpuBreakdownOptions dataLabels formatter formats value correctly', () => {
