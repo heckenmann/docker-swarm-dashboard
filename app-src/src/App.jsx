@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
@@ -50,11 +50,18 @@ const AppContent = () => {
     throw currentVariantClassesRes.error
   if (maxContentWidthRes.state === 'hasError') throw maxContentWidthRes.error
 
+  // Sync theme to document element for CSS variables to work properly
+  useEffect(() => {
+    document.documentElement.setAttribute('data-bs-theme', currentVariant)
+    if (currentVariant === 'dark') {
+      document.documentElement.classList.add('theme-dark')
+    } else {
+      document.documentElement.classList.remove('theme-dark')
+    }
+  }, [currentVariant])
+
   return (
-    <div
-      className={`app ${currentVariantClasses} ${currentVariant === 'dark' ? 'theme-dark' : 'theme-light'}`}
-      data-bs-theme={currentVariant}
-    >
+    <div className={`app ${currentVariantClasses}`}>
       <img
         className="background-image"
         aria-hidden="true"
