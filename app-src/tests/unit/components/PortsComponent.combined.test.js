@@ -413,100 +413,57 @@ describe('PortsComponent (combined)', () => {
         ServiceID: 's1',
         Stack: 'stack-z',
       },
-      {
-        PublishedPort: 80,
-        TargetPort: 80,
-        Protocol: 'tcp',
-        PublishMode: 'ingress',
-        ServiceName: 'alpha',
-        ServiceID: 's2',
-        Stack: 'stack-a',
-      },
     ]
 
     const mockSetView = jest.fn()
 
-    // Test first click: ascending
+    // Test first click: null -> asc
     mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'currentVariantClassesAtom':
-          return 'classes'
-        case 'tableSizeAtom':
-          return 'sm'
-        case 'serviceNameFilterAtom':
-          return ''
-        case 'stackNameFilterAtom':
-          return ''
-        case 'portsAtom':
-          return ports
-        case 'showNamesButtonsAtom':
-          return true
-        default:
-          return ''
-      }
+      if (atom === 'portsAtom') return ports
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'showNamesButtonsAtom') return true
+      return ''
     })
 
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'viewAtom') return [{}, mockSetView]
-      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'viewAtom') return [null, mockSetView]
       return [null, jest.fn()]
     })
 
-    const { rerender } = render(<PortsComponent />)
-
-    // First click on PublishedPort
-    const header = screen.getByText('PublishedPort').closest('th')
-    fireEvent.click(header)
-
+    const { unmount } = render(<PortsComponent />)
+    fireEvent.click(screen.getByText('PublishedPort').closest('th'))
     expect(mockSetView).toHaveBeenCalled()
-    const updater1 = mockSetView.mock.calls[0][0]
-    expect(typeof updater1).toBe('function')
-    const result1 = updater1({})
-    expect(result1).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
+    let updater = mockSetView.mock.calls[0][0]
+    expect(updater({})).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
 
-    // Second click: should sort descending
+    // Test second click: asc -> desc
+    unmount()
     mockSetView.mockClear()
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'viewAtom')
-        return [{ sortBy: 'PublishedPort', sortDirection: 'asc' }, mockSetView]
-      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'viewAtom') return [{ sortBy: 'PublishedPort', sortDirection: 'asc' }, mockSetView]
       return [null, jest.fn()]
     })
 
-    rerender(<PortsComponent />)
-    const header2 = screen.getByText('PublishedPort').closest('th')
-    fireEvent.click(header2)
-
+    const { unmount: unmount2 } = render(<PortsComponent />)
+    fireEvent.click(screen.getByText('PublishedPort').closest('th'))
     expect(mockSetView).toHaveBeenCalled()
-    const updater2 = mockSetView.mock.calls[0][0]
-    const result2 = updater2({ sortBy: 'PublishedPort', sortDirection: 'asc' })
-    expect(result2).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
+    updater = mockSetView.mock.calls[0][0]
+    expect(updater({})).toEqual({ sortBy: 'PublishedPort', sortDirection: 'desc' })
 
-    // Third click: stays asc
+    // Test third click: desc -> reset
+    unmount2()
     mockSetView.mockClear()
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'viewAtom')
-        return [{ sortBy: 'PublishedPort', sortDirection: 'asc' }, mockSetView]
-      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'viewAtom') return [{ sortBy: 'PublishedPort', sortDirection: 'desc' }, mockSetView]
       return [null, jest.fn()]
     })
 
-    rerender(<PortsComponent />)
-    const header3 = screen.getByText('PublishedPort').closest('th')
-    fireEvent.click(header3)
-
+    render(<PortsComponent />)
+    fireEvent.click(screen.getByText('PublishedPort').closest('th'))
     expect(mockSetView).toHaveBeenCalled()
-    const updater3 = mockSetView.mock.calls[0][0]
-    const result3 = updater3({ sortBy: 'PublishedPort', sortDirection: 'asc' })
-    expect(result3).toEqual({ sortBy: 'PublishedPort', sortDirection: 'asc' })
+    updater = mockSetView.mock.calls[0][0]
+    expect(updater({})).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
 
   // ---- tableSizeAtom effect ----

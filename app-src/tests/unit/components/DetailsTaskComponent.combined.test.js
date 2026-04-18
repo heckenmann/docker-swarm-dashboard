@@ -134,4 +134,24 @@ describe('DetailsTaskComponent', () => {
     // Look for the JSON tab
     expect(screen.getByText('Raw JSON')).toBeInTheDocument()
   })
+
+  test('handles metrics response with error message', async () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantClassesAtom') return 'classes'
+      if (atom === 'taskDetailAtom') return mockTaskData
+      if (atom === 'baseUrlAtom') return 'http://api/'
+      if (atom === 'viewAtom') return {}
+      return null
+    })
+
+    fetch.mockResolvedValue({
+      json: async () => ({ available: false, message: 'Custom error message' })
+    })
+
+    render(<DetailsTaskComponent />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('task-metrics-content')).toBeInTheDocument()
+    })
+  })
 })

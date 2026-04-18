@@ -299,4 +299,24 @@ describe('StacksComponent', () => {
     
     expect(screen.getByText('full-service-name')).toBeInTheDocument()
   })
+
+  test('handles service with missing fields', () => {
+    const stacksWithIncompleteServices = [
+      {
+        Name: 'stack1',
+        Services: [
+          {
+            ID: 's1',
+            // ShortName, ServiceName, Replication, Created, Updated missing
+          },
+        ],
+      },
+    ]
+    
+    setupMocks({ stacksAtom: stacksWithIncompleteServices })
+    render(<StacksComponent />)
+    
+    // Should still render (with empty strings/defaults)
+    expect(screen.getByTestId('service-name')).toBeInTheDocument()
+  })
 })

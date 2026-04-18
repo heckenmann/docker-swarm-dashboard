@@ -78,8 +78,6 @@ const MetricGrid = ({
   )
 }
 
-export { buildColClass, getValidChildren, pairChildren }
-
 MetricGrid.propTypes = {
   /** Metric cards or other content to arrange */
   children: PropTypes.node,

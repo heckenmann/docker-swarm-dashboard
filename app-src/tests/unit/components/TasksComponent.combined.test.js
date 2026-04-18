@@ -454,106 +454,57 @@ describe('TasksComponent (combined)', () => {
         Slot: 2,
         Err: '',
       },
-      {
-        ID: 't2',
-        ServiceID: 's2',
-        ServiceName: 'alpha-service',
-        Stack: 'stack-a',
-        NodeID: 'n2',
-        NodeName: 'node2',
-        State: 'running',
-        DesiredState: 'running',
-        Timestamp: '2023-02-01T00:00:00Z',
-        Slot: 1,
-        Err: '',
-      },
     ]
 
     const mockSetView = jest.fn()
 
-    // Test first click: ascending
+    // Test first click: null -> asc
     mockUseAtomValue.mockImplementation((atom) => {
-      switch (atom) {
-        case 'currentVariantAtom':
-          return 'light'
-        case 'currentVariantClassesAtom':
-          return 'classes'
-        case 'tableSizeAtom':
-          return 'sm'
-        case 'dashboardSettingsAtom':
-          return { locale: 'en', timeZone: 'UTC' }
-        case 'serviceNameFilterAtom':
-          return ''
-        case 'stackNameFilterAtom':
-          return ''
-        case 'tasksAtomNew':
-          return tasks
-        case 'showNamesButtonsAtom':
-          return true
-        default:
-          return ''
-      }
+      if (atom === 'tasksAtomNew') return tasks
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'dashboardSettingsAtom') return { locale: 'en', timeZone: 'UTC' }
+      return ''
     })
 
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'viewAtom') return [{}, mockSetView]
-      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'viewAtom') return [null, mockSetView]
       return [null, jest.fn()]
     })
 
-    const { rerender } = render(<TasksComponent />)
-
-    // First click on ServiceName
-    const header = screen.getByText('ServiceName').closest('th')
-    fireEvent.click(header)
-
+    const { unmount } = render(<TasksComponent />)
+    fireEvent.click(screen.getByText('ServiceName').closest('th'))
     expect(mockSetView).toHaveBeenCalled()
-    const updater1 = mockSetView.mock.calls[0][0]
-    expect(typeof updater1).toBe('function')
-    const result1 = updater1({})
-    expect(result1).toEqual({ sortBy: 'ServiceName', sortDirection: 'asc' })
+    let updater = mockSetView.mock.calls[0][0]
+    expect(updater({})).toEqual({ sortBy: 'ServiceName', sortDirection: 'asc' })
 
-    // Second click: should sort descending
+    // Test second click: asc -> desc
+    unmount()
     mockSetView.mockClear()
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'viewAtom')
-        return [{ sortBy: 'ServiceName', sortDirection: 'asc' }, mockSetView]
-      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'viewAtom') return [{ sortBy: 'ServiceName', sortDirection: 'asc' }, mockSetView]
       return [null, jest.fn()]
     })
 
-    rerender(<TasksComponent />)
-    const header2 = screen.getByText('ServiceName').closest('th')
-    fireEvent.click(header2)
-
+    const { unmount: unmount2 } = render(<TasksComponent />)
+    fireEvent.click(screen.getByText('ServiceName').closest('th'))
     expect(mockSetView).toHaveBeenCalled()
-    const updater2 = mockSetView.mock.calls[0][0]
-    const result2 = updater2({ sortBy: 'ServiceName', sortDirection: 'asc' })
-    expect(result2).toEqual({ sortBy: 'ServiceName', sortDirection: 'asc' })
+    updater = mockSetView.mock.calls[0][0]
+    expect(updater({})).toEqual({ sortBy: 'ServiceName', sortDirection: 'desc' })
 
-    // Third click: should reset (clear sort)
+    // Test third click: desc -> reset
+    unmount2()
     mockSetView.mockClear()
     mockUseAtom.mockImplementation((atom) => {
-      if (atom === 'viewAtom')
-        return [{ sortBy: 'ServiceName', sortDirection: 'desc' }, mockSetView]
-      if (atom === 'serviceNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'stackNameFilterAtom') return ['', jest.fn()]
-      if (atom === 'filterTypeAtom') return ['service', jest.fn()]
+      if (atom === 'viewAtom') return [{ sortBy: 'ServiceName', sortDirection: 'desc' }, mockSetView]
       return [null, jest.fn()]
     })
 
-    rerender(<TasksComponent />)
-    const header3 = screen.getByText('ServiceName').closest('th')
-    fireEvent.click(header3)
-
+    render(<TasksComponent />)
+    fireEvent.click(screen.getByText('ServiceName').closest('th'))
     expect(mockSetView).toHaveBeenCalled()
-    const updater3 = mockSetView.mock.calls[0][0]
-    const result3 = updater3({ sortBy: 'ServiceName', sortDirection: 'asc' })
-    expect(result3).toEqual({ sortBy: 'ServiceName', sortDirection: 'asc' })
+    updater = mockSetView.mock.calls[0][0]
+    expect(updater({})).toEqual({ sortBy: null, sortDirection: 'asc' })
   })
 
   // ---- tableSizeAtom effect ----
@@ -655,4 +606,24 @@ describe('TasksComponent (combined)', () => {
     )
   })
 
+  test('renders task row without ID', () => {
+    const tasks = [
+      {
+        ID: null,
+        ServiceName: 'no-id',
+        State: 'running',
+        Timestamp: new Date().toISOString(),
+      },
+    ]
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'tasksAtomNew') return tasks
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'tableSizeAtom') return 'sm'
+      if (atom === 'dashboardSettingsAtom') return { locale: 'en', timeZone: 'UTC' }
+      return ''
+    })
+    mockUseAtom.mockImplementation((atom) => [null, jest.fn()])
+    render(<TasksComponent />)
+    expect(screen.getByText('no-id')).toBeInTheDocument()
+  })
 })
