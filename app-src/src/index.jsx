@@ -121,6 +121,7 @@ try {
      *
      * @param {...any} args
      */
+    // eslint-disable-next-line no-console
     console.error = function (...args) {
       try {
         const msg = args && args[0] ? String(args[0]) : ''
