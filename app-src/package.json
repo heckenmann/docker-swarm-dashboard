@@ -61,7 +61,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "apexcharts": "^5.10.6",
-    "axios": "^1.15.0",
+    "axios": "^1.15.1",
     "babel-jest": "^30.3.0",
     "babel-loader": "^10.1.1",
     "bootstrap": "^5.3.8",
