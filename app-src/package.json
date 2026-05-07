@@ -81,7 +81,7 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.6.7",
-    "jest": "^30.3.0",
+    "jest": "^30.4.0",
     "jest-environment-jsdom": "^30.4.0",
     "jotai": "^2.20.0",
     "jotai-location": "^0.6.2",
