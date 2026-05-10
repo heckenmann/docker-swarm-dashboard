@@ -1,6 +1,6 @@
 # Docker Swarm Dashboard - Frontend
 
-React 19 frontend for the Docker Swarm dashboard. Uses Webpack, Jotai for state management, and Bootstrap for styling.
+React 19 frontend for the Docker Swarm dashboard. Uses Vite, Jotai for state management, and Bootstrap for styling.
 
 ## Quick Start
 
@@ -81,8 +81,7 @@ app-src/
 - **ApexCharts** - Charts and graphs
 - **Font Awesome** - Icons
 - **Jest + Testing Library** - Unit testing
-- **Cypress** - E2E testing
-- **Webpack 5** - Build tool
+- **Vite** - Build tool
 - **ESLint + Prettier** - Code quality
 - **Stylelint** - CSS linting
 
@@ -158,7 +157,7 @@ For every setting atom, verify the consuming component renders correctly.
 | File | Purpose |
 |------|---------|
 | `package.json` | Dependencies and scripts |
-| `webpack.config.js` | Webpack configuration |
+| `vite.config.js` | Vite configuration |
 | `babel.config.json` | Babel presets (@babel/preset-env, @babel/preset-react) |
 | `jest.config.cjs` | Jest configuration (90% coverage threshold) |
 | `eslint.config.cjs` | ESLint rules |
@@ -169,10 +168,9 @@ For every setting atom, verify the consuming component renders correctly.
 ## Environment Variables
 
 ### Runtime (in browser)
-- `REACT_APP_*` - Custom environment variables (build-time only)
+- `VITE_*` - Custom environment variables (build-time only)
 
 ### Development
-- `BROWSER=none` - Disable auto-open browser
 - `PORT` - Dev server port (default: 3000)
 
 ## Important Notes
