@@ -25,6 +25,11 @@ updates:
       - "automatic-merge"
     schedule:
       interval: "daily"
+    groups:
+      react-core:
+        patterns:
+          - "react"
+          - "react-dom"
 
   - package-ecosystem: "docker"
     directory: "/"
