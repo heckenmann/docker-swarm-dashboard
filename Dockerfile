@@ -11,6 +11,7 @@ RUN go build -ldflags "-X heckenmann.de/docker-swarm-dashboard/v2/internal/versi
 ##############################################################################
 # Stage 2: Build the Node.js application
 FROM node:26-alpine AS node
+RUN corepack enable && corepack prepare yarn@stable --activate
 RUN apk -U add --no-cache git wget \
   && mkdir -p /opt/dsd
 COPY app-src /opt/dsd
