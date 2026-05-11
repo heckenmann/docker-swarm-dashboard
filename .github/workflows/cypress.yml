@@ -3,7 +3,8 @@ name: Cypress
 
 env:
   WORKING_DIRECTORY: ./app-src
-  NODE_VERSION: '22'
+  NODE_VERSION: '26'
+  CYPRESS_VERIFY_TIMEOUT: '100000'
 
 # Trigger the workflow on pull request or manual dispatch
 on:
