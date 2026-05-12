@@ -204,7 +204,8 @@ func TestFindCAdvisorService(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	// Find the service
-	found, err := findCAdvisorService(getCli())
+	cli, _ := getCli()
+	found, err := findCAdvisorService(cli)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -246,7 +247,8 @@ func TestFindCAdvisorService_NotFound(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	// Try to find the service
-	found, err := findCAdvisorService(getCli())
+	cli, _ := getCli()
+	found, err := findCAdvisorService(cli)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -308,7 +310,8 @@ func TestGetCAdvisorEndpoint(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), service, "node123")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, service, "node123")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -747,7 +750,8 @@ func TestGetCAdvisorEndpoint_NoTasks(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Errorf("Expected no error with DNS fallback, got: %v", err)
 	}
@@ -784,7 +788,8 @@ func TestGetCAdvisorEndpoint_NoTasksNoName(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err == nil {
 		t.Error("Expected error when no tasks found and no service name")
 	}
@@ -817,7 +822,8 @@ func TestGetCAdvisorEndpoint_TaskListError(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Errorf("Expected no error with DNS fallback, got: %v", err)
 	}
@@ -866,7 +872,8 @@ func TestGetCAdvisorEndpoint_NoNetworkAttachments(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Errorf("Expected no error with DNS fallback, got: %v", err)
 	}
@@ -1131,7 +1138,8 @@ func TestFindCAdvisorService_ListError(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	found, err := findCAdvisorService(getCli())
+	cli, _ := getCli()
+	found, err := findCAdvisorService(cli)
 	if err == nil {
 		t.Error("Expected error when service list fails")
 	}
@@ -1194,7 +1202,8 @@ func TestGetCAdvisorEndpoint_NilService(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), nil, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, nil, "node-1")
 	if err == nil {
 		t.Error("Expected error when service is nil")
 	}
@@ -1239,7 +1248,8 @@ func TestGetCAdvisorEndpoint_PublishedPort(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -1273,7 +1283,8 @@ func TestGetCAdvisorEndpoint_NoServiceID(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -1411,7 +1422,8 @@ func TestGetCAdvisorEndpoint_AddressWithCIDR(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -1487,7 +1499,8 @@ func TestGetCAdvisorEndpoint_NonRunningTask(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err != nil {
 		t.Fatalf("Unexpected error (should use DNS fallback): %v", err)
 	}
@@ -1820,7 +1833,8 @@ func TestGetCAdvisorEndpoint_TaskListErrorNoName(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getCAdvisorEndpoint(getCli(), cadvisorSvc, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getCAdvisorEndpoint(cli, cadvisorSvc, "node-1")
 	if err == nil {
 		t.Errorf("expected error when task list fails and no service name, got endpoint=%s", endpoint)
 	}

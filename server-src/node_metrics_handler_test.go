@@ -191,7 +191,8 @@ func TestFindNodeExporterService(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	// Find the service
-	found, err := findNodeExporterService(getCli())
+	cli, _ := getCli()
+	found, err := findNodeExporterService(cli)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -233,7 +234,8 @@ func TestFindNodeExporterService_NotFound(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	// Try to find the service
-	found, err := findNodeExporterService(getCli())
+	cli, _ := getCli()
+	found, err := findNodeExporterService(cli)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -295,7 +297,8 @@ func TestGetNodeExporterEndpoint(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getNodeExporterEndpoint(getCli(), service, "node123")
+	cli, _ := getCli()
+	endpoint, err := getNodeExporterEndpoint(cli, service, "node123")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -352,7 +355,8 @@ func TestGetNodeExporterEndpoint_DefaultPort(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getNodeExporterEndpoint(getCli(), service, "node123")
+	cli, _ := getCli()
+	endpoint, err := getNodeExporterEndpoint(cli, service, "node123")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -1266,7 +1270,8 @@ func TestGetNodeExporterEndpoint_NilService(t *testing.T) {
 	c, _ := dockclient.NewClientWithOpts(dockclient.WithHost("http://localhost"), dockclient.WithVersion("1.35"))
 	SetCli(c)
 
-	_, err := getNodeExporterEndpoint(getCli(), nil, "node1")
+	cli, _ := getCli()
+	_, err := getNodeExporterEndpoint(cli, nil, "node1")
 	if err == nil {
 		t.Error("expected error for nil service")
 	}
@@ -1309,7 +1314,8 @@ func TestGetNodeExporterEndpoint_PublishedPortFallback(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getNodeExporterEndpoint(getCli(), service, "node-pub")
+	cli, _ := getCli()
+	endpoint, err := getNodeExporterEndpoint(cli, service, "node-pub")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1332,7 +1338,8 @@ func TestGetNodeExporterEndpoint_EmptyIDWithName(t *testing.T) {
 	c, _ := dockclient.NewClientWithOpts(dockclient.WithHost("http://localhost"), dockclient.WithVersion("1.35"))
 	SetCli(c)
 
-	endpoint, err := getNodeExporterEndpoint(getCli(), service, "node-1")
+	cli, _ := getCli()
+	endpoint, err := getNodeExporterEndpoint(cli, service, "node-1")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1364,7 +1371,8 @@ func TestGetNodeExporterEndpoint_TaskListErrorNoName(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	_, err := getNodeExporterEndpoint(getCli(), service, "node-1")
+	cli, _ := getCli()
+	_, err := getNodeExporterEndpoint(cli, service, "node-1")
 	if err == nil {
 		t.Error("expected error when task list fails and service has no name")
 	}
@@ -1405,7 +1413,8 @@ func TestGetNodeExporterEndpoint_NonRunningTasksDNSFallback(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	endpoint, err := getNodeExporterEndpoint(getCli(), service, "node-2")
+	cli, _ := getCli()
+	endpoint, err := getNodeExporterEndpoint(cli, service, "node-2")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1446,7 +1455,8 @@ func TestGetNodeExporterEndpoint_NoAddressNoName(t *testing.T) {
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	_, err := getNodeExporterEndpoint(getCli(), service, "node-3")
+	cli, _ := getCli()
+	_, err := getNodeExporterEndpoint(cli, service, "node-3")
 	if err == nil {
 		t.Error("expected error when no address is found and no service name")
 	}

@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	dockclient "github.com/docker/docker/client"
 	internalversion "heckenmann.de/docker-swarm-dashboard/v2/internal/version"
 )
 
@@ -110,10 +111,25 @@ func TestSetResetCli(t *testing.T) {
 func TestGetCli_CreatesClient(t *testing.T) {
 	// ensure reset
 	ResetCli()
-	c := getCli()
-	if c == nil {
-		t.Fatalf("expected non-nil client")
+
+	// 1. Test that it can create a client from environment (or return error if env is invalid)
+	c, err := getCli()
+	if c == nil && err == nil {
+		t.Fatalf("expected non-nil client or error")
 	}
+
+	// 2. Test that it returns the injected client
+	ResetCli()
+	mockCli, _ := dockclient.NewClientWithOpts(dockclient.WithHost("http://localhost"), dockclient.WithVersion("1.35"))
+	SetCli(mockCli)
+	c, err = getCli()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if c != mockCli {
+		t.Fatalf("expected injected client, got %v", c)
+	}
+
 	// cleanup
 	ResetCli()
 }

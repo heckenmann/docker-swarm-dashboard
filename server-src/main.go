@@ -19,7 +19,7 @@ var (
 
 // getCli returns the shared Docker client.
 // Delegates to internal/docker so all handlers share the same instance.
-func getCli() *client.Client {
+func getCli() (*client.Client, error) {
 	return dockerclient.GetCli()
 }
 

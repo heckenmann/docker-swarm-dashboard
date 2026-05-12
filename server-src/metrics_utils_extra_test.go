@@ -32,7 +32,7 @@ func TestFindNodeExporterService_Advanced(t *testing.T) {
 
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
-	cli := getCli()
+	cli, _ := getCli()
 
 	svc, err := findNodeExporterService(cli)
 	if err != nil {
@@ -66,7 +66,7 @@ func TestFindCAdvisorService_Advanced(t *testing.T) {
 
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
-	cli := getCli()
+	cli, _ := getCli()
 
 	svc, err := findCAdvisorService(cli)
 	if err != nil {
@@ -90,7 +90,7 @@ func TestResolveServiceEndpoint_NoTasksFallback(t *testing.T) {
 
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
-	cli := getCli()
+	cli, _ := getCli()
 
 	service := &swarm.Service{
 		Spec: swarm.ServiceSpec{

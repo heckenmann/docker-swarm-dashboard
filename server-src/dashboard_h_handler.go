@@ -37,7 +37,11 @@ type SimpleService struct {
 // Serves datamodel for horizontal dashboard.
 func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 	result := DashboardH{}
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 	//tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
 	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})

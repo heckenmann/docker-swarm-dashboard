@@ -656,7 +656,17 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		errMsg := "Error getting Docker client: " + err.Error()
+		response := nodeMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(response)
+		return
+	}
 
 	// Find the node-exporter service
 	service, err := findNodeExporterService(cli)
@@ -749,7 +759,15 @@ type clusterMetricsResponse struct {
 
 // clusterMetricsHandler handles requests for aggregated cluster metrics
 func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		errMsg := "Error getting Docker client: " + err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
+			log.Printf("Failed to encode error response: %v", encodeErr)
+		}
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	// 1. Get all nodes to count them

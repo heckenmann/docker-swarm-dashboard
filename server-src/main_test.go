@@ -84,11 +84,17 @@ func TestGetCli_Singleton(t *testing.T) {
 	}
 	SetCli(cNew)
 
-	c1 := getCli()
+	c1, err := getCli()
+	if err != nil {
+		t.Fatalf("getCli failed: %v", err)
+	}
 	if c1 != cNew {
 		t.Fatalf("expected getCli to return injected client instance")
 	}
-	c2 := getCli()
+	c2, err := getCli()
+	if err != nil {
+		t.Fatalf("getCli failed: %v", err)
+	}
 	if c1 != c2 {
 		t.Fatalf("expected same client instance across calls")
 	}
@@ -150,7 +156,11 @@ func TestHealthHandler_MockedDockerServer_OK(t *testing.T) {
 	}
 
 	// ensure client.Info also succeeds against the mocked server
-	_, err = getCli().Info(context.Background())
+	cli, err := getCli()
+	if err != nil {
+		t.Fatalf("getCli failed: %v", err)
+	}
+	_, err = cli.Info(context.Background())
 	if err != nil {
 		t.Fatalf("expected Info() to succeed against mocked server, got %v", err)
 	}

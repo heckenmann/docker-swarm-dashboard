@@ -15,7 +15,11 @@ type LogsHandlerSimpleService struct {
 }
 
 func logsServicesHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
 	resultList := make([]LogsHandlerSimpleService, 0)

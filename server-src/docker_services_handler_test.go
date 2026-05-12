@@ -38,8 +38,9 @@ func TestDockerServicesHandler(t *testing.T) {
 	}
 }
 
-// Test that the services handler panics when the Docker client returns an error.
-func TestDockerServicesHandler_PanicsOnError(t *testing.T) {
+// TestDockerServicesHandler_Returns500OnError verifies that the services handler
+// returns a 500 Internal Server Error when the Docker API returns an error.
+func TestDockerServicesHandler_Returns500OnError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/services" {
 			http.Error(w, "internal", http.StatusInternalServerError)
@@ -56,13 +57,11 @@ func TestDockerServicesHandler_PanicsOnError(t *testing.T) {
 	}
 	SetCli(c)
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatalf("expected panic from dockerServicesHandler on client error")
-		}
-	}()
-
 	req := httptest.NewRequest(http.MethodGet, "/docker/services", nil)
 	w := httptest.NewRecorder()
 	dockerServicesHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
 }

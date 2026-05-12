@@ -40,7 +40,11 @@ type TasksHandlerSimpleTask struct {
 }
 
 func tasksHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
 
 	resultList := make([]TasksHandlerSimpleTask, 0)

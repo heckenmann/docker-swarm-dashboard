@@ -11,7 +11,10 @@ import (
 )
 
 func TestGetDashboardNetworks(t *testing.T) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		t.Skip("skipping test; docker client not available:", err)
+	}
 
 	// This will likely return empty map in test environment unless mocked
 	nets := getDashboardNetworks(cli)
@@ -49,7 +52,7 @@ func TestResolveServiceEndpoint(t *testing.T) {
 
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
-	cli := getCli()
+	cli, _ := getCli()
 
 	service := &swarm.Service{
 		ID: "s1",

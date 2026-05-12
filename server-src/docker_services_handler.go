@@ -10,10 +10,15 @@ import (
 
 // Serves the services
 func dockerServicesHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	Services, err := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	jsonString, _ := json.Marshal(Services)
 	_, _ = w.Write(jsonString)

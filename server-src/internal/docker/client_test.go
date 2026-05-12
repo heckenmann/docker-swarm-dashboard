@@ -29,7 +29,7 @@ func TestConcurrentAccess(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			// GetCli should be safe for concurrent use
-			GetCli()
+			_, _ = GetCli()
 		}()
 	}
 

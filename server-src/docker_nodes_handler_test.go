@@ -37,8 +37,9 @@ func TestDockerNodesHandler(t *testing.T) {
 	}
 }
 
-// Test that the nodes handler panics when the Docker client returns an error.
-func TestDockerNodesHandler_PanicsOnError(t *testing.T) {
+// TestThatTheNodesHandlerReturns500WhenTheDockerClientReturnsAnError verifies
+// that the nodes handler returns a 500 Internal Server Error response.
+func TestDockerNodesHandler_Returns500OnError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
 			http.Error(w, "internal", http.StatusInternalServerError)
@@ -55,13 +56,11 @@ func TestDockerNodesHandler_PanicsOnError(t *testing.T) {
 	}
 	SetCli(c)
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatalf("expected panic from dockerNodesHandler on client error")
-		}
-	}()
-
 	req := httptest.NewRequest(http.MethodGet, "/docker/nodes", nil)
 	w := httptest.NewRecorder()
 	dockerNodesHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
 }

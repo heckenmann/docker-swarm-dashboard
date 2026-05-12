@@ -24,7 +24,11 @@ type TimelineHandlerSimpleTask struct {
 }
 
 func timelineHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	// timestamp for still running tasks
 	var nowTimestamp = time.Now()
 	tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})

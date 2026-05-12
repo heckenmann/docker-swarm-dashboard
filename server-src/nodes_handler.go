@@ -34,7 +34,11 @@ type NodesHandlerSimpleNode struct {
 }
 
 func nodesHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
 
 	resultList := make([]NodesHandlerSimpleNode, 0)

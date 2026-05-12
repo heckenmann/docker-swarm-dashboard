@@ -32,7 +32,11 @@ type ServiceLine struct {
 // Serves datamodel for vertical dashboard.
 func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 	result := DashboardV{}
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
 	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
 
