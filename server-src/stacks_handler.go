@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 	"strings"
@@ -24,11 +24,20 @@ type StacksHandlerSimpleStack struct {
 	Services []StackSimpleService
 }
 
-func stacksHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
+func stacksHandler(w http.ResponseWriter, r *http.Request) {
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	resultMap := make(map[string]StacksHandlerSimpleStack, 0)
+	services, err := cli.ServiceList(r.Context(), swarm.ServiceListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resultMap := make(map[string]StacksHandlerSimpleStack)
 
 	// Find all Stacks
 	for _, service := range services {
@@ -55,14 +64,13 @@ func stacksHandler(w http.ResponseWriter, _ *http.Request) {
 		resultMap[stackname] = currentStack
 	}
 
-	resultList := make([]StacksHandlerSimpleStack, 0)
+	resultList := make([]StacksHandlerSimpleStack, 0, len(resultMap))
 	for _, stack := range resultMap {
-		resultList = append(resultList, stack)
-
 		// Sort Services
 		sort.SliceStable(stack.Services, func(i, j int) bool {
 			return stack.Services[i].ServiceName < stack.Services[j].ServiceName
 		})
+		resultList = append(resultList, stack)
 	}
 
 	// Sort Stacks
@@ -70,6 +78,8 @@ func stacksHandler(w http.ResponseWriter, _ *http.Request) {
 		return resultList[i].Name < resultList[j].Name
 	})
 
-	var resultJson, _ = json.Marshal(resultList)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resultList); err != nil {
+		log.Printf("stacksHandler: encoding response failed: %v", err)
+	}
 }

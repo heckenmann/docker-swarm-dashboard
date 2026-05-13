@@ -19,9 +19,7 @@ var (
 
 // getCli returns the shared Docker client.
 // Delegates to internal/docker so all handlers share the same instance.
-func getCli() *client.Client {
-	return dockerclient.GetCli()
-}
+var getCli = dockerclient.GetCli
 
 // SetCli injects a custom Docker client. Used by tests.
 func SetCli(c *client.Client) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -84,11 +85,17 @@ func TestGetCli_Singleton(t *testing.T) {
 	}
 	SetCli(cNew)
 
-	c1 := getCli()
+	c1, err := getCli()
+	if err != nil {
+		t.Fatalf("getCli failed: %v", err)
+	}
 	if c1 != cNew {
 		t.Fatalf("expected getCli to return injected client instance")
 	}
-	c2 := getCli()
+	c2, err := getCli()
+	if err != nil {
+		t.Fatalf("getCli failed: %v", err)
+	}
 	if c1 != c2 {
 		t.Fatalf("expected same client instance across calls")
 	}
@@ -150,8 +157,29 @@ func TestHealthHandler_MockedDockerServer_OK(t *testing.T) {
 	}
 
 	// ensure client.Info also succeeds against the mocked server
-	_, err = getCli().Info(context.Background())
+	cli, err := getCli()
+	if err != nil {
+		t.Fatalf("getCli failed: %v", err)
+	}
+	_, err = cli.Info(context.Background())
 	if err != nil {
 		t.Fatalf("expected Info() to succeed against mocked server, got %v", err)
+	}
+}
+
+func TestHealthHandler_GetCliError(t *testing.T) {
+	oldGetCli := getCli
+	getCli = func() (*dockclient.Client, error) {
+		return nil, errors.New("mock getCli error")
+	}
+	defer func() { getCli = oldGetCli }()
+
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	w := httptest.NewRecorder()
+
+	healthHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("expected 503 when getCli fails, got %d", resp.StatusCode)
 	}
 }

@@ -1,12 +1,11 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -35,34 +34,65 @@ type SimpleService struct {
 }
 
 // Serves datamodel for horizontal dashboard.
-func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
+func dashboardHHandler(w http.ResponseWriter, r *http.Request) {
 	result := DashboardH{}
-	cli := getCli()
-	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
-	//tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
-	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	// Table Header
-	//result.Headlines = append(result.Headlines, "Services", "Role", "State", "Availability", "IP")
+	ctx := r.Context()
+
+	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	nodes, err := cli.NodeList(ctx, swarm.NodeListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list nodes: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch all tasks once to avoid N+1
+	allTasks, err := cli.TaskList(ctx, swarm.TaskListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list tasks: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Group tasks by node
+	nodeTasks := make(map[string][]swarm.Task)
+	for _, t := range allTasks {
+		nodeTasks[t.NodeID] = append(nodeTasks[t.NodeID], t)
+	}
+
 	for _, service := range services {
-		result.Services = append(result.Services, SimpleService{ID: service.ID, Name: service.Spec.Name, Stack: service.Spec.Labels["com.docker.stack.namespace"]})
+		result.Services = append(result.Services, SimpleService{
+			ID:    service.ID,
+			Name:  service.Spec.Name,
+			Stack: service.Spec.Labels["com.docker.stack.namespace"],
+		})
 	}
 
 	for _, node := range nodes {
-		newNodeLine := NodeLine{}
-		newNodeLine.ID = node.ID
-		newNodeLine.Name = node.Spec.Name
-		newNodeLine.Hostname = node.Description.Hostname
-		newNodeLine.Role = string(node.Spec.Role)
-		newNodeLine.StatusMessage = node.Status.Message
-		newNodeLine.StatusState = string(node.Status.State)
-		newNodeLine.Leader = node.ManagerStatus != nil && node.ManagerStatus.Leader
-		newNodeLine.Availability = string(node.Spec.Availability)
-		newNodeLine.IP = node.Status.Addr
-		newNodeLine.Tasks = make(map[string][]swarm.Task)
-		tasksFilters := filters.NewArgs()
-		tasksFilters.Add("node", node.ID)
-		tasksForCurrentNode, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilters})
+		newNodeLine := NodeLine{
+			ID:            node.ID,
+			Name:          node.Spec.Name,
+			Hostname:      node.Description.Hostname,
+			Role:          string(node.Spec.Role),
+			StatusMessage: node.Status.Message,
+			StatusState:   string(node.Status.State),
+			Leader:        node.ManagerStatus != nil && node.ManagerStatus.Leader,
+			Availability:  string(node.Spec.Availability),
+			IP:            node.Status.Addr,
+			Tasks:         make(map[string][]swarm.Task),
+		}
+
+		tasksForCurrentNode := nodeTasks[node.ID]
+		// Sort tasks by CreatedAt descending
 		sort.SliceStable(tasksForCurrentNode, func(i, j int) bool {
 			return tasksForCurrentNode[i].CreatedAt.After(tasksForCurrentNode[j].CreatedAt)
 		})
@@ -83,6 +113,8 @@ func dashboardHHandler(w http.ResponseWriter, _ *http.Request) {
 		return result.Services[i].Name < result.Services[j].Name
 	})
 
-	var resultJson, _ = json.Marshal(result)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		log.Printf("dashboardHHandler: encoding response failed: %v", err)
+	}
 }

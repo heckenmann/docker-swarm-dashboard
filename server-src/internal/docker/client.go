@@ -15,14 +15,14 @@ var (
 )
 
 // GetCli returns the shared Docker client, creating one from the environment if
-// none has been set yet. Panics if the client cannot be created.
+// none has been set yet. Returns an error if the client cannot be created.
 // Safe for concurrent use: initialization is guarded with a double-checked lock.
-func GetCli() *client.Client {
+func GetCli() (*client.Client, error) {
 	mu.RLock()
 	c := cli
 	mu.RUnlock()
 	if c != nil {
-		return c
+		return c, nil
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -33,10 +33,10 @@ func GetCli() *client.Client {
 			client.WithAPIVersionNegotiation(),
 		)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
-	return cli
+	return cli, nil
 }
 
 // SetCli replaces the cached client. Used in tests to inject a mock/test client.

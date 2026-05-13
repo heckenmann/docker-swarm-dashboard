@@ -21,6 +21,9 @@ var (
 	metricsHttpClient = &http.Client{
 		Timeout: 5 * time.Second,
 	}
+
+	// For testing
+	osHostname = os.Hostname
 )
 
 const (
@@ -85,7 +88,7 @@ func findCAdvisorService(cli *client.Client) (*swarm.Service, error) {
 // getDashboardNetworks identifies the network IDs the current dashboard container is attached to.
 func getDashboardNetworks(cli *client.Client) map[string]bool {
 	networks := make(map[string]bool)
-	hostname, err := os.Hostname()
+	hostname, err := osHostname()
 	if err != nil {
 		return networks
 	}

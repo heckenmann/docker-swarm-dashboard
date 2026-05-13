@@ -1,13 +1,12 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 	"time"
 
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -39,11 +38,46 @@ type TasksHandlerSimpleTask struct {
 	Slot int
 }
 
-func tasksHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
-	tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
+func tasksHandler(w http.ResponseWriter, r *http.Request) {
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	resultList := make([]TasksHandlerSimpleTask, 0)
+	ctx := r.Context()
+
+	// Fetch everything once to avoid N+1 queries
+	tasks, err := cli.TaskList(ctx, swarm.TaskListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list tasks: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	nodes, err := cli.NodeList(ctx, swarm.NodeListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list nodes: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create lookup maps
+	svcMap := make(map[string]swarm.Service)
+	for _, s := range services {
+		svcMap[s.ID] = s
+	}
+
+	nodeMap := make(map[string]swarm.Node)
+	for _, n := range nodes {
+		nodeMap[n.ID] = n
+	}
+
+	resultList := make([]TasksHandlerSimpleTask, 0, len(tasks))
 
 	for _, task := range tasks {
 		simpleTask := TasksHandlerSimpleTask{
@@ -57,20 +91,14 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 			Err:          task.Status.Err,
 			Slot:         task.Slot,
 		}
-		// Find Service for Task
-		servicesFilter := filters.NewArgs()
-		servicesFilter.Add("id", task.ServiceID)
-		services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: servicesFilter})
-		if len(services) > 0 {
-			simpleTask.ServiceName = services[0].Spec.Name
-			simpleTask.Stack = services[0].Spec.Labels["com.docker.stack.namespace"]
+
+		if svc, ok := svcMap[task.ServiceID]; ok {
+			simpleTask.ServiceName = svc.Spec.Name
+			simpleTask.Stack = svc.Spec.Labels["com.docker.stack.namespace"]
 		}
-		// Find Node for Task
-		nodesFilter := filters.NewArgs()
-		nodesFilter.Add("id", task.NodeID)
-		node, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{Filters: nodesFilter})
-		if len(node) > 0 {
-			simpleTask.NodeName = node[0].Description.Hostname
+
+		if node, ok := nodeMap[task.NodeID]; ok {
+			simpleTask.NodeName = node.Description.Hostname
 		}
 
 		resultList = append(resultList, simpleTask)
@@ -81,6 +109,8 @@ func tasksHandler(w http.ResponseWriter, _ *http.Request) {
 		return resultList[i].Timestamp.After(resultList[j].Timestamp)
 	})
 
-	var resultJson, _ = json.Marshal(resultList)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resultList); err != nil {
+		log.Printf("tasksHandler: encoding response failed: %v", err)
+	}
 }

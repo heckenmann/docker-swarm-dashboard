@@ -135,8 +135,13 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	// docker-client context
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	cli := getCli()
-	logReader, _ := cli.ServiceLogs(ctx, paramServiceId, container.LogsOptions{
+	cli, err := getCli()
+	if err != nil {
+		log.Printf("dockerServiceLogsHandler: getCli error: %v", err)
+		_ = ce.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "Docker client error"))
+		return
+	}
+	logReader, err := cli.ServiceLogs(ctx, paramServiceId, container.LogsOptions{
 		Tail:       paramTail,
 		Since:      paramSince,
 		Follow:     paramFollow,
@@ -145,6 +150,11 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		ShowStderr: paramStderr,
 		Details:    paramDetails,
 	})
+	if err != nil {
+		log.Printf("dockerServiceLogsHandler: ServiceLogs error: %v", err)
+		_ = ce.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "Docker logs error"))
+		return
+	}
 
 	// Ensure reader closed when set (cli.ServiceLogs returns an io.ReadCloser).
 	if logReader != nil {

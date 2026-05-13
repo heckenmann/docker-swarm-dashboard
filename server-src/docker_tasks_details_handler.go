@@ -14,12 +14,17 @@ import (
 func dockerTasksDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	paramTaskId := params["id"]
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	tasksFilter := filters.NewArgs()
 	tasksFilter.Add("id", paramTaskId)
 	Tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilter})
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	if len(Tasks) == 1 {
 		t := Tasks[0]

@@ -7,6 +7,29 @@ import (
 	"testing"
 )
 
+func TestPortsHandler_ServiceListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"service list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/ui/ports", nil)
+	w := httptest.NewRecorder()
+	portsHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
+
 // TestPortsHandler verifies that the ports UI handler extracts published
 // ports from the service list and returns 200 OK.
 func TestPortsHandler(t *testing.T) {

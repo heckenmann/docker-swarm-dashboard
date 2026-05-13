@@ -9,6 +9,29 @@ import (
 	swarmtypes "github.com/docker/docker/api/types/swarm"
 )
 
+func TestNodesHandler_NodeListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/nodes" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"node list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/ui/nodes", nil)
+	w := httptest.NewRecorder()
+	nodesHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
+
 // TestNodesHandler verifies the UI nodes handler returns node hostnames
 // from the Docker API.
 func TestNodesHandler(t *testing.T) {

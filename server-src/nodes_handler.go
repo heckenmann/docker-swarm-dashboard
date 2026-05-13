@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 
@@ -33,11 +33,19 @@ type NodesHandlerSimpleNode struct {
 	Message string
 }
 
-func nodesHandler(w http.ResponseWriter, _ *http.Request) {
-	cli := getCli()
-	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
+func nodesHandler(w http.ResponseWriter, r *http.Request) {
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	nodes, err := cli.NodeList(r.Context(), swarm.NodeListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list nodes: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	resultList := make([]NodesHandlerSimpleNode, 0)
+	resultList := make([]NodesHandlerSimpleNode, 0, len(nodes))
 
 	// Find all Nodes
 	for _, node := range nodes {
@@ -63,6 +71,8 @@ func nodesHandler(w http.ResponseWriter, _ *http.Request) {
 		return resultList[i].Hostname < resultList[j].Hostname
 	})
 
-	var resultJson, _ = json.Marshal(resultList)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resultList); err != nil {
+		log.Printf("nodesHandler: encoding response failed: %v", err)
+	}
 }

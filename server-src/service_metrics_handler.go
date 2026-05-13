@@ -464,7 +464,17 @@ func serviceMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		errMsg := "Error getting Docker client: " + err.Error()
+		response := serviceMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(response)
+		return
+	}
 
 	// Get service details to find the service name and tasks
 	servicesFilter := filters.NewArgs()

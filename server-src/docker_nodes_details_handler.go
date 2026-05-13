@@ -15,12 +15,17 @@ import (
 func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	paramNodeId := params["id"]
-	cli := getCli()
+	cli, err := getCli()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	nodesFilter := filters.NewArgs()
 	nodesFilter.Add("id", paramNodeId)
 	Services, err := cli.NodeList(context.Background(), swarm.NodeListOptions{Filters: nodesFilter})
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	if len(Services) == 1 {
 		// Get tasks for this node
