@@ -91,7 +91,7 @@
     "react-dom": "^19.2.6",
     "react-transition-group": "^4.4.5",
     "react-use-websocket": "^4.13.0",
-    "start-server-and-test": "^3.0.4",
+    "start-server-and-test": "^3.0.5",
     "stylelint": "^17.11.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-config-twbs-bootstrap": "^16.1.0",
