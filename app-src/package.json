@@ -100,6 +100,6 @@
     "whatwg-fetch": "^3.6.20"
   },
   "dependencies": {
-    "jotai-family": "^1.0.1"
+    "jotai-family": "^1.0.2"
   }
 }
