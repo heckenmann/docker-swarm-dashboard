@@ -5241,10 +5241,10 @@ joi@^18.2.1:
     "@hapi/topo" "^6.0.2"
     "@standard-schema/spec" "^1.1.0"
 
-jotai-family@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/jotai-family/-/jotai-family-1.0.1.tgz#0782aaaf22042b63111df4c1f9acf7b2ceff03cb"
-  integrity sha512-Zb/79GNDhC/z82R+6qTTpeKW4l4H6ZCApfF5W8G4SH37E4mhbysU7r8DkP0KX94hWvjB/6lt/97nSr3wB+64Zg==
+jotai-family@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/jotai-family/-/jotai-family-1.0.2.tgz#11d9f88a39579aaf0d80dcd8826b8c32cf6b5269"
+  integrity sha512-U1aTMGxmsmz2Z8gaJD1/ljmMnsmG4/dqrcsfwGbjWV7p6boB9Vy3+75YwUpwPj7GbLNJk9O8rl1VNi8d7+6Rxw==
 
 jotai-location@^0.6.2:
   version "0.6.2"
