@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -9,10 +10,39 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types/swarm"
+	dockclient "github.com/docker/docker/client"
 	"github.com/gorilla/mux"
 )
 
 // Focused tests for taskmetricshandler
+
+func TestTaskMetricsHandler_GetCliError(t *testing.T) {
+	oldGetCli := getCli
+	getCli = func() (*dockclient.Client, error) {
+		return nil, errors.New("mock getCli error")
+	}
+	defer func() { getCli = oldGetCli }()
+
+	req := httptest.NewRequest("GET", "/docker/tasks/t1/metrics", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "t1"})
+	w := httptest.NewRecorder()
+
+	taskMetricsHandler(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200 (JSON error response), got %d", w.Code)
+	}
+	var resp taskMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Fatal("expected available=false when getCli fails")
+	}
+	if resp.Error == nil || !strings.Contains(*resp.Error, "mock getCli error") {
+		t.Fatalf("expected error message mentioning mock error, got %+v", resp)
+	}
+}
 func TestTaskMetricsHandler_InspectError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/v1.35/tasks/") {

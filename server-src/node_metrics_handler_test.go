@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -1732,13 +1733,13 @@ func TestClusterMetricsHandler_NoExporterService(t *testing.T) {
 		case "/v1.35/nodes":
 			_ = json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
 		case "/v1.35/services":
-			_ = json.NewEncoder(w).Encode([]swarm.Service{}) // No exporter service
+			_ = json.NewEncoder(w).Encode([]swarm.Service{})
 		}
 	}))
 	defer server.Close()
 
-	SetCli(makeClientForServer(t, server.URL))
 	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
 
 	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
 	w := httptest.NewRecorder()
@@ -1753,5 +1754,140 @@ func TestClusterMetricsHandler_NoExporterService(t *testing.T) {
 	}
 	if resp.Message == nil || !strings.Contains(*resp.Message, "not found") {
 		t.Errorf("expected 'not found' message, got %v", resp.Message)
+	}
+}
+
+func TestClusterMetricsHandler_TaskListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/nodes":
+			_ = json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
+		case "/v1.35/services":
+			svc := swarm.Service{
+				ID: "s-exporter",
+				Spec: swarm.ServiceSpec{
+					Annotations: swarm.Annotations{
+						Labels: map[string]string{nodeExporterLabel: "true"},
+					},
+				},
+			}
+			_ = json.NewEncoder(w).Encode([]swarm.Service{svc})
+		case "/v1.35/tasks":
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"task list error"}`))
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
+	w := httptest.NewRecorder()
+	clusterMetricsHandler(w, req)
+
+	var resp clusterMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Error("expected available=false")
+	}
+	if resp.Error == nil || !strings.Contains(*resp.Error, "task") {
+		t.Errorf("expected error mentioning task, got %v", resp.Error)
+	}
+}
+
+func TestClusterMetricsHandler_NoRunningTasks(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/nodes":
+			_ = json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
+		case "/v1.35/services":
+			svc := swarm.Service{
+				ID: "s-exporter",
+				Spec: swarm.ServiceSpec{
+					Annotations: swarm.Annotations{
+						Labels: map[string]string{nodeExporterLabel: "true"},
+					},
+				},
+			}
+			_ = json.NewEncoder(w).Encode([]swarm.Service{svc})
+		case "/v1.35/tasks":
+			_ = json.NewEncoder(w).Encode([]swarm.Task{}) // No tasks
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
+	w := httptest.NewRecorder()
+	clusterMetricsHandler(w, req)
+
+	var resp clusterMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Error("expected available=false")
+	}
+	if resp.Message == nil || !strings.Contains(*resp.Message, "no running tasks") {
+		t.Errorf("expected 'no running tasks' message, got %v", resp.Message)
+	}
+}
+
+func TestClusterMetricsHandler_FindServiceError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/nodes":
+			_ = json.NewEncoder(w).Encode([]swarm.Node{{ID: "n1"}})
+		case "/v1.35/services":
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"service error"}`))
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
+	w := httptest.NewRecorder()
+	clusterMetricsHandler(w, req)
+
+	var resp clusterMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Error("expected available=false")
+	}
+	if resp.Error == nil || !strings.Contains(*resp.Error, "finding node-exporter") {
+		t.Errorf("expected 'finding node-exporter' error, got %v", resp.Error)
+	}
+}
+
+func TestClusterMetricsHandler_GetCliError(t *testing.T) {
+	oldGetCli := getCli
+	getCli = func() (*dockclient.Client, error) {
+		return nil, errors.New("mock getCli error")
+	}
+	defer func() { getCli = oldGetCli }()
+
+	req := httptest.NewRequest("GET", "/docker/nodes/metrics", nil)
+	w := httptest.NewRecorder()
+	clusterMetricsHandler(w, req)
+
+	var resp clusterMetricsResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Available {
+		t.Error("expected available=false")
+	}
+	if resp.Error == nil || !strings.Contains(*resp.Error, "mock getCli error") {
+		t.Errorf("expected mock error message, got %v", resp.Error)
 	}
 }

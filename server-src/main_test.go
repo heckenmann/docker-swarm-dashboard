@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -163,5 +164,22 @@ func TestHealthHandler_MockedDockerServer_OK(t *testing.T) {
 	_, err = cli.Info(context.Background())
 	if err != nil {
 		t.Fatalf("expected Info() to succeed against mocked server, got %v", err)
+	}
+}
+
+func TestHealthHandler_GetCliError(t *testing.T) {
+	oldGetCli := getCli
+	getCli = func() (*dockclient.Client, error) {
+		return nil, errors.New("mock getCli error")
+	}
+	defer func() { getCli = oldGetCli }()
+
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	w := httptest.NewRecorder()
+
+	healthHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("expected 503 when getCli fails, got %d", resp.StatusCode)
 	}
 }

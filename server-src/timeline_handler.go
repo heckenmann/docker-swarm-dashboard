@@ -1,13 +1,12 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 	"time"
 
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -23,17 +22,37 @@ type TimelineHandlerSimpleTask struct {
 	Stack            string
 }
 
-func timelineHandler(w http.ResponseWriter, _ *http.Request) {
+func timelineHandler(w http.ResponseWriter, r *http.Request) {
 	cli, err := getCli()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	ctx := r.Context()
+
+	// Fetch all tasks and services once to avoid N+1
+	tasks, err := cli.TaskList(ctx, swarm.TaskListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list tasks: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create service lookup map
+	svcMap := make(map[string]swarm.Service)
+	for _, s := range services {
+		svcMap[s.ID] = s
+	}
+
 	// timestamp for still running tasks
 	var nowTimestamp = time.Now()
-	tasks, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{})
-
-	resultList := make([]TimelineHandlerSimpleTask, 0)
+	resultList := make([]TimelineHandlerSimpleTask, 0, len(tasks))
 
 	for _, task := range tasks {
 		simpleTask := TimelineHandlerSimpleTask{
@@ -42,8 +61,7 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 			State:            string(task.Status.State),
 			DesiredState:     string(task.DesiredState),
 			Slot:             task.Slot,
-			//ServiceName:
-			ServiceID: task.ServiceID,
+			ServiceID:        task.ServiceID,
 		}
 
 		// If container is stopped, set StoppedTimestamp
@@ -54,13 +72,10 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 			simpleTask.StoppedTimestamp = nowTimestamp
 		}
 
-		// Find Service for Task
-		servicesFilter := filters.NewArgs()
-		servicesFilter.Add("id", task.ServiceID)
-		services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: servicesFilter})
-		if len(services) > 0 {
-			simpleTask.ServiceName = services[0].Spec.Name
-			simpleTask.Stack = services[0].Spec.Labels["com.docker.stack.namespace"]
+		// Find Service for Task from map
+		if svc, ok := svcMap[task.ServiceID]; ok {
+			simpleTask.ServiceName = svc.Spec.Name
+			simpleTask.Stack = svc.Spec.Labels["com.docker.stack.namespace"]
 		}
 
 		resultList = append(resultList, simpleTask)
@@ -75,6 +90,8 @@ func timelineHandler(w http.ResponseWriter, _ *http.Request) {
 		}
 	})
 
-	var resultJson, _ = json.Marshal(resultList)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resultList); err != nil {
+		log.Printf("timelineHandler: encoding response failed: %v", err)
+	}
 }

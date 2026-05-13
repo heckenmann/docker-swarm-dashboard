@@ -7,6 +7,34 @@ import (
 	"testing"
 )
 
+func TestTimelineHandler_TaskListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/tasks" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"task list error"}`))
+			return
+		}
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`[]`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/docker/timeline", nil)
+	w := httptest.NewRecorder()
+	timelineHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
+
 // TestTimelineHandler covers running and stopped task handling and service enrichment.
 func TestTimelineHandler_Custom(t *testing.T) {
 	// Create fake tasks: one running with PID>0, one stopped

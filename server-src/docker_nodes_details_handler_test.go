@@ -83,6 +83,30 @@ func TestDockerNodesDetailsHandler_Success(t *testing.T) {
 	}
 }
 
+func TestDockerNodesDetailsHandler_NodeListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/nodes" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"node list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/docker/nodes/n1", nil)
+	req = muxSetVars(req, map[string]string{"id": "n1"})
+	w := httptest.NewRecorder()
+	dockerNodesDetailsHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
+
 // Test that tasks returned for a node include the attached Service object
 func TestDockerNodesDetailsHandler_ServiceAttachedToTasks(t *testing.T) {
 	// prepare node n1

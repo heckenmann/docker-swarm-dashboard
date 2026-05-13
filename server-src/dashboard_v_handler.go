@@ -1,12 +1,11 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 )
 
@@ -30,15 +29,43 @@ type ServiceLine struct {
 }
 
 // Serves datamodel for vertical dashboard.
-func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
+func dashboardVHandler(w http.ResponseWriter, r *http.Request) {
 	result := DashboardV{}
 	cli, err := getCli()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	nodes, _ := cli.NodeList(context.Background(), swarm.NodeListOptions{})
-	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
+
+	ctx := r.Context()
+
+	nodes, err := cli.NodeList(ctx, swarm.NodeListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list nodes: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch all tasks once to avoid N+1
+	allTasks, err := cli.TaskList(ctx, swarm.TaskListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list tasks: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Group tasks by service and node
+	serviceNodeTasks := make(map[string]map[string][]swarm.Task)
+	for _, t := range allTasks {
+		if serviceNodeTasks[t.ServiceID] == nil {
+			serviceNodeTasks[t.ServiceID] = make(map[string][]swarm.Task)
+		}
+		serviceNodeTasks[t.ServiceID][t.NodeID] = append(serviceNodeTasks[t.ServiceID][t.NodeID], t)
+	}
 
 	// Table Header
 	for _, node := range nodes {
@@ -49,24 +76,24 @@ func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	for _, service := range services {
-		newServiceLine := ServiceLine{}
-		newServiceLine.ID = service.ID
-		newServiceLine.Name = service.Spec.Name
-		newServiceLine.Stack = service.Spec.Labels["com.docker.stack.namespace"]
-		newServiceLine.Replication = extractReplicationFromService(service)
-		newServiceLine.Tasks = make(map[string][]swarm.Task)
-		tasksFilters := filters.NewArgs()
-
-		tasksFilters.Add("service", service.ID)
-		tasksForCurrentService, _ := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: tasksFilters})
-		sort.SliceStable(tasksForCurrentService, func(i, j int) bool {
-			return tasksForCurrentService[i].CreatedAt.After(tasksForCurrentService[j].CreatedAt)
-		},
-		)
-
-		for _, task := range tasksForCurrentService {
-			newServiceLine.Tasks[task.NodeID] = append(newServiceLine.Tasks[task.NodeID], task)
+		newServiceLine := ServiceLine{
+			ID:          service.ID,
+			Name:        service.Spec.Name,
+			Stack:       service.Spec.Labels["com.docker.stack.namespace"],
+			Replication: extractReplicationFromService(service),
+			Tasks:       make(map[string][]swarm.Task),
 		}
+
+		// Get grouped tasks for this service
+		nodeMap := serviceNodeTasks[service.ID]
+		for nodeID, tasks := range nodeMap {
+			// Sort tasks by CreatedAt descending
+			sort.SliceStable(tasks, func(i, j int) bool {
+				return tasks[i].CreatedAt.After(tasks[j].CreatedAt)
+			})
+			newServiceLine.Tasks[nodeID] = tasks
+		}
+
 		result.Services = append(result.Services, newServiceLine)
 	}
 
@@ -80,6 +107,8 @@ func dashboardVHandler(w http.ResponseWriter, _ *http.Request) {
 		return result.Services[i].Name < result.Services[j].Name
 	})
 
-	var resultJson, _ = json.Marshal(result)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		log.Printf("dashboardVHandler: encoding response failed: %v", err)
+	}
 }

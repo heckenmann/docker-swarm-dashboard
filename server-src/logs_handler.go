@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sort"
 
@@ -14,15 +14,19 @@ type LogsHandlerSimpleService struct {
 	Name string
 }
 
-func logsServicesHandler(w http.ResponseWriter, _ *http.Request) {
+func logsServicesHandler(w http.ResponseWriter, r *http.Request) {
 	cli, err := getCli()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	services, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
+	services, err := cli.ServiceList(r.Context(), swarm.ServiceListOptions{})
+	if err != nil {
+		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	resultList := make([]LogsHandlerSimpleService, 0)
+	resultList := make([]LogsHandlerSimpleService, 0, len(services))
 
 	for _, service := range services {
 		simpleTask := LogsHandlerSimpleService{
@@ -37,6 +41,8 @@ func logsServicesHandler(w http.ResponseWriter, _ *http.Request) {
 		return resultList[i].Name < resultList[j].Name
 	})
 
-	var resultJson, _ = json.Marshal(resultList)
-	_, _ = w.Write(resultJson)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resultList); err != nil {
+		log.Printf("logsServicesHandler: encoding response failed: %v", err)
+	}
 }

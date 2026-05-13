@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,7 +10,52 @@ import (
 	"time"
 
 	swarmtypes "github.com/docker/docker/api/types/swarm"
+	dockclient "github.com/docker/docker/client"
 )
+
+func TestDashboardVHandler_GetCliError(t *testing.T) {
+	oldGetCli := getCli
+	getCli = func() (*dockclient.Client, error) {
+		return nil, errors.New("mock getCli error")
+	}
+	defer func() { getCli = oldGetCli }()
+
+	req := httptest.NewRequest(http.MethodGet, "/ui/dashboardv", nil)
+	w := httptest.NewRecorder()
+	dashboardVHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
+
+func TestDashboardVHandler_NodeListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/nodes" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"node list error"}`))
+			return
+		}
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`[]`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/ui/dashboardv", nil)
+	w := httptest.NewRecorder()
+	dashboardVHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
 
 // TestDashboardVHandler verifies the vertical dashboard handler combines
 // nodes, services and tasks into the expected UI payload.
@@ -69,5 +115,41 @@ func TestDashboardVHandler(t *testing.T) {
 	// check presence
 	if _, ok := out["Services"]; !ok {
 		t.Fatalf("expected services in dashboardv response")
+	}
+}
+
+func TestDashboardVHandler_TaskListError(t *testing.T) {
+	nodes := []swarmtypes.Node{{ID: "n1", Description: swarmtypes.NodeDescription{Hostname: "vnode"}, Status: swarmtypes.NodeStatus{Addr: "10.0.0.2"}}}
+	bNodes, _ := json.Marshal(nodes)
+	services := []map[string]interface{}{{
+		"ID":   "s1",
+		"Spec": map[string]interface{}{"Name": "vsvc", "Labels": map[string]string{"com.docker.stack.namespace": "vstack"}},
+	}}
+	bServices, _ := json.Marshal(services)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1.35/nodes":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bNodes)
+		case "/v1.35/services":
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(bServices)
+		case "/v1.35/tasks":
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"task list error"}`))
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/ui/dashboardv", nil)
+	w := httptest.NewRecorder()
+	dashboardVHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
 	}
 }

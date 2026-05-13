@@ -1,25 +1,27 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/docker/docker/api/types/swarm"
 )
 
 // Serves the nodes
-func dockerNodesHandler(w http.ResponseWriter, _ *http.Request) {
+func dockerNodesHandler(w http.ResponseWriter, r *http.Request) {
 	cli, err := getCli()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Nodes, err := cli.NodeList(context.Background(), swarm.NodeListOptions{})
+	Nodes, err := cli.NodeList(r.Context(), swarm.NodeListOptions{})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	jsonString, _ := json.Marshal(Nodes)
-	_, _ = w.Write(jsonString)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(Nodes); err != nil {
+		log.Printf("dockerNodesHandler: encoding response failed: %v", err)
+	}
 }

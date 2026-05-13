@@ -2,13 +2,50 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types/swarm"
 )
+
+func TestGetDashboardNetworks_HostnameError(t *testing.T) {
+	oldOsHostname := osHostname
+	osHostname = func() (string, error) {
+		return "", errors.New("mock hostname error")
+	}
+	defer func() { osHostname = oldOsHostname }()
+
+	cli, _ := getCli()
+	nets := getDashboardNetworks(cli)
+	if len(nets) != 0 {
+		t.Error("expected empty map on hostname error")
+	}
+}
+
+func TestGetDashboardNetworks_InspectError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/containers/") {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"inspect error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+	cli, _ := getCli()
+
+	nets := getDashboardNetworks(cli)
+	if len(nets) != 0 {
+		t.Error("expected empty map on inspect error")
+	}
+}
 
 func TestGetDashboardNetworks(t *testing.T) {
 	cli, err := getCli()

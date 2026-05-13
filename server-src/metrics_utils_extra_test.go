@@ -77,6 +77,52 @@ func TestFindCAdvisorService_Advanced(t *testing.T) {
 	}
 }
 
+func TestFindNodeExporterService_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"service list error"}`))
+			return
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+	cli, _ := getCli()
+
+	svc, err := findNodeExporterService(cli)
+	if err == nil {
+		t.Error("expected error when ServiceList fails")
+	}
+	if svc != nil {
+		t.Errorf("expected nil service on error, got %v", svc)
+	}
+}
+
+func TestFindCAdvisorService_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"service list error"}`))
+			return
+		}
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+	cli, _ := getCli()
+
+	svc, err := findCAdvisorService(cli)
+	if err == nil {
+		t.Error("expected error when ServiceList fails")
+	}
+	if svc != nil {
+		t.Errorf("expected nil service on error, got %v", svc)
+	}
+}
+
 func TestResolveServiceEndpoint_NoTasksFallback(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/tasks" {

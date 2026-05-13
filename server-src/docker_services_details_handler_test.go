@@ -9,6 +9,30 @@ import (
 	swarmtypes "github.com/docker/docker/api/types/swarm"
 )
 
+func TestDockerServicesDetailsHandler_ServiceListError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/v1.35/services" {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`{"message":"service list error"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	defer ResetCli()
+	SetCli(makeClientForServer(t, server.URL))
+
+	req := httptest.NewRequest(http.MethodGet, "/docker/services/s1", nil)
+	req = muxSetVars(req, map[string]string{"id": "s1"})
+	w := httptest.NewRecorder()
+	dockerServicesDetailsHandler(w, req)
+	resp := w.Result()
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("expected 500 got %d", resp.StatusCode)
+	}
+}
+
 // TestDockerServicesDetailsHandler_Success verifies the details handler
 // returns the matching service object when present.
 func TestDockerServicesDetailsHandler_Success(t *testing.T) {
