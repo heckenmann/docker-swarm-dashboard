@@ -377,12 +377,12 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 
-"@babel/plugin-syntax-flow@^7.28.6":
-  version "7.28.6"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-flow/-/plugin-syntax-flow-7.28.6.tgz#447559a225e66c4cd477a3ffb1a74d8c1fe25a62"
-  integrity sha512-D+OrJumc9McXNEBI/JmFnc/0uCM2/Y3PEBG3gfV3QIYkKv5pvnpzFrl1kYCrcHJP8nOeFB/SHi1IHz29pNGuew==
+"@babel/plugin-syntax-flow@^7.29.7":
+  version "7.29.7"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-flow/-/plugin-syntax-flow-7.29.7.tgz#3f3278c11c896c43bf8098250819785fd1231881"
+  integrity sha512-ajMX6QPcyomotqwpzhkYGxcK2i/us0rs1Qo9QvUpa+Fca0FTmqrzKrctoIYLMxcOhGZldGT/BAVkRGTWBiR8gQ==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.28.6"
+    "@babel/helper-plugin-utils" "^7.29.7"
 
 "@babel/plugin-syntax-import-assertions@^7.29.7":
   version "7.29.7"
