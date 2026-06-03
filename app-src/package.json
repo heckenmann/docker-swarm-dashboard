@@ -65,7 +65,7 @@
     "axios": "^1.16.1",
     "babel-jest": "^30.4.1",
     "bootstrap": "^5.3.8",
-    "concurrently": "^10.0.0",
+    "concurrently": "^10.0.3",
     "cors": "^2.8.6",
     "cypress": "^15.16.0",
     "eslint": "^9.39.2",
