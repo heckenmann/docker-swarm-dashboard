@@ -2429,10 +2429,10 @@ anymatch@^3.1.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apexcharts@^5.13.0:
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-5.13.0.tgz#197082a938794780f8de6df0ffdc33a9fa9ee12b"
-  integrity sha512-PJuXT6zdiCbv0IkX5cqkKFVIIh+9v3kqP9zsOHEGpIWi7DfTgzvfOKc8icw6G3/ulR3V1alDDUtOVH0zWCWGEQ==
+apexcharts@^5.14.0:
+  version "5.14.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-5.14.0.tgz#01bb15967627dec4638e8ffb516d8ad5eac0e39c"
+  integrity sha512-hBLz5Gd8B5ZuocEzNUwEeKdw9vd7uy4OnqbDjAYyvwiAEyHk3OnO9+tGzAznpM6pnyCqWjPXUKKYoNIwdskeuQ==
 
 arch@^2.2.0:
   version "2.2.0"
