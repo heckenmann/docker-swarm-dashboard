@@ -21,6 +21,16 @@ jobs:
         with:
           go-version: '1.25'
 
+      - name: Check Go formatting
+        working-directory: server-src
+        run: |
+          unformatted_files="$(gofmt -l .)"
+          if [ -n "$unformatted_files" ]; then
+            echo "The following Go files are not gofmt-formatted:"
+            echo "$unformatted_files"
+            exit 1
+          fi
+
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
