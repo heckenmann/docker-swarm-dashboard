@@ -27,13 +27,13 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to get Docker client: %v", err)
 		w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Error:     &errMsg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 	vars := mux.Vars(r)
 	taskID := vars["id"]
@@ -44,62 +44,62 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	task, _, err := cli.TaskInspectWithRaw(context.Background(), taskID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to inspect task: %v", err)
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Error:     &errMsg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	// Only provide metrics for running tasks
 	if task.Status.State != swarm.TaskStateRunning {
 		msg := "Task is not running"
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Message:   &msg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Message:   &msg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	// Find cAdvisor service
 	cadvisorService, err := findCAdvisorService(cli)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to find cAdvisor service: %v", err)
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Error:     &errMsg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	if cadvisorService == nil {
 		msg := fmt.Sprintf("cAdvisor not found. Deploy with label '%s'", cadvisorLabel)
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Message:   &msg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Message:   &msg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	// Get cAdvisor endpoint on the same node as the task
 	endpoint, err := getCAdvisorEndpoint(cli, cadvisorService, task.NodeID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to get cAdvisor endpoint: %v", err)
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Error:     &errMsg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	// Fetch metrics from cAdvisor. `endpoint` may already be a full URL
@@ -110,13 +110,13 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricsText, err := fetchMetricsFromCAdvisor(metricsURL)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to fetch metrics: %v", err)
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Error:     &errMsg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	// Try to determine the service name (helps parseCAdvisorMetrics filter by service)
@@ -133,13 +133,13 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	serviceMetrics, err := parseCAdvisorMetrics(metricsText, task.ServiceID, serviceName)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to parse metrics: %v", err)
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Error:     &errMsg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Error:     &errMsg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	// Find the specific container metrics for this task
@@ -155,13 +155,13 @@ func taskMetricsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if taskMetrics == nil {
 		msg := "Metrics not available for this task"
-	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
-		Available: false,
-		Message:   &msg,
-	}); err != nil {
-		log.Printf("taskMetricsHandler: encoding response failed: %v", err)
-	}
-	return
+		if err := json.NewEncoder(w).Encode(taskMetricsResponse{
+			Available: false,
+			Message:   &msg,
+		}); err != nil {
+			log.Printf("taskMetricsHandler: encoding response failed: %v", err)
+		}
+		return
 	}
 
 	if err := json.NewEncoder(w).Encode(taskMetricsResponse{
