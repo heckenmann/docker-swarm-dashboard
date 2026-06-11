@@ -80,7 +80,7 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "jotai": "^2.20.0",
+    "jotai": "^2.20.1",
     "jotai-location": "^0.6.2",
     "json-server": "1.0.0-beta.15",
     "prettier": "^3.8.4",
