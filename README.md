@@ -64,6 +64,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `DSD_DASHBOARD_LAYOUT` | Default dashboard layout. Either `row` (default) or `column`. | `row` |
 | `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |
 | `DSD_PATH_PREFIX` | Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path. | `/` |
+| `DSD_ALLOWED_ORIGINS` | Comma-separated list of allowed HTTP CORS and WebSocket origins (e.g. `https://dashboard.example.com`). The default keeps the historical behavior and allows all origins. Set a concrete allow-list to restrict browser access. | `*` |
 | `DSD_NODE_EXPORTER_LABEL` | Docker service label to identify node-exporter service for metrics collection. | `dsd.node-exporter` |
 | `DSD_CADVISOR_LABEL` | Docker service label to identify cAdvisor service for container memory metrics. | `dsd.cadvisor` |
 | `LOCALE` | Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag. | (system) |
@@ -72,6 +73,8 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `DSD_VERSION_CHECK_CACHE_TIMEOUT_MINUTES` | Cache duration in minutes for version check results. | `60` |
 | `DSD_WELCOME_MESSAGE` | If set, this message will be displayed to the user in a modal dialog when the web application is opened in the browser. | (none) |
 | `DOCKER_API_VERSION` | Forces a specific Docker API version to use (e.g. `1.35`, `1.41`). When not specified, the server automatically negotiates the highest API version supported by both the client and Docker daemon. Only set this if you need to force a specific version for compatibility. | (auto-negotiated) |
+
+If `DSD_ALLOWED_ORIGINS` is not set, the server logs a startup warning because all HTTP CORS and WebSocket origins are allowed for backward compatibility.
 
 #### UI Default Settings
 These environment variables control the default UI state. All settings can be changed by the user in the web interface and are persisted in the URL hash.

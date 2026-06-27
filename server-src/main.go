@@ -33,6 +33,7 @@ func ResetCli() {
 
 func main() {
 	log.Println("Starting Docker Swarm Dashboard...")
+	warnIfAllowedOriginsUnset()
 	log.Println("Starting server setup")
 	handler := buildHandler()
 	log.Println("Ready! Waiting for connections on port " + httpPort + "...")
@@ -53,9 +54,8 @@ func buildHandler() http.Handler {
 	}
 
 	// CORS Headers
-	// https://stackoverflow.com/questions/40985920/making-golang-gorilla-cors-handler-work
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
+	originsOk := handlers.AllowedOriginValidator(isCORSOriginAllowed)
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	apiRouter.HandleFunc("/docker/services", dockerServicesHandler)

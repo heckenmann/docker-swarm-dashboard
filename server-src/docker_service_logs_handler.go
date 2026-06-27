@@ -20,12 +20,9 @@ import (
 
 var (
 	// upgrader configures the websocket upgrade and enables compression.
-	// CheckOrigin returns true to allow connections from any origin.
 	upgrader = websocket.Upgrader{
 		EnableCompression: true,
-		CheckOrigin: func(_ *http.Request) bool {
-			return true
-		},
+		CheckOrigin:       isWebSocketOriginAllowed,
 	}
 )
 
