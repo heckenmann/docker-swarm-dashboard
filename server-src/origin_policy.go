@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 )
@@ -55,16 +54,4 @@ func isWebSocketOriginAllowed(r *http.Request) bool {
 		return true
 	}
 	return isOriginInAllowedList(origin)
-}
-
-func isWebSocketSameOriginAllowed(r *http.Request) bool {
-	origin := r.Header.Get("Origin")
-	if origin == "" {
-		return true
-	}
-	originURL, err := url.Parse(origin)
-	if err != nil {
-		return false
-	}
-	return strings.EqualFold(originURL.Host, r.Host)
 }
