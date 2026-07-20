@@ -2436,10 +2436,10 @@ anymatch@^3.1.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apexcharts@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-6.0.0.tgz#011304236d7f1eb811e27b89d2a14c2e078436d5"
-  integrity sha512-vFto9h6yimqtGK4X1NpRgwrq1xrqRg4g2hGTB68tf4AhS0laAQcybGcGAW3cBySHGoCE8L3Q+xm9P+4Ki5+Shw==
+apexcharts@^6.4.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-6.4.0.tgz#7fffab418f3face613ca580d7870ab904c22fb9c"
+  integrity sha512-VlHap/0sE0Wm59+B7qNb5XsMr+rpJ3FQVA20koPAdbV1PBEiDvQynXeTZM1zl9Qzy3RrBLyg3gqdcinkavR1aQ==
 
 arch@^2.2.0:
   version "2.2.0"
