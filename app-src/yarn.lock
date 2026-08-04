@@ -2577,7 +2577,7 @@ axe-core@^4.10.0:
   resolved "https://registry.npmjs.org/axe-core/-/axe-core-4.11.1.tgz"
   integrity sha512-BASOg+YwO2C+346x3LZOeoovTIoTrRqEsqMa6fmfAV0P+U9mFr9NsyOEpiYvFjbc64NMrSswhV50WdXzdb/Z5A==
 
-axios@^1.16.0, axios@^1.18.1, axios@^1.19.0:
+axios@^1.18.1, axios@^1.19.0:
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.19.0.tgz#ddf864d4c8233c0e6873746ab59361537d05ad39"
   integrity sha512-ht/iuYZXEjFxLH/Hkezgd7m6JKlHHXEUSneaDz8uZe1Gj5QZtCnpyDsckvAiEnT89OEbCLmnte4R4sn7P0EKFw==
@@ -5196,7 +5196,7 @@ jest@^30.4.2:
     import-local "^3.2.0"
     jest-cli "30.4.2"
 
-joi@^18.2.1, joi@^18.2.3:
+joi@^18.2.3:
   version "18.2.3"
   resolved "https://registry.yarnpkg.com/joi/-/joi-18.2.3.tgz#efdd1311496cd585730633fc57253a45641a3e85"
   integrity sha512-N5A3KTWQpPWT4ExxxPlUx7WmykGXRzhNidWhV41d6Abu9YfI2NyWCJuxdPnslJCPWtbRpSVOWSnSS6GakLM/Rg==
@@ -6786,10 +6786,10 @@ stack-utils@^2.0.6:
   dependencies:
     escape-string-regexp "^2.0.0"
 
-start-server-and-test@^3.0.11:
-  version "3.0.11"
-  resolved "https://registry.yarnpkg.com/start-server-and-test/-/start-server-and-test-3.0.11.tgz#25aeaea872575a8f6e0d7b0b22d0c26500eff5bf"
-  integrity sha512-NRapOwJl6jr1DNSaQ+SRukHI2OKcFZA2Iv2tfTW9fI/S+6YmJGiwacR+0MG3o5p39lY4xWUOE5JFkKJBZUjxuQ==
+start-server-and-test@^3.0.12:
+  version "3.0.12"
+  resolved "https://registry.yarnpkg.com/start-server-and-test/-/start-server-and-test-3.0.12.tgz#0573aeb5fe7282b3980362951cc96110606528d2"
+  integrity sha512-JhW9LiYXqJxyzmgMvBQ6JxVcz16wV+c5IE6rTHofqLBKjSE075Yr9e6sTr8QgrkHMHlHqkDegzKpQfVKxwauJw==
   dependencies:
     arg "5.0.2"
     check-more-types "2.24.0"
@@ -6797,7 +6797,7 @@ start-server-and-test@^3.0.11:
     execa "5.1.1"
     lazy-ass "2.0.3"
     tree-kill "1.2.2"
-    wait-on "9.0.10"
+    wait-on "9.1.0"
 
 steno@^4.0.2:
   version "4.0.2"
@@ -7525,18 +7525,7 @@ w3c-xmlserializer@^5.0.0:
   dependencies:
     xml-name-validator "^5.0.0"
 
-wait-on@9.0.10:
-  version "9.0.10"
-  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-9.0.10.tgz#9c73ad1908b8e46e853e1271b2c9563f2c2d8e02"
-  integrity sha512-rCoJEhvMr0X6alHmwc9abbrA5ZrLZFKpFQVKPNFwl2h7DapXOGdmimIHDtLOWhT4PjhZhxFEtZoQgEXbkDWdZw==
-  dependencies:
-    axios "^1.16.0"
-    joi "^18.2.1"
-    lodash "^4.18.1"
-    minimist "^1.2.8"
-    rxjs "^7.8.2"
-
-wait-on@^9.1.0:
+wait-on@9.1.0, wait-on@^9.1.0:
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-9.1.0.tgz#3872a460589e33f2c7a1c53cbbb83c437477073e"
   integrity sha512-PymrLXHLBM1Ju/Xspb2ADUhbPSMvbnuNvy/mN2hWtpbJ3da0h3Ky1LqwKPG5QSVR57liyO0iUpfipYl/s5qNvA==
