@@ -2,23 +2,48 @@ import { atom } from 'jotai'
 import { atomWithHash } from 'jotai-location'
 
 /**
+ * Applies `fn` to `value`, keeping the result synchronous when `value` is not
+ * a promise.
+ *
+ * Derived atoms must not be declared `async` when their sources can resolve
+ * synchronously: an async read function always returns a *new* pending
+ * promise, which makes every consuming component suspend again on each
+ * update. Under a `<Suspense>` boundary that unmounts the whole subtree,
+ * losing DOM state such as input focus.
+ *
+ * @param {any} value - A plain value or a promise
+ * @param {Function} fn - Mapping function applied to the resolved value
+ * @returns {any} The mapped value, or a promise of it when `value` is a promise
+ */
+export const mapMaybePromise = (value, fn) =>
+  value instanceof Promise ? value.then(fn) : fn(value)
+
+/**
  * Creates an atom that:
  * 1. Reads from URL hash first (if value exists)
  * 2. Falls back to server default if no hash value
  * 3. Writes changes back to URL hash
+ *
+ * The read function is intentionally synchronous: once a value is present in
+ * the URL hash the atom resolves without suspending, so typing in a
+ * hash-backed input does not remount the view. Only the initial read (before
+ * the server defaults have arrived) returns the pending settings promise, and
+ * that promise instance is stable, so it suspends exactly once.
+ *
+ * The hash is updated with `replaceState` so a filter keystroke does not push
+ * a browser history entry per character.
  *
  * @param {string} key - The URL hash key
  * @param {Atom} defaultAtom - The atom providing server defaults
  * @returns {Atom} An atom with hash persistence and server fallback
  */
 const createHashAtomWithDefault = (key, defaultAtom) => {
-  const hashAtom = atomWithHash(key)
+  const hashAtom = atomWithHash(key, undefined, { setHash: 'replaceState' })
   return atom(
-    async (get) => {
+    (get) => {
       const hashValue = get(hashAtom)
       if (hashValue !== undefined && hashValue !== null) return hashValue
-      const defaultValue = get(defaultAtom)
-      return defaultValue instanceof Promise ? await defaultValue : defaultValue
+      return get(defaultAtom)
     },
     (get, set, value) => set(hashAtom, value),
   )

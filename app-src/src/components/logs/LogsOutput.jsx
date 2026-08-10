@@ -1,8 +1,9 @@
 import { useAtomValue } from 'jotai'
-import { Button } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import React from 'react'
 import { currentVariantClassesAtom } from '../../common/store/atoms/themeAtoms'
 import {
+  logsErrorAtom,
   logsFormServiceIdAtom,
   logsFormServiceNameAtom,
   logsFormTailAtom,
@@ -60,6 +61,7 @@ const LogsOutput = React.memo(function LogsOutput() {
   const searchKeyword = useAtomValue(logsSearchKeywordAtom)
   const serviceId = useAtomValue(logsFormServiceIdAtom)
   const serviceName = useAtomValue(logsFormServiceNameAtom)
+  const logsError = useAtomValue(logsErrorAtom)
 
   const keyword = (searchKeyword ?? '').trim().toLowerCase()
   const sliced =
@@ -75,6 +77,11 @@ const LogsOutput = React.memo(function LogsOutput() {
       aria-live="polite"
       aria-label="Log output"
     >
+      {logsError && (
+        <Alert variant="danger" className="py-2 small">
+          {logsError}
+        </Alert>
+      )}
       <div className="font-monospace small">
         {keyword && (
           <div className="text-muted small mb-1">

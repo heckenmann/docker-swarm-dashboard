@@ -22,6 +22,7 @@ import {
   logsFormDetailsAtom,
   logsSearchKeywordAtom,
   logsConfigAtom,
+  logsErrorAtom,
   logsShowLogsAtom,
   logsNumberOfLinesAtom,
 } from '../../common/store/atoms/logsAtoms'
@@ -54,6 +55,7 @@ const LogsSetupForm = React.memo(function LogsSetupForm() {
   const [, setSearchKeyword] = useAtom(logsSearchKeywordAtom)
   const [, setLogsNumberOfLines] = useAtom(logsNumberOfLinesAtom)
   const [, setLogsConfig] = useAtom(logsConfigAtom)
+  const [, setLogsError] = useAtom(logsErrorAtom)
   const [, setLogsShowLogs] = useAtom(logsShowLogsAtom)
 
   const [serviceSearch, setServiceSearch] = useState('')
@@ -80,6 +82,7 @@ const LogsSetupForm = React.memo(function LogsSetupForm() {
       return
     }
     setSinceError(false)
+    setLogsError(null)
     const newLogsConfig = {
       serviceId: serviceId,
       serviceName: serviceName || serviceNames[serviceId],
