@@ -208,6 +208,11 @@ const LogsSetupForm = React.memo(function LogsSetupForm() {
                   <ListGroup.Item
                     key={'serviceList-' + service['ID']}
                     action
+                    // Action items render a bare <button>, which defaults to
+                    // type="submit" inside this form: picking a service would
+                    // submit it and start streaming the previously selected
+                    // service instead of this one.
+                    type="button"
                     active={serviceId === service['ID']}
                     onClick={() => {
                       setServiceId(service['ID'])
