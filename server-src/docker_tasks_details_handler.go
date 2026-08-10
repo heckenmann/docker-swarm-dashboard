@@ -27,7 +27,7 @@ func dockerTasksDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(Tasks) == 1 {
-		t := Tasks[0]
+		t := maskTaskEnv(Tasks[0])
 		// convert task to a generic map first
 		var tm map[string]interface{}
 		b, _ := json.Marshal(t)

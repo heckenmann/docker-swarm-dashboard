@@ -45,7 +45,7 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Enrich tasks with Service object when possible to match mock shape
 		enriched := make([]map[string]interface{}, 0, len(Tasks))
-		for _, t := range Tasks {
+		for _, t := range maskTasksEnv(Tasks) {
 			var tm map[string]interface{}
 			b, _ := json.Marshal(t)
 			_ = json.Unmarshal(b, &tm)
@@ -54,7 +54,7 @@ func dockerNodesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			servicesFilter.Add("id", t.ServiceID)
 			svcList, _ := cli.ServiceList(context.Background(), swarm.ServiceListOptions{Filters: servicesFilter})
 			if len(svcList) > 0 {
-				tm["Service"] = svcList[0]
+				tm["Service"] = maskServiceEnv(svcList[0])
 			} else {
 				tm["Service"] = nil
 			}
