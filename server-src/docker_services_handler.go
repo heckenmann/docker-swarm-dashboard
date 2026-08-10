@@ -21,7 +21,7 @@ func dockerServicesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(Services); err != nil {
+	if err := json.NewEncoder(w).Encode(maskServicesEnv(Services)); err != nil {
 		log.Printf("dockerServicesHandler: encoding response failed: %v", err)
 	}
 }

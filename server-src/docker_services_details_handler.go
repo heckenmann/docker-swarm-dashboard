@@ -45,7 +45,7 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Attach Node object to each task when possible to match mock shape
 		enriched := make([]map[string]interface{}, 0, len(Tasks))
-		for _, t := range Tasks {
+		for _, t := range maskTasksEnv(Tasks) {
 			// convert task to a generic map first
 			var tm map[string]interface{}
 			b, _ := json.Marshal(t)
@@ -65,7 +65,7 @@ func dockerServicesDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Return the same shape as the mock server: { service, tasks }
 		resp := map[string]interface{}{
-			"service": Services[0],
+			"service": maskServiceEnv(Services[0]),
 			"tasks":   enriched,
 		}
 		jsonString, _ := json.Marshal(resp)
