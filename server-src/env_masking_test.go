@@ -6,7 +6,9 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/docker/docker/api/types/container"
 	swarmtypes "github.com/docker/docker/api/types/swarm"
 )
 
@@ -129,6 +131,61 @@ func TestMaskArgs(t *testing.T) {
 			[]string{"/bin/sh", "-c", "start"},
 			[]string{"/bin/sh", "-c", "start"},
 		},
+		{
+			"keeps an ordinary setting readable",
+			[]string{"--log-level=debug", "--config=/etc/app.yaml"},
+			[]string{"--log-level=debug", "--config=/etc/app.yaml"},
+		},
+		{
+			"masks the credentials of an ordinary setting holding a URL",
+			[]string{"--dsn=postgres://user:pw@host/db"},
+			[]string{"--dsn=" + maskedValue},
+		},
+		{
+			"keeps a URL without credentials readable",
+			[]string{"--endpoint=https://api.example.com/v1"},
+			[]string{"--endpoint=https://api.example.com/v1"},
+		},
+		{
+			"leaves a token net/url would rewrite alone",
+			[]string{"--format={{.Names}}", `C:\app\run.exe`},
+			[]string{"--format={{.Names}}", `C:\app\run.exe`},
+		},
+		{
+			"keeps a URL whose userinfo holds no password readable",
+			[]string{"https://registry@example.com/v2"},
+			[]string{"https://registry@example.com/v2"},
+		},
+		{
+			"leaves an unparsable URL alone",
+			[]string{"http://%zz@host"},
+			[]string{"http://%zz@host"},
+		},
+		{
+			"leaves a one-character token alone",
+			[]string{"-", ""},
+			[]string{"-", ""},
+		},
+		{
+			"masks the value of a sensitive header",
+			[]string{"curl", "-H", "'Authorization: Bearer s3cr3t'"},
+			[]string{"curl", "-H", "'Authorization: " + maskedValue + "'"},
+		},
+		{
+			"keeps an ordinary header readable",
+			[]string{"curl", "-H", "'Accept: application/json'"},
+			[]string{"curl", "-H", "'Accept: application/json'"},
+		},
+		{
+			"masks the command line held in a single token",
+			[]string{"sh", "-c", "curl -H 'Authorization: Bearer s3cr3t' https://api/health"},
+			[]string{"sh", "-c", "curl -H 'Authorization: " + maskedValue + "' https://api/health"},
+		},
+		{
+			"masks a multi-word value following a sensitive flag",
+			[]string{"--password", "'a secret pass'"},
+			[]string{"--password", "'" + maskedValue + "'"},
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -200,6 +257,66 @@ func TestMaskContainerSpecSecrets(t *testing.T) {
 	}
 	if spec.ContainerSpec.Image != "alpine" {
 		t.Fatal("the rest of the container spec must be preserved")
+	}
+}
+
+func TestMaskHealthcheckTest(t *testing.T) {
+	cases := []struct {
+		name     string
+		test     []string
+		expected []string
+	}{
+		{
+			"masks the credentials of a shell health check",
+			[]string{"CMD-SHELL", "curl -f -H 'Authorization: Bearer s3cr3t' http://localhost/health"},
+			[]string{"CMD-SHELL", "curl -f -H 'Authorization: " + maskedValue + "' http://localhost/health"},
+		},
+		{
+			"masks the credentials of an exec health check",
+			[]string{"CMD", "pg_isready", "--dbname", "postgres://user:pw@host/db", "--password=s3cr3t"},
+			[]string{"CMD", "pg_isready", "--dbname", "postgres://user:xxxxx@host/db", "--password=" + maskedValue},
+		},
+		{
+			"keeps the directive and an ordinary check readable",
+			[]string{"CMD", "curl", "-f", "http://localhost/health"},
+			[]string{"CMD", "curl", "-f", "http://localhost/health"},
+		},
+		{"keeps a disabled health check untouched", []string{"NONE"}, []string{"NONE"}},
+		{"keeps an inherited health check untouched", nil, nil},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := maskHealthcheckTest(tc.test)
+			if len(got) != len(tc.expected) {
+				t.Fatalf("expected %v got %v", tc.expected, got)
+			}
+			for i := range got {
+				if got[i] != tc.expected[i] {
+					t.Fatalf("expected %v got %v", tc.expected, got)
+				}
+			}
+		})
+	}
+}
+
+func TestMaskContainerSpecHealthcheck(t *testing.T) {
+	healthcheck := &container.HealthConfig{
+		Test:     []string{"CMD-SHELL", "curl -H 'Authorization: Bearer s3cr3t' http://localhost/health"},
+		Interval: 30 * time.Second,
+	}
+	spec := swarmtypes.TaskSpec{ContainerSpec: &swarmtypes.ContainerSpec{Healthcheck: healthcheck}}
+
+	maskTaskSpecEnv(&spec)
+
+	masked := spec.ContainerSpec.Healthcheck
+	if strings.Contains(masked.Test[1], "s3cr3t") {
+		t.Fatalf("health check not masked, got %q", masked.Test[1])
+	}
+	if masked.Interval != 30*time.Second {
+		t.Fatalf("the rest of the health check must be preserved, got %v", masked.Interval)
+	}
+	if !strings.Contains(healthcheck.Test[1], "s3cr3t") {
+		t.Fatalf("the original health check was mutated, got %q", healthcheck.Test[1])
 	}
 }
 
@@ -303,39 +420,136 @@ func TestEnvMaskingEnabledByDefault(t *testing.T) {
 	}
 }
 
-// TestDockerServicesHandlerMasksEnv verifies that no raw environment value ever
-// reaches the HTTP response of the services endpoint.
-func TestDockerServicesHandlerMasksEnv(t *testing.T) {
-	services := []swarmtypes.Service{{
+// secretBearingContainerSpec returns a container spec holding one secret of
+// every kind the masking covers, each tagged with the given owner so a leak can
+// be traced back to the object it came from.
+func secretBearingContainerSpec(owner string) *swarmtypes.ContainerSpec {
+	return &swarmtypes.ContainerSpec{
+		Image:   "alpine",
+		Env:     []string{"POSTGRES_PASSWORD=" + owner + "-env"},
+		Command: []string{"/entrypoint.sh", "--api-token=" + owner + "-command"},
+		Args:    []string{"--password", owner + "-arg"},
+		Labels:  map[string]string{"internal.api-key": owner + "-label"},
+		Healthcheck: &container.HealthConfig{
+			Test: []string{"CMD-SHELL", "curl -H 'Authorization: Bearer " + owner + "-healthcheck' http://localhost/health"},
+		},
+		Privileges: &swarmtypes.Privileges{
+			CredentialSpec: &swarmtypes.CredentialSpec{Config: owner + "-credentialspec"},
+		},
+	}
+}
+
+// secretsOf lists the raw values secretBearingContainerSpec hides, in the form
+// they must never take in a response.
+func secretsOf(owner string) []string {
+	return []string{
+		owner + "-env",
+		owner + "-command",
+		owner + "-arg",
+		owner + "-label",
+		owner + "-healthcheck",
+		owner + "-credentialspec",
+	}
+}
+
+// secretBearingService returns a service whose current and previous specs both
+// carry secrets, at the service level and in the container spec.
+func secretBearingService(owner string) swarmtypes.Service {
+	return swarmtypes.Service{
 		ID: "s1",
 		Spec: swarmtypes.ServiceSpec{
-			Annotations:  swarmtypes.Annotations{Name: "svc1"},
-			TaskTemplate: swarmtypes.TaskSpec{ContainerSpec: containerSpecWithEnv("POSTGRES_PASSWORD=s3cr3t")},
+			Annotations: swarmtypes.Annotations{
+				Name:   "svc1",
+				Labels: map[string]string{"internal.api-key": owner + "-label"},
+			},
+			TaskTemplate: swarmtypes.TaskSpec{ContainerSpec: secretBearingContainerSpec(owner)},
 		},
-	}}
-	b, _ := json.Marshal(services)
+		PreviousSpec: &swarmtypes.ServiceSpec{
+			TaskTemplate: swarmtypes.TaskSpec{ContainerSpec: secretBearingContainerSpec(owner + "-previous")},
+		},
+	}
+}
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/v1.35/services") {
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(b)
-			return
+// secretBearingTask returns a task carrying secrets in its labels and its spec,
+// attached to the service and the node the fixtures below use.
+func secretBearingTask(owner string) swarmtypes.Task {
+	return swarmtypes.Task{
+		ID:          "t1",
+		ServiceID:   "s1",
+		NodeID:      "n1",
+		Annotations: swarmtypes.Annotations{Labels: map[string]string{"internal.api-key": owner + "-label"}},
+		Spec:        swarmtypes.TaskSpec{ContainerSpec: secretBearingContainerSpec(owner)},
+	}
+}
+
+// swarmTestServer answers the Docker endpoints the handlers call with the given
+// objects, whatever filters the request carries.
+func swarmTestServer(t *testing.T, services []swarmtypes.Service, tasks []swarmtypes.Task, nodes []swarmtypes.Node) *httptest.Server {
+	t.Helper()
+	body := func(objects interface{}) []byte {
+		encoded, err := json.Marshal(objects)
+		if err != nil {
+			t.Fatalf("failed to encode the fixture: %v", err)
+		}
+		return encoded
+	}
+	responses := map[string][]byte{
+		"/v1.35/services": body(services),
+		"/v1.35/tasks":    body(tasks),
+		"/v1.35/nodes":    body(nodes),
+	}
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		for path, response := range responses {
+			if strings.HasPrefix(r.URL.Path, path) {
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(response)
+				return
+			}
 		}
 		http.NotFound(w, r)
 	}))
+}
+
+// serveMasked runs a handler against the given swarm objects and returns the
+// body it wrote.
+func serveMasked(t *testing.T, handler http.HandlerFunc, target string, vars map[string]string, services []swarmtypes.Service, tasks []swarmtypes.Task, nodes []swarmtypes.Node) string {
+	t.Helper()
+	server := swarmTestServer(t, services, tasks, nodes)
 	defer server.Close()
 
 	defer ResetCli()
 	SetCli(makeClientForServer(t, server.URL))
 
-	req := httptest.NewRequest(http.MethodGet, "/docker/services", nil)
-	w := httptest.NewRecorder()
-	dockerServicesHandler(w, req)
-
-	body := w.Body.String()
-	if strings.Contains(body, "s3cr3t") {
-		t.Fatalf("the response leaks the raw environment value: %s", body)
+	req := httptest.NewRequest(http.MethodGet, target, nil)
+	if vars != nil {
+		req = muxSetVars(req, vars)
 	}
+	w := httptest.NewRecorder()
+	handler(w, req)
+	return w.Body.String()
+}
+
+// assertMasked fails when a raw value reached the response, and when nothing was
+// masked at all — an empty response would otherwise pass every leak check.
+func assertMasked(t *testing.T, body string, secrets ...string) {
+	t.Helper()
+	for _, secret := range secrets {
+		if strings.Contains(body, secret) {
+			t.Fatalf("the response leaks %q: %s", secret, body)
+		}
+	}
+	if !strings.Contains(body, maskedValue) {
+		t.Fatalf("expected masked values in the response, got %s", body)
+	}
+}
+
+// TestDockerServicesHandlerMasksEnv verifies that no raw secret ever reaches the
+// HTTP response of the services endpoint.
+func TestDockerServicesHandlerMasksEnv(t *testing.T) {
+	body := serveMasked(t, dockerServicesHandler, "/docker/services", nil,
+		[]swarmtypes.Service{secretBearingService("service")}, nil, nil)
+
+	assertMasked(t, body, append(secretsOf("service"), secretsOf("service-previous")...)...)
 	if !strings.Contains(body, "POSTGRES_PASSWORD="+maskedValue) {
 		t.Fatalf("expected a masked environment entry, got %s", body)
 	}
@@ -343,34 +557,55 @@ func TestDockerServicesHandlerMasksEnv(t *testing.T) {
 
 // TestDockerTasksHandlerMasksEnv verifies the same for the tasks endpoint.
 func TestDockerTasksHandlerMasksEnv(t *testing.T) {
-	tasks := []swarmtypes.Task{{
-		ID:   "t1",
-		Spec: swarmtypes.TaskSpec{ContainerSpec: containerSpecWithEnv("DB_PASSWORD=hunter2")},
-	}}
-	b, _ := json.Marshal(tasks)
+	body := serveMasked(t, dockerTasksHandler, "/docker/tasks", nil,
+		nil, []swarmtypes.Task{secretBearingTask("task")}, nil)
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/v1.35/tasks") {
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(b)
-			return
-		}
-		http.NotFound(w, r)
-	}))
-	defer server.Close()
-
-	defer ResetCli()
-	SetCli(makeClientForServer(t, server.URL))
-
-	req := httptest.NewRequest(http.MethodGet, "/docker/tasks", nil)
-	w := httptest.NewRecorder()
-	dockerTasksHandler(w, req)
-
-	body := w.Body.String()
-	if strings.Contains(body, "hunter2") {
-		t.Fatalf("the response leaks the raw environment value: %s", body)
-	}
-	if !strings.Contains(body, "DB_PASSWORD="+maskedValue) {
+	assertMasked(t, body, secretsOf("task")...)
+	if !strings.Contains(body, "POSTGRES_PASSWORD="+maskedValue) {
 		t.Fatalf("expected a masked environment entry, got %s", body)
+	}
+}
+
+// TestDockerServicesDetailsHandlerMasksEnv verifies that the enriched detail
+// response of a service leaks neither the secrets of the service nor those of
+// the tasks it embeds.
+func TestDockerServicesDetailsHandlerMasksEnv(t *testing.T) {
+	body := serveMasked(t, dockerServicesDetailsHandler, "/docker/services/s1", map[string]string{"id": "s1"},
+		[]swarmtypes.Service{secretBearingService("service")},
+		[]swarmtypes.Task{secretBearingTask("task")},
+		[]swarmtypes.Node{{ID: "n1", Description: swarmtypes.NodeDescription{Hostname: "node1"}}})
+
+	secrets := append(secretsOf("service"), secretsOf("service-previous")...)
+	assertMasked(t, body, append(secrets, secretsOf("task")...)...)
+	if !strings.Contains(body, "svc1") || !strings.Contains(body, "node1") {
+		t.Fatalf("the response must stay identifiable, got %s", body)
+	}
+}
+
+// TestDockerTasksDetailsHandlerMasksEnv verifies the same for a single task.
+func TestDockerTasksDetailsHandlerMasksEnv(t *testing.T) {
+	body := serveMasked(t, dockerTasksDetailsHandler, "/docker/tasks/t1", map[string]string{"id": "t1"},
+		[]swarmtypes.Service{secretBearingService("service")},
+		[]swarmtypes.Task{secretBearingTask("task")},
+		[]swarmtypes.Node{{ID: "n1", Description: swarmtypes.NodeDescription{Hostname: "node1"}}})
+
+	assertMasked(t, body, secretsOf("task")...)
+	if !strings.Contains(body, `"NodeName":"node1"`) || !strings.Contains(body, `"ServiceName":"svc1"`) {
+		t.Fatalf("the response must stay identifiable, got %s", body)
+	}
+}
+
+// TestDockerNodesDetailsHandlerMasksEnv verifies that the tasks and the services
+// embedded in the detail response of a node are masked too.
+func TestDockerNodesDetailsHandlerMasksEnv(t *testing.T) {
+	body := serveMasked(t, dockerNodesDetailsHandler, "/docker/nodes/n1", map[string]string{"id": "n1"},
+		[]swarmtypes.Service{secretBearingService("service")},
+		[]swarmtypes.Task{secretBearingTask("task")},
+		[]swarmtypes.Node{{ID: "n1", Description: swarmtypes.NodeDescription{Hostname: "node1"}}})
+
+	secrets := append(secretsOf("service"), secretsOf("service-previous")...)
+	assertMasked(t, body, append(secrets, secretsOf("task")...)...)
+	if !strings.Contains(body, "node1") {
+		t.Fatalf("the response must stay identifiable, got %s", body)
 	}
 }
