@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import {
   logsConfigAtom,
+  logsErrorAtom,
   logsLinesAtom,
   logsNumberOfLinesAtom,
   logsSearchKeywordAtom,
@@ -27,6 +28,7 @@ const LogsActiveControls = React.memo(function LogsActiveControls() {
   const [searchKeyword, setSearchKeyword] = useAtom(logsSearchKeywordAtom)
 
   const resetLogsLines = useResetAtom(logsLinesAtom)
+  const resetLogsError = useResetAtom(logsErrorAtom)
   const [, setLogsConfig] = useAtom(logsConfigAtom)
   const [, setLogsShowLogs] = useAtom(logsShowLogsAtom)
 
@@ -35,6 +37,7 @@ const LogsActiveControls = React.memo(function LogsActiveControls() {
     // reopening the logs UI. Only hide the logs output and clear
     // the live lines/config used for the current view.
     resetLogsLines()
+    resetLogsError()
     setLogsConfig(null)
     setLogsShowLogs(false)
   }

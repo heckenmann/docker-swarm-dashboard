@@ -8,8 +8,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -33,6 +34,23 @@ var pingInterval = 54 * time.Second
 
 // writeWait is the timeout for websocket write operations.
 const writeWait = 10 * time.Second
+
+// pongWait is how long the client may stay silent before its connection is
+// considered dead. It must be longer than pingInterval.
+const pongWait = 60 * time.Second
+
+// logChannelSize bounds how many log lines may wait for a slow client. A full
+// channel applies backpressure on the docker reader instead of buffering
+// without limit.
+const logChannelSize = 64
+
+// tailCollectIdle is how long the one-shot reader waits for another line
+// before considering the log output complete. Docker keeps the response open
+// for some non-follow requests, so waiting for EOF alone would block.
+const tailCollectIdle = 100 * time.Millisecond
+
+// defaultTail is used when the client requests an unparsable number of lines.
+const defaultTail = 20
 
 // sendTextMessage sets a write deadline and sends a text message.
 func sendTextMessage(conn *websocket.Conn, data []byte) error {
@@ -100,245 +118,271 @@ func processPayload(conn *websocket.Conn, payload []byte) error {
 	return nil
 }
 
-// dockerServiceLogsHandler handles websocket connections for streaming
-// Docker service logs to a connected client. The handler upgrades the
-// HTTP connection to a websocket, starts a goroutine that writes
-// log lines to the client and reads the Docker logs. It keeps a
-// buffered channel between reader and writer and closes the
-// connection when the client is too slow to consume messages.
+// logsOptions holds the parameters of a logs websocket request.
+type logsOptions struct {
+	serviceID  string
+	tail       string
+	since      string
+	follow     bool
+	timestamps bool
+	stdout     bool
+	stderr     bool
+	details    bool
+}
+
+// dayDurationPattern matches a relative duration expressed in days, e.g. "2d".
+var dayDurationPattern = regexp.MustCompile(`^(\d+)d$`)
+
+// normalizeSince rewrites a relative `since` value into a unit the Docker
+// client understands. It resolves relative values with `time.ParseDuration`,
+// which supports "s", "m" and "h" but *not* days: a request for "2d" would
+// fail outright and the client would receive no logs at all. Days are
+// therefore expanded into hours. Absolute timestamps are passed through
+// untouched.
+func normalizeSince(since string) string {
+	if match := dayDurationPattern.FindStringSubmatch(strings.TrimSpace(since)); match != nil {
+		if days, err := strconv.Atoi(match[1]); err == nil {
+			return strconv.Itoa(days*24) + "h"
+		}
+	}
+	return since
+}
+
+// parseLogsOptions extracts the log parameters from the request. Absent or
+// unparsable parameters fall back to defaults rather than failing the request.
+func parseLogsOptions(r *http.Request) logsOptions {
+	query := r.URL.Query()
+	boolParam := func(key string) bool {
+		value, _ := strconv.ParseBool(query.Get(key))
+		return value
+	}
+	tail := query.Get("tail")
+	if tail == "" {
+		tail = "all"
+	}
+	return logsOptions{
+		serviceID:  mux.Vars(r)["id"],
+		tail:       tail,
+		since:      normalizeSince(query.Get("since")),
+		follow:     boolParam("follow"),
+		timestamps: boolParam("timestamps"),
+		stdout:     boolParam("stdout"),
+		stderr:     boolParam("stderr"),
+		details:    boolParam("details"),
+	}
+}
+
+// tailCount returns the number of lines a one-shot request asked for.
+func tailCount(tail string) int {
+	if n, err := strconv.Atoi(tail); err == nil && n > 0 {
+		return n
+	}
+	return defaultTail
+}
+
+// stripFramePrefix removes Docker's 8-byte multiplex header from a single log
+// line. It returns nil when the line carries no payload.
+func stripFramePrefix(line []byte) []byte {
+	if len(line) <= 8 {
+		return nil
+	}
+	return append([]byte(nil), line[8:]...)
+}
+
+// dockerServiceLogsHandler streams the logs of a Docker service over a
+// websocket.
+//
+// A single context governs the whole request: it is cancelled when the handler
+// returns or when the client disconnects, which closes the Docker log reader
+// and unblocks every goroutine started here. Log lines travel over one
+// channel, owned and closed by the reader, so no extra synchronisation is
+// needed between the reader and the writer.
 func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	paramServiceId := params["id"]
+	opts := parseLogsOptions(r)
 
-	urlParams := r.URL.Query()
-	paramTail := urlParams["tail"][0]
-	paramSince := urlParams["since"][0]
-	paramStdout, _ := strconv.ParseBool(urlParams["stdout"][0])
-	paramStderr, _ := strconv.ParseBool(urlParams["stderr"][0])
-	paramFollow, _ := strconv.ParseBool(urlParams["follow"][0])
-	paramTimestamps, _ := strconv.ParseBool(urlParams["timestamps"][0])
-	paramDetails, _ := strconv.ParseBool(urlParams["details"][0])
-	clientAddress := string(r.RemoteAddr)
+	clientAddress := r.RemoteAddr
 	log.Println("new logs-websocket-connection:", clientAddress)
-	ce, err := upgrader.Upgrade(w, r, nil)
 
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
-	defer func() { _ = ce.Close() }()
+	defer func() { _ = conn.Close() }()
 	defer log.Println("gone:", clientAddress)
 
-	// docker-client context
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	cli, err := getCli()
 	if err != nil {
 		log.Printf("dockerServiceLogsHandler: getCli error: %v", err)
-		_ = ce.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "Docker client error"))
+		closeWithError(conn, "Docker client error")
 		return
 	}
-	logReader, err := cli.ServiceLogs(ctx, paramServiceId, container.LogsOptions{
-		Tail:       paramTail,
-		Since:      paramSince,
-		Follow:     paramFollow,
-		Timestamps: paramTimestamps,
-		ShowStdout: paramStdout,
-		ShowStderr: paramStderr,
-		Details:    paramDetails,
+
+	logReader, err := cli.ServiceLogs(ctx, opts.serviceID, container.LogsOptions{
+		Tail:       opts.tail,
+		Since:      opts.since,
+		Follow:     opts.follow,
+		Timestamps: opts.timestamps,
+		ShowStdout: opts.stdout,
+		ShowStderr: opts.stderr,
+		Details:    opts.details,
 	})
 	if err != nil {
+		// Report the reason to the client: an unusable option (an invalid
+		// `since` for instance) would otherwise look like a service with no
+		// logs at all.
 		log.Printf("dockerServiceLogsHandler: ServiceLogs error: %v", err)
-		_ = ce.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "Docker logs error"))
+		closeWithError(conn, "Docker logs error: "+err.Error())
 		return
 	}
-
-	// Ensure reader closed when set (cli.ServiceLogs returns an io.ReadCloser).
-	if logReader != nil {
-		defer func() { _ = logReader.Close() }()
-	}
-
-	// Buffered channel decouples the Docker log read from websocket writes.
-	// Reduce buffer size so slow-client behavior is detected reliably in tests.
-	const channelSize = 64
-	channel := make(chan []byte, channelSize)
-	// closeChan ensures the channel is closed exactly once.
-	var closeChanOnce sync.Once
-
-	// If the client requested a one-shot (follow=false), read the entire
-	// log payload, parse multiplex frames if present, and send exactly the
-	// requested tail number of log lines, then exit. This guarantees the
-	// client receives the last N lines and nothing more.
-	if !paramFollow {
-		// read lines incrementally (don't block waiting for EOF). Some
-		// Docker endpoints keep the connection open even for non-follow
-		// requests; reading with ReadLine returns available lines without
-		// waiting for EOF. Start a goroutine that reads lines and send
-		// them over a channel, then collect with a short idle timeout.
-		bufioReader := bufio.NewReader(logReader)
-		linesCh := make(chan string, 64)
-		go func() {
-			defer close(linesCh)
-			for {
-				line, _, err := bufioReader.ReadLine()
-				if err != nil {
-					return
-				}
-				// copy line bytes and strip Docker's 8-byte prefix if present
-				b := make([]byte, len(line))
-				copy(b, line)
-				if len(b) > 8 {
-					b = b[8:]
-				} else {
-					b = b[:0]
-				}
-				if len(b) == 0 {
-					continue
-				}
-				linesCh <- string(b)
-			}
-		}()
-
-		// collect lines until idle timeout
-		var lines []string
-		idle := 100 * time.Millisecond
-		timer := time.NewTimer(idle)
-		// stop the timer initially until first line arrives
-		if !timer.Stop() {
-			<-timer.C
-		}
-		collecting := true
-		for collecting {
-			select {
-			case l, ok := <-linesCh:
-				if !ok {
-					collecting = false
-					break
-				}
-				lines = append(lines, l)
-				// reset idle timer
-				if !timer.Stop() {
-					select {
-					case <-timer.C:
-					default:
-					}
-				}
-				timer.Reset(idle)
-			case <-timer.C:
-				collecting = false
-			}
-		}
-		timer.Stop()
-		// ensure reader is closed to unblock underlying connection
-		if logReader != nil {
-			_ = logReader.Close()
-		}
-		// determine requested tail and send only those lines
-		tailNum := 20
-		if n, err := strconv.Atoi(paramTail); err == nil && n > 0 {
-			tailNum = n
-		}
-		start := 0
-		if len(lines) > tailNum {
-			start = len(lines) - tailNum
-		}
-		for i := start; i < len(lines); i++ {
-			if err := sendTextMessage(ce, []byte(lines[i])); err != nil {
-				log.Printf("Websocket write failed: %v", err)
-				_ = ce.Close()
-				return
-			}
-		}
-		// close normally
-		_ = ce.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if logReader == nil {
+		log.Printf("dockerServiceLogsHandler: no log stream for service %s", opts.serviceID)
+		closeWithError(conn, "Docker returned no log stream")
 		return
 	}
+	defer func() { _ = logReader.Close() }()
 
-	// Start a single goroutine that serializes writes to the websocket.
-	// Keep a done channel so we can wait for the writer to finish when
-	// we need to close the connection to avoid racing with ongoing writes.
-	writerDone := make(chan struct{})
+	// Closing the reader is the only way to unblock a pending read, so tie it
+	// to the context: cancelling stops the reader goroutine for good.
 	go func() {
-		writeLogPipeToClient(ce, channel)
-		close(writerDone)
+		<-ctx.Done()
+		_ = logReader.Close()
 	}()
 
-	// Configure read limits and keep-alive (pong handler) for the client
-	// connection so we detect broken peers.
-	ce.SetReadLimit(1024 * 1024)
-	_ = ce.SetReadDeadline(time.Now().Add(60 * time.Second))
-	ce.SetPongHandler(func(string) error {
-		_ = ce.SetReadDeadline(time.Now().Add(60 * time.Second))
-		return nil
-	})
-
-	// Start a goroutine that reads client messages and closes the
-	// connection when the client disconnects. We don't expect client
-	// messages, but ReadMessage is used to detect disconnects reliably.
+	// The client is not expected to send anything; reading detects a
+	// disconnect. Closing the connection makes any pending write fail, which
+	// stops the streaming loop below.
 	go func() {
+		defer cancel()
 		for {
-			if _, _, err := ce.ReadMessage(); err != nil {
-				_ = ce.Close()
+			if _, _, err := conn.ReadMessage(); err != nil {
+				_ = conn.Close()
 				return
 			}
 		}
 	}()
 
-	// Read the docker logs line-by-line and enqueue them. If the channel
-	// is full, treat the client as too slow: close the channel and wait
-	// for the writer to finish before closing the websocket.
-	bufioReader := bufio.NewReader(logReader)
+	if opts.follow {
+		streamLogs(ctx, conn, logReader)
+		return
+	}
+	sendLogTail(ctx, conn, logReader, tailCount(opts.tail))
+}
+
+// closeWithError closes the websocket with an internal-error close frame
+// carrying a human readable reason.
+func closeWithError(conn *websocket.Conn, reason string) {
+	// Close reasons are capped at 123 bytes by the websocket protocol; drop a
+	// rune left incomplete by the cut so the frame stays valid UTF-8.
+	if len(reason) > 123 {
+		reason = strings.ToValidUTF8(reason[:123], "")
+	}
+	_ = conn.WriteMessage(websocket.CloseMessage,
+		websocket.FormatCloseMessage(websocket.CloseInternalServerErr, reason))
+}
+
+// readLogLines reads the Docker log stream line by line and forwards each line
+// to `lines`. It owns the channel and closes it when the stream ends, the
+// context is cancelled or reading fails.
+func readLogLines(ctx context.Context, logReader io.Reader, lines chan<- []byte) {
+	defer close(lines)
+	reader := bufio.NewReader(logReader)
 	for {
-		line, _, err := bufioReader.ReadLine()
-		if err == io.EOF {
-			log.Println("logs EOF for service:", paramServiceId)
-			break
-		}
+		line, _, err := reader.ReadLine()
 		if err != nil {
-			log.Println(err)
+			if err != io.EOF && ctx.Err() == nil {
+				log.Printf("reading docker logs failed: %v", err)
+			}
 			return
 		}
-
-		// Copy the line before sending because bufio.Reader may reuse
-		// the underlying buffer across ReadLine calls; sharing that
-		// backing array concurrently causes data races when the writer
-		// reads the slice. Allocate a fresh slice and copy the data.
-		lineCopy := make([]byte, len(line))
-		copy(lineCopy, line)
-
-		// Try to enqueue the line; if the channel is full, wait briefly
-		// for the writer to make progress. This avoids flaky failures
-		// where scheduling differences prevent the writer from emptying
-		// the channel immediately. If the channel stays full for the
-		// timeout, treat the client as too slow and close the connection.
+		// bufio reuses its buffer across reads, so the consumer gets its own
+		// copy of the data.
+		lineCopy := append([]byte(nil), line...)
 		select {
-		case channel <- lineCopy:
-			// enqueued successfully
-		default:
-			// wait briefly for the writer to free up space
-			select {
-			case channel <- lineCopy:
-				// enqueued on second attempt
-			case <-time.After(50 * time.Millisecond):
-				// Slow/unresponsive client: close the channel so the writer
-				// will stop. Then wait briefly for the writer to finish to
-				// avoid WriteMessage racing with connection Close.
-				log.Printf("client too slow, closing websocket for service: %s", paramServiceId)
-				closeChanOnce.Do(func() { close(channel) })
-				select {
-				case <-writerDone:
-					// writer finished
-				case <-time.After(2 * time.Second):
-					log.Printf("writer did not finish in time for service: %s", paramServiceId)
-				}
-				_ = ce.Close()
-				return
-			}
+		case lines <- lineCopy:
+		case <-ctx.Done():
+			return
 		}
 	}
+}
 
-	// Normal exit: close the channel so the writer can finish.
-	closeChanOnce.Do(func() { close(channel) })
+// streamLogs pipes the Docker log stream to the client until the stream ends
+// or the connection breaks. A full channel applies backpressure on the reader
+// instead of dropping the connection, and a client that stops consuming
+// altogether is dropped by the write deadline in writeLogPipeToClient.
+func streamLogs(ctx context.Context, conn *websocket.Conn, logReader io.Reader) {
+	conn.SetReadLimit(1024 * 1024)
+	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+	conn.SetPongHandler(func(string) error {
+		return conn.SetReadDeadline(time.Now().Add(pongWait))
+	})
+
+	lines := make(chan []byte, logChannelSize)
+	go readLogLines(ctx, logReader, lines)
+	writeLogPipeToClient(conn, lines)
+}
+
+// sendLogTail answers a one-shot request: it collects the available log lines,
+// sends the last `tail` of them and closes the connection normally. Docker
+// keeps the response open for some non-follow requests, so collection ends on
+// an idle timeout rather than on EOF alone.
+func sendLogTail(ctx context.Context, conn *websocket.Conn, logReader io.Reader, tail int) {
+	lines := collectLogLines(ctx, logReader, tailCollectIdle)
+
+	start := 0
+	if len(lines) > tail {
+		start = len(lines) - tail
+	}
+	for _, line := range lines[start:] {
+		if err := sendTextMessage(conn, line); err != nil {
+			log.Printf("Websocket write failed: %v", err)
+			return
+		}
+	}
+	_ = conn.WriteMessage(websocket.CloseMessage,
+		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+}
+
+// collectLogLines gathers log lines until the stream ends, the context is
+// cancelled or no new line arrived for `idle`.
+func collectLogLines(ctx context.Context, logReader io.Reader, idle time.Duration) [][]byte {
+	raw := make(chan []byte, logChannelSize)
+	go readLogLines(ctx, logReader, raw)
+
+	var lines [][]byte
+	// The timer only limits the gap *between* lines: it starts once the first
+	// line has arrived, so a slow first response does not truncate the output.
+	timer := time.NewTimer(idle)
+	if !timer.Stop() {
+		<-timer.C
+	}
+	defer timer.Stop()
+
+	for {
+		select {
+		case line, ok := <-raw:
+			if !ok {
+				return lines
+			}
+			if payload := stripFramePrefix(line); len(payload) > 0 {
+				lines = append(lines, payload)
+			}
+			if !timer.Stop() {
+				select {
+				case <-timer.C:
+				default:
+				}
+			}
+			timer.Reset(idle)
+		case <-timer.C:
+			return lines
+		case <-ctx.Done():
+			return lines
+		}
+	}
 }
 
 // writeLogPipeToClient serializes writes to the websocket connection.

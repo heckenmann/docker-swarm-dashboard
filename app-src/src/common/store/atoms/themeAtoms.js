@@ -2,6 +2,7 @@ import { atom } from 'jotai'
 import {
   createHashAtomWithDefault,
   isDarkModeDefaultAtom,
+  mapMaybePromise,
 } from './foundationAtoms'
 
 const a11yDark = {}
@@ -18,24 +19,27 @@ export const isDarkModeAtom = createHashAtomWithDefault(
 /**
  * Current variant: derives 'dark' or 'light' string from the isDarkModeAtom for use with UI libraries.
  */
-export const currentVariantAtom = atom(async (get) => {
-  const isDarkMode = await get(isDarkModeAtom)
-  return isDarkMode ? 'dark' : 'light'
-})
+export const currentVariantAtom = atom((get) =>
+  mapMaybePromise(get(isDarkModeAtom), (isDarkMode) =>
+    isDarkMode ? 'dark' : 'light',
+  ),
+)
 
 /**
  * Current variant classes: derives Bootstrap CSS classes for the active theme variant.
  */
-export const currentVariantClassesAtom = atom(async (get) =>
-  (await get(isDarkModeAtom))
-    ? 'bg-dark text-light border-secondary'
-    : 'bg-light text-dark',
+export const currentVariantClassesAtom = atom((get) =>
+  mapMaybePromise(get(isDarkModeAtom), (isDarkMode) =>
+    isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-light text-dark',
+  ),
 )
 
 /**
  * Current syntax highlighter style: derives the code syntax highlighting style for the active theme.
  */
-export const currentSyntaxHighlighterStyleAtom = atom(async (get) =>
+export const currentSyntaxHighlighterStyleAtom = atom((get) =>
   // keep API shape for tests/components — returns an object
-  (await get(isDarkModeAtom)) ? a11yDark : a11yLight,
+  mapMaybePromise(get(isDarkModeAtom), (isDarkMode) =>
+    isDarkMode ? a11yDark : a11yLight,
+  ),
 )

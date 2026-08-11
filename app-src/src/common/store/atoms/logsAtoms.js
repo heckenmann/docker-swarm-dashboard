@@ -27,6 +27,13 @@ export const logsLinesAtom = atomWithReset([])
 export const logsShowLogsAtom = atom(false)
 
 /**
+ * Logs stream error: holds the reason reported by the backend when the log
+ * stream could not be opened or was closed unexpectedly, so a failing request
+ * is not mistaken for a service without logs.
+ */
+export const logsErrorAtom = atomWithReset(null)
+
+/**
  * Logs number of lines: persists the number of log lines to fetch in URL hash, falling back to server default.
  */
 export const logsNumberOfLinesAtom = createHashAtomWithDefault(

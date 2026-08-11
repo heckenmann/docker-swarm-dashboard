@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { baseUrlAtom } from './foundationAtoms'
+import { baseUrlAtom, mapMaybePromise } from './foundationAtoms'
 import { viewAtom } from './navigationAtoms'
 import { defaultLayoutAtom } from './uiAtoms'
 import { dashboardHId, dashboardVId } from '../../navigationConstants'
@@ -141,7 +141,8 @@ export const versionAtom = atom(async (get) => {
  * Dashboard settings default layout view ID: determines whether horizontal or vertical
  * dashboard should be shown by default based on the user's saved layout preference.
  */
-export const dashboardSettingsDefaultLayoutViewIdAtom = atom(async (get) => {
-  const defaultLayout = await get(defaultLayoutAtom)
-  return defaultLayout === 'row' ? dashboardHId : dashboardVId
-})
+export const dashboardSettingsDefaultLayoutViewIdAtom = atom((get) =>
+  mapMaybePromise(get(defaultLayoutAtom), (defaultLayout) =>
+    defaultLayout === 'row' ? dashboardHId : dashboardVId,
+  ),
+)

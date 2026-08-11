@@ -1,12 +1,14 @@
 import React, { startTransition } from 'react'
 import PropTypes from 'prop-types'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import EntityName from './EntityName'
 import {
   logsFormServiceIdAtom,
   logsFormServiceNameAtom,
   logsConfigAtom,
+  logsLinesAtom,
   logsShowLogsAtom,
 } from '../../../common/store/atoms/logsAtoms'
 import { viewAtom } from '../../../common/store/atoms/navigationAtoms'
@@ -16,35 +18,39 @@ import { logsId } from '../../../common/navigationConstants'
  * Internal function to handle logs button click
  * Extracted for better testability
  *
- * @param {string} sid - Service ID
- * @param {string} name - Service name
- * @param {boolean} logsShowLogsVal - Whether logs are currently being shown
- * @param {object} logsConfigVal - Current logs configuration
- * @param {Function} setLogsShowLogs - Setter for logs visibility
- * @param {Function} setLogsConfig - Setter for logs configuration
- * @param {Function} setFormId - Setter for form service ID
- * @param {Function} setFormName - Setter for form service name
- * @param {Function} updateView - Function to update the view
+ * @param {object} params - Handler parameters
+ * @param {string} params.serviceId - Service ID to preselect
+ * @param {string} params.serviceName - Service name to preselect
+ * @param {boolean} params.logsShowLogs - Whether a logs session is displayed
+ * @param {Function} params.setLogsShowLogs - Setter for logs visibility
+ * @param {Function} params.setLogsConfig - Setter for logs configuration
+ * @param {Function} params.resetLogsLines - Clears the collected log lines
+ * @param {Function} params.setFormId - Setter for form service ID
+ * @param {Function} params.setFormName - Setter for form service name
+ * @param {Function} params.updateView - Function to update the view
  */
-export function handleShowLogsInternal(
-  sid,
-  name,
-  logsShowLogsVal,
-  logsConfigVal,
+export function handleShowLogsInternal({
+  serviceId,
+  serviceName,
+  logsShowLogs,
   setLogsShowLogs,
   setLogsConfig,
+  resetLogsLines,
   setFormId,
   setFormName,
   updateView,
-) {
-  // If logs are currently being streamed (follow), close them first
-  if (logsShowLogsVal && logsConfigVal?.follow) {
+}) {
+  // Close any displayed logs session, streaming or not. The user asked for
+  // another service, and an open session would keep showing the previous one
+  // instead of the form prefilled below.
+  if (logsShowLogs) {
     setLogsShowLogs(false)
     setLogsConfig(null)
+    resetLogsLines()
   }
   // Prefill the logs form but DO NOT start streaming or set the active logs config.
-  setFormId(sid)
-  setFormName(name)
+  setFormId(serviceId)
+  setFormName(serviceName)
 
   // Navigate to logs view; the form will be shown because logsShowLogs is false
   updateView((prev) => ({ ...prev, id: logsId }))
@@ -68,7 +74,7 @@ const ServiceName = React.memo(function ServiceName({
   const [, setFormName] = useAtom(logsFormServiceNameAtom)
   const [, setLogsConfig] = useAtom(logsConfigAtom)
   const [logsShowLogsVal, setLogsShowLogs] = useAtom(logsShowLogsAtom)
-  const logsConfigVal = useAtomValue(logsConfigAtom)
+  const resetLogsLines = useResetAtom(logsLinesAtom)
   const [, updateView] = useAtom(viewAtom)
 
   if (!name) return null
@@ -96,17 +102,17 @@ const ServiceName = React.memo(function ServiceName({
 
   const handleShowLogs = (sid) => {
     startTransition(() => {
-      handleShowLogsInternal(
-        sid,
-        name,
-        logsShowLogsVal,
-        logsConfigVal,
+      handleShowLogsInternal({
+        serviceId: sid,
+        serviceName: name,
+        logsShowLogs: logsShowLogsVal,
         setLogsShowLogs,
         setLogsConfig,
+        resetLogsLines,
         setFormId,
         setFormName,
         updateView,
-      )
+      })
     })
   }
 

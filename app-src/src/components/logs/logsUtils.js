@@ -10,3 +10,25 @@ export function isValidSince(s) {
   const d = Date.parse(s)
   return !Number.isNaN(d)
 }
+
+/**
+ * Converts a raw websocket payload into a log line, truncating overly long
+ * messages so a single huge line cannot freeze the output panel.
+ *
+ * @param {*} raw - the raw `MessageEvent.data` value
+ * @param {number|string} maxLen - maximum message length before truncation
+ * @returns {string} the log line to display
+ */
+export function toLogLine(raw, maxLen) {
+  let message
+  if (typeof raw === 'string') message = raw
+  else {
+    try {
+      message = JSON.stringify(raw)
+    } catch {
+      message = String(raw)
+    }
+  }
+  const limit = Number(maxLen) || 10000
+  return message.length > limit ? message.slice(0, limit) + '...' : message
+}
