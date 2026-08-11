@@ -1,19 +1,35 @@
 /* Dashboard table layout and wrapper */
+
+/*
+ * The table body scrolls inside the card rather than with the page. This is
+ * what allows the header rows and the first column to stay pinned: a sticky
+ * cell only sticks within its own scroll container, so an unbounded wrapper
+ * would let the headers scroll away with the document.
+ */
 .dashboard-table-wrapper {
   width: 100%;
+  max-height: var(--dsd-table-max-height, calc(100vh - 14rem));
   padding: 0;
   margin: 0;
-  overflow-x: auto;
+  overflow: auto;
 }
 
 /* Base table styling */
 .dashboard-table {
+  /* Height of a single header row, shared by the cell height and the sticky
+     offsets of the stacked header rows so both stay in sync. */
+  --dsd-header-row-height: 28px;
+
   width: auto;
   min-width: 100%;
   margin-bottom: 0;
   table-layout: fixed;
+
+  /* Separate borders: with collapsed borders the browser paints them on the
+     table rather than on the cells, so the borders of sticky cells scroll
+     away from the cells they belong to. */
   border-spacing: 0;
-  border-collapse: collapse;
+  border-collapse: separate;
   background-color: transparent;
 }
 
@@ -47,10 +63,54 @@
 
 /* Header cell styling */
 .dashboard-table thead th {
-  height: 28px; /* Compact uniform header rows */
+  height: var(--dsd-header-row-height); /* Compact uniform header rows */
   color: var(--text);
   vertical-align: middle;
   border-bottom: 1px solid var(--table-border-color);
+}
+
+/* --- Frozen header rows and first column --------------------------------- */
+
+/*
+ * The whole header group is pinned, rather than each cell individually. Per
+ * cell it would take a z-index, and the resulting stacking context would trap
+ * the service name flags, which are absolutely positioned and deliberately
+ * overflow onto the neighbouring cells — they would end up painted *under*
+ * the next header cell instead of over it.
+ *
+ * Sticking the group also keeps the horizontal layout's three header rows
+ * together without having to offset each row by hand. The opaque background
+ * belongs here too: table cells are transparent, so the rows scrolling
+ * underneath would otherwise show through. It uses the background Bootstrap
+ * gives the rows, so the pinned cells stay indistinguishable from them in
+ * both themes.
+ */
+.dashboard-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: var(--bs-table-bg);
+}
+
+/*
+ * The first column stays pinned to the left so a row remains identifiable
+ * when scrolling across a wide cluster: Node in the horizontal layout,
+ * Service in the vertical one.
+ */
+.dashboard-table .node-attribute,
+.dashboard-table .service-col-v {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: var(--bs-table-bg);
+  border-right: 1px solid var(--table-border-color);
+}
+
+/* The top-left cell belongs to both and must stay above the two of them. */
+.dashboard-table thead .node-attribute,
+.dashboard-table thead .service-col-v {
+  /* Keep the top-left header above overflowing service-name flags. */
+  z-index: 20;
 }
 
 /* Header border behavior for 3-row layout (Horizontal Dashboard) */

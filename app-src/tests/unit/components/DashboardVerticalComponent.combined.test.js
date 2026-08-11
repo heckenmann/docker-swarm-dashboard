@@ -107,6 +107,18 @@ describe('DashboardVerticalComponent', () => {
     expect(screen.getByTestId('service-status-badge')).toBeInTheDocument()
   })
 
+  test('marks the scroll wrapper and the first column so they can be frozen', () => {
+    setupMocks()
+    const { container } = render(<DashboardVerticalComponent />)
+
+    // The wrapper owns the scrolling, which is what lets the header row and
+    // the first column stay pinned.
+    expect(container.querySelector('.dashboard-table-wrapper')).not.toBeNull()
+    expect(
+      container.querySelector('tbody tr td')?.classList.contains('service-col-v'),
+    ).toBe(true)
+  })
+
   test('filters services by name', () => {
     setupMocks({ serviceNameFilterAtom: 'non-existent' })
     render(<DashboardVerticalComponent />)
