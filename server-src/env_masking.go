@@ -119,8 +119,13 @@ func maskCommandLine(line string, depth int) string {
 // makes this one its value.
 func maskCommandToken(content string, maskNextToken bool, depth int) string {
 	if name, value, found := strings.Cut(content, "="); found && value != "" && isHeaderFlag(name) {
-		if header, isHeader := maskHeaderArg(value); isHeader {
-			return name + "=" + header
+		// The value still carries the quotes the shell would have removed, as
+		// in --header='Authorization: …'. They sit inside the token, so
+		// maskCommandLine never strips them; peel them off for the header
+		// matcher and put them back afterwards.
+		quote, unquoted := splitQuotes(value)
+		if header, isHeader := maskHeaderArg(unquoted); isHeader {
+			return name + "=" + quote + header + quote
 		}
 	}
 	header, isHeader := maskHeaderArg(content)

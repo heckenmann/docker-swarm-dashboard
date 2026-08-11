@@ -212,6 +212,48 @@ func TestMaskArgs(t *testing.T) {
 	}
 }
 
+// TestMaskArgsQuotedHeaderFlag covers the quoted "--header='Name: value'"
+// form. The value keeps its quotes once the flag is split on "=", so it never
+// reaches the header matcher and the secret goes through untouched.
+func TestMaskArgsQuotedHeaderFlag(t *testing.T) {
+	cases := []struct {
+		name     string
+		args     []string
+		expected []string
+	}{
+		{
+			"masks a quoted header passed with an equals flag",
+			[]string{"curl", "--header='Authorization: Bearer s3cr3t'"},
+			[]string{"curl", "--header='Authorization: " + maskedValue + "'"},
+		},
+		{
+			"masks a quoted header without whitespace after the colon",
+			[]string{"curl", "--header='X-Api-Key:s3cr3t'"},
+			[]string{"curl", "--header='X-Api-Key:" + maskedValue + "'"},
+		},
+		{
+			"masks a quoted header inside a shell command line",
+			[]string{"CMD-SHELL", "curl --header='Authorization: Bearer s3cr3t' https://api/health"},
+			[]string{"CMD-SHELL", "curl --header='Authorization: " + maskedValue + "' https://api/health"},
+		},
+		{
+			"keeps an ordinary quoted header readable",
+			[]string{"curl", "--header='Accept: application/json'"},
+			[]string{"curl", "--header='Accept: application/json'"},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := maskArgs(tc.args)
+			for i := range tc.expected {
+				if got[i] != tc.expected[i] {
+					t.Fatalf("expected %q got %q", tc.expected[i], got[i])
+				}
+			}
+		})
+	}
+}
+
 func TestMaskLabels(t *testing.T) {
 	labels := map[string]string{
 		"com.docker.stack.namespace":      "my-stack",
