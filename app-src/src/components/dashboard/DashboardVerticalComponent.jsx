@@ -146,7 +146,7 @@ const DashboardVerticalComponent = React.memo(
 
         trows.push(
           <tr key={'tr-' + (service?.ID || service?.Name)}>
-            <td className="align-middle">
+            <td className="align-middle service-col-v">
               <ServiceName name={service?.Name} id={service?.ID} />
             </td>
             <td className="align-middle stack-column">
@@ -166,7 +166,7 @@ const DashboardVerticalComponent = React.memo(
         headerActions={<DashboardSettingsComponent />}
         bodyClassName="p-0"
         body={
-          <div className="table-responsive">
+          <div className="dashboard-table-wrapper table-responsive">
             <Table
               variant={isDarkMode ? currentVariant : null}
               id="dashboardTable"
