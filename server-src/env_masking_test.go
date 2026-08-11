@@ -172,6 +172,16 @@ func TestMaskArgs(t *testing.T) {
 			[]string{"curl", "-H", "'Authorization: " + maskedValue + "'"},
 		},
 		{
+			"masks a sensitive header without whitespace after the colon",
+			[]string{"curl", "-H", "X-Api-Key:s3cr3t"},
+			[]string{"curl", "-H", "X-Api-Key:" + maskedValue},
+		},
+		{
+			"masks a sensitive header passed with an equals flag",
+			[]string{"curl", "--header=X-Api-Key: s3cr3t"},
+			[]string{"curl", "--header=X-Api-Key: " + maskedValue},
+		},
+		{
 			"keeps an ordinary header readable",
 			[]string{"curl", "-H", "'Accept: application/json'"},
 			[]string{"curl", "-H", "'Accept: application/json'"},

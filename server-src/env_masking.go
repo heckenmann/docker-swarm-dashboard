@@ -58,9 +58,10 @@ func maskEnvSlice(env []string) []string {
 var sensitiveArgName = regexp.MustCompile(`(?i)pass|pwd|secret|token|key|cred|auth|bearer|session|cookie|salt|signature|licen[cs]e|certificate|private|jwt|dsn|conn`)
 
 // headerArgName matches a "Name: value" pair, the shape an HTTP header takes on
-// a command line, as in "curl -H 'Authorization: Bearer …'". The blank after the
-// colon is mandatory, it keeps URLs and "host:port" pairs out.
-var headerArgName = regexp.MustCompile(`^([A-Za-z][A-Za-z0-9-]*):([ \t]+)(.+)$`)
+// a command line, as in "curl -H 'Authorization: Bearer …'". Whitespace after
+// the colon is optional because valid header values are commonly written without
+// it; the sensitive-name check keeps URLs and "host:port" pairs readable.
+var headerArgName = regexp.MustCompile(`^([A-Za-z][A-Za-z0-9-]*):([ \t]*)(.+)$`)
 
 // maxCommandNesting bounds the recursion into the command lines carried by a
 // single token, "sh -c 'curl …'" being the usual shape. Every level strips a
@@ -117,6 +118,11 @@ func maskCommandLine(line string, depth int) string {
 // maskNextToken tells whether the preceding token was a sensitive flag, which
 // makes this one its value.
 func maskCommandToken(content string, maskNextToken bool, depth int) string {
+	if name, value, found := strings.Cut(content, "="); found && value != "" && isHeaderFlag(name) {
+		if header, isHeader := maskHeaderArg(value); isHeader {
+			return name + "=" + header
+		}
+	}
 	header, isHeader := maskHeaderArg(content)
 	switch {
 	case maskNextToken && !strings.HasPrefix(content, "-"):
@@ -150,6 +156,11 @@ func maskHeaderArg(content string) (string, bool) {
 // token that follows it, as in "--password s3cr3t".
 func isSensitiveFlag(content string) bool {
 	return strings.HasPrefix(content, "-") && !strings.Contains(content, "=") && sensitiveArgName.MatchString(content)
+}
+
+// isHeaderFlag reports whether a flag carries an HTTP header value.
+func isHeaderFlag(name string) bool {
+	return name == "-H" || name == "--header"
 }
 
 // maskURLCredentials masks the password of a URL carrying credentials and
