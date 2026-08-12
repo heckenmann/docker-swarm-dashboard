@@ -1131,7 +1131,7 @@
   dependencies:
     tslib "^2.4.0"
 
-"@es-joy/jsdoccomment@~0.93.1":
+"@es-joy/jsdoccomment@~0.93.2":
   version "0.93.2"
   resolved "https://registry.yarnpkg.com/@es-joy/jsdoccomment/-/jsdoccomment-0.93.2.tgz#0d712b06c43940abe19be085bf4e22a0c9c6113c"
   integrity sha512-yCvw3wFaTBl7M3LfCefGqdPMoGUS/RtZtj1iNcsxxqnTjYRmEvrHpx2Mb+mJQ4MblxUCaFd1irxTZsRcXtZI7g==
@@ -3580,12 +3580,12 @@ eslint-plugin-import@^2.32.0:
     string.prototype.trimend "^1.0.9"
     tsconfig-paths "^3.15.0"
 
-eslint-plugin-jsdoc@^64.0.1:
-  version "64.0.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-64.0.1.tgz#0a36c0f12da82d112ba48e8a0a82034a5268b6c9"
-  integrity sha512-WfEdwOUWNcndV+oogANwff4Y4rd3tJ9EBzzUO2U5FGSFqHM4FwwDi4kYPhl5IVhUZAVQozYiQfts9ea0TUa7lg==
+eslint-plugin-jsdoc@^64.0.2:
+  version "64.0.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-64.0.2.tgz#f988891e27a10c8331b82adedc4665c609ed6f55"
+  integrity sha512-v4wT1chDIRtMYDxX1Y19E27PzlMJl95b5lreyw8ikfJKgo7rVfvT+GK8IvMgnI6rnSPxbOY+DiVNqazf0Dtm2g==
   dependencies:
-    "@es-joy/jsdoccomment" "~0.93.1"
+    "@es-joy/jsdoccomment" "~0.93.2"
     "@es-joy/resolve.exports" "1.2.0"
     are-docs-informative "^0.1.1"
     comment-parser "1.4.8"
