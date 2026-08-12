@@ -14,7 +14,12 @@ updates:
       - "automatic-merge"
     schedule:
       interval: "daily"
-      
+    groups:
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+
   - package-ecosystem: "npm"
     directory: "/app-src"
     versioning-strategy: increase
@@ -30,6 +35,10 @@ updates:
         patterns:
           - "react"
           - "react-dom"
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     directory: "/"
