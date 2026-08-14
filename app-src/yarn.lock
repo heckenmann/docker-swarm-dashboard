@@ -1131,16 +1131,16 @@
   dependencies:
     tslib "^2.4.0"
 
-"@es-joy/jsdoccomment@~0.93.2":
-  version "0.93.2"
-  resolved "https://registry.yarnpkg.com/@es-joy/jsdoccomment/-/jsdoccomment-0.93.2.tgz#0d712b06c43940abe19be085bf4e22a0c9c6113c"
-  integrity sha512-yCvw3wFaTBl7M3LfCefGqdPMoGUS/RtZtj1iNcsxxqnTjYRmEvrHpx2Mb+mJQ4MblxUCaFd1irxTZsRcXtZI7g==
+"@es-joy/jsdoccomment@~0.95.0":
+  version "0.95.0"
+  resolved "https://registry.yarnpkg.com/@es-joy/jsdoccomment/-/jsdoccomment-0.95.0.tgz#af929e03dbe51ff929993eaceef7c2e2d12c4909"
+  integrity sha512-jbzwtRPuw1Nzld0lacvr1vwzPU/6zEHFGK5YOTstl2MQYMZBuKmSW3HMuEwsq1v4meK5Do4lizxyd/hi25rCZg==
   dependencies:
     "@types/estree" "^1.0.9"
-    "@typescript-eslint/types" "^8.66.0"
+    "@typescript-eslint/types" "^8.67.0"
     comment-parser "1.4.8"
     esquery "^1.7.0"
-    jsdoc-type-pratt-parser "~9.0.1"
+    jsdoc-type-pratt-parser "~9.1.1"
 
 "@es-joy/resolve.exports@1.2.0":
   version "1.2.0"
@@ -2178,7 +2178,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/types@^8.66.0":
+"@typescript-eslint/types@^8.67.0":
   version "8.67.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-8.67.0.tgz#4a8d00cc1faba5c14feabc60f85b7a32652f34b6"
   integrity sha512-sBtgslww8nsMYUjhdPBiSyUqSzT8uR6g93A2QXnQC8+cGdjz0CyaOdqHDRJb1AtORbZCNUJBBeFA/tNR2uQmww==
@@ -3580,12 +3580,12 @@ eslint-plugin-import@^2.32.0:
     string.prototype.trimend "^1.0.9"
     tsconfig-paths "^3.15.0"
 
-eslint-plugin-jsdoc@^64.0.2:
-  version "64.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-64.0.2.tgz#f988891e27a10c8331b82adedc4665c609ed6f55"
-  integrity sha512-v4wT1chDIRtMYDxX1Y19E27PzlMJl95b5lreyw8ikfJKgo7rVfvT+GK8IvMgnI6rnSPxbOY+DiVNqazf0Dtm2g==
+eslint-plugin-jsdoc@^64.1.0:
+  version "64.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-64.1.0.tgz#0f260eff7b0eb42737cee9c8536c0c3ad7961a51"
+  integrity sha512-UyAR/zVWn1jgIM/7eDMeLHuqLVtqKtamNVE0M7mdcZtFkWdYlNvDVDzyCCcURmLe66JpTZkMM3ZM3zjiVvIByA==
   dependencies:
-    "@es-joy/jsdoccomment" "~0.93.2"
+    "@es-joy/jsdoccomment" "~0.95.0"
     "@es-joy/resolve.exports" "1.2.0"
     are-docs-informative "^0.1.1"
     comment-parser "1.4.8"
@@ -5253,10 +5253,10 @@ jsbn@~0.1.0:
   resolved "https://registry.npmjs.org/jsbn/-/jsbn-0.1.1.tgz"
   integrity sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==
 
-jsdoc-type-pratt-parser@~9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/jsdoc-type-pratt-parser/-/jsdoc-type-pratt-parser-9.0.1.tgz#b3ccb9d88283b67e2dd932342aa605e71fe0185d"
-  integrity sha512-1LJ/negRKJxH0+ulOsJYEpUgzIs1DAOz9QctuS4In2LW/Ro3l8C4ej5al+5FU2hBGEOAY3R3SCnP6x8226JMIw==
+jsdoc-type-pratt-parser@~9.1.1:
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/jsdoc-type-pratt-parser/-/jsdoc-type-pratt-parser-9.1.1.tgz#eeb9e00e430ec812d61844b8377ac612e4e8dc1d"
+  integrity sha512-kojSbQb9iQM2bk2PmHiKa3reG0U4v2gN9U8D8+eCQq+4KM5ZXBUyBVeF8KmR0RiwqyrW4+uVWYWTOLnpsavnkw==
   dependencies:
     "@types/estree" "^1.0.9"
 
