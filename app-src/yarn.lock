@@ -2383,10 +2383,17 @@ anymatch@^3.1.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apexcharts@^6.8.0:
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-6.8.0.tgz#1e92c45cb76768ea666f95f358db1455e71e2226"
-  integrity sha512-ifEl3w/NAMsKQ60JNDD8nRCGdnGeuuKNvUzZTQpPr/3JNewoZv98H42VpXFB96sHle/8GDsHn/NQp785xsNh4A==
+apex-commons@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/apex-commons/-/apex-commons-0.5.0.tgz#de0a38b1c9d15fa13eac26097305a219020bc525"
+  integrity sha512-xz83SgPREE1wGtoflvxjwJtcjzl5bKTz2/bDxWCZNL6QVjUNE47kMg/1Zqt0bSh6eOnmFCWlTDc3RU8o85N+wg==
+
+apexcharts@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-6.9.0.tgz#76091a63c0912f0de665628f758909049cdaf74e"
+  integrity sha512-fmCD8aW39UKYynv1XZQ29ESG4/jqmHQ7upcoTFgduh/Fb/XFQJ7s69IxkroDsuya7kB67SJeFtHOxim2N9MQkg==
+  dependencies:
+    apex-commons "^0.5.0"
 
 arch@^3.0.0:
   version "3.0.0"
