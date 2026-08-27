@@ -5244,10 +5244,10 @@ jotai-location@^0.6.2:
   resolved "https://registry.npmjs.org/jotai-location/-/jotai-location-0.6.2.tgz"
   integrity sha512-D+fqGNNgPHpehOsGBsYsS7F3kNgml099MJrGYt8YlLumcnoTVrBdcO+Y11KyMlyzwPihEN0HPUgke9Iihz9OXw==
 
-jotai@^2.20.2:
-  version "2.20.2"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.20.2.tgz#fccdc02ee68b314c2a723a8b9c35de6fcca5e644"
-  integrity sha512-aHB4CNb9qRcyf0mwSB6EO5bCGAjx8cTwFgOFCE2leOnTzqACbnSWG8XoWB3LxCT1Qoj03I1OWAHszDmN4uHb/w==
+jotai@^2.20.3:
+  version "2.20.3"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.20.3.tgz#862ce7289f07ae1991dca9cba93bff94f8c35285"
+  integrity sha512-N8L9FUbeGDP+0qNJw1FebOxt+5hk+jTOwUA2LlRE4C081jUcY6F1T/FSETp4DT2/INMtiSRZyNm2D+yZdzrSgA==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
