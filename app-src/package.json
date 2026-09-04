@@ -63,7 +63,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "apexcharts": "^7.0.0",
     "axios": "^1.20.0",
-    "babel-jest": "^30.5.0",
+    "babel-jest": "^30.5.1",
     "bootstrap": "^5.3.8",
     "concurrently": "^10.0.5",
     "cors": "^2.8.6",
