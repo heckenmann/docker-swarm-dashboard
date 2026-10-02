@@ -5385,10 +5385,10 @@ jest@^30.5.2:
     import-local "^3.2.0"
     jest-cli "30.5.2"
 
-joi@^18.2.3:
-  version "18.2.8"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-18.2.8.tgz#855dae219ef3bb48bb26c35f02fdb521f88b9c03"
-  integrity sha512-G2TX62h58ZHuwqetJgP2F4ualakqAmZtBYe3jWen7gxQRw5xApX6crnFtuB91WC0c3ESBnva+kGSnb3+6pIQDQ==
+joi@^18.2.3, joi@^18.2.9:
+  version "18.2.9"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-18.2.9.tgz#8f489aebefab85cfa9979ea4471e3eea022787b1"
+  integrity sha512-2mD929bUVKUhOLQQEVhlf6EZ0Mlo0DeRb5MO7cViR9AXLtBauuccEtB1py9Ocxpo/P7ucnh442iY/iOwrh3IQw==
   dependencies:
     "@hapi/address" "^5.1.1"
     "@hapi/formula" "^3.0.2"
@@ -7706,7 +7706,7 @@ w3c-xmlserializer@^5.0.0:
   dependencies:
     xml-name-validator "^5.0.0"
 
-wait-on@9.1.0, wait-on@^9.1.0:
+wait-on@9.1.0:
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-9.1.0.tgz#3872a460589e33f2c7a1c53cbbb83c437477073e"
   integrity sha512-PymrLXHLBM1Ju/Xspb2ADUhbPSMvbnuNvy/mN2hWtpbJ3da0h3Ky1LqwKPG5QSVR57liyO0iUpfipYl/s5qNvA==
@@ -7715,6 +7715,16 @@ wait-on@9.1.0, wait-on@^9.1.0:
     joi "^18.2.3"
     lodash "^4.18.1"
     minimist "^1.2.8"
+    rxjs "^7.8.2"
+
+wait-on@^9.5.1:
+  version "9.5.1"
+  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-9.5.1.tgz#6867956a9dbb39e28d35e5db6a779bdbf0f013b8"
+  integrity sha512-bOtj1wRY6u+GPnNskZLcgZNHOaL5NC4+5hRCbEpVoVX6MbMrCLCqIBM2bjsAfrgst3ZC0siIo7vLb4LuYFfIow==
+  dependencies:
+    axios "^1.20.0"
+    joi "^18.2.9"
+    lodash "^4.18.1"
     rxjs "^7.8.2"
 
 warning@^4.0.0, warning@^4.0.3:
