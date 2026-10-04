@@ -541,8 +541,9 @@ describe('DashboardNavbar (combined)', () => {
       return [null, jest.fn()]
     })
 
-    const { rerender } = render(<DashboardNavbar />)
+    const { unmount } = render(<DashboardNavbar />)
     expect(screen.getByRole('button', { name: 'MCP' })).toBeInTheDocument()
+    unmount()
 
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'currentVariantAtom') return 'light'
@@ -565,7 +566,7 @@ describe('DashboardNavbar (combined)', () => {
       }
       return null
     })
-    rerender(<DashboardNavbar />)
+    render(<DashboardNavbar />)
     expect(screen.queryByRole('button', { name: 'MCP' })).toBeNull()
   })
 
@@ -606,5 +607,4 @@ describe('DashboardNavbar (combined)', () => {
     const updater = mockUpdateView.mock.calls[0][0]
     expect(updater({ id: 'dashboardH' }).id).toBe('mcp')
   })
-
 })

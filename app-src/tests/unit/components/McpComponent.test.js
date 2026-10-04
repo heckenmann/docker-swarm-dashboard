@@ -59,7 +59,7 @@ describe('McpComponent', () => {
     render(<McpComponent />)
 
     expect(screen.getByText('Streamable HTTP')).toBeInTheDocument()
-    expect(screen.getByText('docker-swarm-dashboard')).toBeInTheDocument()
+    expect(screen.getAllByText('docker-swarm-dashboard')).toHaveLength(2)
     expect(screen.getByLabelText('MCP URL')).toHaveValue(
       'http://localhost/docker-dashboard/mcp',
     )
