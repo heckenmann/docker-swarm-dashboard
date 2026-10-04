@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import HiddenServiceStatesRow from '../../../../../src/components/settings/rows/HiddenServiceStatesRow'
 
 const mockUseAtomValue = jest.fn()
@@ -89,12 +89,14 @@ describe('HiddenServiceStatesRow', () => {
   })
 
   describe('dropdown state selection', () => {
-    it('adds a new state when clicking a dropdown item', () => {
+    it('adds a new state when clicking a dropdown item', async () => {
       mockUseAtom.mockReturnValue([[], mockSetHiddenServiceStates])
       renderTableRow(<HiddenServiceStatesRow />)
 
       // Open dropdown
-      fireEvent.click(screen.getByRole('button', { name: /add state/i }))
+      await act(async () =>
+        fireEvent.click(screen.getByRole('button', { name: /add state/i })),
+      )
 
       // Click on 'running' state
       fireEvent.click(screen.getByText('running'))
@@ -102,12 +104,14 @@ describe('HiddenServiceStatesRow', () => {
       expect(mockSetHiddenServiceStates).toHaveBeenCalledWith(['running'])
     })
 
-    it('does not add duplicate state when clicking dropdown item for existing state', () => {
+    it('does not add duplicate state when clicking dropdown item for existing state', async () => {
       mockUseAtom.mockReturnValue([['failed'], mockSetHiddenServiceStates])
       renderTableRow(<HiddenServiceStatesRow />)
 
       // Open dropdown
-      fireEvent.click(screen.getByRole('button', { name: /add state/i }))
+      await act(async () =>
+        fireEvent.click(screen.getByRole('button', { name: /add state/i })),
+      )
 
       // Click on 'failed' state which is already in the list
       // Use getByRole to target the dropdown item specifically (not the badge)
@@ -117,12 +121,14 @@ describe('HiddenServiceStatesRow', () => {
       expect(mockSetHiddenServiceStates).not.toHaveBeenCalled()
     })
 
-    it('adds state to existing array when clicking dropdown item', () => {
+    it('adds state to existing array when clicking dropdown item', async () => {
       mockUseAtom.mockReturnValue([['failed'], mockSetHiddenServiceStates])
       renderTableRow(<HiddenServiceStatesRow />)
 
       // Open dropdown
-      fireEvent.click(screen.getByRole('button', { name: /add state/i }))
+      await act(async () =>
+        fireEvent.click(screen.getByRole('button', { name: /add state/i })),
+      )
 
       // Click on 'shutdown' state
       fireEvent.click(screen.getByText('shutdown'))

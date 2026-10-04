@@ -1463,7 +1463,7 @@
   resolved "https://registry.yarnpkg.com/@jest/get-type/-/get-type-30.5.0.tgz#0fc76dd792523bf05d7715a18041c185f9128cc4"
   integrity sha512-9/2VUPitAjmBzbvDvqrxmvB7BzWsBW0WmkkojX1ODuxX1NLGxx9gfaZpHB0z8DtJ9uhGNmZG/VXBhf8uO0OV8Q==
 
-"@jest/globals@30.5.2":
+"@jest/globals@30.5.2", "@jest/globals@^30.5.2":
   version "30.5.2"
   resolved "https://registry.yarnpkg.com/@jest/globals/-/globals-30.5.2.tgz#6e89c0b6334fc4b9cd9b18fa4495edc7783e856f"
   integrity sha512-62zfS+dL+M5aTNHXCNLyqD+j4oqxTIzDYrZbpqMP8Yn+gvlAGyzC6BSPNb1ZmFOakV1RtFYX/O3FCQXSWmQdgg==
@@ -5154,6 +5154,11 @@ jest-environment-node@30.5.2:
     jest-mock "30.5.2"
     jest-util "30.5.1"
     jest-validate "30.5.1"
+
+jest-fail-on-console@^3.3.4:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/jest-fail-on-console/-/jest-fail-on-console-3.3.4.tgz#61d3dc8bfa0541fd87fd4d667d061f45edca82e6"
+  integrity sha512-ckcABlg7ZLy83RRVOE1YvJMF1thgVPozVp+DjnE36Z1CaIbTrSeSR2AU4de/SEpfFgp2qK62EHXfm47N74zMuw==
 
 jest-haste-map@30.5.1:
   version "30.5.1"

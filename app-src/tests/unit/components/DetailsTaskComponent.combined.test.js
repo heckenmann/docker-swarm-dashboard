@@ -31,16 +31,28 @@ jest.mock('jotai', () => ({
 }))
 
 // Mock components
-jest.mock('../../../src/components/tasks/details/TaskInfoTable.jsx', () => () => <div data-testid="task-info-table" />)
-jest.mock('../../../src/components/tasks/details/TaskMetricsContent.jsx', () => ({ metricsLoading }) => (
-  <div data-testid="task-metrics-content">{metricsLoading ? 'Loading' : 'Loaded'}</div>
+jest.mock(
+  '../../../src/components/tasks/details/TaskInfoTable.jsx',
+  () => () => <div data-testid="task-info-table" />,
+)
+jest.mock(
+  '../../../src/components/tasks/details/TaskMetricsContent.jsx',
+  () =>
+    ({ metricsLoading }) => (
+      <div data-testid="task-metrics-content">
+        {metricsLoading ? 'Loading' : 'Loaded'}
+      </div>
+    ),
+)
+jest.mock('../../../src/components/shared/JsonTable.jsx', () => () => (
+  <div data-testid="json-table" />
 ))
-jest.mock('../../../src/components/shared/JsonTable.jsx', () => () => <div data-testid="json-table" />)
 
 // Mock fetch
 global.fetch = jest.fn()
 
-const DetailsTaskComponent = require('../../../src/components/tasks/DetailsTaskComponent').default
+const DetailsTaskComponent =
+  require('../../../src/components/tasks/DetailsTaskComponent').default
 
 describe('DetailsTaskComponent', () => {
   beforeEach(() => {
@@ -50,7 +62,7 @@ describe('DetailsTaskComponent', () => {
 
   const mockTaskData = {
     ID: 't1',
-    Status: { State: 'running' }
+    Status: { State: 'running' },
   }
 
   test('renders task details with tabs and fetches metrics', async () => {
@@ -63,16 +75,18 @@ describe('DetailsTaskComponent', () => {
     })
 
     fetch.mockResolvedValue({
-      json: async () => ({ available: true, metrics: { cpu: 10 } })
+      json: async () => ({ available: true, metrics: { cpu: 10 } }),
     })
 
     render(<DetailsTaskComponent />)
 
     expect(screen.getByText('Task Details')).toBeInTheDocument()
     expect(screen.getByTestId('task-info-table')).toBeInTheDocument()
-    
+
     await waitFor(() => {
-      expect(screen.getByTestId('task-metrics-content')).toHaveTextContent('Loaded')
+      expect(screen.getByTestId('task-metrics-content')).toHaveTextContent(
+        'Loaded',
+      )
     })
   })
 
@@ -96,10 +110,12 @@ describe('DetailsTaskComponent', () => {
     render(<DetailsTaskComponent />)
 
     expect(screen.getByText('Task Details')).toBeInTheDocument()
-    
+
     // Should still render without crashing on fetch error
     await waitFor(() => {
-      expect(screen.getByTestId('task-metrics-content')).toBeInTheDocument()
+      expect(screen.getByTestId('task-metrics-content')).toHaveTextContent(
+        'Loaded',
+      )
     })
   })
 
@@ -126,13 +142,18 @@ describe('DetailsTaskComponent', () => {
     })
 
     fetch.mockResolvedValue({
-      json: async () => ({ available: false })
+      json: async () => ({ available: false }),
     })
 
     render(<DetailsTaskComponent />)
 
     // Look for the JSON tab
     expect(screen.getByText('Raw JSON')).toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.getByTestId('task-metrics-content')).toHaveTextContent(
+        'Loaded',
+      ),
+    )
   })
 
   test('handles metrics response with error message', async () => {
@@ -145,13 +166,15 @@ describe('DetailsTaskComponent', () => {
     })
 
     fetch.mockResolvedValue({
-      json: async () => ({ available: false, message: 'Custom error message' })
+      json: async () => ({ available: false, message: 'Custom error message' }),
     })
 
     render(<DetailsTaskComponent />)
 
     await waitFor(() => {
-      expect(screen.getByTestId('task-metrics-content')).toBeInTheDocument()
+      expect(screen.getByTestId('task-metrics-content')).toHaveTextContent(
+        'Loaded',
+      )
     })
   })
 })
