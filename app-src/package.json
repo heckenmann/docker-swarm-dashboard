@@ -19,7 +19,7 @@
     "build": "vite build",
     "cy:open": "yarn cypress open",
     "cy:run": "yarn cypress run",
-    "cy:run:all-res": "yarn cypress run --env viewportWidth=3840,viewportHeight=2160 && yarn cypress run --env viewportWidth=1920,viewportHeight=1080",
+    "cy:run:all-res": "yarn cypress run --config viewportWidth=3840,viewportHeight=2160 && yarn cypress run --config viewportWidth=1920,viewportHeight=1080",
     "cy:spec": "yarn cypress run --spec",
     "dev:cy:run": "xvfb-run yarn cypress run",
     "test:e2e": "node scripts/run-e2e.js"

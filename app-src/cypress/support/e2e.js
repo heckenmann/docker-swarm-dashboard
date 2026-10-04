@@ -65,11 +65,6 @@ Cypress.Commands.add('getPage', (pageName) => {
 
 // Global before each hook
 beforeEach(() => {
-  // Default to 4K, but allow override via env
-  const width = Cypress.env("viewportWidth") || 3840
-  const height = Cypress.env("viewportHeight") || 2160
-  cy.viewport(width, height)
-
   // Clear cookies and localStorage between tests
   cy.clearCookies()
   cy.clearTestLocalStorage()
