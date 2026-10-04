@@ -5,6 +5,8 @@ env:
   WORKING_DIRECTORY: ./app-src
   NODE_VERSION: '26'
   CYPRESS_VERIFY_TIMEOUT: '100000'
+  CYPRESS_SHARDS: '4'
+  MOCK_PERSIST: '0'
 
 # Trigger the workflow on pull request or manual dispatch
 on:
@@ -16,9 +18,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.shards.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: shards
+        working-directory: ./app-src
+        run: node scripts/shard-cypress-specs.cjs
   # Install dependencies and update browserslist once per runner architecture,
   # then cache the result for all matrix browser jobs to share.
   prep:
+    timeout-minutes: 15
     name: Install & update browserslist (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -49,29 +65,33 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
 
-      - name: Cache node_modules
-        uses: actions/cache@v6
+      - name: Resolve prepared dependency cache key
+        id: prepared-cache
+        uses: actions/cache/restore@v6
         with:
           path: app-src/node_modules
-          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-node-${{ env.NODE_VERSION }}-node-modules-sharding-v1-${{ hashFiles('app-src/yarn.lock') }}
 
       - name: Update browserslist
         run: NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest
 
+      - name: Cache node_modules
+        if: steps.prepared-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: app-src/node_modules
+          key: ${{ steps.prepared-cache.outputs.cache-primary-key }}
+
   # Run Cypress tests across all browsers; restore the cache written by prep.
   cypress-run:
-    needs: prep
+    name: Cypress (${{ matrix.runner }}, ${{ matrix.browser }}, ${{ matrix.shard }}/${{ matrix.shardCount }})
+    needs: [discover, prep]
+    timeout-minutes: 15
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
-      matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        browser: ['firefox', 'electron']
-        include:
-          - runner: ubuntu-24.04
-            browser: chromium
-          - runner: ubuntu-24.04
-            browser: edge
+      max-parallel: 24
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -96,10 +116,10 @@ jobs:
 
       - name: Restore node_modules cache
         id: node-modules-cache
-        uses: actions/cache@v6
+        uses: actions/cache/restore@v6
         with:
           path: app-src/node_modules
-          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-node-${{ env.NODE_VERSION }}-node-modules-sharding-v1-${{ hashFiles('app-src/yarn.lock') }}
 
       - name: Install dependencies
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
@@ -110,23 +130,43 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v7
+        env:
+          CYPRESS_ASSIGNMENT: ${{ toJSON(matrix) }}
         with:
           working-directory: ${{ env.WORKING_DIRECTORY }}
           start: yarn run start:servers
           install: false
-          command: yarn run cy:run --browser ${{ matrix.browser }}
+          command: node scripts/run-cypress-shard.cjs
           wait-on: 'http://localhost:3000, http://localhost:3001/health'
+
+      - name: Upload shard report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cypress-report-${{ matrix.runner }}-${{ matrix.browser }}-${{ matrix.shard }}
+          path: app-src/cypress/reports/report.json
+          if-no-files-found: error
+          retention-days: 7
 
   # Gate job for Required Status Checks – always runs so branch protection
   # never stalls when cypress-run is skipped.
   cypress-tests-passed:
-    needs: cypress-run
+    needs: [discover, prep, cypress-run]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     if: always()
     steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: cypress-report-*
+          path: app-src/cypress/reports
       - name: Check Cypress results
-        run: |
-          if [[ "${{ needs.cypress-run.result }}" != "success" ]]; then
-            echo "Cypress tests did not pass (${{ needs.cypress-run.result }})" && exit 1
-          fi
-          echo "Cypress tests passed"
+        if: always()
+        working-directory: ./app-src
+        env:
+          CYPRESS_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: node scripts/check-cypress-shards.cjs
