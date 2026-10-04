@@ -1,7 +1,6 @@
 import React from 'react'
 import { useEffect, useCallback, startTransition } from 'react'
 import { useAtom, useAtomValue } from 'jotai'
-import { loadable } from 'jotai/utils'
 import {
   Navbar,
   Nav,
@@ -13,6 +12,7 @@ import {
   Tooltip,
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { loadable } from '../../common/store/loadable'
 import logo from '../../assets/docker.png'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
@@ -80,14 +80,13 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
 
   const navigate = useCallback(
     (id) => {
-      startTransition(() => {
-        updateView((prev) => ({ ...prev, id }))
-      })
+      updateView((prev) => ({ ...prev, id }))
     },
     [updateView],
   )
 
   const reloadData = useCallback(() => {
+    // Keep the current view and its focus while refreshed async atoms suspend.
     startTransition(() => {
       updateView((prev) => ({ ...prev, timestamp: new Date() }))
     })

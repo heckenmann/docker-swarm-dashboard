@@ -32,6 +32,7 @@ const mockAtom = jest.fn((fn) => ({ __type: 'atom', fn }))
 jest.mock('jotai', () => ({
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
+  useSetAtom: (...args) => mockUseAtom(...args)[1],
   atom: (fn) => mockAtom(fn),
 }))
 

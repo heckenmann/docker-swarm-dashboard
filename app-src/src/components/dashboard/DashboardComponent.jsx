@@ -1,4 +1,4 @@
-import React, { startTransition } from 'react'
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -58,13 +58,11 @@ const DashboardComponent = React.memo(function DashboardComponent() {
     name: service.Name || service['Name'],
     style: { width: '120px', minWidth: '120px' },
     onClick: () => {
-      startTransition(() => {
-        updateView((prev) => ({
-          ...prev,
-          id: servicesDetailId,
-          detail: service.ID,
-        }))
-      })
+      updateView((prev) => ({
+        ...prev,
+        id: servicesDetailId,
+        detail: service.ID,
+      }))
     },
     key: `dashboardTable-${service.ID}`,
     index: idx,
@@ -98,47 +96,22 @@ const DashboardComponent = React.memo(function DashboardComponent() {
             <ul className="list-unstyled mb-0">
               {node['Tasks'][service['ID']].map((task, id) => (
                 <li
-                  key={
-                    'badge-' +
-                    (task && task.NodeID
-                      ? String(task.NodeID)
-                      : `node-idx-${id}`) +
-                    '-' +
-                    (task && task.ServiceID
-                      ? String(task.ServiceID)
-                      : `svc-idx-${id}`) +
-                    '-' +
-                    (task && task.ID
-                      ? String(task.ID) + `-${id}`
-                      : `task-idx-${id}`) +
-                    '-' +
-                    (task && task.Status
-                      ? String(
-                          task.Status?.Timestamp ??
-                            task.Status?.State ??
-                            `status-idx-${id}`,
-                        )
-                      : `status-idx-${id}`)
-                  }
+                  key={task?.ID || `task-${id}`}
                   style={{ cursor: 'pointer' }}
                   onClick={() =>
-                    startTransition(() => {
-                      updateView({
-                        id: tasksDetailId,
-                        detail: task.ID,
-                        timestamp: Date.now(),
-                      })
+                    updateView({
+                      id: tasksDetailId,
+                      detail: task.ID,
+                      timestamp: Date.now(),
                     })
                   }
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      startTransition(() => {
-                        updateView({
-                          id: tasksDetailId,
-                          detail: task.ID,
-                          timestamp: Date.now(),
-                        })
+                      updateView({
+                        id: tasksDetailId,
+                        detail: task.ID,
+                        timestamp: Date.now(),
                       })
                     }
                   }}

@@ -114,6 +114,23 @@ describe('DashboardComponent', () => {
     expect(screen.getByTestId('service-status-badge')).toBeInTheDocument()
   })
 
+  test('keeps task focus across status updates and reordered tasks', () => {
+    const data = (tasks) => ({
+      ...mockDashboardData,
+      Nodes: [{ ...mockDashboardData.Nodes[0], Tasks: { s1: tasks } }],
+    })
+    const first = { ID: 'first', Status: { State: 'pending', Timestamp: 'before' } }
+    const second = { ID: 'second', Status: { State: 'running' } }
+    setupMocks({ dashboardHAtom: data([first, second]) })
+    const { rerender } = render(<DashboardComponent />)
+    const focusedTask = screen.getAllByRole('button')[0]
+    focusedTask.focus()
+    setupMocks({ dashboardHAtom: data([second, { ...first, Status: { State: 'running', Timestamp: 'after' } }]) })
+    rerender(<DashboardComponent />)
+    expect(screen.getAllByRole('button')[1]).toBe(focusedTask)
+    expect(focusedTask).toHaveFocus()
+  })
+
   test('filters services by name', () => {
     setupMocks({ serviceNameFilterAtom: 'non-existent' })
     render(<DashboardComponent />)

@@ -7,7 +7,7 @@ jest.mock('jotai', () => ({
   useAtomValue: jest.fn(),
 }))
 
-jest.mock('jotai/utils', () => ({
+jest.mock('../../../src/common/store/loadable', () => ({
   loadable: (atom) => atom, // Simple bypass for testing
 }))
 
@@ -42,6 +42,15 @@ describe('ClusterMetricsHeader', () => {
     useAtomValue.mockReturnValue({ state: 'hasData', data: { available: true, error: 'API Error' } })
     render(<ClusterMetricsHeader />)
     expect(screen.getByText(/API Error/i)).toBeInTheDocument()
+  })
+
+  test.each(['hasError', 'hasData'])('renders Error messages in %s state', (state) => {
+    const error = new Error('Metrics request failed')
+    useAtomValue.mockReturnValue(state === 'hasError'
+      ? { state, error }
+      : { state, data: { available: true, error } })
+    render(<ClusterMetricsHeader />)
+    expect(screen.getByRole('alert')).toHaveTextContent('Metrics request failed')
   })
 
   test('renders info alert when metrics are not available', () => {

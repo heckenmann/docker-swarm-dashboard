@@ -126,7 +126,7 @@ jobs:
     steps:
       - name: Check Cypress results
         run: |
-          if [[ "${{ needs.cypress-run.result }}" == "failure" ]]; then
-            echo "Cypress tests failed" && exit 1
+          if [[ "${{ needs.cypress-run.result }}" != "success" ]]; then
+            echo "Cypress tests did not pass (${{ needs.cypress-run.result }})" && exit 1
           fi
           echo "Cypress tests passed"

@@ -17,18 +17,18 @@ describe('coverage boost for parseHashToObj and entityActions', () => {
   test('useEntityActions early returns and updaters', () => {
     jest.resetModules()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
 
     const mockUpdateView = jest.fn()
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      if (atom === atoms.serviceNameFilterAtom) return jest.fn()
+      if (atom === atoms.stackNameFilterAtom) return jest.fn()
+      if (atom === atoms.filterTypeAtom) return jest.fn()
+      return jest.fn()
     })
 
     const {
@@ -63,7 +63,7 @@ describe('coverage boost for parseHashToObj and entityActions', () => {
   test('additional entityActions branches exercise service and stack filter paths', () => {
     jest.resetModules()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
@@ -72,12 +72,12 @@ describe('coverage boost for parseHashToObj and entityActions', () => {
     const mockSetStack = jest.fn()
     const mockSetFilterType = jest.fn()
 
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', mockSetService]
-      if (atom === atoms.stackNameFilterAtom) return ['', mockSetStack]
-      if (atom === atoms.filterTypeAtom) return ['service', mockSetFilterType]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      if (atom === atoms.serviceNameFilterAtom) return mockSetService
+      if (atom === atoms.stackNameFilterAtom) return mockSetStack
+      if (atom === atoms.filterTypeAtom) return mockSetFilterType
+      return jest.fn()
     })
 
     const {

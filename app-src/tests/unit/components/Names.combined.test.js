@@ -10,6 +10,7 @@ jest.mock('jotai', () => ({
   useAtom: jest.fn((atom) => {
     return [null, jest.fn()]
   }),
+  useSetAtom: jest.fn(() => jest.fn()),
   atom: (initial) => initial,
   Provider: ({ children }) => children
 }))

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
-import { loadable } from 'jotai/utils'
 import { Row, Col, ProgressBar, Spinner, Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { loadable } from '../../common/store/loadable'
 import { clusterMetricsAtom } from '../../common/store/atoms/dashboardAtoms'
 import { formatBytes } from '../../common/utils/formatUtils'
 import DSDCard from '../common/DSDCard'
@@ -35,13 +35,16 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
     metricsRes.state === 'hasError' ||
     (metricsRes.data && metricsRes.data.error)
   ) {
+    const error = metricsRes.error || metricsRes.data?.error
     return (
       <Alert variant="warning" className="mx-2">
         <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
         <strong>Cluster metrics warning:</strong>{' '}
-        {metricsRes.error ||
-          metricsRes.data?.error ||
-          'Failed to fetch metrics from nodes.'}
+        {error
+          ? error instanceof Error
+            ? error.message
+            : String(error)
+          : 'Failed to fetch metrics from nodes.'}
       </Alert>
     )
   }

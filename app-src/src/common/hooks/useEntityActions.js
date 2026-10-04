@@ -11,8 +11,7 @@
  * @param {string} [entityType='service']
  * @returns {{ onOpen: function(string):void, onFilter: function(string):void }}
  */
-import { useAtom } from 'jotai'
-import { startTransition } from 'react'
+import { useSetAtom } from 'jotai'
 import {
   serviceNameFilterAtom,
   stackNameFilterAtom,
@@ -32,49 +31,45 @@ import {
  * @returns {{ onOpen: Function, onFilter: Function }} Action handlers
  */
 export function useEntityActions(entityType = 'service') {
-  const [, updateView] = useAtom(viewAtom)
-  const [, setServiceFilterName] = useAtom(serviceNameFilterAtom)
-  const [, setStackFilterName] = useAtom(stackNameFilterAtom)
-  const [, setFilterType] = useAtom(filterTypeAtom)
+  const updateView = useSetAtom(viewAtom)
+  const setServiceFilterName = useSetAtom(serviceNameFilterAtom)
+  const setStackFilterName = useSetAtom(stackNameFilterAtom)
+  const setFilterType = useSetAtom(filterTypeAtom)
 
   const onOpen = (detailId) => {
     if (!detailId) return
-    startTransition(() => {
-      if (entityType === 'node') {
-        updateView((prev) => ({
-          ...(prev || {}),
-          id: nodesDetailId,
-          detail: detailId,
-        }))
-      } else if (entityType === 'service') {
-        updateView((prev) => ({
-          ...(prev || {}),
-          id: servicesDetailId,
-          detail: detailId,
-        }))
-      } else if (entityType === 'task') {
-        updateView((prev) => ({
-          ...(prev || {}),
-          id: tasksId,
-          detail: detailId,
-        }))
-      }
-    })
+    if (entityType === 'node') {
+      updateView((prev) => ({
+        ...(prev || {}),
+        id: nodesDetailId,
+        detail: detailId,
+      }))
+    } else if (entityType === 'service') {
+      updateView((prev) => ({
+        ...(prev || {}),
+        id: servicesDetailId,
+        detail: detailId,
+      }))
+    } else if (entityType === 'task') {
+      updateView((prev) => ({
+        ...(prev || {}),
+        id: tasksId,
+        detail: detailId,
+      }))
+    }
   }
 
   const onFilter = (filterName) => {
     if (!filterName) return
-    startTransition(() => {
-      if (entityType === 'stack') {
-        setFilterType('stack')
-        setStackFilterName(filterName)
-        setServiceFilterName('')
-      } else if (entityType === 'service') {
-        setFilterType('service')
-        setServiceFilterName(filterName)
-        setStackFilterName('')
-      }
-    })
+    if (entityType === 'stack') {
+      setFilterType('stack')
+      setStackFilterName(filterName)
+      setServiceFilterName('')
+    } else if (entityType === 'service') {
+      setFilterType('service')
+      setServiceFilterName(filterName)
+      setStackFilterName('')
+    }
   }
 
   return { onOpen, onFilter }

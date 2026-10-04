@@ -1,4 +1,4 @@
-import React, { startTransition } from 'react'
+import React from 'react'
 import { useAtom, useAtomValue } from 'jotai'
 import { Table } from 'react-bootstrap'
 import {
@@ -94,33 +94,22 @@ const DashboardVerticalComponent = React.memo(
               <ul className="list-unstyled mb-0">
                 {service?.Tasks?.[node?.ID].map((task, id) => (
                   <li
-                    key={
-                      'badge-' +
-                      (task?.NodeID || 'no-node') +
-                      '-' +
-                      (task?.ID || id) +
-                      '-' +
-                      (task?.Status?.State || 'no-state')
-                    }
+                    key={task?.ID || `task-${id}`}
                     style={{ cursor: 'pointer' }}
                     onClick={() =>
-                      startTransition(() => {
-                        setView({
-                          id: tasksDetailId,
-                          detail: task.ID,
-                          timestamp: Date.now(),
-                        })
+                      setView({
+                        id: tasksDetailId,
+                        detail: task.ID,
+                        timestamp: Date.now(),
                       })
                     }
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
-                        startTransition(() => {
-                          setView({
-                            id: tasksDetailId,
-                            detail: task.ID,
-                            timestamp: Date.now(),
-                          })
+                        setView({
+                          id: tasksDetailId,
+                          detail: task.ID,
+                          timestamp: Date.now(),
                         })
                       }
                     }}

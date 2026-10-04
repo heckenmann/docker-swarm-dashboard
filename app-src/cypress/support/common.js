@@ -1,57 +1,43 @@
 import { CY_BASE_URL } from './constants'
 
 /**
- * Setup console error instrumentation in the window
- * This should be called before any interactions that might trigger console errors
+ * Capture console errors and warnings on each application window before load.
+ * Cypress removes this listener at the end of the current test.
  */
 export function setupConsoleInstrumentation() {
-  cy.window().then((win) => {
-    win.__consoleErrors = win.__consoleErrors || []
-    win.__consoleWarns = win.__consoleWarns || []
-    
-    const origError = win.console.error?.bind(win.console)
-    const origWarn = win.console.warn?.bind(win.console)
+  cy.on('window:before:load', (win) => {
+    win.__consoleErrors = []
+    win.__consoleWarns = []
 
-    win.console.error = function (...args) {
+    const originalError = win.console.error.bind(win.console)
+    const originalWarn = win.console.warn.bind(win.console)
+    win.console.error = (...args) => {
       win.__consoleErrors.push(args)
-      if (origError) origError(...args)
+      originalError(...args)
     }
-    win.console.warn = function (...args) {
+    win.console.warn = (...args) => {
       win.__consoleWarns.push(args)
-      if (origWarn) origWarn(...args)
+      originalWarn(...args)
     }
   })
 }
 
 /**
- * Assert that no console errors or warnings were recorded
- * Call this after your test interactions
+ * Assert that the instrumented application window has no console diagnostics.
  */
 export function assertNoConsoleErrors() {
   cy.window().then((win) => {
-    const errors = win.__consoleErrors || []
-    const warns = win.__consoleWarns || []
-    
-    // Filter out known benign React dev warnings
-    const filteredErrors = errors.filter((e) => {
-      try {
-        const s = Array.isArray(e) ? e.join(' ') : String(e)
-        if (s.toLowerCase().includes('invalid value for prop') && 
-            s.toLowerCase().includes('src') && 
-            s.toLowerCase().includes('img')) {
-          return false
-        }
-      } catch (err) {}
-      return true
-    })
-    
-    expect(filteredErrors).to.have.length(0, `Console errors: ${JSON.stringify(filteredErrors.slice(0, 3))}`)
-    expect(warns).to.have.length(0, `Console warnings: ${JSON.stringify(warns.slice(0, 3))}`)
+    expect(win.__consoleErrors, 'console.error')
+      .to.be.an('array')
+      .and.have.length(0)
+    expect(win.__consoleWarns, 'console.warn')
+      .to.be.an('array')
+      .and.have.length(0)
   })
 }
 
 /**
- * Clear console error buffers
+ * Clear console buffers after explicitly asserting expected diagnostics.
  */
 export function clearConsoleErrors() {
   cy.window().then((win) => {
@@ -59,6 +45,5 @@ export function clearConsoleErrors() {
     win.__consoleWarns = []
   })
 }
-
 
 export { CY_BASE_URL }

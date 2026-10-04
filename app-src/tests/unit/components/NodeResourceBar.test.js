@@ -7,8 +7,7 @@ jest.mock('jotai', () => ({
   useAtomValue: (atom) => mockUseAtomValue(atom),
 }))
 
-jest.mock('jotai/utils', () => ({
-  atomFamily: (fn) => (id) => ({ debugLabel: 'atomFamily', id }),
+jest.mock('../../../src/common/store/loadable', () => ({
   loadable: (atom) => ({ debugLabel: 'loadable', inner: atom }),
 }))
 

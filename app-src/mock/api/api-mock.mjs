@@ -133,6 +133,7 @@ const createSampleTasks = () => {
 
     for (let j = 0; j < tasksCount; j++) {
       const taskId = `task-${svcId}-${j + 1}`
+      if (db.data.tasks.some((task) => task.ID === taskId)) continue
   const nodeId = nodeIds.length ? nodeIds[(i + j) % nodeIds.length] : null
   const nodeName = nodeId ? (nodeMap[nodeId]?.Hostname || nodeMap[nodeId]?.Name || '') : null
     const state = states[(i + j) % states.length]

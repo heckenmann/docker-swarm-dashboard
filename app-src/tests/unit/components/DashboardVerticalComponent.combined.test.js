@@ -107,6 +107,23 @@ describe('DashboardVerticalComponent', () => {
     expect(screen.getByTestId('service-status-badge')).toBeInTheDocument()
   })
 
+  test('keeps task focus across status updates and reordered tasks', () => {
+    const data = (tasks) => ({
+      ...mockDashboardData,
+      Services: [{ ...mockDashboardData.Services[0], Tasks: { n1: tasks } }],
+    })
+    const first = { ID: 'first', Status: { State: 'pending' } }
+    const second = { ID: 'second', Status: { State: 'running' } }
+    setupMocks({ dashboardVAtom: data([first, second]) })
+    const { rerender } = render(<DashboardVerticalComponent />)
+    const focusedTask = screen.getAllByRole('button')[0]
+    focusedTask.focus()
+    setupMocks({ dashboardVAtom: data([second, { ...first, Status: { State: 'running' } }]) })
+    rerender(<DashboardVerticalComponent />)
+    expect(screen.getAllByRole('button')[1]).toBe(focusedTask)
+    expect(focusedTask).toHaveFocus()
+  })
+
   test('marks the scroll wrapper and the first column so they can be frozen', () => {
     setupMocks()
     const { container } = render(<DashboardVerticalComponent />)

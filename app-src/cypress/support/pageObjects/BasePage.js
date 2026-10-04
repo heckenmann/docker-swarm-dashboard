@@ -1,4 +1,5 @@
 import { CY_BASE_URL } from '../constants'
+import { assertNoConsoleErrors } from '../common'
 
 /**
  * Base Page Object with common functionality
@@ -24,15 +25,7 @@ class BasePage {
   }
   
   assertNoConsoleErrors() {
-    cy.window().then((win) => {
-      const c = win.console || {}
-      const errors = c.__errors || []
-      // If the app hasn't instrumented console, fallback to assuming no errors
-      expect(Array.isArray(errors) ? errors.length : 0).to.eq(
-        0,
-        `Console errors: ${JSON.stringify(errors)}`
-      )
-    })
+    assertNoConsoleErrors()
     cy.document().its('body').should('not.contain', 'ERROR')
     return this
   }

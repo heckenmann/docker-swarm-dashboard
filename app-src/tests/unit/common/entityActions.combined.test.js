@@ -10,16 +10,16 @@ describe('useEntityActions branches', () => {
   test('no-op onOpen when id falsy and no-op onFilter when empty', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      if (atom === atoms.serviceNameFilterAtom) return jest.fn()
+      if (atom === atoms.stackNameFilterAtom) return jest.fn()
+      if (atom === atoms.filterTypeAtom) return jest.fn()
+      return jest.fn()
     })
 
     const {
@@ -34,16 +34,16 @@ describe('useEntityActions branches', () => {
   test('node and task onOpen call updater', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      if (atom === atoms.serviceNameFilterAtom) return jest.fn()
+      if (atom === atoms.stackNameFilterAtom) return jest.fn()
+      if (atom === atoms.filterTypeAtom) return jest.fn()
+      return jest.fn()
     })
 
     const {
@@ -72,16 +72,16 @@ describe('useEntityActions branches', () => {
     const mockSetFilterType = jest.fn()
 
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, jest.fn()]
-      if (atom === atoms.serviceNameFilterAtom) return ['', mockSetService]
-      if (atom === atoms.stackNameFilterAtom) return ['', mockSetStack]
-      if (atom === atoms.filterTypeAtom) return ['service', mockSetFilterType]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return jest.fn()
+      if (atom === atoms.serviceNameFilterAtom) return mockSetService
+      if (atom === atoms.stackNameFilterAtom) return mockSetStack
+      if (atom === atoms.filterTypeAtom) return mockSetFilterType
+      return jest.fn()
     })
 
     const {
@@ -101,16 +101,16 @@ describe('useEntityActions branches', () => {
     const mockSetFilterType = jest.fn()
 
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', mockSetService]
-      if (atom === atoms.stackNameFilterAtom) return ['', mockSetStack]
-      if (atom === atoms.filterTypeAtom) return ['stack', mockSetFilterType]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      if (atom === atoms.serviceNameFilterAtom) return mockSetService
+      if (atom === atoms.stackNameFilterAtom) return mockSetStack
+      if (atom === atoms.filterTypeAtom) return mockSetFilterType
+      return jest.fn()
     })
 
     const {
@@ -133,16 +133,16 @@ describe('useEntityActions branches', () => {
   test('updateView updater handles null prev values for node/service/task', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
 
     const atoms = require('../../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      if (atom === atoms.serviceNameFilterAtom) return jest.fn()
+      if (atom === atoms.stackNameFilterAtom) return jest.fn()
+      if (atom === atoms.filterTypeAtom) return jest.fn()
+      return jest.fn()
     })
 
     const {

@@ -10,15 +10,12 @@ describe('useEntityActions core', () => {
   test('onOpen for service updates view atom', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
     const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      return jest.fn()
     })
     const nav = require('../../src/common/navigationConstants')
     const {
@@ -36,15 +33,13 @@ describe('useEntityActions core', () => {
     const mockSetStack = jest.fn()
     const mockSetFilterType = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
     const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, jest.fn()]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', mockSetStack]
-      if (atom === atoms.filterTypeAtom) return ['service', mockSetFilterType]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.stackNameFilterAtom) return mockSetStack
+      if (atom === atoms.filterTypeAtom) return mockSetFilterType
+      return jest.fn()
     })
     const {
       useEntityActions,
@@ -58,22 +53,21 @@ describe('useEntityActions core', () => {
 
 describe('useEntityActions extra behaviors', () => {
   beforeEach(() => {
-    const _useAtom = jest.requireActual('jotai').useAtom
     jest.doMock('jotai', () => ({
       ...jest.requireActual('jotai'),
-      useAtom: jest.fn(),
+      useSetAtom: jest.fn(),
     }))
   })
 
   test('onOpen navigates to nodes detail when entityType=node', () => {
     const entityActions = require('../../src/common/actions/entityActions')
     const updateView = jest.fn()
-    const useAtomMock = require('jotai').useAtom
-    useAtomMock
-      .mockReturnValueOnce([null, updateView])
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, jest.fn()])
+    const useSetAtomMock = require('jotai').useSetAtom
+    useSetAtomMock
+      .mockReturnValueOnce(updateView)
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(jest.fn())
     const { result } = renderHook(() => entityActions.useEntityActions('node'))
     act(() => result.current.onOpen('nid'))
     expect(updateView).toHaveBeenCalled()
@@ -86,12 +80,12 @@ describe('useEntityActions extra behaviors', () => {
 
   test('onOpen navigates to tasks detail when entityType=task', () => {
     const updateView = jest.fn()
-    const useAtomMock = require('jotai').useAtom
-    useAtomMock
-      .mockReturnValueOnce([null, updateView])
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, jest.fn()])
+    const useSetAtomMock = require('jotai').useSetAtom
+    useSetAtomMock
+      .mockReturnValueOnce(updateView)
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(jest.fn())
     const { result } = renderHook(() =>
       require('../../src/common/actions/entityActions').useEntityActions(
         'task',
@@ -107,12 +101,12 @@ describe('useEntityActions extra behaviors', () => {
 
   test('onOpen does nothing when no id provided', () => {
     const updateView = jest.fn()
-    const useAtomMock = require('jotai').useAtom
-    useAtomMock
-      .mockReturnValueOnce([null, updateView])
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, jest.fn()])
+    const useSetAtomMock = require('jotai').useSetAtom
+    useSetAtomMock
+      .mockReturnValueOnce(updateView)
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(jest.fn())
     const { result } = renderHook(() =>
       require('../../src/common/actions/entityActions').useEntityActions(
         'service',
@@ -126,12 +120,12 @@ describe('useEntityActions extra behaviors', () => {
     const setServiceFilterName = jest.fn()
     const setStackFilterName = jest.fn()
     const setFilterType = jest.fn()
-    const useAtomMock = require('jotai').useAtom
-    useAtomMock
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, setServiceFilterName])
-      .mockReturnValueOnce([null, setStackFilterName])
-      .mockReturnValueOnce([null, setFilterType])
+    const useSetAtomMock = require('jotai').useSetAtom
+    useSetAtomMock
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(setServiceFilterName)
+      .mockReturnValueOnce(setStackFilterName)
+      .mockReturnValueOnce(setFilterType)
     const { result } = renderHook(() =>
       require('../../src/common/actions/entityActions').useEntityActions(
         'service',
@@ -147,12 +141,12 @@ describe('useEntityActions extra behaviors', () => {
     const setServiceFilterName = jest.fn()
     const setStackFilterName = jest.fn()
     const setFilterType = jest.fn()
-    const useAtomMock = require('jotai').useAtom
-    useAtomMock
-      .mockReturnValueOnce([null, jest.fn()])
-      .mockReturnValueOnce([null, setServiceFilterName])
-      .mockReturnValueOnce([null, setStackFilterName])
-      .mockReturnValueOnce([null, setFilterType])
+    const useSetAtomMock = require('jotai').useSetAtom
+    useSetAtomMock
+      .mockReturnValueOnce(jest.fn())
+      .mockReturnValueOnce(setServiceFilterName)
+      .mockReturnValueOnce(setStackFilterName)
+      .mockReturnValueOnce(setFilterType)
     const { result } = renderHook(() =>
       require('../../src/common/actions/entityActions').useEntityActions(
         'stack',
@@ -167,15 +161,12 @@ describe('useEntityActions extra behaviors', () => {
   test('onOpen and onFilter no-ops for falsy inputs', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
     const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      return jest.fn()
     })
     const {
       useEntityActions,
@@ -189,15 +180,12 @@ describe('useEntityActions extra behaviors', () => {
   test('onOpen does not call updateView for unknown entityType', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
     const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      return jest.fn()
     })
     const {
       useEntityActions,
@@ -210,15 +198,12 @@ describe('useEntityActions extra behaviors', () => {
   test('onOpen for service produces updater that sets servicesDetailId', () => {
     const mockUpdateView = jest.fn()
     const actualJotai = jest.requireActual('jotai')
-    jest.doMock('jotai', () => ({ ...actualJotai, useAtom: jest.fn() }))
+    jest.doMock('jotai', () => ({ ...actualJotai, useSetAtom: jest.fn() }))
     const atoms = require('../../src/common/store/atoms')
     const jotai = require('jotai')
-    jotai.useAtom.mockImplementation((atom) => {
-      if (atom === atoms.viewAtom) return [null, mockUpdateView]
-      if (atom === atoms.serviceNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.stackNameFilterAtom) return ['', jest.fn()]
-      if (atom === atoms.filterTypeAtom) return ['service', jest.fn()]
-      return [null, jest.fn()]
+    jotai.useSetAtom.mockImplementation((atom) => {
+      if (atom === atoms.viewAtom) return mockUpdateView
+      return jest.fn()
     })
     const nav = require('../../src/common/navigationConstants')
     const {

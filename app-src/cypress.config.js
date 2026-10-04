@@ -16,13 +16,16 @@ module.exports = defineConfig({
         }
       })
       on('after:run', (results) => {
-        if (results) {
-          const passed = results.totalTests - results.totalFailures
-          const percentage = ((passed / results.totalTests) * 100).toFixed(2)
+        if (results && typeof results.totalTests === 'number') {
+          const passed = results.totalPassed
+          const percentage =
+            results.totalTests > 0
+              ? ((passed / results.totalTests) * 100).toFixed(2)
+              : '0.00'
           console.log(`\n📊 Test Results Summary:`)
           console.log(`   Total: ${results.totalTests} tests`)
           console.log(`   Passed: ${passed} (${percentage}%)`)
-          console.log(`   Failed: ${results.totalFailures}`)
+          console.log(`   Failed: ${results.totalFailed}`)
           console.log(`   Duration: ${Math.floor(results.totalDuration/1000)}s\n`)
         }
       })

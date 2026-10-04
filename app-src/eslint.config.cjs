@@ -16,6 +16,7 @@ module.exports = [
   {
     files: ["src/**/*.js", "src/**/*.jsx"],
     settings: {
+      react: { version: 'detect' },
       'import/resolver': {
         alias: {
           map: [
