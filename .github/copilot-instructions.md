@@ -15,7 +15,7 @@
 
 ### Runtime Requirements
 - **Node.js:** >= 22.0.0
-- **Go:** 1.25
+- **Go:** 1.27.1
 - **Package manager:** yarn (required, not npm)
 
 ### Key Entry Points
