@@ -141,6 +141,37 @@ yarn cy:run --browser electron
 yarn cy:run --spec cypress/e2e/my-test.cy.js --browser electron
 ```
 
+### CI sharding
+
+The Cypress workflow discovers specs dynamically and splits them into four
+deterministic, spec-count-balanced groups. All six existing browser/architecture
+combinations remain covered (24 jobs). Discovery and Cypress share the same
+spec patterns; each spec must execute exactly once per combination.
+
+To reproduce a shard, start fresh servers with `MOCK_PERSIST=0 yarn start:servers`
+and, in another terminal in `app-src`, run:
+
+```bash
+node scripts/shard-cypress-specs.cjs  # Print the complete matrix
+node scripts/run-cypress-shard.cjs 1 # Electron shard 1 of 4
+CYPRESS_BROWSER=firefox node scripts/run-cypress-shard.cjs 2
+```
+
+Restart the mock/dev servers between shard runs to reproduce runner isolation.
+`CYPRESS_SHARDS` controls the shard count locally and in `.github/workflows/cypress.yml`;
+set it to `1` to disable parallelization without changing the required gate.
+`max-parallel` controls the workflow concurrency cap independently.
+
+Each job uploads a uniquely named `cypress-report-*` artifact (seven-day retention)
+containing spec paths, counts, and per-spec durations, but no response payloads.
+The unchanged `cypress-tests-passed` required check rejects failed, canceled, or
+skipped dependencies, missing/duplicate reports, incomplete spec coverage, and
+zero-test specs. Intentionally pending tests retain the existing Cypress policy.
+The workflow summary compares shard durations; use several warm/cold-cache runs
+to compare queue time, end-to-end time, and runner minutes with unsharded runs.
+Count balancing does not guarantee equal durations or a fixed speedup. Timing
+weights can be added later if measurements demonstrate a persistent long tail.
+
 ### Test Contracts
 
 #### Settings Component Tests
