@@ -7,6 +7,7 @@ import {
   dashboardVId,
   debugId,
   logsId,
+  mcpId,
   nodesDetailId,
   nodesId,
   portsId,
@@ -33,6 +34,7 @@ import DetailsTaskComponent from '../tasks/DetailsTaskComponent.jsx'
 import AboutComponent from '../misc/AboutComponent'
 import SettingsComponent from '../settings/SettingsComponent'
 import LogsComponent from '../logs/LogsComponent.jsx'
+import McpComponent from '../misc/McpComponent.jsx'
 import DebugComponent from '../misc/DebugComponent'
 import VersionUpdateComponent from '../misc/VersionUpdateComponent.jsx'
 
@@ -82,6 +84,7 @@ const ContentRouter = React.memo(function ContentRouter() {
     [aboutId]: <AboutComponent />,
     [settingsId]: <SettingsComponent />,
     [logsId]: <LogsComponent />,
+    [mcpId]: <McpComponent />,
     [debugId]: <DebugComponent />,
     [versionUpdateId]: <VersionUpdateComponent />,
   }

@@ -36,6 +36,7 @@ import {
   aboutId,
   dashboardHId,
   logsId,
+  mcpId,
   nodesId,
   portsId,
   settingsId,
@@ -244,6 +245,19 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
                   <FontAwesomeIcon icon="desktop" />
                   {showNavLabels && ' Logs'}
                   {readingLogsWarning}
+                </Nav.Link>,
+              )}
+            {dashboardSettings.mcpEnabled &&
+              navTip(
+                'tt-mcp',
+                'MCP',
+                <Nav.Link
+                  aria-label="MCP"
+                  onClick={() => navigate(mcpId)}
+                  active={view?.id === mcpId}
+                >
+                  <FontAwesomeIcon icon="plug" />
+                  {showNavLabels && ' MCP'}
                 </Nav.Link>,
               )}
           </Nav>
