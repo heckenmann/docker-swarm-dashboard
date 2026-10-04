@@ -137,6 +137,25 @@ metrics, logs (when `DSD_HANDLE_LOGS=true`), stacks, published ports, the
 timeline, dashboard settings, version, and health. Existing
 `DSD_MASK_ENV` masking is also applied to data returned through MCP.
 
+Tools include `list_services`, `get_service`, `get_service_metrics`,
+`list_nodes`, `get_node`, `get_node_metrics`, `get_cluster_metrics`,
+`list_tasks`, `get_task`, `get_task_metrics`, `list_stacks`,
+`list_published_ports`, `get_timeline`, `get_cluster_overview`,
+`get_dashboard_settings`, `get_version`, and `get_health`. When logs are
+enabled, `list_log_services` and `get_service_logs` are also discoverable.
+Service queries accept IDs or exact names, node queries accept IDs, node
+names or hostnames, and task queries accept IDs. `list_tasks` accepts optional
+service and node filters.
+
+Results contain structured JSON objects, with named fields such as `services`,
+`nodes`, `tasks`, `stacks`, `ports`, and `timeline` for lists, plus a text
+fallback for clients using older MCP protocol versions. The cluster overview
+contains services, nodes and tasks independently of the dashboard layout.
+Log queries return finite snapshots, support the dashboard's Docker log
+options, and stop with an error if Docker does not finish within five seconds.
+The connection URL uses the server's configured path prefix and the current
+browser origin; a client-side API URL override does not change it.
+
 ### Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
