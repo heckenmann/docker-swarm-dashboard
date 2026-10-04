@@ -129,7 +129,7 @@ func resolveTask(ctx context.Context, cli *client.Client, identifier string) (sw
 	for _, task := range tasks {
 		if task.ID == identifier {
 			return task, nil
-	}
+		}
 	}
 	if len(tasks) == 1 {
 		return tasks[0], nil
