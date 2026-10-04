@@ -6,18 +6,44 @@ import React from 'react'
 // Mock react-bootstrap first - must be before any imports
 jest.mock('react-bootstrap', () => {
   const React = require('react')
-  const Card = function(props) { return React.createElement('div', props, props.children) }
-  Card.Header = function(props) { return React.createElement('div', props, props.children) }
-  Card.Body = function(props) { return React.createElement('div', props, props.children) }
+  const Card = function (props) {
+    return React.createElement('div', props, props.children)
+  }
+  Card.Header = function (props) {
+    return React.createElement('div', props, props.children)
+  }
+  Card.Body = function (props) {
+    return React.createElement('div', props, props.children)
+  }
 
   return {
     __esModule: true,
-    Table: function(props) { return React.createElement('table', props, props.children) },
-    Badge: function(props) { return React.createElement('span', props, props.children) },
-    Button: function(props) { return React.createElement('button', props, props.children) },
-    Spinner: function(props) { return React.createElement('div', props, props.children) },
-    OverlayTrigger: function(props) { return React.createElement('div', props, props.children) },
-    Tooltip: function(props) { return React.createElement('div', props, props.children) },
+    Table: function ({
+      striped,
+      bordered,
+      hover,
+      size,
+      variant,
+      responsive,
+      ...props
+    }) {
+      return React.createElement('table', props, props.children)
+    },
+    Badge: function (props) {
+      return React.createElement('span', props, props.children)
+    },
+    Button: function (props) {
+      return React.createElement('button', props, props.children)
+    },
+    Spinner: function (props) {
+      return React.createElement('div', props, props.children)
+    },
+    OverlayTrigger: function (props) {
+      return React.createElement('div', props, props.children)
+    },
+    Tooltip: function (props) {
+      return React.createElement('div', props, props.children)
+    },
     Card: Card,
   }
 })
@@ -61,7 +87,9 @@ jest.mock('../../../src/components/shared/names/NodeName', () => ({
 
 jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
   __esModule: true,
-  default: ({ serviceState }) => <span data-testid="status">{serviceState}</span>,
+  default: ({ serviceState }) => (
+    <span data-testid="status">{serviceState}</span>
+  ),
 }))
 
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
@@ -86,16 +114,20 @@ describe('getTaskMetrics', () => {
 
   test('matches by Spec.Name', () => {
     const metrics = { 'my-service.1': { usage: 100 } }
-    expect(getTaskMetrics({ Spec: { Name: 'my-service.1' } }, metrics)).toEqual({ usage: 100 })
+    expect(getTaskMetrics({ Spec: { Name: 'my-service.1' } }, metrics)).toEqual(
+      { usage: 100 },
+    )
   })
 
   test('matches by task.Name when Spec.Name is absent', () => {
     const metrics = { 'task-name': { usage: 200 } }
-    expect(getTaskMetrics({ Name: 'task-name' }, metrics)).toEqual({ usage: 200 })
+    expect(getTaskMetrics({ Name: 'task-name' }, metrics)).toEqual({
+      usage: 200,
+    })
   })
 
   test('falls back to task.ID when name lookup fails', () => {
-    const metrics = { 'abc123': { usage: 50 } }
+    const metrics = { abc123: { usage: 50 } }
     const task = { Spec: { Name: 'notfound' }, ID: 'abc123' }
     expect(getTaskMetrics(task, metrics)).toEqual({ usage: 50 })
   })

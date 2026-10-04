@@ -113,6 +113,12 @@ function MyComponent() {
 - Location: `tests/unit/`
 - Framework: Jest + React Testing Library
 - Coverage threshold: 90% (all categories)
+- Unexpected `console.error` and `console.warn` fail each test through
+  `jest-fail-on-console` in `setupTests.js`. Do not add global message filters.
+  For an intentional diagnostic, scope a console spy to that individual test,
+  assert its exact calls, and restore it in `finally`. Await asynchronous React
+  updates with `act` or assertions on the completed state; do not suppress `act`
+  warnings or forward component-only props to native DOM elements in mocks.
 
 ```bash
 # Run all tests

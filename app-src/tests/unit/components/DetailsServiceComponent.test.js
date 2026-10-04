@@ -1,5 +1,5 @@
 // Combined tests for DetailsServiceComponent
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 
 jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
@@ -61,9 +61,7 @@ jest.mock('../../../src/components/services/ServiceStatusBadge', () => ({
 
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
   __esModule: true,
-  default: ({ children, onSort, ...props }) => (
-    <th {...props}>{children}</th>
-  ),
+  default: ({ children, onSort, ...props }) => <th {...props}>{children}</th>,
 }))
 
 jest.mock('../../../src/components/shared/SortableHeader', () => ({
@@ -100,31 +98,25 @@ describe('DetailsServiceComponent', () => {
     mockUseAtomValue.mockReset()
     global.fetch.mockReset()
     jest.clearAllMocks()
-    // Suppress React's "not wrapped in act" warning caused by setMetricsLoading
-    // firing in the finally block after waitFor assertions complete
-    jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
-      if (typeof msg === 'string' && msg.includes('not wrapped in act')) return
-      // Re-throw unexpected errors so real issues are still visible
-
-      console.warn('[test console.error]', msg, ...args)
-    })
   })
 
   afterEach(() => {
     jest.restoreAllMocks()
   })
 
-  test('renders service not found message when currentService is null', () => {
+  test('renders service not found message when currentService is null', async () => {
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'serviceDetailAtom') return null
       return ''
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
     expect(screen.getByText("Service doesn't exist")).toBeInTheDocument()
   })
 
-  test('renders service details with metrics as default tab', () => {
+  test('renders service details with metrics as default tab', async () => {
     const mockService = {
       service: {
         ID: 'service-1',
@@ -154,7 +146,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     expect(screen.getByText(/Service "test-service"/)).toBeInTheDocument()
     expect(screen.getByTestId('service-metrics')).toBeInTheDocument()
@@ -218,7 +212,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     await waitFor(() => {
       expect(screen.getByTestId('node-name')).toHaveTextContent('test-node')
@@ -289,7 +285,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     await waitFor(() => {
       // Check memory display
@@ -341,7 +339,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     await waitFor(() => {
       expect(screen.getByTestId('node-name')).toBeInTheDocument()
@@ -353,8 +353,6 @@ describe('DetailsServiceComponent', () => {
   })
 
   test('handles fetch error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-
     const mockService = {
       service: {
         ID: 'service-1',
@@ -382,13 +380,13 @@ describe('DetailsServiceComponent', () => {
 
     global.fetch.mockRejectedValue(new Error('Network error'))
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/Service "test-service"/)).toBeInTheDocument()
     })
-
-    consoleErrorSpy.mockRestore()
   })
 
   test('displays high memory usage with warning color', async () => {
@@ -446,7 +444,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     await waitFor(() => {
       const percentCell = screen.getByText(/93.75/)
@@ -454,7 +454,7 @@ describe('DetailsServiceComponent', () => {
     })
   })
 
-  test('renders all four tabs', () => {
+  test('renders all four tabs', async () => {
     const mockService = {
       service: {
         ID: 'service-1',
@@ -483,7 +483,9 @@ describe('DetailsServiceComponent', () => {
     // Use a never-resolving fetch so no async state update fires after the test
     global.fetch.mockImplementation(() => new Promise(() => {}))
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     expect(screen.getByText('Metrics')).toBeInTheDocument()
     expect(screen.getByText('Tasks')).toBeInTheDocument()
@@ -546,7 +548,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => mockMetrics,
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     await waitFor(() => {
       // Container ID should be truncated to 12 chars
@@ -587,10 +591,14 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     // Click on Table tab to see sanitized output
-    screen.getByText('Table').click()
+    await act(async () => {
+      screen.getByText('Table').click()
+    })
 
     // The component should render without error
     expect(screen.getByText('Table')).toBeInTheDocument()
@@ -628,9 +636,13 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
-    screen.getByText('Table').click()
+    await act(async () => {
+      screen.getByText('Table').click()
+    })
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -666,9 +678,13 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
-    screen.getByText('Table').click()
+    await act(async () => {
+      screen.getByText('Table').click()
+    })
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -708,9 +724,13 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
-    screen.getByText('Table').click()
+    await act(async () => {
+      screen.getByText('Table').click()
+    })
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -746,9 +766,13 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
-    screen.getByText('Table').click()
+    await act(async () => {
+      screen.getByText('Table').click()
+    })
 
     expect(screen.getByText('Table')).toBeInTheDocument()
   })
@@ -783,7 +807,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     // Should use fallback Name property
     expect(screen.getByText(/Service "fallback-name"/)).toBeInTheDocument()
@@ -818,7 +844,9 @@ describe('DetailsServiceComponent', () => {
       json: async () => ({ available: false }),
     })
 
-    render(<DetailsServiceComponent />)
+    await act(async () => {
+      render(<DetailsServiceComponent />)
+    })
 
     // Should use 'unknown' fallback
     expect(screen.getByText(/Service "unknown"/)).toBeInTheDocument()

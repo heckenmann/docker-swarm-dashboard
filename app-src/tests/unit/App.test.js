@@ -104,6 +104,13 @@ describe('App shell with Jotai v3', () => {
       expect(await screen.findByRole('alert')).toHaveTextContent(
         'Settings failed',
       )
+      expect(errorLog).toHaveBeenCalledTimes(1)
+      expect(errorLog.mock.calls[0]).toEqual([
+        expect.stringContaining('%o'),
+        expect.objectContaining({ message: 'Settings failed' }),
+        expect.stringContaining('The above error occurred'),
+        expect.stringContaining('ErrorBoundary'),
+      ])
     } finally {
       errorLog.mockRestore()
     }
