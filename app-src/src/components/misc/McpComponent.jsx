@@ -3,34 +3,19 @@ import { useAtomValue } from 'jotai'
 import { Button, Form, InputGroup } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DSDCard from '../common/DSDCard.jsx'
-import {
-  baseUrlAtom,
-  dashboardSettingsAtom,
-} from '../../common/store/atoms/foundationAtoms'
+import { dashboardSettingsAtom } from '../../common/store/atoms/foundationAtoms'
 
 /**
  * Builds the externally visible MCP endpoint from the dashboard origin and
- * configured API path. The API host itself is intentionally ignored so local
- * development/mock API overrides cannot leak into connection instructions.
+ * server-provided path prefix. Client API overrides do not alter this endpoint.
  *
- * @param {string} baseUrl - Configured dashboard API base URL or path.
+ * @param {string} pathPrefix - Server-configured dashboard path prefix.
  * @param {{origin: string, pathname: string}} location - Browser location.
  * @returns {string} Absolute Streamable HTTP MCP endpoint URL.
  */
-export function buildMcpUrl(baseUrl, location = window.location) {
-  let path = location.pathname || '/'
-
-  try {
-    const parsedBase = new URL(baseUrl || path, location.origin)
-    path = parsedBase.pathname || '/'
-  } catch {
-    // Keep the current dashboard path when an invalid custom base URL is set.
-  }
-
-  if (!path.startsWith('/')) path = '/' + path
-  if (!path.endsWith('/')) path += '/'
-
-  return new URL(path + 'mcp', location.origin).toString()
+export function buildMcpUrl(pathPrefix, location = window.location) {
+  const prefix = (pathPrefix || '').replace(/^\/+|\/+$/g, '')
+  return new URL(prefix ? `/${prefix}/mcp` : '/mcp', location.origin).toString()
 }
 
 /**
@@ -39,12 +24,12 @@ export function buildMcpUrl(baseUrl, location = window.location) {
  * @returns {React.ReactElement|null} MCP connection instructions when enabled.
  */
 const McpComponent = React.memo(function McpComponent() {
-  const baseUrl = useAtomValue(baseUrlAtom)
   const dashboardSettings = useAtomValue(dashboardSettingsAtom)
   const [copyStatus, setCopyStatus] = useState('')
-  const mcpUrl = useMemo(() => buildMcpUrl(baseUrl), [baseUrl])
+  const pathPrefix = dashboardSettings?.pathPrefix
+  const mcpUrl = useMemo(() => buildMcpUrl(pathPrefix), [pathPrefix])
 
-  if (!dashboardSettings?.mcpEnabled) return null
+  if (dashboardSettings?.mcpEnabled !== true) return null
 
   const copyMcpUrl = async () => {
     try {

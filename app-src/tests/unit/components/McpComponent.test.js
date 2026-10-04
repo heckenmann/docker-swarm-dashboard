@@ -34,13 +34,31 @@ describe('McpComponent', () => {
     ).toBe('https://dashboard.example.com/mcp')
   })
 
-  test('preserves a dashboard path prefix and ignores a custom API host', () => {
+  test('preserves the server-configured dashboard path prefix', () => {
     expect(
-      buildMcpUrl('http://api.internal/docker-dashboard/', {
+      buildMcpUrl('/docker-dashboard/', {
         origin: 'https://dashboard.example.com',
         pathname: '/docker-dashboard/',
       }),
     ).toBe('https://dashboard.example.com/docker-dashboard/mcp')
+  })
+
+  test.each(['', undefined, '/'])('normalizes root prefix %p', (prefix) => {
+    expect(
+      buildMcpUrl(prefix, {
+        origin: 'https://dashboard.example.com:8443',
+        pathname: '/unrelated-client-path/',
+      }),
+    ).toBe('https://dashboard.example.com:8443/mcp')
+  })
+
+  test('normalizes a nested path prefix without a trailing slash', () => {
+    expect(
+      buildMcpUrl('/tools/docker', {
+        origin: 'https://dashboard.example.com',
+        pathname: '/',
+      }),
+    ).toBe('https://dashboard.example.com/tools/docker/mcp')
   })
 
   test('renders connection details and copies the MCP URL', async () => {
@@ -52,7 +70,8 @@ describe('McpComponent', () => {
 
     mockUseAtomValue.mockImplementation((atom) => {
       if (atom === 'baseUrlAtom') return '/docker-dashboard/'
-      if (atom === 'dashboardSettingsAtom') return { mcpEnabled: true }
+      if (atom === 'dashboardSettingsAtom')
+        return { mcpEnabled: true, pathPrefix: '/docker-dashboard' }
       return null
     })
 
@@ -103,4 +122,24 @@ describe('McpComponent', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('Copy failed')
   })
+
+  test('reports an unavailable clipboard without throwing', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: undefined,
+    })
+    mockUseAtomValue.mockReturnValue({ mcpEnabled: true })
+    render(<McpComponent />)
+    fireEvent.click(screen.getByRole('button', { name: 'Copy MCP URL' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('Copy failed')
+  })
+
+  test.each([undefined, {}, { mcpEnabled: 'false' }, { mcpEnabled: 1 }])(
+    'requires an explicit server capability flag: %p',
+    (settings) => {
+      mockUseAtomValue.mockReturnValue(settings)
+      const { container } = render(<McpComponent />)
+      expect(container).toBeEmptyDOMElement()
+    },
+  )
 })
