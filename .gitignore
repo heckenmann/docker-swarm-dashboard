@@ -33,6 +33,7 @@ docker.png
 coverage/
 **/coverage/
 app-src/coverage/
+app-src/cypress/reports/
 coverage-final.json
 clover.xml
 lcov.info

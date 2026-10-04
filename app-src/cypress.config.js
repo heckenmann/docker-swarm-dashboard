@@ -1,4 +1,6 @@
 const { defineConfig } = require('cypress')
+const patterns = require('./scripts/cypress-spec-patterns.cjs')
+const { writeReport } = require('./scripts/cypress-shard-report.cjs')
 
 module.exports = defineConfig({
   e2e: {
@@ -16,6 +18,13 @@ module.exports = defineConfig({
         }
       })
       on('after:run', (results) => {
+        if (process.env.CYPRESS_ASSIGNMENT) {
+          writeReport(
+            results,
+            JSON.parse(process.env.CYPRESS_ASSIGNMENT),
+            process.env.CYPRESS_REPORT_DIRECTORY,
+          )
+        }
         if (results && typeof results.totalTests === 'number') {
           const passed = results.totalPassed
           const percentage =
@@ -26,19 +35,18 @@ module.exports = defineConfig({
           console.log(`   Total: ${results.totalTests} tests`)
           console.log(`   Passed: ${passed} (${percentage}%)`)
           console.log(`   Failed: ${results.totalFailed}`)
-          console.log(`   Duration: ${Math.floor(results.totalDuration/1000)}s\n`)
+          console.log(
+            `   Duration: ${Math.floor(results.totalDuration / 1000)}s\n`,
+          )
         }
       })
     },
     // Memory management
     manageBrowserMemory: true,
     numTestsKeptInMemory: 0,
-    
+
     baseUrl: 'http://localhost:3000',
-    specPattern: [
-      'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
-      '!cypress/utils/**/*.cy.{js,jsx,ts,tsx}'
-    ],
+    ...patterns,
     supportFile: 'cypress/support/e2e.js',
     fixturesFolder: 'cypress/fixtures',
     screenshotsFolder: 'cypress/screenshots',
@@ -56,7 +64,7 @@ module.exports = defineConfig({
     responseTimeout: 15000,
     retries: {
       runMode: 1,
-      openMode: 0
+      openMode: 0,
     },
     // Parallelization settings
     experimentalWebKitSupport: false,
@@ -65,26 +73,26 @@ module.exports = defineConfig({
       mockApiUrl: 'http://localhost:3001',
       testUser: {
         username: 'testuser',
-        password: 'testpass'
-      }
-    }
+        password: 'testpass',
+      },
+    },
   },
-  
+
   component: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
     specPattern: 'src/**/*.cy.{js,jsx,ts,tsx}',
-    supportFile: 'cypress/support/component.js'
+    supportFile: 'cypress/support/component.js',
   },
-  
+
   trashAssetsBeforeRuns: true,
-  
+
   // Reporter configuration
   reporter: 'spec',
   reporterOptions: {
     mocha: {
-      quiet: false
-    }
-  }
+      quiet: false,
+    },
+  },
 })
