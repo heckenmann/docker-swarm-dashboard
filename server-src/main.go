@@ -54,7 +54,7 @@ func buildHandler() http.Handler {
 	}
 
 	// CORS Headers
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Accept", "Mcp-Protocol-Version", "Mcp-Session-Id"})
 	originsOk := handlers.AllowedOriginValidator(isCORSOriginAllowed)
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
@@ -83,6 +83,9 @@ func buildHandler() http.Handler {
 	apiRouter.HandleFunc("/ui/version", versionHandler)
 
 	apiRouter.HandleFunc("/health", healthHandler)
+	if mcpEnabled {
+		apiRouter.Handle("/mcp", newMCPHTTPHandler())
+	}
 
 	if pathPrefix == "" || pathPrefix == "/" {
 		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("build/"))))

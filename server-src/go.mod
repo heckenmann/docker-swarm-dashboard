@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/prometheus/client_model v0.6.3
 	github.com/prometheus/common v0.72.0
 )
