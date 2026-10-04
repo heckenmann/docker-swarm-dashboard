@@ -88,6 +88,12 @@ func loadDashboardSettingsFromEnv() {
 		handlingLogs, _ = strconv.ParseBool(handleLogsEnvValue)
 	}
 
+	if mcpEnabledEnvValue, mcpEnabledSet := os.LookupEnv("DSD_MCP_ENABLED"); mcpEnabledSet {
+		if parsed, err := strconv.ParseBool(mcpEnabledEnvValue); err == nil {
+			mcpEnabled = parsed
+		}
+	}
+
 	if dashboardLayoutEnvValue, dashboardLayoutSet := os.LookupEnv("DSD_DASHBOARD_LAYOUT"); dashboardLayoutSet {
 		if strings.HasPrefix(strings.ToLower(dashboardLayoutEnvValue), "col") {
 			dashboardLayout = "column"
@@ -222,9 +228,10 @@ func loadDashboardSettingsFromEnv() {
 	}
 }
 
-func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
-	jsonString, _ := json.Marshal(dashboardSettings{
+func currentDashboardSettings() dashboardSettings {
+	return dashboardSettings{
 		ShowLogsButton:                   handlingLogs,
+		MCPEnabled:                       mcpEnabled,
 		DefaultLayout:                    dashboardLayout,
 		HiddenServiceStates:              hiddenServiceStates,
 		TimeZone:                         timeZone,
@@ -253,7 +260,17 @@ func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 		ShowNavLabels:                    showNavLabels,
 		MaxContentWidth:                  maxContentWidth,
 		RefreshInterval:                  refreshInterval,
-	})
+	}
+}
+
+func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
+	jsonString, err := json.Marshal(currentDashboardSettings())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(jsonString)
+	if _, err := w.Write(jsonString); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
