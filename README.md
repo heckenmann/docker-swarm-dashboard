@@ -61,6 +61,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 |---|---|---|
 | `DSD_HTTP_PORT` | HTTP port within the container. Usually does not need to be changed. | `8080` |
 | `DSD_HANDLE_LOGS` | Set to `false` to prevent fetching and displaying logs. | `true` |
+| `DSD_MCP_ENABLED` | Enable the built-in Model Context Protocol (MCP) server and MCP connection page. | `true` |
 | `DSD_DASHBOARD_LAYOUT` | Default dashboard layout. Either `row` (default) or `column`. | `row` |
 | `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |
 | `DSD_PATH_PREFIX` | Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path. | `/` |
@@ -103,6 +104,39 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_SHOW_NAV_LABELS` | Show navigation labels by default. Either `true` or `false`. | `false` |
 | `DSD_MAX_CONTENT_WIDTH` | Maximum content width. Either `fluid` (full width) or `fixed` (container width). | `fluid` |
 
+### Model Context Protocol (MCP)
+
+Docker Swarm Dashboard includes a built-in, read-only MCP server so
+MCP-capable agents can inspect the same cluster information that is available
+through the web UI. MCP is enabled by default and can be disabled with
+`DSD_MCP_ENABLED=false`.
+
+The server uses **Streamable HTTP**. Its endpoint is `/mcp` and follows
+`DSD_PATH_PREFIX`:
+
+```text
+https://dashboard.example.com/mcp
+https://dashboard.example.com/docker-dashboard/mcp
+```
+
+When MCP is enabled, the dashboard shows an **MCP** navigation entry. The MCP
+page displays the endpoint for the current deployment and provides generic
+connection instructions for MCP-capable agents.
+
+To connect an agent:
+
+1. Open the MCP/server configuration in the agent or client.
+2. Add a remote MCP server.
+3. Select **Streamable HTTP**.
+4. Use `docker-swarm-dashboard` as the server name.
+5. Paste the MCP URL displayed by the dashboard.
+6. Connect and let the client discover the available tools.
+
+The MCP server exposes read-only information for services, nodes, tasks,
+metrics, logs (when `DSD_HANDLE_LOGS=true`), stacks, published ports, the
+timeline, dashboard settings, version, and health. Existing
+`DSD_MASK_ENV` masking is also applied to data returned through MCP.
+
 ### Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
@@ -125,6 +159,8 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      DSD_MCP_ENABLED: 'true'
 ```
 
 ### docker-compose.yml with traefik and basic auth
