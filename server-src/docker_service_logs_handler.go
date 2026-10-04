@@ -221,7 +221,7 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logReader, err := cli.ServiceLogs(ctx, opts.serviceID, container.LogsOptions{
+	logReader, err := openServiceLogStream(ctx, cli, opts.serviceID, container.LogsOptions{
 		Tail:       opts.tail,
 		Since:      opts.since,
 		Follow:     opts.follow,

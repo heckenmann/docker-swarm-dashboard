@@ -131,3 +131,24 @@ func TestLoadDashboardSettingsFromEnv_MCPDisabled(t *testing.T) {
 		t.Fatal("expected DSD_MCP_ENABLED=false to disable MCP")
 	}
 }
+
+func TestLoadDashboardSettingsFromEnv_MCPDefaultsAndReload(t *testing.T) {
+	previous := mcpEnabled
+	t.Cleanup(func() { mcpEnabled = previous })
+	for _, test := range []struct {
+		value string
+		want  bool
+	}{{"", true}, {"false", false}, {"true", true}, {"invalid", true}} {
+		t.Setenv("DSD_MCP_ENABLED", test.value)
+		if test.value == "" {
+			if err := os.Unsetenv("DSD_MCP_ENABLED"); err != nil {
+				t.Fatal(err)
+			}
+		}
+		mcpEnabled = false
+		loadDashboardSettingsFromEnv()
+		if currentDashboardSettings().MCPEnabled != test.want {
+			t.Fatalf("DSD_MCP_ENABLED=%q: got %v", test.value, mcpEnabled)
+		}
+	}
+}

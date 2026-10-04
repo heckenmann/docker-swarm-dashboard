@@ -42,15 +42,15 @@ func newMCPServer() *mcp.Server {
 		Version: mcpImplementationVersion(),
 	}, nil)
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_services",
 		Description: "List Docker Swarm services with the same masked service data available in the dashboard.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryServices(ctx)
-		return nil, result, err
+		return nil, map[string]any{"services": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_service",
 		Description: "Get one Docker Swarm service and its tasks. Accepts a service ID or exact service name.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
@@ -58,22 +58,22 @@ func newMCPServer() *mcp.Server {
 		return nil, result, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_service_metrics",
 		Description: "Get cAdvisor metrics for a Docker Swarm service.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
 		return nil, queryServiceMetrics(ctx, input.Identifier), nil
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_nodes",
 		Description: "List Docker Swarm nodes.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryNodes(ctx)
-		return nil, result, err
+		return nil, map[string]any{"nodes": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_node",
 		Description: "Get one Docker Swarm node and its tasks. Accepts a node ID, node name, or hostname.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
@@ -81,29 +81,37 @@ func newMCPServer() *mcp.Server {
 		return nil, result, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_cluster_metrics",
 		Description: "Get aggregated node-exporter metrics for the Swarm cluster.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, queryClusterMetrics(ctx), nil
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_node_metrics",
 		Description: "Get node-exporter metrics for a Docker Swarm node.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
-		return nil, queryNodeMetrics(ctx, input.Identifier), nil
+		cli, err := getCli()
+		if err != nil {
+			return nil, nil, err
+		}
+		node, err := resolveNode(ctx, cli, input.Identifier)
+		if err != nil {
+			return nil, nil, err
+		}
+		return nil, queryNodeMetrics(ctx, node.ID), nil
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_tasks",
 		Description: "List Docker Swarm tasks, optionally filtered by service and/or node.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpListTasksInput) (*mcp.CallToolResult, any, error) {
 		result, err := queryTasks(ctx, input.Service, input.Node)
-		return nil, result, err
+		return nil, map[string]any{"tasks": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_task",
 		Description: "Get one Docker Swarm task and its associated service/node names.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
@@ -111,65 +119,65 @@ func newMCPServer() *mcp.Server {
 		return nil, result, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_task_metrics",
 		Description: "Get cAdvisor metrics for a Docker Swarm task.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
 		return nil, queryTaskMetrics(ctx, input.Identifier), nil
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_stacks",
 		Description: "List Docker stacks and their services as shown by the dashboard.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryStacks(ctx)
-		return nil, result, err
+		return nil, map[string]any{"stacks": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_published_ports",
 		Description: "List published Docker Swarm service ports.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryPublishedPorts(ctx)
-		return nil, result, err
+		return nil, map[string]any{"ports": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_timeline",
 		Description: "Get the service/task timeline data shown by the dashboard.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryTimeline(ctx)
-		return nil, result, err
+		return nil, map[string]any{"timeline": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_cluster_overview",
 		Description: "Get the dashboard cluster overview with services, nodes, and grouped tasks.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
-		result, err := queryDashboardH(ctx)
+		result, err := queryClusterOverview(ctx)
 		return nil, result, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_dashboard_settings",
 		Description: "Get server-provided Docker Swarm Dashboard settings and capability flags.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, currentDashboardSettings(), nil
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_version",
 		Description: "Get the Docker Swarm Dashboard version and update information.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, queryVersion(), nil
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_health",
 		Description: "Check whether Docker Swarm Dashboard can reach the Docker API.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		if err := queryHealth(ctx); err != nil {
-			return nil, nil, fmt.Errorf("Docker API health check failed: %w", err)
+			return nil, nil, fmt.Errorf("docker API health check failed: %w", err)
 		}
 		return nil, map[string]string{"status": "OK"}, nil
 	})
@@ -182,15 +190,15 @@ func newMCPServer() *mcp.Server {
 }
 
 func registerMCPLogTools(server *mcp.Server) {
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_log_services",
 		Description: "List services available in the dashboard log viewer.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryLogServices(ctx)
-		return nil, result, err
+		return nil, map[string]any{"services": result}, err
 	})
 
-	mcp.AddTool(server, &mcp.Tool{
+	addMCPTool(server, &mcp.Tool{
 		Name:        "get_service_logs",
 		Description: "Get a finite service log snapshot using the same Docker log options as the dashboard.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpServiceLogsInput) (*mcp.CallToolResult, any, error) {
@@ -224,6 +232,9 @@ func mcpImplementationVersion() string {
 }
 
 func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[string]any, error) {
+	if !handlingLogs {
+		return nil, fmt.Errorf("service logs are disabled by DSD_HANDLE_LOGS")
+	}
 	cli, err := getCli()
 	if err != nil {
 		return nil, err
@@ -240,10 +251,12 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 	if tail == "" {
 		tail = "20"
 	}
-	if !strings.EqualFold(tail, "all") {
+	if strings.EqualFold(tail, "all") {
+		tail = "all"
+	} else {
 		count, err := strconv.Atoi(tail)
-		if err != nil || count <= 0 {
-			return nil, fmt.Errorf("tail must be a positive integer or %q", "all")
+		if err != nil || count < 0 {
+			return nil, fmt.Errorf("tail must be a non-negative integer or %q", "all")
 		}
 		tail = strconv.Itoa(count)
 	}
@@ -268,7 +281,7 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 	logCtx, cancel := context.WithTimeout(ctx, mcpLogRequestTimeout)
 	defer cancel()
 
-	reader, err := cli.ServiceLogs(logCtx, service.ID, container.LogsOptions{
+	reader, err := openServiceLogStream(logCtx, cli, service.ID, container.LogsOptions{
 		Tail:       tail,
 		Since:      normalizeSince(input.Since),
 		Follow:     false,
@@ -281,19 +294,14 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 		return nil, err
 	}
 	if reader == nil {
-		return nil, fmt.Errorf("Docker returned no log stream for service %q", service.Spec.Name)
+		return nil, fmt.Errorf("docker returned no log stream for service %q", service.Spec.Name)
 	}
 	defer func() { _ = reader.Close() }()
 
-	go func() {
-		<-logCtx.Done()
-		_ = reader.Close()
-	}()
-
-	rawLines := collectLogLines(logCtx, reader, tailCollectIdle)
-	lines := make([]string, 0, len(rawLines))
-	for _, line := range rawLines {
-		lines = append(lines, string(line))
+	tty := service.Spec.TaskTemplate.ContainerSpec != nil && service.Spec.TaskTemplate.ContainerSpec.TTY
+	lines, err := readServiceLogSnapshot(logCtx, reader, tty)
+	if err != nil {
+		return nil, err
 	}
 
 	return map[string]any{
@@ -303,4 +311,12 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 		"since":       input.Since,
 		"lines":       lines,
 	}, nil
+}
+
+// addMCPTool marks every registered operation as read-only. List outputs use
+// named object fields so clients on earlier MCP protocol versions can consume
+// structured content as well as the SDK's text fallback.
+func addMCPTool[In, Out any](server *mcp.Server, tool *mcp.Tool, handler mcp.ToolHandlerFor[In, Out]) {
+	tool.Annotations = &mcp.ToolAnnotations{ReadOnlyHint: true, IdempotentHint: true}
+	mcp.AddTool(server, tool, handler)
 }
