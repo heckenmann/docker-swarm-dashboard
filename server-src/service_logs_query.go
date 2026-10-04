@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 
@@ -36,7 +38,7 @@ func readServiceLogSnapshot(ctx context.Context, reader io.ReadCloser, tty bool)
 	if tty {
 		_, err = io.Copy(&output, reader)
 	} else {
-		_, err = stdcopy.StdCopy(&output, &output, reader)
+		err = copyServiceLogFrames(&output, reader)
 	}
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
@@ -52,4 +54,38 @@ func readServiceLogSnapshot(ctx context.Context, reader io.ReadCloser, tty bool)
 		}
 	}
 	return lines, nil
+}
+
+// copyServiceLogFrames requires complete Docker headers and payloads. StdCopy
+// accepts EOF inside a frame, which would silently produce an incomplete snapshot.
+func copyServiceLogFrames(output io.Writer, reader io.Reader) error {
+	var header [8]byte
+	for {
+		n, err := io.ReadFull(reader, header[:])
+		if errors.Is(err, io.EOF) && n == 0 {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("read Docker log header: %w", err)
+		}
+		stream := stdcopy.StdType(header[0])
+		if stream > stdcopy.Systemerr {
+			return fmt.Errorf("unrecognized Docker log stream: %d", stream)
+		}
+		var daemonError bytes.Buffer
+		destination := output
+		if stream == stdcopy.Systemerr {
+			destination = &daemonError
+		}
+		size := int64(binary.BigEndian.Uint32(header[4:]))
+		if _, err := io.CopyN(destination, reader, size); err != nil {
+			if errors.Is(err, io.EOF) {
+				err = io.ErrUnexpectedEOF
+			}
+			return fmt.Errorf("read Docker log payload: %w", err)
+		}
+		if stream == stdcopy.Systemerr {
+			return fmt.Errorf("error from Docker daemon in log stream: %s", daemonError.String())
+		}
+	}
 }
