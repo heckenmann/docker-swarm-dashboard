@@ -11,6 +11,8 @@ import (
 
 type dashboardSettings struct {
 	ShowLogsButton                   bool          `json:"showLogsButton"`
+	MCPEnabled                       bool          `json:"mcpEnabled"`
+	PathPrefix                       string        `json:"pathPrefix"`
 	DefaultLayout                    string        `json:"defaultLayout"`
 	HiddenServiceStates              []string      `json:"hiddenServiceStates"`
 	TimeZone                         *string       `json:"timeZone"`
@@ -45,6 +47,7 @@ type dashboardSettings struct {
 
 var (
 	handlingLogs                     = true
+	mcpEnabled                       = true
 	dashboardLayout                  = "row"
 	hiddenServiceStates              = make([]string, 0)
 	timeZone                         = new(string)
@@ -88,6 +91,7 @@ func loadDashboardSettingsFromEnv() {
 		handlingLogs, _ = strconv.ParseBool(handleLogsEnvValue)
 	}
 
+	mcpEnabled = true
 	if mcpEnabledEnvValue, mcpEnabledSet := os.LookupEnv("DSD_MCP_ENABLED"); mcpEnabledSet {
 		if parsed, err := strconv.ParseBool(mcpEnabledEnvValue); err == nil {
 			mcpEnabled = parsed
@@ -232,6 +236,7 @@ func currentDashboardSettings() dashboardSettings {
 	return dashboardSettings{
 		ShowLogsButton:                   handlingLogs,
 		MCPEnabled:                       mcpEnabled,
+		PathPrefix:                       pathPrefix,
 		DefaultLayout:                    dashboardLayout,
 		HiddenServiceStates:              hiddenServiceStates,
 		TimeZone:                         timeZone,

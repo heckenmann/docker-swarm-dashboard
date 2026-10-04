@@ -110,12 +110,6 @@ func queryNodeMetrics(ctx context.Context, identifier string) nodeMetricsRespons
 		return nodeMetricsResponse{Available: false, Error: &errMsg}
 	}
 
-	node, err := resolveNode(ctx, cli, identifier)
-	if err != nil {
-		errMsg := "Error finding node: " + err.Error()
-		return nodeMetricsResponse{Available: false, Error: &errMsg}
-	}
-
 	service, err := findNodeExporterService(cli)
 	if err != nil {
 		errMsg := "Error finding node-exporter service: " + err.Error()
@@ -126,7 +120,7 @@ func queryNodeMetrics(ctx context.Context, identifier string) nodeMetricsRespons
 		return nodeMetricsResponse{Available: false, Message: &msg}
 	}
 
-	endpoint, err := getNodeExporterEndpoint(cli, service, node.ID)
+	endpoint, err := getNodeExporterEndpoint(cli, service, identifier)
 	if err != nil {
 		errMsg := "Error constructing node-exporter endpoint: " + err.Error()
 		return nodeMetricsResponse{Available: false, Error: &errMsg}
@@ -276,7 +270,7 @@ func queryTaskMetrics(ctx context.Context, identifier string) taskMetricsRespons
 		return taskMetricsResponse{Available: false, Error: &errMsg}
 	}
 
-	task, err := resolveTask(ctx, cli, identifier)
+	task, _, err := cli.TaskInspectWithRaw(ctx, identifier)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to inspect task: %v", err)
 		return taskMetricsResponse{Available: false, Error: &errMsg}

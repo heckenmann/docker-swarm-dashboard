@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"heckenmann.de/docker-swarm-dashboard/v2/internal/version"
 )
 
 const mcpInitializePayload = `{
@@ -78,5 +80,35 @@ func TestMCPImplementationVersion(t *testing.T) {
 	t.Setenv("DSD_VERSION", "1.2.3")
 	if version := mcpImplementationVersion(); version != "1.2.3" {
 		t.Fatalf("expected configured MCP version, got %q", version)
+	}
+}
+
+func TestMCPImplementationVersion_Fallbacks(t *testing.T) {
+	t.Setenv("DSD_VERSION", "")
+	previous := version.BuildVersion
+	t.Cleanup(func() { version.BuildVersion = previous })
+	version.BuildVersion = "build-test"
+	if got := mcpImplementationVersion(); got != "build-test" {
+		t.Fatalf("got %q", got)
+	}
+	version.BuildVersion = ""
+	if got := mcpImplementationVersion(); got != "dev" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestMCPRoute_ConfigurationMatrix(t *testing.T) {
+	previousPrefix, previousEnabled := pathPrefix, mcpEnabled
+	t.Cleanup(func() { pathPrefix = previousPrefix; mcpEnabled = previousEnabled })
+	for _, prefix := range []string{"", "/", "/docker-dashboard"} {
+		for _, enabled := range []bool{true, false} {
+			pathPrefix, mcpEnabled = prefix, enabled
+			path := strings.TrimRight(prefix, "/") + "/mcp"
+			recorder := httptest.NewRecorder()
+			buildHandler().ServeHTTP(recorder, newMCPInitializeRequest(path))
+			if (recorder.Code == http.StatusOK) != enabled {
+				t.Fatalf("prefix %q enabled %v returned HTTP %d", prefix, enabled, recorder.Code)
+			}
+		}
 	}
 }

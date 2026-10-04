@@ -16,6 +16,30 @@ import (
 
 var errDashboardEntityNotFound = errors.New("dashboard entity not found")
 
+type clusterOverview struct {
+	Services []swarm.Service `json:"services"`
+	Nodes    []swarm.Node    `json:"nodes"`
+	Tasks    []swarm.Task    `json:"tasks"`
+}
+
+// queryClusterOverview exposes the complete shared cluster data independently
+// of UI layout, including service replication and unassigned tasks.
+func queryClusterOverview(ctx context.Context) (clusterOverview, error) {
+	services, err := queryServices(ctx)
+	if err != nil {
+		return clusterOverview{}, err
+	}
+	nodes, err := queryNodes(ctx)
+	if err != nil {
+		return clusterOverview{}, err
+	}
+	tasks, err := queryTasks(ctx, "", "")
+	if err != nil {
+		return clusterOverview{}, err
+	}
+	return clusterOverview{Services: services, Nodes: nodes, Tasks: tasks}, nil
+}
+
 func queryServices(ctx context.Context) ([]swarm.Service, error) {
 	cli, err := getCli()
 	if err != nil {
@@ -82,7 +106,7 @@ func resolveService(ctx context.Context, cli *client.Client, identifier string) 
 				return service, nil
 			}
 		}
-		if len(services) == 1 {
+		if filterKey == "id" && len(services) == 1 && strings.HasPrefix(services[0].ID, identifier) {
 			return services[0], nil
 		}
 	}
@@ -107,7 +131,7 @@ func resolveNode(ctx context.Context, cli *client.Client, identifier string) (sw
 				return node, nil
 			}
 		}
-		if len(nodes) == 1 {
+		if filterKey == "id" && len(nodes) == 1 && strings.HasPrefix(nodes[0].ID, identifier) {
 			return nodes[0], nil
 		}
 	}
@@ -131,7 +155,7 @@ func resolveTask(ctx context.Context, cli *client.Client, identifier string) (sw
 			return task, nil
 		}
 	}
-	if len(tasks) == 1 {
+	if len(tasks) == 1 && strings.HasPrefix(tasks[0].ID, identifier) {
 		return tasks[0], nil
 	}
 
