@@ -247,7 +247,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
                   {readingLogsWarning}
                 </Nav.Link>,
               )}
-            {dashboardSettings.mcpEnabled &&
+            {dashboardSettings.mcpEnabled === true &&
               navTip(
                 'tt-mcp',
                 'MCP',
