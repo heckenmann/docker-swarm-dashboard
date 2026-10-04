@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai'
-import { loadable } from 'jotai/utils'
 import React from 'react'
+import { loadable } from '../../common/store/loadable'
 import {
   aboutId,
   dashboardHId,

@@ -157,7 +157,7 @@ For every setting atom, verify the consuming component renders correctly.
 | File | Purpose |
 |------|---------|
 | `package.json` | Dependencies and scripts |
-| `vite.config.js` | Vite configuration |
+| `vite.config.mjs` | Vite configuration |
 | `babel.config.json` | Babel presets (@babel/preset-env, @babel/preset-react) |
 | `jest.config.cjs` | Jest configuration (90% coverage threshold) |
 | `eslint.config.cjs` | ESLint rules |

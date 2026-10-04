@@ -1,7 +1,7 @@
-import React, { startTransition } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { useAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import EntityName from './EntityName'
 import {
@@ -75,7 +75,7 @@ const ServiceName = React.memo(function ServiceName({
   const [, setLogsConfig] = useAtom(logsConfigAtom)
   const [logsShowLogsVal, setLogsShowLogs] = useAtom(logsShowLogsAtom)
   const resetLogsLines = useResetAtom(logsLinesAtom)
-  const [, updateView] = useAtom(viewAtom)
+  const updateView = useSetAtom(viewAtom)
 
   if (!name) return null
 
@@ -101,18 +101,16 @@ const ServiceName = React.memo(function ServiceName({
     )
 
   const handleShowLogs = (sid) => {
-    startTransition(() => {
-      handleShowLogsInternal({
-        serviceId: sid,
-        serviceName: name,
-        logsShowLogs: logsShowLogsVal,
-        setLogsShowLogs,
-        setLogsConfig,
-        resetLogsLines,
-        setFormId,
-        setFormName,
-        updateView,
-      })
+    handleShowLogsInternal({
+      serviceId: sid,
+      serviceName: name,
+      logsShowLogs: logsShowLogsVal,
+      setLogsShowLogs,
+      setLogsConfig,
+      resetLogsLines,
+      setFormId,
+      setFormName,
+      updateView,
     })
   }
 

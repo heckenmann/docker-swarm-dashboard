@@ -9,6 +9,7 @@ let mockUseAtomValueReturn = true
 jest.mock('jotai', () => ({
   useAtomValue: jest.fn((atom) => mockUseAtomValueReturn),
   useAtom: jest.fn(() => [null, jest.fn()]), // returns [value, setter]
+  useSetAtom: jest.fn(() => jest.fn()),
   atom: (initial) => ({ toString: () => 'mockAtom', init: initial }),
   Provider: ({ children }) => children,
 }))

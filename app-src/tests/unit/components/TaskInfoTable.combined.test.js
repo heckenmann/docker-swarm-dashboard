@@ -17,6 +17,7 @@ jest.mock('jotai', () => ({
   atom: (v) => v,
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (...args) => mockUseAtom(...args),
+  useSetAtom: (...args) => mockUseAtom(...args)[1],
 }))
 
 describe('TaskInfoTable (combined)', () => {

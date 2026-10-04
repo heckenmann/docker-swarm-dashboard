@@ -8,13 +8,13 @@
 
 ### Architecture
 - React frontend (`app-src/`) + Go backend (`server-src/`)
-- Frontend: React 19, Webpack, Jotai (`atomWithHash` for URL-hash state)
+- Frontend: React 19, Vite, Jotai (`atomWithHash` for URL-hash state)
 - Backend: Docker SDK and gorilla/websocket
 - Mock API (`app-src/mock/api/api-mock.mjs`) runs on port 3001
 - Dev server runs on port 3000
 
 ### Runtime Requirements
-- **Node.js:** >= 22.0.0
+- **Node.js:** >= 26.0.0
 - **Go:** 1.27.1
 - **Package manager:** yarn (required, not npm)
 

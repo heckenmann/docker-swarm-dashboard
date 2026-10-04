@@ -17,12 +17,6 @@
 import './commands'
 import { setupConsoleInstrumentation, assertNoConsoleErrors } from './common'
 
-Cypress.on('uncaught:exception', (err) => {
-  if (err.message && err.message.includes('Script error')) {
-    return false
-  }
-})
-
 // Import all page objects
 import BasePage from './pageObjects/BasePage'
 import DashboardPage from './pageObjects/DashboardPage'

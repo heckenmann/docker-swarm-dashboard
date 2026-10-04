@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ProgressBar, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { useAtomValue } from 'jotai'
-import { loadable } from 'jotai/utils'
+import { loadable } from '../../common/store/loadable'
 import { nodeMetricsAtomFamily } from '../../common/store/atoms/dashboardAtoms'
 import { formatBytesCompact } from '../../common/utils/formatUtils'
 

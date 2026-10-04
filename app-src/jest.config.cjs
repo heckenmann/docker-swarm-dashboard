@@ -5,7 +5,9 @@ module.exports = {
   },
   // transformIgnorePatterns normally prevents transforming node_modules.
   // Include known ESM modules that need transpilation for Jest.
-  transformIgnorePatterns: ['node_modules/(?!(refractor)/)'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(refractor|jotai|jotai-family|jotai-location)/)',
+  ],
   // only search for tests under tests/unit per project policy
   roots: ['<rootDir>/tests/unit'],
   testMatch: ['**/tests/unit/**/*.test.[jt]s?(x)'],

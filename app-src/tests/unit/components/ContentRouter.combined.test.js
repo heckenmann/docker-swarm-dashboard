@@ -23,7 +23,7 @@ jest.mock('jotai', () => ({
   },
 }))
 
-jest.mock('jotai/utils', () => ({
+jest.mock('../../../src/common/store/loadable', () => ({
   loadable: (atom) => ({ __loadable: atom }),
 }))
 
