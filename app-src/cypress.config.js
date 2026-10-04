@@ -28,7 +28,7 @@ module.exports = defineConfig({
       })
     },
     // Memory management
-    experimentalMemoryManagement: true,
+    manageBrowserMemory: true,
     numTestsKeptInMemory: 0,
     
     baseUrl: 'http://localhost:3000',
@@ -43,11 +43,10 @@ module.exports = defineConfig({
     downloadsFolder: 'cypress/downloads',
     video: false,
     screenshotOnRunFailure: false,
-    viewportWidth: 1920,
-    viewportHeight: 1080,
+    viewportWidth: 3840,
+    viewportHeight: 2160,
     autoVisit: true,
     defaultCommandTimeout: 5000,
-    execTimeout: 30000,
     taskTimeout: 30000,
     pageLoadTimeout: 30000,
     requestTimeout: 10000,
@@ -59,7 +58,6 @@ module.exports = defineConfig({
     // Parallelization settings
     experimentalWebKitSupport: false,
     experimentalRunAllSpecs: true,
-    allowCypressEnv: true,
     env: {
       mockApiUrl: 'http://localhost:3001',
       testUser: {

@@ -19,7 +19,7 @@
     "build": "vite build",
     "cy:open": "yarn cypress open",
     "cy:run": "yarn cypress run",
-    "cy:run:all-res": "yarn cypress run --env viewportWidth=3840,viewportHeight=2160 && yarn cypress run --env viewportWidth=1920,viewportHeight=1080",
+    "cy:run:all-res": "yarn cypress run --config viewportWidth=3840,viewportHeight=2160 && yarn cypress run --config viewportWidth=1920,viewportHeight=1080",
     "cy:spec": "yarn cypress run --spec",
     "dev:cy:run": "xvfb-run yarn cypress run",
     "test:e2e": "node scripts/run-e2e.js"
@@ -67,7 +67,7 @@
     "bootstrap": "^5.3.8",
     "concurrently": "^10.0.5",
     "cors": "^2.8.6",
-    "cypress": "^15.21.1",
+    "cypress": "^16.1.1",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
