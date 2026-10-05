@@ -22,7 +22,7 @@ func queryServiceMetrics(ctx context.Context, identifier string) serviceMetricsR
 		return serviceMetricsResponse{Available: false, Error: &errMsg}
 	}
 
-	cadvisorService, err := findCAdvisorService(cli)
+	cadvisorService, err := findCAdvisorService(ctx, cli)
 	if err != nil {
 		errMsg := "Error finding cadvisor service: " + err.Error()
 		return serviceMetricsResponse{Available: false, Error: &errMsg}
@@ -58,12 +58,12 @@ func queryServiceMetrics(ctx context.Context, identifier string) serviceMetricsR
 	results := make(chan nodeResult, len(nodeIDs))
 	for nodeID := range nodeIDs {
 		go func(nodeID string) {
-			endpoint, err := getCAdvisorEndpoint(cli, cadvisorService, nodeID)
+			endpoint, err := getCAdvisorEndpoint(ctx, cli, cadvisorService, nodeID)
 			if err != nil {
 				results <- nodeResult{err: err}
 				return
 			}
-			metricsText, err := fetchMetricsFromCAdvisor(endpoint)
+			metricsText, err := fetchMetricsFromCAdvisor(ctx, endpoint)
 			if err != nil {
 				results <- nodeResult{err: err}
 				return
@@ -76,7 +76,13 @@ func queryServiceMetrics(ctx context.Context, identifier string) serviceMetricsR
 	aggregated := ServiceMemoryMetrics{ContainerMetrics: []ContainerMemoryMetrics{}}
 	nodesWithMetrics := 0
 	for range nodeIDs {
-		result := <-results
+		var result nodeResult
+		select {
+		case <-ctx.Done():
+			errMsg := "Service metrics request cancelled: " + ctx.Err().Error()
+			return serviceMetricsResponse{Available: false, Error: &errMsg}
+		case result = <-results:
+		}
 		if result.err != nil || result.metrics == nil {
 			continue
 		}
@@ -87,6 +93,10 @@ func queryServiceMetrics(ctx context.Context, identifier string) serviceMetricsR
 		if result.metrics.ServerTime > aggregated.ServerTime {
 			aggregated.ServerTime = result.metrics.ServerTime
 		}
+	}
+	if err := ctx.Err(); err != nil {
+		errMsg := "Service metrics request cancelled: " + err.Error()
+		return serviceMetricsResponse{Available: false, Error: &errMsg}
 	}
 	if nodesWithMetrics == 0 {
 		errMsg := "Failed to fetch metrics from any node"
@@ -110,7 +120,7 @@ func queryNodeMetrics(ctx context.Context, identifier string) nodeMetricsRespons
 		return nodeMetricsResponse{Available: false, Error: &errMsg}
 	}
 
-	service, err := findNodeExporterService(cli)
+	service, err := findNodeExporterService(ctx, cli)
 	if err != nil {
 		errMsg := "Error finding node-exporter service: " + err.Error()
 		return nodeMetricsResponse{Available: false, Error: &errMsg}
@@ -120,12 +130,12 @@ func queryNodeMetrics(ctx context.Context, identifier string) nodeMetricsRespons
 		return nodeMetricsResponse{Available: false, Message: &msg}
 	}
 
-	endpoint, err := getNodeExporterEndpoint(cli, service, identifier)
+	endpoint, err := getNodeExporterEndpoint(ctx, cli, service, identifier)
 	if err != nil {
 		errMsg := "Error constructing node-exporter endpoint: " + err.Error()
 		return nodeMetricsResponse{Available: false, Error: &errMsg}
 	}
-	metricsText, err := fetchMetricsFromNodeExporter(endpoint)
+	metricsText, err := fetchMetricsFromNodeExporter(ctx, endpoint)
 	if err != nil {
 		errMsg := "Error fetching metrics from node-exporter: " + err.Error()
 		return nodeMetricsResponse{Available: true, Error: &errMsg}
@@ -150,7 +160,7 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 		errMsg := "Error listing nodes: " + err.Error()
 		return clusterMetricsResponse{Available: false, Error: &errMsg}
 	}
-	service, err := findNodeExporterService(cli)
+	service, err := findNodeExporterService(ctx, cli)
 	if err != nil {
 		errMsg := "Error finding node-exporter service: " + err.Error()
 		return clusterMetricsResponse{Available: false, Error: &errMsg}
@@ -185,12 +195,12 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 		}
 		started++
 		go func(task swarm.Task) {
-			endpoint, err := getNodeExporterEndpoint(cli, service, task.NodeID)
+			endpoint, err := getNodeExporterEndpoint(ctx, cli, service, task.NodeID)
 			if err != nil {
 				results <- nodeResult{err: err}
 				return
 			}
-			metricsText, err := fetchMetricsFromNodeExporter(endpoint)
+			metricsText, err := fetchMetricsFromNodeExporter(ctx, endpoint)
 			if err != nil {
 				results <- nodeResult{err: err}
 				return
@@ -205,7 +215,13 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 	var totalDisk, availableDisk float64
 	nodesWithMetrics := 0
 	for i := 0; i < started; i++ {
-		result := <-results
+		var result nodeResult
+		select {
+		case <-ctx.Done():
+			errMsg := "Cluster metrics request cancelled: " + ctx.Err().Error()
+			return clusterMetricsResponse{Available: false, Error: &errMsg, NodeCount: len(nodes)}
+		case result = <-results:
+		}
 		if result.err != nil || result.metrics == nil {
 			continue
 		}
@@ -227,6 +243,10 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 			totalDisk += result.metrics.Filesystem[0].Size
 			availableDisk += result.metrics.Filesystem[0].Available
 		}
+	}
+	if err := ctx.Err(); err != nil {
+		errMsg := "Cluster metrics request cancelled: " + err.Error()
+		return clusterMetricsResponse{Available: false, Error: &errMsg, NodeCount: len(nodes)}
 	}
 
 	if nodesWithMetrics == 0 && started > 0 {
@@ -280,7 +300,7 @@ func queryTaskMetrics(ctx context.Context, identifier string) taskMetricsRespons
 		return taskMetricsResponse{Available: false, Message: &msg}
 	}
 
-	cadvisorService, err := findCAdvisorService(cli)
+	cadvisorService, err := findCAdvisorService(ctx, cli)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to find cAdvisor service: %v", err)
 		return taskMetricsResponse{Available: false, Error: &errMsg}
@@ -290,7 +310,7 @@ func queryTaskMetrics(ctx context.Context, identifier string) taskMetricsRespons
 		return taskMetricsResponse{Available: false, Message: &msg}
 	}
 
-	endpoint, err := getCAdvisorEndpoint(cli, cadvisorService, task.NodeID)
+	endpoint, err := getCAdvisorEndpoint(ctx, cli, cadvisorService, task.NodeID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to get cAdvisor endpoint: %v", err)
 		return taskMetricsResponse{Available: false, Error: &errMsg}
@@ -299,7 +319,7 @@ func queryTaskMetrics(ctx context.Context, identifier string) taskMetricsRespons
 	if !strings.HasPrefix(endpoint, "http://") && !strings.HasPrefix(endpoint, "https://") {
 		metricsURL = fmt.Sprintf("http://%s/metrics", endpoint)
 	}
-	metricsText, err := fetchMetricsFromCAdvisor(metricsURL)
+	metricsText, err := fetchMetricsFromCAdvisor(ctx, metricsURL)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to fetch metrics: %v", err)
 		return taskMetricsResponse{Available: false, Error: &errMsg}
