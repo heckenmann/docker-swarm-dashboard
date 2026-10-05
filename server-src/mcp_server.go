@@ -17,23 +17,25 @@ import (
 
 const mcpLogRequestTimeout = 5 * time.Second
 
+const mcpMetricsResultDescription = " Check available, message, and error before using metrics; an error may be present even when available=true. A missing exporter returns available=false with a deployment message. Each exporter HTTP request has a five-second timeout and honors request cancellation."
+
 type mcpEntityInput struct {
-	Identifier string `json:"identifier" jsonschema:"Docker ID or exact entity name."`
+	Identifier string `json:"identifier" jsonschema:"Docker ID or exact entity name where supported by the tool. Task tools accept task IDs only."`
 }
 
 type mcpListTasksInput struct {
-	Service string `json:"service,omitempty" jsonschema:"Optional service ID or exact service name."`
-	Node    string `json:"node,omitempty" jsonschema:"Optional node ID, node name, or hostname."`
+	Service string `json:"service,omitempty" jsonschema:"Optional service ID or exact service name. Omit to include all services."`
+	Node    string `json:"node,omitempty" jsonschema:"Optional node ID, node name, or hostname. Omit to include all nodes. Service and node filters are combined."`
 }
 
 type mcpServiceLogsInput struct {
 	Service    string `json:"service" jsonschema:"Service ID or exact service name."`
-	Tail       string `json:"tail,omitempty" jsonschema:"Number of log lines to return, or all."`
-	Since      string `json:"since,omitempty" jsonschema:"Docker-compatible timestamp or relative duration such as 15m, 2h, or 2d."`
-	Timestamps *bool  `json:"timestamps,omitempty" jsonschema:"Include Docker timestamps."`
-	Stdout     *bool  `json:"stdout,omitempty" jsonschema:"Include stdout."`
-	Stderr     *bool  `json:"stderr,omitempty" jsonschema:"Include stderr."`
-	Details    *bool  `json:"details,omitempty" jsonschema:"Include extra log attributes."`
+	Tail       string `json:"tail,omitempty" jsonschema:"Non-negative line count as a string, or all. Omit to use logsFormTail from dashboard settings, falling back to 20. Zero returns no lines."`
+	Since      string `json:"since,omitempty" jsonschema:"Docker-compatible timestamp or relative duration such as 15m, 2h, or 2d. Omit or pass an empty string for no time filter."`
+	Timestamps *bool  `json:"timestamps,omitempty" jsonschema:"Include Docker timestamps. Defaults to logsFormTimestamps from dashboard settings."`
+	Stdout     *bool  `json:"stdout,omitempty" jsonschema:"Include stdout. Defaults to logsFormStdout from dashboard settings."`
+	Stderr     *bool  `json:"stderr,omitempty" jsonschema:"Include stderr. Defaults to logsFormStderr from dashboard settings."`
+	Details    *bool  `json:"details,omitempty" jsonschema:"Include extra log attributes. Defaults to logsFormDetails from dashboard settings."`
 }
 
 func newMCPServer() *mcp.Server {
@@ -60,7 +62,7 @@ func newMCPServer() *mcp.Server {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_service_metrics",
-		Description: "Get cAdvisor metrics for a Docker Swarm service.",
+		Description: "Get cAdvisor metrics for a Docker Swarm service by ID or exact name. Aggregates running tasks across nodes." + mcpMetricsResultDescription,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
 		return nil, queryServiceMetrics(ctx, input.Identifier), nil
 	})
@@ -83,14 +85,14 @@ func newMCPServer() *mcp.Server {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_cluster_metrics",
-		Description: "Get aggregated node-exporter metrics for the Swarm cluster.",
+		Description: "Get aggregated node-exporter metrics for the Swarm cluster, including resource totals, nodeCount, and nodesAvailable. Partial exporter failures may reduce nodesAvailable." + mcpMetricsResultDescription,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, queryClusterMetrics(ctx), nil
 	})
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_node_metrics",
-		Description: "Get node-exporter metrics for a Docker Swarm node.",
+		Description: "Get node-exporter metrics for a Docker Swarm node by ID, exact node name, or hostname." + mcpMetricsResultDescription,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
 		cli, err := getCli()
 		if err != nil {
@@ -113,7 +115,7 @@ func newMCPServer() *mcp.Server {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_task",
-		Description: "Get one Docker Swarm task and its associated service/node names.",
+		Description: "Get one Docker Swarm task by task ID and its associated service/node names.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
 		result, err := queryTaskDetails(ctx, input.Identifier)
 		return nil, result, err
@@ -121,7 +123,7 @@ func newMCPServer() *mcp.Server {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_task_metrics",
-		Description: "Get cAdvisor metrics for a Docker Swarm task.",
+		Description: "Get cAdvisor metrics for a Docker Swarm task by task ID. A stopped task or a task without metrics returns available=false with a message." + mcpMetricsResultDescription,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
 		return nil, queryTaskMetrics(ctx, input.Identifier), nil
 	})
@@ -152,7 +154,7 @@ func newMCPServer() *mcp.Server {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_cluster_overview",
-		Description: "Get the dashboard cluster overview with services, nodes, and grouped tasks.",
+		Description: "Get the complete cluster overview as services, nodes, and tasks, including unassigned tasks. Results are independent of dashboard layout and respect DSD_MASK_ENV.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryClusterOverview(ctx)
 		return nil, result, err
@@ -160,7 +162,7 @@ func newMCPServer() *mcp.Server {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_dashboard_settings",
-		Description: "Get server-provided Docker Swarm Dashboard settings and capability flags.",
+		Description: "Get server-provided dashboard settings, capability flags, and configured defaults. mcpEnabled indicates MCP availability; showLogsButton indicates log availability. The logsForm fields provide log option defaults.",
 	}, func(_ context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		return nil, currentDashboardSettings(), nil
 	})
@@ -192,7 +194,7 @@ func newMCPServer() *mcp.Server {
 func registerMCPLogTools(server *mcp.Server) {
 	addMCPTool(server, &mcp.Tool{
 		Name:        "list_log_services",
-		Description: "List services available in the dashboard log viewer.",
+		Description: "List service IDs and names available in the dashboard log viewer. This tool is only registered when DSD_HANDLE_LOGS=true.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 		result, err := queryLogServices(ctx)
 		return nil, map[string]any{"services": result}, err
@@ -200,7 +202,7 @@ func registerMCPLogTools(server *mcp.Server) {
 
 	addMCPTool(server, &mcp.Tool{
 		Name:        "get_service_logs",
-		Description: "Get a finite service log snapshot using the same Docker log options as the dashboard.",
+		Description: fmt.Sprintf("Get a finite service log snapshot by service ID or exact name. This tool is only registered when DSD_HANDLE_LOGS=true. Never follows logs; returns an error if the Docker log read does not finish within %g seconds or a frame is incomplete. Omitted options use the defaults described in the input schema; use get_dashboard_settings to inspect configured log defaults. Results contain serviceId, serviceName, tail, since, and lines.", mcpLogRequestTimeout.Seconds()),
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpServiceLogsInput) (*mcp.CallToolResult, any, error) {
 		result, err := queryServiceLogs(ctx, input)
 		return nil, result, err
