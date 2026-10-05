@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -20,7 +21,7 @@ func TestGetDashboardNetworks_HostnameError(t *testing.T) {
 	defer func() { osHostname = oldOsHostname }()
 
 	cli, _ := getCli()
-	nets := getDashboardNetworks(cli)
+	nets := getDashboardNetworks(context.Background(), cli)
 	if len(nets) != 0 {
 		t.Error("expected empty map on hostname error")
 	}
@@ -41,7 +42,7 @@ func TestGetDashboardNetworks_InspectError(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 	cli, _ := getCli()
 
-	nets := getDashboardNetworks(cli)
+	nets := getDashboardNetworks(context.Background(), cli)
 	if len(nets) != 0 {
 		t.Error("expected empty map on inspect error")
 	}
@@ -54,7 +55,7 @@ func TestGetDashboardNetworks(t *testing.T) {
 	}
 
 	// This will likely return empty map in test environment unless mocked
-	nets := getDashboardNetworks(cli)
+	nets := getDashboardNetworks(context.Background(), cli)
 	if nets == nil {
 		t.Error("expected non-nil map")
 	}
@@ -103,7 +104,7 @@ func TestResolveServiceEndpoint(t *testing.T) {
 		},
 	}
 
-	endpoint, err := resolveServiceEndpoint(cli, service, "node1", 9100)
+	endpoint, err := resolveServiceEndpoint(context.Background(), cli, service, "node1", 9100)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}

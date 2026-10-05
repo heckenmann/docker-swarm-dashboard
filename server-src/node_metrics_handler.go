@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -131,13 +132,17 @@ type nodeMetricsResponse struct {
 // getNodeExporterEndpoint resolves the node-exporter endpoint for a specific node.
 // It prefers the task's overlay network address so the dashboard can query the exact
 // node instance instead of hitting the service VIP.
-func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	return resolveServiceEndpoint(cli, service, nodeID, 9100)
+func getNodeExporterEndpoint(ctx context.Context, cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
+	return resolveServiceEndpoint(ctx, cli, service, nodeID, 9100)
 }
 
 // fetchMetricsFromNodeExporter fetches metrics from the node-exporter endpoint
-func fetchMetricsFromNodeExporter(url string) (string, error) {
-	resp, err := metricsHttpClient.Get(url)
+func fetchMetricsFromNodeExporter(ctx context.Context, url string) (string, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := metricsHttpClient.Do(request)
 	if err != nil {
 		return "", err
 	}

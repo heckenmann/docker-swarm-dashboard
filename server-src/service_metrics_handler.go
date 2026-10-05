@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -57,13 +58,17 @@ type serviceMetricsResponse struct {
 // getCAdvisorEndpoint returns the endpoint URL for the cadvisor service
 // It prefers the task's overlay network address so the dashboard can query the cadvisor
 // instance running on the same node as the target service task.
-func getCAdvisorEndpoint(cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	return resolveServiceEndpoint(cli, service, nodeID, 8080)
+func getCAdvisorEndpoint(ctx context.Context, cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
+	return resolveServiceEndpoint(ctx, cli, service, nodeID, 8080)
 }
 
 // fetchMetricsFromCAdvisor fetches metrics from the cadvisor endpoint
-func fetchMetricsFromCAdvisor(url string) (string, error) {
-	resp, err := metricsHttpClient.Get(url)
+func fetchMetricsFromCAdvisor(ctx context.Context, url string) (string, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := metricsHttpClient.Do(request)
 	if err != nil {
 		return "", err
 	}

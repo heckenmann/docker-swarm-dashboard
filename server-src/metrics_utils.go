@@ -52,8 +52,8 @@ func loadMetricsLabelsFromEnv() {
 }
 
 // findNodeExporterService discovers the node-exporter service by label
-func findNodeExporterService(cli *client.Client) (*swarm.Service, error) {
-	services, err := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
+func findNodeExporterService(ctx context.Context, cli *client.Client) (*swarm.Service, error) {
+	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +69,8 @@ func findNodeExporterService(cli *client.Client) (*swarm.Service, error) {
 }
 
 // findCAdvisorService discovers the cadvisor service by label
-func findCAdvisorService(cli *client.Client) (*swarm.Service, error) {
-	services, err := cli.ServiceList(context.Background(), swarm.ServiceListOptions{})
+func findCAdvisorService(ctx context.Context, cli *client.Client) (*swarm.Service, error) {
+	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -86,14 +86,14 @@ func findCAdvisorService(cli *client.Client) (*swarm.Service, error) {
 }
 
 // getDashboardNetworks identifies the network IDs the current dashboard container is attached to.
-func getDashboardNetworks(cli *client.Client) map[string]bool {
+func getDashboardNetworks(ctx context.Context, cli *client.Client) map[string]bool {
 	networks := make(map[string]bool)
 	hostname, err := osHostname()
 	if err != nil {
 		return networks
 	}
 
-	container, err := cli.ContainerInspect(context.Background(), hostname)
+	container, err := cli.ContainerInspect(ctx, hostname)
 	if err != nil {
 		// If we can't inspect the container, we might not be in a container or lack permissions.
 		// We'll return an empty map which will cause the endpoint resolver to fall back to the first IP.
@@ -108,9 +108,12 @@ func getDashboardNetworks(cli *client.Client) map[string]bool {
 
 // resolveServiceEndpoint finds the best IP/port for a service task on a specific node.
 // It prefers networks that the dashboard is also attached to.
-func resolveServiceEndpoint(cli *client.Client, service *swarm.Service, nodeID string, defaultPort int) (string, error) {
+func resolveServiceEndpoint(ctx context.Context, cli *client.Client, service *swarm.Service, nodeID string, defaultPort int) (string, error) {
 	if service == nil {
 		return "", fmt.Errorf("service is nil")
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
 	}
 
 	// Determine port to use: prefer target port if configured
@@ -149,15 +152,21 @@ func resolveServiceEndpoint(cli *client.Client, service *swarm.Service, nodeID s
 		f.Add("node", nodeID)
 	}
 
-	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
+	tasks, err := cli.TaskList(ctx, swarm.TaskListOptions{Filters: f})
 	if err != nil {
+		if ctx.Err() != nil {
+			return "", ctx.Err()
+		}
 		if service.Spec.Name != "" {
 			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
 		}
 		return "", fmt.Errorf("failed to list tasks: %w", err)
 	}
 
-	dashboardNets := getDashboardNetworks(cli)
+	dashboardNets := getDashboardNetworks(ctx, cli)
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
 
 	var fallbackAddr string
 
