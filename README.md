@@ -153,6 +153,13 @@ fallback for clients using older MCP protocol versions. The cluster overview
 contains services, nodes and tasks independently of the dashboard layout.
 Log queries return finite snapshots, support the dashboard's Docker log
 options, and stop with an error if Docker does not finish within five seconds.
+An omitted `tail` uses `logsFormTail` from dashboard settings, falling back to
+`20`; an omitted `since` applies no time filter. Boolean log options use the
+configured dashboard defaults. Tool discovery describes these defaults.
+Metrics results expose availability and diagnostic messages when exporters are
+missing or fail. Check `available`, `message`, and `error` before using metric
+values, including when `available` is `true`. Exporter HTTP requests have a
+five-second timeout, and Docker/exporter work honors request cancellation.
 The connection URL uses the server's configured path prefix and the current
 browser origin; a client-side API URL override does not change it.
 
