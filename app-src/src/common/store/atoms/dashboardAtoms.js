@@ -66,12 +66,13 @@ export const clusterMetricsAtom = atom(async (get) => {
 
 /**
  * Node metrics: fetches real-time metrics for a specific node ID.
+ * Revalidates on dashboard refresh and navigation.
  * Uses atomFamily from jotai-family to cache the request per node and prevent redundant fetches.
  */
 export const nodeMetricsAtomFamily = atomFamily((nodeId) =>
   atom(async (get) => {
-    // We don't trigger re-validation on viewAtom changes here because
-    // these atoms are usually mounted/unmounted with the components.
+    // Refresh and navigation invalidate the cached request for both resource bars.
+    get(viewAtom)
     try {
       const response = await fetch(
         `${get(baseUrlAtom)}docker/nodes/${nodeId}/metrics`,

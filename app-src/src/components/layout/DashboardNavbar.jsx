@@ -298,6 +298,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
               overlay={<Tooltip id="tt-refresh">Refresh</Tooltip>}
             >
               <Button
+                aria-label="Refresh"
                 variant={!refreshInterval ? 'outline-secondary' : 'warning'}
                 onClick={refreshAndNotifyUser}
               >

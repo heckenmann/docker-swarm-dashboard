@@ -18,7 +18,9 @@ import { formatBytesCompact } from '../../common/utils/formatUtils'
  * @param {'memory' | 'disk'} props.type - The type of resource to visualize.
  */
 const NodeResourceBar = React.memo(function NodeResourceBar({ nodeId, type }) {
-  const metricsLoadable = useAtomValue(loadable(nodeMetricsAtomFamily(nodeId)))
+  const metricsLoadable = useAtomValue(
+    loadable(nodeMetricsAtomFamily(nodeId), true),
+  )
 
   if (metricsLoadable.state === 'loading') {
     return (
