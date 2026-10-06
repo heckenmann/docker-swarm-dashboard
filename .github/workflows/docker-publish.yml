@@ -23,6 +23,9 @@ env:
 jobs:
   # Job to build platform-specific Docker images (amd64 and arm64)
   build:
+    # Preserve the existing required check names configured in branch protection.
+    # These are legacy identifiers; the runner matrix below uses Ubuntu 26.04.
+    name: build (${{ matrix.platform == 'linux/amd64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}, ${{ matrix.platform }})
     # Use matrix-defined runners (amd64 or arm64)
     runs-on: ${{ matrix.runner }}
     # Define matrix for parallel builds across architectures
