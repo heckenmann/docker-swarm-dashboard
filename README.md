@@ -170,7 +170,10 @@ into lines and preserves raw output for TTY services. Non-follow requests wait
 for a complete snapshot instead of treating a pause in output as completion.
 A snapshot that does not finish within 20 seconds, or contains an incomplete
 Docker frame, closes with an error. MCP log requests use the five-second limit
-described above.
+described above. For the WebSocket viewer, omitted `tail` or `tail=all`
+returns all available history, `tail=0` returns no historical lines, and a
+positive number selects the last N lines. Invalid values fall back to 20,
+consistently for the Docker request and the returned snapshot.
 
 ### Pull Image from ghcr.io
 ```

@@ -54,7 +54,7 @@ func TestParseLogsOptionsDefaults(t *testing.T) {
 
 // TestTailCount verifies the fallback used for one-shot requests.
 func TestTailCount(t *testing.T) {
-	cases := map[string]int{"10": 10, "1": 1, "all": defaultTail, "": defaultTail, "0": defaultTail, "-5": defaultTail}
+	cases := map[string]int{"10": 10, "1": 1, "all": -1, "": -1, "0": 0, "-5": defaultTail, "invalid": defaultTail, "9999999999999999999999": defaultTail}
 	for in, want := range cases {
 		if got := tailCount(in); got != want {
 			t.Errorf("tailCount(%q) = %d, want %d", in, got, want)
@@ -138,5 +138,71 @@ func TestDockerServiceLogsHandler_SinceInDays(t *testing.T) {
 		}
 	case <-time.After(time.Second):
 		t.Fatal("docker daemon was never called")
+	}
+}
+
+func TestDockerServiceLogsHandler_TailSemantics(t *testing.T) {
+	for _, tc := range []struct {
+		name, tail, dockerTail string
+		count                  int
+	}{
+		{"omitted", "", "all", 25}, {"all", "all", "all", 25}, {"zero", "0", "0", 0},
+		{"positive", "5", "5", 5}, {"larger than history", "30", "30", 25},
+		{"invalid", "invalid", "20", 20}, {"negative", "-5", "20", 20},
+		{"overflow", "9999999999999999999999", "20", 20},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			observed := make(chan string, 1)
+			dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if !strings.HasSuffix(r.URL.Path, "/logs") {
+					_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+					return
+				}
+				observed <- r.URL.Query().Get("tail")
+				for i := 1; i <= 25; i++ {
+					_, _ = w.Write(logTestFrame("line-" + strconv.Itoa(i) + "\n"))
+				}
+			}))
+			defer dockerSrv.Close()
+			defer ResetCli()
+			SetCli(makeClientForServer(t, dockerSrv.URL))
+			router := mux.NewRouter()
+			router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+			server := httptest.NewServer(router)
+			defer server.Close()
+			address := "ws" + strings.TrimPrefix(server.URL, "http") + "/docker/logs/svc1?stdout=true&follow=false"
+			if tc.tail != "" {
+				address += "&tail=" + url.QueryEscape(tc.tail)
+			}
+			conn, _, err := websocket.DefaultDialer.Dial(address, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer func() { _ = conn.Close() }()
+			_ = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+			var got []string
+			for {
+				_, msg, err := conn.ReadMessage()
+				if err != nil {
+					if !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+						t.Fatalf("unexpected close: %v", err)
+					}
+					break
+				}
+				got = append(got, string(msg))
+			}
+			if len(got) != tc.count {
+				t.Fatalf("got %d lines, want %d", len(got), tc.count)
+			}
+			for i, line := range got {
+				want := "line-" + strconv.Itoa(26-tc.count+i)
+				if line != want {
+					t.Fatalf("got %q, want %q", line, want)
+				}
+			}
+			if tail := <-observed; tail != tc.dockerTail {
+				t.Fatalf("Docker tail=%q, want %q", tail, tc.dockerTail)
+			}
+		})
 	}
 }
