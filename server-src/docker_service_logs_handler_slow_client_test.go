@@ -25,17 +25,23 @@ func TestDockerServiceLogsHandler_ClosesSlowClient(t *testing.T) {
 	var writes int32
 	var reads int32
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
 			// Rapidly write N frames to overflow the server buffer
 			for i := 0; i < N; i++ {
-				_, _ = w.Write([]byte("12345678msg\n"))
+				_, _ = w.Write(logTestFrame("msg\n"))
 				if f, ok := w.(http.Flusher); ok {
 					f.Flush()
 				}
 				atomic.AddInt32(&writes, 1)
 			}
 			// block until test signals done
-			<-done
+			if r.URL.Query().Get("follow") == "1" || r.URL.Query().Get("follow") == "true" {
+				<-done
+			}
 			return
 		}
 		http.NotFound(w, r)

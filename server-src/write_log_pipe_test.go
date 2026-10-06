@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -12,7 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// TestWriteLogPipeToClient_Success ensures the helper writes the payload (after 8 bytes) to the websocket client.
+// TestWriteLogPipeToClient_Success ensures the helper writes the payload (without changing decoded text) to the websocket client.
 func TestWriteLogPipeToClient_Success(t *testing.T) {
 	// restore original pingInterval after test
 	orig := pingInterval
@@ -53,12 +52,12 @@ func TestWriteLogPipeToClient_Success(t *testing.T) {
 	// start writer and wait for it to finish
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	// send a message with eight prefix bytes then "hello"
-	ch <- append([]byte("12345678"), []byte("hello")...)
+	// send a message with decoded text "hello"
+	ch <- []byte("hello")
 	close(ch)
 
 	// read on client
@@ -115,11 +114,11 @@ func TestWriteLogPipeToClient_ErrorWhenClosed(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	ch <- append([]byte("12345678"), []byte("err")...)
+	ch <- []byte("err")
 	close(ch)
 
 	select {
@@ -165,13 +164,13 @@ func TestWriteLogPipeToClient_MultipleMessages(t *testing.T) {
 	ch := make(chan []byte, 3)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	ch <- append([]byte("12345678"), []byte("one")...)
-	ch <- append([]byte("12345678"), []byte("two")...)
-	ch <- append([]byte("12345678"), []byte("three")...)
+	ch <- []byte("one")
+	ch <- []byte("two")
+	ch <- []byte("three")
 	close(ch)
 
 	var got []string
@@ -195,8 +194,7 @@ func TestWriteLogPipeToClient_MultipleMessages(t *testing.T) {
 }
 
 // TestWriteLogPipeToClient_SplitAggregatedPayload ensures that when a single
-// channel payload contains multiple newline-separated log lines (after the
-// 8-byte Docker multiplex header), the writer sends each non-empty line as
+// channel payload contains multiple decoded lines, the writer sends each non-empty line as
 // its own websocket message.
 func TestWriteLogPipeToClient_SplitAggregatedPayload(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
@@ -230,12 +228,12 @@ func TestWriteLogPipeToClient_SplitAggregatedPayload(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
 	// single payload contains three lines separated by '\n'
-	payload := []byte("12345678one\ntwo\nthree\n")
+	payload := []byte("one\ntwo\nthree\n")
 	ch <- payload
 	close(ch)
 
@@ -260,11 +258,8 @@ func TestWriteLogPipeToClient_SplitAggregatedPayload(t *testing.T) {
 	close(done)
 }
 
-// TestWriteLogPipeToClient_MultipleHeadersPayload ensures that when a single
-// channel payload contains multiple docker-multiplexed frames each with
-// their own 8-byte header, the writer correctly parses and sends each
-// frame's lines as separate websocket messages.
-func TestWriteLogPipeToClient_MultipleHeadersPayload(t *testing.T) {
+// TestWriteLogPipeToClient_MultipleDecodedLines sends multiple decoded lines.
+func TestWriteLogPipeToClient_MultipleDecodedLines(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
 	orig := pingInterval
@@ -296,24 +291,12 @@ func TestWriteLogPipeToClient_MultipleHeadersPayload(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	// build two multiplex frames: header + "one\n", header + "two\n"
-	var payload []byte
-	hdr1 := make([]byte, 8)
-	hdr1[0] = 1
-	binary.BigEndian.PutUint32(hdr1[4:], uint32(len([]byte("one\n"))))
-	payload = append(payload, hdr1...)
-	payload = append(payload, []byte("one\n")...)
-
-	hdr2 := make([]byte, 8)
-	hdr2[0] = 1
-	binary.BigEndian.PutUint32(hdr2[4:], uint32(len([]byte("two\n"))))
-	payload = append(payload, hdr2...)
-	payload = append(payload, []byte("two\n")...)
-
+	// The reader supplies decoded stdout and stderr text.
+	payload := []byte("one\ntwo\n")
 	ch <- payload
 	close(ch)
 
@@ -338,7 +321,7 @@ func TestWriteLogPipeToClient_MultipleHeadersPayload(t *testing.T) {
 	close(done)
 }
 
-// TestWriteLogPipeToClient_EmptyPayload ensures the writer handles frames where the trimmed payload is empty.
+// TestWriteLogPipeToClient_EmptyPayload ensures the writer handles empty decoded payloads.
 func TestWriteLogPipeToClient_EmptyPayload(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
@@ -369,24 +352,19 @@ func TestWriteLogPipeToClient_EmptyPayload(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	// send exactly 8 bytes so trimmed payload is empty
-	ch <- []byte("12345678")
+	// Send no decoded text.
+	ch <- []byte{}
 	close(ch)
 
 	_ = clientConn.SetReadDeadline(time.Now().Add(2 * time.Second))
 	_, msg, err := clientConn.ReadMessage()
-	if err != nil {
-		// With the server change that skips empty payloads, the writer may
-		// close the connection without sending a TextMessage. Treat a close
-		// error as acceptable behavior for this test.
-		return
-	}
-	if len(msg) != 0 {
-		t.Fatalf("expected empty payload, got %s", string(msg))
+	if !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+		close(done)
+		t.Fatalf("expected normal closure without empty text messages, got %q, %v", msg, err)
 	}
 
 	select {
@@ -399,8 +377,7 @@ func TestWriteLogPipeToClient_EmptyPayload(t *testing.T) {
 
 // TestWriteLogPipeToClient_LargeVolume sends a large number of messages
 // through the writer to ensure it can handle high throughput without
-// deadlocking. The messages include the 8-byte docker multiplex header
-// prefix that the writer strips before sending to the client.
+// deadlocking. The messages are decoded text supplied by the reader.
 func TestWriteLogPipeToClient_LargeVolume(t *testing.T) {
 	const N = 10000
 
@@ -433,14 +410,14 @@ func TestWriteLogPipeToClient_LargeVolume(t *testing.T) {
 	ch := make(chan []byte, 512)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
 	// send N messages
 	for i := 0; i < N; i++ {
-		// include 8-byte prefix
-		payload := fmt.Sprintf("12345678message-%d", i)
+		// Send a decoded line.
+		payload := fmt.Sprintf("message-%d", i)
 		ch <- []byte(payload)
 	}
 	close(ch)
@@ -503,13 +480,13 @@ func TestWriteLogPipeToClient_WriterFinishesAfterChannelClose(t *testing.T) {
 	ch := make(chan []byte, 256)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
 	// push a moderate burst of messages to keep the writer busy
 	for i := 0; i < 2000; i++ {
-		ch <- append([]byte("12345678"), []byte("payload")...)
+		ch <- []byte("payload")
 	}
 
 	// Now close the channel and expect the writer to finish quickly
@@ -559,7 +536,7 @@ func TestWriteLogPipeToClient_PingTicker(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
@@ -577,11 +554,8 @@ func TestWriteLogPipeToClient_PingTicker(t *testing.T) {
 	close(done)
 }
 
-// TestWriteLogPipeToClient_FallbackStripHeader ensures that when the payload
-// contains an 8-byte header but the header's size field does not fit the
-// remaining bytes, the writer falls back to stripping the first 8 bytes
-// and sending the remainder split by newlines.
-func TestWriteLogPipeToClient_FallbackStripHeader(t *testing.T) {
+// TestWriteLogPipeToClient_DecodedText forwards plain decoded text.
+func TestWriteLogPipeToClient_DecodedText(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
 	orig := pingInterval
@@ -611,15 +585,11 @@ func TestWriteLogPipeToClient_FallbackStripHeader(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	// craft header with a large size so 8+size > len(payload)
-	hdr := make([]byte, 8)
-	hdr[0] = 9
-	binary.BigEndian.PutUint32(hdr[4:], uint32(1000))
-	payload := append(hdr, []byte("abc\n")...)
+	payload := []byte("abc\n")
 	ch <- payload
 	close(ch)
 
@@ -640,8 +610,7 @@ func TestWriteLogPipeToClient_FallbackStripHeader(t *testing.T) {
 	close(done)
 }
 
-// TestWriteLogPipeToClient_ShortPayload verifies behaviour when payload length < 8
-// (no multiplex header present)
+// TestWriteLogPipeToClient_ShortPayload preserves short decoded text.
 func TestWriteLogPipeToClient_ShortPayload(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
@@ -672,7 +641,7 @@ func TestWriteLogPipeToClient_ShortPayload(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
@@ -696,10 +665,8 @@ func TestWriteLogPipeToClient_ShortPayload(t *testing.T) {
 	close(done)
 }
 
-// TestWriteLogPipeToClient_PartialFrameRemainder ensures that if a payload
-// contains a multiplexed frame followed by raw remainder data, both the
-// parsed frame lines and the remainder lines are sent.
-func TestWriteLogPipeToClient_PartialFrameRemainder(t *testing.T) {
+// TestWriteLogPipeToClient_DecodedRemainder preserves subsequent text lines.
+func TestWriteLogPipeToClient_DecodedRemainder(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
 	orig := pingInterval
@@ -729,19 +696,11 @@ func TestWriteLogPipeToClient_PartialFrameRemainder(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	var payload []byte
-	hdr := make([]byte, 8)
-	hdr[0] = 1
-	binary.BigEndian.PutUint32(hdr[4:], uint32(len([]byte("one\n"))))
-	payload = append(payload, hdr...)
-	payload = append(payload, []byte("one\n")...)
-	// append raw remainder without header
-	payload = append(payload, []byte("rem\n")...)
-
+	payload := []byte("one\nrem\n")
 	ch <- payload
 	close(ch)
 
@@ -798,7 +757,7 @@ func TestWriteLogPipeToClient_ZeroLengthPayload(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
@@ -823,10 +782,8 @@ func TestWriteLogPipeToClient_ZeroLengthPayload(t *testing.T) {
 	close(done)
 }
 
-// TestWriteLogPipeToClient_NonStandardStreamHeader ensures frames are parsed
-// even when the first header byte is not 0/1/2 but the declared size fits
-// within the payload.
-func TestWriteLogPipeToClient_NonStandardStreamHeader(t *testing.T) {
+// TestWriteLogPipeToClient_PlainLine preserves decoded line content.
+func TestWriteLogPipeToClient_PlainLine(t *testing.T) {
 	srvConnCh := make(chan *websocket.Conn, 1)
 	done := make(chan struct{})
 	orig := pingInterval
@@ -856,15 +813,11 @@ func TestWriteLogPipeToClient_NonStandardStreamHeader(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	// header with first byte != 0/1/2 but size fits
-	hdr := make([]byte, 8)
-	hdr[0] = 9
-	binary.BigEndian.PutUint32(hdr[4:], uint32(len([]byte("one\n"))))
-	payload := append(hdr, []byte("one\n")...)
+	payload := []byte("one\n")
 	ch <- payload
 	close(ch)
 
@@ -917,13 +870,13 @@ func TestWriteLogPipeToClient_WriteErrorDuringSend(t *testing.T) {
 	ch := make(chan []byte, 2)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
 	// send two messages; reader will read one and then close to provoke error
-	ch <- append([]byte("12345678"), []byte("first\n")...)
-	ch <- append([]byte("12345678"), []byte("second\n")...)
+	ch <- []byte("first\n")
+	ch <- []byte("second\n")
 
 	// read first message then close client to trigger server write error
 	_ = clientConn.SetReadDeadline(time.Now().Add(2 * time.Second))
@@ -978,14 +931,11 @@ func TestWriteLogPipeToClient_ZeroStreamType(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
-	hdr := make([]byte, 8)
-	hdr[0] = 0
-	binary.BigEndian.PutUint32(hdr[4:], uint32(len([]byte("zero\n"))))
-	payload := append(hdr, []byte("zero\n")...)
+	payload := []byte("zero\n")
 	ch <- payload
 	close(ch)
 
@@ -1039,7 +989,7 @@ func TestWriteLogPipeToClient_PingWriteError(t *testing.T) {
 	ch := make(chan []byte, 1)
 	doneWriter := make(chan struct{})
 	go func() {
-		writeLogPipeToClient(serverConn, ch)
+		writeLogPipeToClient(serverConn, ch, nil)
 		close(doneWriter)
 	}()
 
