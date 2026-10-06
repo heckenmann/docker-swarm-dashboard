@@ -69,16 +69,22 @@ func TestDockerServiceLogsHandler_SinceInDays(t *testing.T) {
 	done := make(chan struct{})
 	sinceCh := make(chan string, 1)
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
 			select {
 			case sinceCh <- r.URL.Query().Get("since"):
 			default:
 			}
-			_, _ = w.Write([]byte("12345678hello\n"))
+			_, _ = w.Write(logTestFrame("hello\n"))
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
-			<-done
+			if r.URL.Query().Get("follow") == "1" || r.URL.Query().Get("follow") == "true" {
+				<-done
+			}
 			return
 		}
 		http.NotFound(w, r)

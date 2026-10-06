@@ -8,6 +8,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"testing/iotest"
 	"time"
 )
 
@@ -79,5 +80,64 @@ func TestReadServiceLogSnapshot_Cancellation(t *testing.T) {
 	_, err := readServiceLogSnapshot(ctx, reader, false)
 	if !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatalf("expected cancellation of a blocked reader, got %v", err)
+	}
+}
+
+func logTestFrame(payload string) []byte {
+	header := make([]byte, 8)
+	header[0] = 1
+	binary.BigEndian.PutUint32(header[4:], uint32(len(payload)))
+	return append(header, []byte(payload)...)
+}
+
+func TestDecodedServiceLogLines(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		raw  []byte
+		tty  bool
+		want []string
+		bad  bool
+	}{
+		{"multiline", logTestFrame("first line\nsecond line\n"), false, []string{"first line", "second line"}, false},
+		{"long line", logTestFrame(strings.Repeat("x", 5000) + "\n"), false, []string{strings.Repeat("x", 5000)}, false},
+		{"newline in header", logTestFrame("123456789\n"), false, []string{"123456789"}, false},
+		{"continuation across frames", append(logTestFrame("first "), logTestFrame("line\nlast")...), false, []string{"first line", "last"}, false},
+		{"raw tty", []byte("12345678raw\r\nlast"), true, []string{"12345678raw", "last"}, false},
+		{"truncated", logTestFrame("missing\n")[:12], false, nil, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			lines := make(chan []byte, 10)
+			result := make(chan error, 1)
+			go readLogLines(ctx, decodedServiceLogReader(ctx, io.NopCloser(iotest.OneByteReader(bytes.NewReader(tc.raw))), tc.tty), lines, result)
+			var got []string
+			for line := range lines {
+				got = append(got, string(line))
+			}
+			err := <-result
+			if (err != nil) != tc.bad || strings.Join(got, "\n") != strings.Join(tc.want, "\n") {
+				t.Fatalf("got %q, error %v; want %q, bad=%v", got, err, tc.want, tc.bad)
+			}
+		})
+	}
+}
+
+func TestDecodedServiceLogReader_Cancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	source, writer := io.Pipe()
+	defer func() { _ = writer.Close() }()
+	decoded := decodedServiceLogReader(ctx, source, false)
+	result := make(chan error, 1)
+	go func() { _, err := io.ReadAll(decoded); result <- err }()
+	cancel()
+	select {
+	case err := <-result:
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("got %v", err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("decoder did not stop after cancellation")
 	}
 }

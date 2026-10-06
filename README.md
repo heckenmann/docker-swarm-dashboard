@@ -163,6 +163,15 @@ five-second timeout, and Docker/exporter work honors request cancellation.
 The connection URL uses the server's configured path prefix and the current
 browser origin; a client-side API URL override does not change it.
 
+### Log retrieval
+
+The WebSocket log viewer decodes Docker multiplex frames before splitting text
+into lines and preserves raw output for TTY services. Non-follow requests wait
+for a complete snapshot instead of treating a pause in output as completion.
+A snapshot that does not finish within 20 seconds, or contains an incomplete
+Docker frame, closes with an error. MCP log requests use the five-second limit
+described above.
+
 ### Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
