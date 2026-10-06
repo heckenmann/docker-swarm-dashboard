@@ -30,17 +30,17 @@ jobs:
       # Continue other jobs if one fails
       fail-fast: false
       matrix:
-        # Runners for amd64 (ubuntu-24.04) and arm64 (ubuntu-24.04-arm)
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        # Runners for amd64 (ubuntu-26.04) and arm64 (ubuntu-26.04-arm)
+        runner: [ubuntu-26.04, ubuntu-26.04-arm]
         # Target platforms for Docker images
         platform: [linux/amd64, linux/arm64]
         # Prevent mismatching runner and platform combinations
         exclude:
           # Don't build amd64 on arm64 runner
-          - runner: ubuntu-24.04-arm
+          - runner: ubuntu-26.04-arm
             platform: linux/amd64
           # Don't build arm64 on amd64 runner
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             platform: linux/arm64
     # Permissions required for accessing repository and registry
     permissions:
@@ -126,7 +126,7 @@ jobs:
     # Depends on the build job
     needs: build
     # Run on a standard runner
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Only run for non-pull-request events
     if: github.event_name != 'pull_request'
     # Permissions for writing to the container registry

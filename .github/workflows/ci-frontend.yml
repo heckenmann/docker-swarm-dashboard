@@ -15,7 +15,7 @@ env:
 jobs:
   test:
     name: Jest coverage
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     defaults:
       run:
         working-directory: ./app-src
@@ -40,7 +40,7 @@ jobs:
 
   lint:
     name: ESLint + Stylelint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     defaults:
       run:
         working-directory: ./app-src
@@ -66,7 +66,7 @@ jobs:
 
   format:
     name: Prettier formatting check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     defaults:
       run:
         working-directory: ./app-src
