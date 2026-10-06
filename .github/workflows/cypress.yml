@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        runner: [ubuntu-26.04, ubuntu-26.04-arm]
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -42,9 +42,9 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ runner.arch }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.runner }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
+            ${{ runner.os }}-${{ runner.arch }}-${{ matrix.runner }}-cypress-binary-
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: app-src/node_modules
-          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.runner }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
 
       - name: Update browserslist
         run: NPM_CONFIG_LEGACY_PEER_DEPS=true npx update-browserslist-db@latest
@@ -65,12 +65,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        runner: [ubuntu-26.04, ubuntu-26.04-arm]
         browser: ['firefox', 'electron']
         include:
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             browser: chromium
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             browser: edge
     defaults:
       run:
@@ -90,16 +90,16 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ runner.arch }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.runner }}-cypress-binary-${{ hashFiles('**/app-src/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cypress-binary-
+            ${{ runner.os }}-${{ runner.arch }}-${{ matrix.runner }}-cypress-binary-
 
       - name: Restore node_modules cache
         id: node-modules-cache
         uses: actions/cache@v6
         with:
           path: app-src/node_modules
-          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.runner }}-node-modules-${{ hashFiles('**/app-src/yarn.lock') }}
 
       - name: Install dependencies
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
@@ -121,7 +121,7 @@ jobs:
   # never stalls when cypress-run is skipped.
   cypress-tests-passed:
     needs: cypress-run
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: always()
     steps:
       - name: Check Cypress results
