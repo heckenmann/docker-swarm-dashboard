@@ -89,7 +89,7 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_FILTER_TYPE` | Default filter type. Either `service` or `stack`. | `service` |
 | `DSD_LOGS_NUMBER_OF_LINES` | Default number of log lines to fetch. | `100` |
 | `DSD_LOGS_MESSAGE_MAX_LEN` | Maximum length of log messages to display. | `2000` |
-| `DSD_LOGS_FORM_TAIL` | Default value for tail option in logs form. | `true` |
+| `DSD_LOGS_FORM_TAIL` | Default line count or `all` for the logs form and omitted MCP log tails. | `20` |
 | `DSD_LOGS_FORM_SINCE` | Default value for since option in logs form. | `false` |
 | `DSD_LOGS_FORM_SINCE_AMOUNT` | Default amount for since option in logs form. | `15` |
 | `DSD_LOGS_FORM_SINCE_UNIT` | Default unit for since option in logs form. Either `minutes`, `hours`, or `days`. | `minutes` |
