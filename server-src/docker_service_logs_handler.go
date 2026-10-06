@@ -210,6 +210,13 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		_ = logReader.Close()
 	}()
 
+	// Configure read state before the sole WebSocket reader starts.
+	conn.SetReadLimit(1024 * 1024)
+	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+	conn.SetPongHandler(func(string) error {
+		return conn.SetReadDeadline(time.Now().Add(pongWait))
+	})
+
 	// The client is not expected to send anything; reading detects a
 	// disconnect. Closing the connection makes any pending write fail, which
 	// stops the streaming loop below.
@@ -293,12 +300,6 @@ func readLogLines(ctx context.Context, logReader io.Reader, lines chan<- []byte,
 // instead of dropping the connection, and a client that stops consuming
 // altogether is dropped by the write deadline in writeLogPipeToClient.
 func streamLogs(ctx context.Context, conn *websocket.Conn, logReader io.Reader) {
-	conn.SetReadLimit(1024 * 1024)
-	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
-	conn.SetPongHandler(func(string) error {
-		return conn.SetReadDeadline(time.Now().Add(pongWait))
-	})
-
 	lines := make(chan []byte, logChannelSize)
 	result := make(chan error, 1)
 	go readLogLines(ctx, logReader, lines, result)
