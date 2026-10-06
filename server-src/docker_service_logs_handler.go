@@ -107,9 +107,9 @@ func parseLogsOptions(r *http.Request) logsOptions {
 		value, _ := strconv.ParseBool(query.Get(key))
 		return value
 	}
-	tail := query.Get("tail")
-	if tail == "" {
-		tail = "all"
+	tail := "all"
+	if count := tailCount(query.Get("tail")); count >= 0 {
+		tail = strconv.Itoa(count)
 	}
 	return logsOptions{
 		serviceID:  mux.Vars(r)["id"],
@@ -123,9 +123,13 @@ func parseLogsOptions(r *http.Request) logsOptions {
 	}
 }
 
-// tailCount returns the number of lines a one-shot request asked for.
+// tailCount returns -1 for all history, zero for none, or a positive suffix.
+// Invalid input uses the same fallback for Docker and the WebSocket response.
 func tailCount(tail string) int {
-	if n, err := strconv.Atoi(tail); err == nil && n > 0 {
+	if tail == "" || tail == "all" {
+		return -1
+	}
+	if n, err := strconv.Atoi(tail); err == nil && n >= 0 {
 		return n
 	}
 	return defaultTail
@@ -312,7 +316,7 @@ func sendLogTail(ctx context.Context, conn *websocket.Conn, logReader io.Reader,
 	}
 
 	start := 0
-	if len(lines) > tail {
+	if tail >= 0 && len(lines) > tail {
 		start = len(lines) - tail
 	}
 	for _, line := range lines[start:] {
