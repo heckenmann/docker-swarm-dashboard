@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   test-server-src:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@v7

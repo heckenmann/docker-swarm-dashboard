@@ -9,7 +9,7 @@ on:
 jobs:
   clean-ghcr:
     name: Delete old unused container images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Delete old containers
         uses: snok/container-retention-policy@v2
