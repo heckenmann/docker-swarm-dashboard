@@ -90,3 +90,65 @@ func TestLoadDashboardSettings_Advanced(t *testing.T) {
 		t.Fatalf("expected 7 minutes cache, got %v", versionCheckCacheDurationMinutes)
 	}
 }
+
+func TestDashboardSettingsHandler_MCPEnabled(t *testing.T) {
+	previous := mcpEnabled
+	mcpEnabled = true
+	defer func() { mcpEnabled = previous }()
+
+	req := httptest.NewRequest(http.MethodGet, "/ui/dashboard-settings", nil)
+	recorder := httptest.NewRecorder()
+	dashboardSettingsHandler(recorder, req)
+
+	var settings dashboardSettings
+	if err := json.NewDecoder(recorder.Result().Body).Decode(&settings); err != nil {
+		t.Fatalf("decode settings: %v", err)
+	}
+	if !settings.MCPEnabled {
+		t.Fatal("expected MCP to be enabled in dashboard settings")
+	}
+}
+
+func TestLoadDashboardSettingsFromEnv_MCPDisabled(t *testing.T) {
+	previous := mcpEnabled
+	previousValue, wasSet := os.LookupEnv("DSD_MCP_ENABLED")
+	mcpEnabled = true
+	if err := os.Setenv("DSD_MCP_ENABLED", "false"); err != nil {
+		t.Fatalf("set environment: %v", err)
+	}
+	defer func() {
+		mcpEnabled = previous
+		if wasSet {
+			_ = os.Setenv("DSD_MCP_ENABLED", previousValue)
+		} else {
+			_ = os.Unsetenv("DSD_MCP_ENABLED")
+		}
+	}()
+
+	loadDashboardSettingsFromEnv()
+
+	if mcpEnabled {
+		t.Fatal("expected DSD_MCP_ENABLED=false to disable MCP")
+	}
+}
+
+func TestLoadDashboardSettingsFromEnv_MCPDefaultsAndReload(t *testing.T) {
+	previous := mcpEnabled
+	t.Cleanup(func() { mcpEnabled = previous })
+	for _, test := range []struct {
+		value string
+		want  bool
+	}{{"", true}, {"false", false}, {"true", true}, {"invalid", true}} {
+		t.Setenv("DSD_MCP_ENABLED", test.value)
+		if test.value == "" {
+			if err := os.Unsetenv("DSD_MCP_ENABLED"); err != nil {
+				t.Fatal(err)
+			}
+		}
+		mcpEnabled = false
+		loadDashboardSettingsFromEnv()
+		if currentDashboardSettings().MCPEnabled != test.want {
+			t.Fatalf("DSD_MCP_ENABLED=%q: got %v", test.value, mcpEnabled)
+		}
+	}
+}

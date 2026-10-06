@@ -17,6 +17,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       DSD_VERSION_CHECK_ENABLED: 'true'
+      DSD_MCP_ENABLED: 'true'
     networks:
       - dashboard-network
   # Prometheus node-exporter for node metrics

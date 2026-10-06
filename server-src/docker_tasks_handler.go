@@ -4,24 +4,17 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/docker/docker/api/types/swarm"
 )
 
-// Serves the tasks
+// Serves the tasks.
 func dockerTasksHandler(w http.ResponseWriter, r *http.Request) {
-	cli, err := getCli()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	Tasks, err := cli.TaskList(r.Context(), swarm.TaskListOptions{})
+	tasks, err := queryTasks(r.Context(), "", "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(maskTasksEnv(Tasks)); err != nil {
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
 		log.Printf("dockerTasksHandler: encoding response failed: %v", err)
 	}
 }

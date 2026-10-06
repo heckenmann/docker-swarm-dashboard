@@ -57,6 +57,7 @@ jest.mock('../../../src/common/navigationConstants', () => ({
   aboutId: 'about',
   dashboardHId: 'dashboardH',
   logsId: 'logs',
+  mcpId: 'mcp',
   nodesId: 'nodes',
   portsId: 'ports',
   settingsId: 'settings',
@@ -510,5 +511,100 @@ describe('DashboardNavbar (combined)', () => {
     // The update badge should be present
     const aboutLink = screen.getByRole('button', { name: 'About' })
     expect(aboutLink).toBeInTheDocument()
+  })
+  test('shows MCP nav link only when MCP is enabled', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'maxContentWidthAtom') return 'fluid'
+      if (atom === 'showNavLabelsAtom') return false
+      if (atom === 'versionAtom') {
+        return { version: '1.0.0', updateAvailable: false }
+      }
+      if (atom === 'logsShowLogsAtom') return false
+      if (atom === 'logsConfigAtom') return { follow: false }
+      if (atom === 'dashboardSettingsAtom') {
+        return {
+          showLogsButton: false,
+          versionCheckEnabled: false,
+          mcpEnabled: true,
+        }
+      }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return 'dashboardH'
+      }
+      return null
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'refreshIntervalAtom') return [null, jest.fn()]
+      if (atom === 'viewAtom') return [{ id: 'dashboardH' }, jest.fn()]
+      if (atom === 'versionRefreshAtom') return [0, jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    const { unmount } = render(<DashboardNavbar />)
+    expect(screen.getByRole('button', { name: 'MCP' })).toBeInTheDocument()
+    unmount()
+
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'maxContentWidthAtom') return 'fluid'
+      if (atom === 'showNavLabelsAtom') return false
+      if (atom === 'versionAtom') {
+        return { version: '1.0.0', updateAvailable: false }
+      }
+      if (atom === 'logsShowLogsAtom') return false
+      if (atom === 'logsConfigAtom') return { follow: false }
+      if (atom === 'dashboardSettingsAtom') {
+        return {
+          showLogsButton: false,
+          versionCheckEnabled: false,
+          mcpEnabled: false,
+        }
+      }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return 'dashboardH'
+      }
+      return null
+    })
+    render(<DashboardNavbar />)
+    expect(screen.queryByRole('button', { name: 'MCP' })).toBeNull()
+  })
+
+  test('clicking MCP nav link navigates to the MCP view', () => {
+    const mockUpdateView = jest.fn()
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'currentVariantAtom') return 'light'
+      if (atom === 'maxContentWidthAtom') return 'fluid'
+      if (atom === 'showNavLabelsAtom') return false
+      if (atom === 'versionAtom') {
+        return { version: '1.0.0', updateAvailable: false }
+      }
+      if (atom === 'logsShowLogsAtom') return false
+      if (atom === 'logsConfigAtom') return { follow: false }
+      if (atom === 'dashboardSettingsAtom') {
+        return {
+          showLogsButton: false,
+          versionCheckEnabled: false,
+          mcpEnabled: true,
+        }
+      }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return 'dashboardH'
+      }
+      return null
+    })
+    mockUseAtom.mockImplementation((atom) => {
+      if (atom === 'refreshIntervalAtom') return [null, jest.fn()]
+      if (atom === 'viewAtom') return [{ id: 'dashboardH' }, mockUpdateView]
+      if (atom === 'versionRefreshAtom') return [0, jest.fn()]
+      return [null, jest.fn()]
+    })
+
+    render(<DashboardNavbar />)
+    fireEvent.click(screen.getByRole('button', { name: 'MCP' }))
+
+    expect(mockUpdateView).toHaveBeenCalledTimes(1)
+    const updater = mockUpdateView.mock.calls[0][0]
+    expect(updater({ id: 'dashboardH' }).id).toBe('mcp')
   })
 })

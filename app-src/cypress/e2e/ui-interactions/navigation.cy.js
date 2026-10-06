@@ -30,7 +30,10 @@ describe('Navigation Tests', () => {
     
     // Test navigation to Logs
     basePage.navigateTo('Logs').assertNoConsoleErrors()
-    
+
+    // Test navigation to MCP connection instructions
+    basePage.navigateTo('MCP').assertNoConsoleErrors()
+
     // Test navigation to About
     basePage.navigateTo('About').assertNoConsoleErrors()
     
