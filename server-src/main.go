@@ -54,7 +54,7 @@ func buildHandler() http.Handler {
 	}
 
 	// CORS Headers
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Accept", "Mcp-Protocol-Version", "Mcp-Session-Id"})
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Accept", "Mcp-Protocol-Version", "Mcp-Session-Id", "Mcp-Method", "Mcp-Name"})
 	originsOk := handlers.AllowedOriginValidator(isCORSOriginAllowed)
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
