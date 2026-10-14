@@ -152,6 +152,7 @@ services:
       - DSD_TIME_ZONE=
       - DSD_LOCALE=
       - DSD_REFRESH_INTERVAL=
+      - DSD_MCP_ENABLED=true
     restart: unless-stopped`}
           </pre>
         )}

@@ -17,21 +17,25 @@ type UpdateResponse struct {
 	LastChecked string `json:"lastChecked"`
 }
 
-// versionHandler handles the update check request
-func versionHandler(w http.ResponseWriter, r *http.Request) {
+func queryVersion() UpdateResponse {
 	localVersion, remoteVersion, updateAvailable := version.CheckVersion()
 
 	lastChecked := ""
-	if t := version.LastCheckTime(); !t.IsZero() {
-		lastChecked = t.UTC().Format("2006-01-02T15:04:05Z")
+	if checkedAt := version.LastCheckTime(); !checkedAt.IsZero() {
+		lastChecked = checkedAt.UTC().Format("2006-01-02T15:04:05Z")
 	}
 
-	response := UpdateResponse{
+	return UpdateResponse{
 		LocalVersion:    localVersion,
 		RemoteVersion:   remoteVersion,
 		UpdateAvailable: updateAvailable,
 		LastChecked:     lastChecked,
 	}
+}
 
-	_ = json.NewEncoder(w).Encode(response)
+// versionHandler handles the update check request.
+func versionHandler(w http.ResponseWriter, _ *http.Request) {
+	if err := json.NewEncoder(w).Encode(queryVersion()); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

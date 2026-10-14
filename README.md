@@ -61,6 +61,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 |---|---|---|
 | `DSD_HTTP_PORT` | HTTP port within the container. Usually does not need to be changed. | `8080` |
 | `DSD_HANDLE_LOGS` | Set to `false` to prevent fetching and displaying logs. | `true` |
+| `DSD_MCP_ENABLED` | Enable the built-in Model Context Protocol (MCP) server and MCP connection page. | `true` |
 | `DSD_DASHBOARD_LAYOUT` | Default dashboard layout. Either `row` (default) or `column`. | `row` |
 | `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |
 | `DSD_PATH_PREFIX` | Set a URL path prefix for the dashboard (e.g. `/dashboard`). Useful when running behind a reverse proxy or when the app should not be served from the root path. | `/` |
@@ -88,7 +89,7 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_FILTER_TYPE` | Default filter type. Either `service` or `stack`. | `service` |
 | `DSD_LOGS_NUMBER_OF_LINES` | Default number of log lines to fetch. | `100` |
 | `DSD_LOGS_MESSAGE_MAX_LEN` | Maximum length of log messages to display. | `2000` |
-| `DSD_LOGS_FORM_TAIL` | Default value for tail option in logs form. | `true` |
+| `DSD_LOGS_FORM_TAIL` | Default line count or `all` for the logs form and omitted MCP log tails. | `20` |
 | `DSD_LOGS_FORM_SINCE` | Default value for since option in logs form. | `false` |
 | `DSD_LOGS_FORM_SINCE_AMOUNT` | Default amount for since option in logs form. | `15` |
 | `DSD_LOGS_FORM_SINCE_UNIT` | Default unit for since option in logs form. Either `minutes`, `hours`, or `days`. | `minutes` |
@@ -102,6 +103,77 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_SHOW_NAMES_BUTTONS` | Show action buttons in entity names by default. Either `true` or `false`. | `true` |
 | `DSD_SHOW_NAV_LABELS` | Show navigation labels by default. Either `true` or `false`. | `false` |
 | `DSD_MAX_CONTENT_WIDTH` | Maximum content width. Either `fluid` (full width) or `fixed` (container width). | `fluid` |
+
+### Model Context Protocol (MCP)
+
+Docker Swarm Dashboard includes a built-in, read-only MCP server so
+MCP-capable agents can inspect the same cluster information that is available
+through the web UI. MCP is enabled by default and can be disabled with
+`DSD_MCP_ENABLED=false`.
+
+The server uses **Streamable HTTP**. Its endpoint is `/mcp` and follows
+`DSD_PATH_PREFIX`:
+
+```text
+https://dashboard.example.com/mcp
+https://dashboard.example.com/docker-dashboard/mcp
+```
+
+When MCP is enabled, the dashboard shows an **MCP** navigation entry. The MCP
+page displays the endpoint for the current deployment and provides generic
+connection instructions for MCP-capable agents.
+
+To connect an agent:
+
+1. Open the MCP/server configuration in the agent or client.
+2. Add a remote MCP server.
+3. Select **Streamable HTTP**.
+4. Use `docker-swarm-dashboard` as the server name.
+5. Paste the MCP URL displayed by the dashboard.
+6. Connect and let the client discover the available tools.
+
+The MCP server exposes read-only information for services, nodes, tasks,
+metrics, logs (when `DSD_HANDLE_LOGS=true`), stacks, published ports, the
+timeline, dashboard settings, version, and health. Existing
+`DSD_MASK_ENV` masking is also applied to data returned through MCP.
+
+Tools include `list_services`, `get_service`, `get_service_metrics`,
+`list_nodes`, `get_node`, `get_node_metrics`, `get_cluster_metrics`,
+`list_tasks`, `get_task`, `get_task_metrics`, `list_stacks`,
+`list_published_ports`, `get_timeline`, `get_cluster_overview`,
+`get_dashboard_settings`, `get_version`, and `get_health`. When logs are
+enabled, `list_log_services` and `get_service_logs` are also discoverable.
+Service queries accept IDs or exact names, node queries accept IDs, node
+names or hostnames, and task queries accept IDs. `list_tasks` accepts optional
+service and node filters.
+
+Results contain structured JSON objects, with named fields such as `services`,
+`nodes`, `tasks`, `stacks`, `ports`, and `timeline` for lists, plus a text
+fallback for clients using older MCP protocol versions. The cluster overview
+contains services, nodes and tasks independently of the dashboard layout.
+Log queries return finite snapshots, support the dashboard's Docker log
+options, and stop with an error if Docker does not finish within five seconds.
+An omitted `tail` uses `logsFormTail` from dashboard settings, falling back to
+`20`; an omitted `since` applies no time filter. Boolean log options use the
+configured dashboard defaults. Tool discovery describes these defaults.
+Metrics results expose availability and diagnostic messages when exporters are
+missing or fail. Check `available`, `message`, and `error` before using metric
+values, including when `available` is `true`. Exporter HTTP requests have a
+five-second timeout, and Docker/exporter work honors request cancellation.
+The connection URL uses the server's configured path prefix and the current
+browser origin; a client-side API URL override does not change it.
+
+### Log retrieval
+
+The WebSocket log viewer decodes Docker multiplex frames before splitting text
+into lines and preserves raw output for TTY services. Non-follow requests wait
+for a complete snapshot instead of treating a pause in output as completion.
+A snapshot that does not finish within 20 seconds, or contains an incomplete
+Docker frame, closes with an error. MCP log requests use the five-second limit
+described above. For the WebSocket viewer, omitted `tail` or `tail=all`
+returns all available history, `tail=0` returns no historical lines, and a
+positive number selects the last N lines. Invalid values fall back to 20,
+consistently for the Docker request and the returned snapshot.
 
 ### Pull Image from ghcr.io
 ```
@@ -125,6 +197,8 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      DSD_MCP_ENABLED: 'true'
 ```
 
 ### docker-compose.yml with traefik and basic auth

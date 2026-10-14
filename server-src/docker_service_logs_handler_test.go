@@ -18,24 +18,30 @@ import (
 // with the writer; keep writer unit tests centralized in the dedicated file.
 
 // TestDockerServiceLogsHandler_StreamsToWebsocket sets up a fake Docker API
-// that serves log bytes prefixed with 8 bytes and verifies the websocket
+// that serves valid Docker multiplex frames and verifies the websocket
 // client receives trimmed payloads. This was previously an integration test
 // and is included here as a deterministic unit-style test using httptest.
 func TestDockerServiceLogsHandler_StreamsToWebsocket(t *testing.T) {
-	// Fake Docker API that returns a single log line prefixed with 8 bytes.
+	// Fake Docker API that returns a single multiplexed log line.
 	// Use a channel to keep the connection open until the test has read
 	// the websocket message to avoid racing/EOFs.
 	done := make(chan struct{})
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
-			// Write a single log frame; the handler strips first 8 bytes
-			_, _ = w.Write([]byte("12345678hello\n"))
+			// Write a valid frame; the handler decodes its header before splitting text.
+			_, _ = w.Write(logTestFrame("hello\n"))
 			// flush so the client receives the bytes immediately
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
 			// block until test signals done
-			<-done
+			if r.URL.Query().Get("follow") == "1" || r.URL.Query().Get("follow") == "true" {
+				<-done
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -94,15 +100,21 @@ func TestDockerServiceLogsHandler_StreamsToWebsocket(t *testing.T) {
 func TestDockerServiceLogsHandler_TailReturnsCorrectNumber(t *testing.T) {
 	done := make(chan struct{})
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
-			// produce three lines; handler should strip 8-byte prefix per line
-			_, _ = w.Write([]byte("12345678one\n"))
-			_, _ = w.Write([]byte("12345678two\n"))
-			_, _ = w.Write([]byte("12345678three\n"))
+			// Produce three valid frames; the handler returns their decoded lines.
+			_, _ = w.Write(logTestFrame("one\n"))
+			_, _ = w.Write(logTestFrame("two\n"))
+			_, _ = w.Write(logTestFrame("three\n"))
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
-			<-done
+			if r.URL.Query().Get("follow") == "1" || r.URL.Query().Get("follow") == "true" {
+				<-done
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -161,23 +173,29 @@ func TestDockerServiceLogsHandler_TailReturnsCorrectNumber(t *testing.T) {
 func TestDockerServiceLogsHandler_FollowStreams(t *testing.T) {
 	done := make(chan struct{})
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
-			// write three frames with 8-byte prefixes
-			_, _ = w.Write([]byte("12345678one\n"))
+			// Write three Docker multiplex frames.
+			_, _ = w.Write(logTestFrame("one\n"))
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
 			time.Sleep(10 * time.Millisecond)
-			_, _ = w.Write([]byte("12345678two\n"))
+			_, _ = w.Write(logTestFrame("two\n"))
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
 			time.Sleep(10 * time.Millisecond)
-			_, _ = w.Write([]byte("12345678three\n"))
+			_, _ = w.Write(logTestFrame("three\n"))
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
-			<-done
+			if r.URL.Query().Get("follow") == "1" || r.URL.Query().Get("follow") == "true" {
+				<-done
+			}
 			return
 		}
 		http.NotFound(w, r)
@@ -258,6 +276,10 @@ func TestDockerServiceLogsHandler_UpgradeError(t *testing.T) {
 func TestDockerServiceLogsHandler_EOFCloses(t *testing.T) {
 	// create a fake docker stream that writes one multiplex frame and then EOF
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
 			// Write a single frame and return (EOF)
 			hdr := make([]byte, 8)
@@ -328,9 +350,13 @@ func TestDockerServiceLogsHandler_EOFCloses(t *testing.T) {
 func TestDockerServiceLogsHandler_SlowClient(t *testing.T) {
 	// docker server that writes many lines quickly
 	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/services/") && !strings.Contains(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
 		if strings.Contains(r.URL.Path, "/services/") && strings.Contains(r.URL.Path, "/logs") {
 			for i := 0; i < 1000; i++ {
-				_, _ = w.Write([]byte("12345678line\n"))
+				_, _ = w.Write(logTestFrame("line\n"))
 			}
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
@@ -372,4 +398,109 @@ func TestDockerServiceLogsHandler_SlowClient(t *testing.T) {
 	// attempt to read; allow either a message or an error (connection closed)
 	_ = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 	_, _, _ = conn.ReadMessage()
+}
+
+func TestDockerServiceLogsHandler_FrameIntegrity(t *testing.T) {
+	for _, follow := range []string{"false", "true"} {
+		for _, tc := range []struct {
+			name string
+			raw  []byte
+			tty  bool
+			want []string
+			bad  bool
+		}{
+			{"multiline", logTestFrame("first line\nsecond line\n"), false, []string{"first line", "second line"}, false},
+			{"long line", logTestFrame(strings.Repeat("x", 5000) + "\n"), false, []string{strings.Repeat("x", 5000)}, false},
+			{"header newline", logTestFrame("123456789\n"), false, []string{"123456789"}, false},
+			{"continued line", append(logTestFrame("first "), logTestFrame("line\nlast")...), false, []string{"first line", "last"}, false},
+			{"tty", []byte("12345678raw\r\nlast"), true, []string{"12345678raw", "last"}, false},
+			{"truncated frame", logTestFrame("missing\n")[:12], false, nil, true},
+		} {
+			t.Run(follow+"/"+tc.name, func(t *testing.T) {
+				dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if strings.HasSuffix(r.URL.Path, "/logs") {
+						_, _ = w.Write(tc.raw)
+						return
+					}
+					tty := "false"
+					if tc.tty {
+						tty = "true"
+					}
+					_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":` + tty + `}}}}`))
+				}))
+				defer dockerSrv.Close()
+				defer ResetCli()
+				SetCli(makeClientForServer(t, dockerSrv.URL))
+				router := mux.NewRouter()
+				router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+				server := httptest.NewServer(router)
+				defer server.Close()
+				conn, _, err := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(server.URL, "http")+"/docker/logs/svc1?stdout=true&follow="+follow, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer func() { _ = conn.Close() }()
+				_ = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+				var got []string
+				for {
+					_, msg, readErr := conn.ReadMessage()
+					if readErr != nil {
+						code := websocket.CloseNormalClosure
+						if tc.bad {
+							code = websocket.CloseInternalServerErr
+						}
+						if !websocket.IsCloseError(readErr, code) {
+							t.Fatalf("unexpected closure: %v", readErr)
+						}
+						break
+					}
+					got = append(got, string(msg))
+				}
+				if strings.Join(got, "\n") != strings.Join(tc.want, "\n") {
+					t.Fatalf("got %q, want %q", got, tc.want)
+				}
+			})
+		}
+	}
+}
+
+func TestDockerServiceLogsHandler_DelayedSnapshot(t *testing.T) {
+	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
+		_, _ = w.Write(logTestFrame("first\n"))
+		w.(http.Flusher).Flush()
+		// A pause beyond the former idle limit must not truncate a finite snapshot.
+		select {
+		case <-time.After(150 * time.Millisecond):
+		case <-r.Context().Done():
+			return
+		}
+		_, _ = w.Write(logTestFrame("second\n"))
+	}))
+	defer dockerSrv.Close()
+	defer ResetCli()
+	SetCli(makeClientForServer(t, dockerSrv.URL))
+	router := mux.NewRouter()
+	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+	server := httptest.NewServer(router)
+	defer server.Close()
+	conn, _, err := websocket.DefaultDialer.Dial("ws"+strings.TrimPrefix(server.URL, "http")+"/docker/logs/svc1?stdout=true&follow=false", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = conn.Close() }()
+	_ = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	for _, want := range []string{"first", "second"} {
+		_, got, err := conn.ReadMessage()
+		if err != nil || string(got) != want {
+			t.Fatalf("got %q, %v; want %q", got, err, want)
+		}
+	}
+	_, _, err = conn.ReadMessage()
+	if !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+		t.Fatalf("unexpected close: %v", err)
+	}
 }

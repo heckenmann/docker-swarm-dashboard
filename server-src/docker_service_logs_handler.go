@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/binary"
 	"io"
 	"log"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/swarm"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -44,10 +44,8 @@ const pongWait = 60 * time.Second
 // without limit.
 const logChannelSize = 64
 
-// tailCollectIdle is how long the one-shot reader waits for another line
-// before considering the log output complete. Docker keeps the response open
-// for some non-follow requests, so waiting for EOF alone would block.
-const tailCollectIdle = 100 * time.Millisecond
+// logSnapshotTimeout bounds non-follow requests without treating a pause as EOF.
+const logSnapshotTimeout = 20 * time.Second
 
 // defaultTail is used when the client requests an unparsable number of lines.
 const defaultTail = 20
@@ -58,60 +56,13 @@ func sendTextMessage(conn *websocket.Conn, data []byte) error {
 	return conn.WriteMessage(websocket.TextMessage, data)
 }
 
-// processPayload parses docker-multiplexed payloads (possibly multiple
-// concatenated frames) and sends each non-empty line as a websocket
-// TextMessage. It falls back to stripping the first 8 bytes when the
-// header size doesn't fit the payload.
+// processPayload sends decoded text without interpreting payload bytes as headers.
 func processPayload(conn *websocket.Conn, payload []byte) error {
-	if len(payload) == 0 {
-		// send an explicit empty message to indicate empty payload
-		return sendTextMessage(conn, []byte{})
-	}
-
-	if len(payload) >= 8 {
-		firstSize := int(binary.BigEndian.Uint32(payload[4:8]))
-		if payload[0] == 0 || payload[0] == 1 || payload[0] == 2 || 8+firstSize <= len(payload) {
-			buf := payload
-			for len(buf) >= 8 {
-				size := int(binary.BigEndian.Uint32(buf[4:8]))
-				if len(buf) < 8+size {
-					break
-				}
-				frame := buf[8 : 8+size]
-				parts := bytes.Split(frame, []byte{'\n'})
-				for _, ln := range parts {
-					if len(ln) == 0 {
-						continue
-					}
-					if err := sendTextMessage(conn, ln); err != nil {
-						return err
-					}
-				}
-				buf = buf[8+size:]
-			}
-			if len(buf) > 0 {
-				parts := bytes.Split(buf, []byte{'\n'})
-				for _, ln := range parts {
-					if len(ln) == 0 {
-						continue
-					}
-					if err := sendTextMessage(conn, ln); err != nil {
-						return err
-					}
-				}
-			}
-			return nil
-		}
-		// fallback: strip header and treat remainder as raw payload
-		payload = payload[8:]
-	}
-
-	parts := bytes.Split(payload, []byte{'\n'})
-	for _, ln := range parts {
-		if len(ln) == 0 {
+	for _, line := range bytes.Split(payload, []byte{'\n'}) {
+		if len(line) == 0 {
 			continue
 		}
-		if err := sendTextMessage(conn, ln); err != nil {
+		if err := sendTextMessage(conn, line); err != nil {
 			return err
 		}
 	}
@@ -156,9 +107,9 @@ func parseLogsOptions(r *http.Request) logsOptions {
 		value, _ := strconv.ParseBool(query.Get(key))
 		return value
 	}
-	tail := query.Get("tail")
-	if tail == "" {
-		tail = "all"
+	tail := "all"
+	if count := tailCount(query.Get("tail")); count >= 0 {
+		tail = strconv.Itoa(count)
 	}
 	return logsOptions{
 		serviceID:  mux.Vars(r)["id"],
@@ -172,21 +123,16 @@ func parseLogsOptions(r *http.Request) logsOptions {
 	}
 }
 
-// tailCount returns the number of lines a one-shot request asked for.
+// tailCount returns -1 for all history, zero for none, or a positive suffix.
+// Invalid input uses the same fallback for Docker and the WebSocket response.
 func tailCount(tail string) int {
-	if n, err := strconv.Atoi(tail); err == nil && n > 0 {
+	if tail == "" || tail == "all" {
+		return -1
+	}
+	if n, err := strconv.Atoi(tail); err == nil && n >= 0 {
 		return n
 	}
 	return defaultTail
-}
-
-// stripFramePrefix removes Docker's 8-byte multiplex header from a single log
-// line. It returns nil when the line carries no payload.
-func stripFramePrefix(line []byte) []byte {
-	if len(line) <= 8 {
-		return nil
-	}
-	return append([]byte(nil), line[8:]...)
 }
 
 // dockerServiceLogsHandler streams the logs of a Docker service over a
@@ -211,8 +157,13 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() { _ = conn.Close() }()
 	defer log.Println("gone:", clientAddress)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
+	if !opts.follow {
+		var stop context.CancelFunc
+		ctx, stop = context.WithTimeout(ctx, logSnapshotTimeout)
+		defer stop()
+	}
 
 	cli, err := getCli()
 	if err != nil {
@@ -221,7 +172,14 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logReader, err := cli.ServiceLogs(ctx, opts.serviceID, container.LogsOptions{
+	service, _, err := cli.ServiceInspectWithRaw(ctx, opts.serviceID, swarm.ServiceInspectOptions{})
+	if err != nil {
+		closeWithError(conn, "Docker service error: "+err.Error())
+		return
+	}
+	tty := service.Spec.TaskTemplate.ContainerSpec != nil && service.Spec.TaskTemplate.ContainerSpec.TTY
+
+	logReader, err := openServiceLogStream(ctx, cli, opts.serviceID, container.LogsOptions{
 		Tail:       opts.tail,
 		Since:      opts.since,
 		Follow:     opts.follow,
@@ -252,6 +210,13 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		_ = logReader.Close()
 	}()
 
+	// Configure read state before the sole WebSocket reader starts.
+	conn.SetReadLimit(1024 * 1024)
+	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+	conn.SetPongHandler(func(string) error {
+		return conn.SetReadDeadline(time.Now().Add(pongWait))
+	})
+
 	// The client is not expected to send anything; reading detects a
 	// disconnect. Closing the connection makes any pending write fail, which
 	// stops the streaming loop below.
@@ -266,15 +231,16 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	if opts.follow {
-		streamLogs(ctx, conn, logReader)
+		streamLogs(ctx, conn, decodedServiceLogReader(ctx, logReader, tty))
 		return
 	}
-	sendLogTail(ctx, conn, logReader, tailCount(opts.tail))
+	sendLogTail(ctx, conn, decodedServiceLogReader(ctx, logReader, tty), tailCount(opts.tail))
 }
 
 // closeWithError closes the websocket with an internal-error close frame
 // carrying a human readable reason.
 func closeWithError(conn *websocket.Conn, reason string) {
+	_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
 	// Close reasons are capped at 123 bytes by the websocket protocol; drop a
 	// rune left incomplete by the cut so the frame stays valid UTF-8.
 	if len(reason) > 123 {
@@ -284,26 +250,46 @@ func closeWithError(conn *websocket.Conn, reason string) {
 		websocket.FormatCloseMessage(websocket.CloseInternalServerErr, reason))
 }
 
-// readLogLines reads the Docker log stream line by line and forwards each line
-// to `lines`. It owns the channel and closes it when the stream ends, the
-// context is cancelled or reading fails.
-func readLogLines(ctx context.Context, logReader io.Reader, lines chan<- []byte) {
+// decodedServiceLogReader preserves framing before the line reader sees text.
+// Closing either side of the pipe releases the decoder on request cancellation.
+func decodedServiceLogReader(ctx context.Context, source io.ReadCloser, tty bool) io.ReadCloser {
+	if tty {
+		return source
+	}
+	reader, writer := io.Pipe()
+	stop := context.AfterFunc(ctx, func() {
+		_ = writer.CloseWithError(ctx.Err())
+		_ = source.Close()
+	})
+	go func() {
+		defer stop()
+		_ = writer.CloseWithError(copyServiceLogFrames(writer, source))
+	}()
+	return reader
+}
+
+// readLogLines forwards complete logical lines, including a final unterminated
+// line. ReadBytes retains lines larger than bufio's internal buffer.
+func readLogLines(ctx context.Context, logReader io.Reader, lines chan<- []byte, result chan<- error) {
 	defer close(lines)
 	reader := bufio.NewReader(logReader)
 	for {
-		line, _, err := reader.ReadLine()
-		if err != nil {
-			if err != io.EOF && ctx.Err() == nil {
-				log.Printf("reading docker logs failed: %v", err)
-			}
+		line, err := reader.ReadBytes('\n')
+		if err != nil && err != io.EOF {
+			result <- err
 			return
 		}
-		// bufio reuses its buffer across reads, so the consumer gets its own
-		// copy of the data.
-		lineCopy := append([]byte(nil), line...)
-		select {
-		case lines <- lineCopy:
-		case <-ctx.Done():
+		line = bytes.TrimSuffix(bytes.TrimSuffix(line, []byte{'\n'}), []byte{'\r'})
+		if len(line) > 0 {
+			select {
+			case lines <- line:
+			case <-ctx.Done():
+				result <- ctx.Err()
+				return
+			}
+		}
+		if err == io.EOF {
+			result <- nil
 			return
 		}
 	}
@@ -314,30 +300,28 @@ func readLogLines(ctx context.Context, logReader io.Reader, lines chan<- []byte)
 // instead of dropping the connection, and a client that stops consuming
 // altogether is dropped by the write deadline in writeLogPipeToClient.
 func streamLogs(ctx context.Context, conn *websocket.Conn, logReader io.Reader) {
-	conn.SetReadLimit(1024 * 1024)
-	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
-	conn.SetPongHandler(func(string) error {
-		return conn.SetReadDeadline(time.Now().Add(pongWait))
-	})
-
 	lines := make(chan []byte, logChannelSize)
-	go readLogLines(ctx, logReader, lines)
-	writeLogPipeToClient(conn, lines)
+	result := make(chan error, 1)
+	go readLogLines(ctx, logReader, lines, result)
+	writeLogPipeToClient(conn, lines, result)
 }
 
 // sendLogTail answers a one-shot request: it collects the available log lines,
-// sends the last `tail` of them and closes the connection normally. Docker
-// keeps the response open for some non-follow requests, so collection ends on
-// an idle timeout rather than on EOF alone.
+// sends the last `tail` of them and closes normally only after a complete
+// snapshot. The request deadline bounds a daemon that does not finish.
 func sendLogTail(ctx context.Context, conn *websocket.Conn, logReader io.Reader, tail int) {
-	lines := collectLogLines(ctx, logReader, tailCollectIdle)
+	lines, err := readServiceLogSnapshot(ctx, io.NopCloser(logReader), true)
+	if err != nil {
+		closeWithError(conn, "Docker logs error: "+err.Error())
+		return
+	}
 
 	start := 0
-	if len(lines) > tail {
+	if tail >= 0 && len(lines) > tail {
 		start = len(lines) - tail
 	}
 	for _, line := range lines[start:] {
-		if err := sendTextMessage(conn, line); err != nil {
+		if err := sendTextMessage(conn, []byte(line)); err != nil {
 			log.Printf("Websocket write failed: %v", err)
 			return
 		}
@@ -346,49 +330,10 @@ func sendLogTail(ctx context.Context, conn *websocket.Conn, logReader io.Reader,
 		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 }
 
-// collectLogLines gathers log lines until the stream ends, the context is
-// cancelled or no new line arrived for `idle`.
-func collectLogLines(ctx context.Context, logReader io.Reader, idle time.Duration) [][]byte {
-	raw := make(chan []byte, logChannelSize)
-	go readLogLines(ctx, logReader, raw)
-
-	var lines [][]byte
-	// The timer only limits the gap *between* lines: it starts once the first
-	// line has arrived, so a slow first response does not truncate the output.
-	timer := time.NewTimer(idle)
-	if !timer.Stop() {
-		<-timer.C
-	}
-	defer timer.Stop()
-
-	for {
-		select {
-		case line, ok := <-raw:
-			if !ok {
-				return lines
-			}
-			if payload := stripFramePrefix(line); len(payload) > 0 {
-				lines = append(lines, payload)
-			}
-			if !timer.Stop() {
-				select {
-				case <-timer.C:
-				default:
-				}
-			}
-			timer.Reset(idle)
-		case <-timer.C:
-			return lines
-		case <-ctx.Done():
-			return lines
-		}
-	}
-}
-
 // writeLogPipeToClient serializes writes to the websocket connection.
 // It sends regular ping messages to keep the connection alive and sets
 // write deadlines to avoid blocking forever on slow clients.
-func writeLogPipeToClient(websocketConn *websocket.Conn, channel chan []byte) {
+func writeLogPipeToClient(websocketConn *websocket.Conn, channel chan []byte, result <-chan error) {
 	const writeWait = 10 * time.Second
 	// ticker interval chosen slightly less than the read deadline to
 	// ensure the peer's pong keeps the connection alive. Exported as a
@@ -408,16 +353,18 @@ func writeLogPipeToClient(websocketConn *websocket.Conn, channel chan []byte) {
 			}
 		case c, ok := <-channel:
 			if !ok {
+				if result != nil {
+					if err := <-result; err != nil {
+						closeWithError(websocketConn, "Docker logs error: "+err.Error())
+						return
+					}
+				}
 				// Channel closed - send normal close and exit.
 				_ = websocketConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				return
 			}
 
-			// Docker prepends an 8-byte multiplex header to each frame
-			// when reading aggregated logs. A single channel value may
-			// contain multiple such frames concatenated. Parse these
-			// frames when present and send each non-empty log line as
-			// its own websocket TextMessage.
+			// The reader has already decoded Docker frames.
 			if err := processPayload(websocketConn, c); err != nil {
 				log.Printf("Websocket write failed: %v", err)
 				_ = websocketConn.Close()

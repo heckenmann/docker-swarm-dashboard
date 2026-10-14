@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	"github.com/gorilla/mux"
@@ -134,13 +132,17 @@ type nodeMetricsResponse struct {
 // getNodeExporterEndpoint resolves the node-exporter endpoint for a specific node.
 // It prefers the task's overlay network address so the dashboard can query the exact
 // node instance instead of hitting the service VIP.
-func getNodeExporterEndpoint(cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	return resolveServiceEndpoint(cli, service, nodeID, 9100)
+func getNodeExporterEndpoint(ctx context.Context, cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
+	return resolveServiceEndpoint(ctx, cli, service, nodeID, 9100)
 }
 
 // fetchMetricsFromNodeExporter fetches metrics from the node-exporter endpoint
-func fetchMetricsFromNodeExporter(url string) (string, error) {
-	resp, err := metricsHttpClient.Get(url)
+func fetchMetricsFromNodeExporter(ctx context.Context, url string) (string, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := metricsHttpClient.Do(request)
 	if err != nil {
 		return "", err
 	}
@@ -646,102 +648,20 @@ func getMetricValue(metric *dto.Metric) float64 {
 	return 0
 }
 
-// nodeMetricsHandler handles requests for node metrics from node-exporter
+// nodeMetricsHandler handles requests for node metrics from node-exporter.
 func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	nodeID := params["id"]
-
+	nodeID := mux.Vars(r)["id"]
 	if nodeID == "" {
 		http.Error(w, "Node ID is required", http.StatusBadRequest)
 		return
 	}
-
-	cli, err := getCli()
-	if err != nil {
-		errMsg := "Error getting Docker client: " + err.Error()
-		response := nodeMetricsResponse{
-			Available: false,
-			Error:     &errMsg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	// Find the node-exporter service
-	service, err := findNodeExporterService(cli)
-	if err != nil {
-		errMsg := "Error finding node-exporter service: " + err.Error()
-		response := nodeMetricsResponse{
-			Available: false,
-			Error:     &errMsg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	if service == nil {
-		// Node-exporter service not found
-		msg := fmt.Sprintf("Node-exporter service not found. Deploy a global service with label '%s' to enable metrics.", nodeExporterLabel)
-		response := nodeMetricsResponse{
-			Available: false,
-			Message:   &msg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	// Get the endpoint URL (resolve task IP for the requested node)
-	endpoint, err := getNodeExporterEndpoint(cli, service, nodeID)
-	if err != nil {
-		errMsg := "Error constructing node-exporter endpoint: " + err.Error()
-		response := nodeMetricsResponse{
-			Available: false,
-			Error:     &errMsg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	// Fetch metrics from node-exporter
-	metricsText, err := fetchMetricsFromNodeExporter(endpoint)
-	if err != nil {
-		errMsg := "Error fetching metrics from node-exporter: " + err.Error()
-		response := nodeMetricsResponse{
-			Available: true, // Service is available but request failed
-			Error:     &errMsg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	// Parse metrics
-	parsedMetrics, err := parsePrometheusMetrics(metricsText)
-	if err != nil {
-		errMsg := "Error parsing metrics: " + err.Error()
-		response := nodeMetricsResponse{
-			Available: true,
-			Error:     &errMsg,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	// Success
-	response := nodeMetricsResponse{
-		Available: true,
-		Metrics:   parsedMetrics,
-	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(queryNodeMetrics(r.Context(), nodeID)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
-// clusterMetricsResponse represents the response structure for cluster metrics endpoint
+// clusterMetricsResponse represents the response structure for cluster metrics endpoint.
 type clusterMetricsResponse struct {
 	Available      bool    `json:"available"`
 	TotalCPU       int     `json:"totalCpu"`
@@ -757,167 +677,11 @@ type clusterMetricsResponse struct {
 	Error          *string `json:"error,omitempty"`
 }
 
-// clusterMetricsHandler handles requests for aggregated cluster metrics
+// clusterMetricsHandler handles requests for aggregated cluster metrics.
 func clusterMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	cli, err := getCli()
-	if err != nil {
-		errMsg := "Error getting Docker client: " + err.Error()
-		w.Header().Set("Content-Type", "application/json")
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
-			log.Printf("Failed to encode error response: %v", encodeErr)
-		}
-		return
-	}
 	w.Header().Set("Content-Type", "application/json")
-
-	// 1. Get all nodes to count them
-	nodes, err := cli.NodeList(context.Background(), swarm.NodeListOptions{})
-	if err != nil {
-		errMsg := "Error listing nodes: " + err.Error()
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
-			log.Printf("Failed to encode error response: %v", encodeErr)
-		}
-		return
-	}
-
-	// 2. Find node-exporter service
-	service, err := findNodeExporterService(cli)
-	if err != nil {
-		errMsg := "Error finding node-exporter service: " + err.Error()
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
-			log.Printf("Failed to encode error response: %v", encodeErr)
-		}
-		return
-	}
-	if service == nil {
-		msg := fmt.Sprintf("Node-exporter service not found. Deploy a global service with label '%s' to enable cluster metrics.", nodeExporterLabel)
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg}); encodeErr != nil {
-			log.Printf("Failed to encode message response: %v", encodeErr)
-		}
-		return
-	}
-
-	// 3. Get all running tasks for node-exporter
-	f := filters.NewArgs()
-	f.Add("service", service.ID)
-	f.Add("desired-state", string(swarm.TaskStateRunning))
-	tasks, err := cli.TaskList(context.Background(), swarm.TaskListOptions{Filters: f})
-	if err != nil {
-		errMsg := "Error listing tasks: " + err.Error()
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Error: &errMsg}); encodeErr != nil {
-			log.Printf("Failed to encode error response: %v", encodeErr)
-		}
-		return
-	}
-
-	if len(tasks) == 0 {
-		msg := "Node-exporter service found, but no running tasks were detected. Ensure it's deployed as a global service."
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{Available: false, Message: &msg}); encodeErr != nil {
-			log.Printf("Failed to encode message response: %v", encodeErr)
-		}
-		return
-	}
-
-	// 4. Fetch metrics from all tasks in parallel
-	type nodeResult struct {
-		metrics *ParsedMetrics
-		err     error
-	}
-	resultsChan := make(chan nodeResult, len(tasks))
-	startedGoroutines := 0
-
-	for _, task := range tasks {
-		if task.Status.State != swarm.TaskStateRunning {
-			continue
-		}
-		startedGoroutines++
-		go func(t swarm.Task) {
-			endpoint, err := getNodeExporterEndpoint(cli, service, t.NodeID)
-			if err != nil {
-				resultsChan <- nodeResult{err: err}
-				return
-			}
-			metricsText, err := fetchMetricsFromNodeExporter(endpoint)
-			if err != nil {
-				resultsChan <- nodeResult{err: err}
-				return
-			}
-			parsed, err := parsePrometheusMetrics(metricsText)
-			resultsChan <- nodeResult{metrics: parsed, err: err}
-		}(task)
-	}
-
-	// 5. Aggregate results
-	var totalCPU int
-	var totalMemory, availableMemory float64
-	var totalDisk, availDisk float64
-	nodesWithMetrics := 0
-
-	for i := 0; i < startedGoroutines; i++ {
-		res := <-resultsChan
-		if res.err == nil && res.metrics != nil {
-			nodesWithMetrics++
-			totalCPU += res.metrics.System.NumCPUs
-			totalMemory += res.metrics.Memory.Total
-			availableMemory += res.metrics.Memory.Available
-
-			// For disk, we sum up "/" if available, otherwise first filesystem
-			foundRoot := false
-			for _, fs := range res.metrics.Filesystem {
-				if fs.Mountpoint == "/" {
-					totalDisk += fs.Size
-					availDisk += fs.Available
-					foundRoot = true
-					break
-				}
-			}
-			if !foundRoot && len(res.metrics.Filesystem) > 0 {
-				totalDisk += res.metrics.Filesystem[0].Size
-				availDisk += res.metrics.Filesystem[0].Available
-			}
-		}
-	}
-
-	if nodesWithMetrics == 0 && startedGoroutines > 0 {
-		errMsg := "Failed to fetch metrics from node exporter instances. Check network connectivity."
-		if encodeErr := json.NewEncoder(w).Encode(clusterMetricsResponse{
-			Available: true,
-			Error:     &errMsg,
-			NodeCount: len(nodes),
-		}); encodeErr != nil {
-			log.Printf("Failed to encode error response: %v", encodeErr)
-		}
-		return
-	}
-
-	usedMemory := totalMemory - availableMemory
-	memPercent := 0.0
-	if totalMemory > 0 {
-		memPercent = (usedMemory / totalMemory) * 100
-	}
-
-	usedDisk := totalDisk - availDisk
-	diskPercent := 0.0
-	if totalDisk > 0 {
-		diskPercent = (usedDisk / totalDisk) * 100
-	}
-
-	response := clusterMetricsResponse{
-		Available:      true,
-		TotalCPU:       totalCPU,
-		TotalMemory:    totalMemory,
-		UsedMemory:     usedMemory,
-		MemoryPercent:  memPercent,
-		TotalDisk:      totalDisk,
-		UsedDisk:       usedDisk,
-		DiskPercent:    diskPercent,
-		NodeCount:      len(nodes),
-		NodesAvailable: nodesWithMetrics,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Printf("Failed to encode response: %v", err)
+	if err := json.NewEncoder(w).Encode(queryClusterMetrics(r.Context())); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 

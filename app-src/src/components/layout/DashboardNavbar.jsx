@@ -36,6 +36,7 @@ import {
   aboutId,
   dashboardHId,
   logsId,
+  mcpId,
   nodesId,
   portsId,
   settingsId,
@@ -246,6 +247,19 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
                   {readingLogsWarning}
                 </Nav.Link>,
               )}
+            {dashboardSettings.mcpEnabled === true &&
+              navTip(
+                'tt-mcp',
+                'MCP',
+                <Nav.Link
+                  aria-label="MCP"
+                  onClick={() => navigate(mcpId)}
+                  active={view?.id === mcpId}
+                >
+                  <FontAwesomeIcon icon="plug" />
+                  {showNavLabels && ' MCP'}
+                </Nav.Link>,
+              )}
           </Nav>
         </Navbar.Collapse>
         <Navbar.Collapse
@@ -284,6 +298,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
               overlay={<Tooltip id="tt-refresh">Refresh</Tooltip>}
             >
               <Button
+                aria-label="Refresh"
                 variant={!refreshInterval ? 'outline-secondary' : 'warning'}
                 onClick={refreshAndNotifyUser}
               >

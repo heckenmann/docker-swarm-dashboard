@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -193,7 +194,7 @@ func TestFindNodeExporterService(t *testing.T) {
 
 	// Find the service
 	cli, _ := getCli()
-	found, err := findNodeExporterService(cli)
+	found, err := findNodeExporterService(context.Background(), cli)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -236,7 +237,7 @@ func TestFindNodeExporterService_NotFound(t *testing.T) {
 
 	// Try to find the service
 	cli, _ := getCli()
-	found, err := findNodeExporterService(cli)
+	found, err := findNodeExporterService(context.Background(), cli)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -299,7 +300,7 @@ func TestGetNodeExporterEndpoint(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	cli, _ := getCli()
-	endpoint, err := getNodeExporterEndpoint(cli, service, "node123")
+	endpoint, err := getNodeExporterEndpoint(context.Background(), cli, service, "node123")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -357,7 +358,7 @@ func TestGetNodeExporterEndpoint_DefaultPort(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	cli, _ := getCli()
-	endpoint, err := getNodeExporterEndpoint(cli, service, "node123")
+	endpoint, err := getNodeExporterEndpoint(context.Background(), cli, service, "node123")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -469,7 +470,7 @@ func TestFetchMetricsFromNodeExporter(t *testing.T) {
 	}))
 	defer mockServer.Close()
 
-	metrics, err := fetchMetricsFromNodeExporter(mockServer.URL + "/metrics")
+	metrics, err := fetchMetricsFromNodeExporter(context.Background(), mockServer.URL+"/metrics")
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -480,7 +481,7 @@ func TestFetchMetricsFromNodeExporter(t *testing.T) {
 }
 
 func TestFetchMetricsFromNodeExporter_Error(t *testing.T) {
-	_, err := fetchMetricsFromNodeExporter("http://localhost:99999/metrics")
+	_, err := fetchMetricsFromNodeExporter(context.Background(), "http://localhost:99999/metrics")
 	if err == nil {
 		t.Error("Expected error when connecting to invalid endpoint")
 	}
@@ -1272,7 +1273,7 @@ func TestGetNodeExporterEndpoint_NilService(t *testing.T) {
 	SetCli(c)
 
 	cli, _ := getCli()
-	_, err := getNodeExporterEndpoint(cli, nil, "node1")
+	_, err := getNodeExporterEndpoint(context.Background(), cli, nil, "node1")
 	if err == nil {
 		t.Error("expected error for nil service")
 	}
@@ -1316,7 +1317,7 @@ func TestGetNodeExporterEndpoint_PublishedPortFallback(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	cli, _ := getCli()
-	endpoint, err := getNodeExporterEndpoint(cli, service, "node-pub")
+	endpoint, err := getNodeExporterEndpoint(context.Background(), cli, service, "node-pub")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1340,7 +1341,7 @@ func TestGetNodeExporterEndpoint_EmptyIDWithName(t *testing.T) {
 	SetCli(c)
 
 	cli, _ := getCli()
-	endpoint, err := getNodeExporterEndpoint(cli, service, "node-1")
+	endpoint, err := getNodeExporterEndpoint(context.Background(), cli, service, "node-1")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1373,7 +1374,7 @@ func TestGetNodeExporterEndpoint_TaskListErrorNoName(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	cli, _ := getCli()
-	_, err := getNodeExporterEndpoint(cli, service, "node-1")
+	_, err := getNodeExporterEndpoint(context.Background(), cli, service, "node-1")
 	if err == nil {
 		t.Error("expected error when task list fails and service has no name")
 	}
@@ -1415,7 +1416,7 @@ func TestGetNodeExporterEndpoint_NonRunningTasksDNSFallback(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	cli, _ := getCli()
-	endpoint, err := getNodeExporterEndpoint(cli, service, "node-2")
+	endpoint, err := getNodeExporterEndpoint(context.Background(), cli, service, "node-2")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1457,7 +1458,7 @@ func TestGetNodeExporterEndpoint_NoAddressNoName(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 
 	cli, _ := getCli()
-	_, err := getNodeExporterEndpoint(cli, service, "node-3")
+	_, err := getNodeExporterEndpoint(context.Background(), cli, service, "node-3")
 	if err == nil {
 		t.Error("expected error when no address is found and no service name")
 	}
@@ -1471,7 +1472,7 @@ func TestFetchMetricsFromNodeExporter_NonOKStatus(t *testing.T) {
 	}))
 	defer mockServer.Close()
 
-	_, err := fetchMetricsFromNodeExporter(mockServer.URL + "/metrics")
+	_, err := fetchMetricsFromNodeExporter(context.Background(), mockServer.URL+"/metrics")
 	if err == nil {
 		t.Error("expected error for non-200 status from node-exporter")
 	}
@@ -1498,7 +1499,7 @@ func TestFetchMetricsFromNodeExporter_BodyReadError(t *testing.T) {
 		_ = conn.Close()
 	}()
 
-	_, err = fetchMetricsFromNodeExporter("http://" + addr + "/metrics")
+	_, err = fetchMetricsFromNodeExporter(context.Background(), "http://"+addr+"/metrics")
 	if err == nil {
 		t.Error("expected error when server closes connection before completing body")
 	}

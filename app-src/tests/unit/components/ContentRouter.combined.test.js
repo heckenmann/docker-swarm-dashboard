@@ -43,6 +43,7 @@ jest.mock('../../../src/components/settings/SettingsComponent', () => () => <div
 jest.mock('../../../src/components/logs/LogsComponent.jsx', () => () => <div data-testid="logs" />)
 jest.mock('../../../src/components/misc/DebugComponent', () => () => <div data-testid="debug" />)
 jest.mock('../../../src/components/misc/VersionUpdateComponent.jsx', () => () => <div data-testid="version-update" />)
+jest.mock('../../../src/components/misc/McpComponent.jsx', () => () => <div data-testid="mcp" />)
 
 const ContentRouter = require('../../../src/components/layout/ContentRouter').default
 
@@ -139,4 +140,17 @@ describe('ContentRouter', () => {
 
     expect(() => render(<ContentRouter />)).toThrow('layout failed')
   })
+  test('routes to MCP view', () => {
+    mockUseAtomValue.mockImplementation((atom) => {
+      if (atom === 'viewAtom') return { id: 'mcp' }
+      if (atom === 'dashboardSettingsDefaultLayoutViewIdAtom') {
+        return 'dashboardH'
+      }
+      return null
+    })
+
+    render(<ContentRouter />)
+    expect(screen.getByTestId('mcp')).toBeInTheDocument()
+  })
+
 })

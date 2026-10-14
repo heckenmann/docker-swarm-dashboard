@@ -11,6 +11,8 @@ import (
 
 type dashboardSettings struct {
 	ShowLogsButton                   bool          `json:"showLogsButton"`
+	MCPEnabled                       bool          `json:"mcpEnabled"`
+	PathPrefix                       string        `json:"pathPrefix"`
 	DefaultLayout                    string        `json:"defaultLayout"`
 	HiddenServiceStates              []string      `json:"hiddenServiceStates"`
 	TimeZone                         *string       `json:"timeZone"`
@@ -45,6 +47,7 @@ type dashboardSettings struct {
 
 var (
 	handlingLogs                     = true
+	mcpEnabled                       = true
 	dashboardLayout                  = "row"
 	hiddenServiceStates              = make([]string, 0)
 	timeZone                         = new(string)
@@ -86,6 +89,13 @@ func init() {
 func loadDashboardSettingsFromEnv() {
 	if handleLogsEnvValue, handleLogsSet := os.LookupEnv("DSD_HANDLE_LOGS"); handleLogsSet {
 		handlingLogs, _ = strconv.ParseBool(handleLogsEnvValue)
+	}
+
+	mcpEnabled = true
+	if mcpEnabledEnvValue, mcpEnabledSet := os.LookupEnv("DSD_MCP_ENABLED"); mcpEnabledSet {
+		if parsed, err := strconv.ParseBool(mcpEnabledEnvValue); err == nil {
+			mcpEnabled = parsed
+		}
 	}
 
 	if dashboardLayoutEnvValue, dashboardLayoutSet := os.LookupEnv("DSD_DASHBOARD_LAYOUT"); dashboardLayoutSet {
@@ -222,9 +232,11 @@ func loadDashboardSettingsFromEnv() {
 	}
 }
 
-func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
-	jsonString, _ := json.Marshal(dashboardSettings{
+func currentDashboardSettings() dashboardSettings {
+	return dashboardSettings{
 		ShowLogsButton:                   handlingLogs,
+		MCPEnabled:                       mcpEnabled,
+		PathPrefix:                       pathPrefix,
 		DefaultLayout:                    dashboardLayout,
 		HiddenServiceStates:              hiddenServiceStates,
 		TimeZone:                         timeZone,
@@ -253,7 +265,17 @@ func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
 		ShowNavLabels:                    showNavLabels,
 		MaxContentWidth:                  maxContentWidth,
 		RefreshInterval:                  refreshInterval,
-	})
+	}
+}
+
+func dashboardSettingsHandler(w http.ResponseWriter, _ *http.Request) {
+	jsonString, err := json.Marshal(currentDashboardSettings())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(jsonString)
+	if _, err := w.Write(jsonString); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -34,7 +35,7 @@ func TestFindNodeExporterService_Advanced(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 	cli, _ := getCli()
 
-	svc, err := findNodeExporterService(cli)
+	svc, err := findNodeExporterService(context.Background(), cli)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -68,7 +69,7 @@ func TestFindCAdvisorService_Advanced(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 	cli, _ := getCli()
 
-	svc, err := findCAdvisorService(cli)
+	svc, err := findCAdvisorService(context.Background(), cli)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -91,7 +92,7 @@ func TestFindNodeExporterService_Error(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 	cli, _ := getCli()
 
-	svc, err := findNodeExporterService(cli)
+	svc, err := findNodeExporterService(context.Background(), cli)
 	if err == nil {
 		t.Error("expected error when ServiceList fails")
 	}
@@ -114,7 +115,7 @@ func TestFindCAdvisorService_Error(t *testing.T) {
 	SetCli(makeClientForServer(t, server.URL))
 	cli, _ := getCli()
 
-	svc, err := findCAdvisorService(cli)
+	svc, err := findCAdvisorService(context.Background(), cli)
 	if err == nil {
 		t.Error("expected error when ServiceList fails")
 	}
@@ -144,7 +145,7 @@ func TestResolveServiceEndpoint_NoTasksFallback(t *testing.T) {
 		},
 	}
 
-	endpoint, err := resolveServiceEndpoint(cli, service, "node1", 8080)
+	endpoint, err := resolveServiceEndpoint(context.Background(), cli, service, "node1", 8080)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -154,7 +155,7 @@ func TestResolveServiceEndpoint_NoTasksFallback(t *testing.T) {
 }
 
 func TestResolveServiceEndpoint_NilService(t *testing.T) {
-	_, err := resolveServiceEndpoint(nil, nil, "node1", 8080)
+	_, err := resolveServiceEndpoint(context.Background(), nil, nil, "node1", 8080)
 	if err == nil {
 		t.Error("expected error for nil service")
 	}
