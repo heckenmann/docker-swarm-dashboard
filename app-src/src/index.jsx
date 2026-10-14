@@ -2,6 +2,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createStore, Provider } from 'jotai'
 import './index.css'
+// ApexCharts 8 makes dumbbell rendering an opt-in feature. The timeline uses it.
+import 'apexcharts/features/dumbbell'
 import App from './App.jsx'
 import { networkRequestsAtom } from './common/store/atoms/uiAtoms'
 
