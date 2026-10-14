@@ -99,9 +99,6 @@ const TimelineComponent = React.memo(function TimelineComponent({
    * This includes settings for the chart type, theme, plot options, colors, stroke, fill, x-axis, legend, and tooltip.
    */
   const options = {
-    area: {
-      fillTo: 'end',
-    },
     theme: {
       mode: isDark ? 'dark' : 'light',
       monochrome: {
