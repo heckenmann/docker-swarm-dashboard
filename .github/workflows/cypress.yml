@@ -105,6 +105,13 @@ jobs:
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile
 
+      # node_modules and the Cypress application binary are cached separately.
+      # Restore-key cache hits can omit the binary for the installed Cypress version.
+      - name: Ensure Cypress binary is installed and verified
+        run: |
+          yarn cypress install
+          yarn cypress verify
+
       - name: Download assets
         run: node download-files.js
 
