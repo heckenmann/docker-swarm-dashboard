@@ -83,6 +83,16 @@ describe('TimelineComponent', () => {
     expect(screen.getByTestId('apex-chart')).toBeInTheDocument()
   })
 
+  test('uses supported rangeBar options without obsolete top-level area', () => {
+    setupMocks()
+    render(<TimelineComponent />)
+    expect(lastChartProps.options).not.toHaveProperty('area')
+    expect(lastChartProps.options).toMatchObject({
+      chart: { type: 'rangeBar' },
+      fill: { type: 'gradient' },
+    })
+  })
+
   test('renders message when no data', () => {
     setupMocks({ timelineAtom: [] })
     render(<TimelineComponent />)
