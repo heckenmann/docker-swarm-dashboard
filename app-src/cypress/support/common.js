@@ -30,7 +30,8 @@ export function assertNoConsoleErrors() {
     expect(win.__consoleErrors, 'console.error')
       .to.be.an('array')
       .and.have.length(0)
-    expect(win.__consoleWarns, 'console.warn')
+    const warnings = win.__consoleWarns || []
+    expect(warnings, `console.warn: ${JSON.stringify(warnings)}`)
       .to.be.an('array')
       .and.have.length(0)
   })
