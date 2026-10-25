@@ -180,6 +180,22 @@ returns all available history, `tail=0` returns no historical lines, and a
 positive number selects the last N lines. Invalid values fall back to 20,
 consistently for the Docker request and the returned snapshot.
 
+For finite snapshots, Docker Swarm returns at most the requested number of
+lines from each task's log history. The dashboard orders these candidates by
+Docker timestamps and then applies the requested tail across the service. This
+keeps normal tail requests bounded to the requested count per task instead of
+reading each task's full history. The returned lines are oldest-to-newest, and
+valid timestamps are fetched internally even when their display is disabled.
+Lines with missing or malformed timestamps are retained in their original
+order before timestamped lines. Equal timestamps retain Docker's arrival order.
+This ordering uses timestamps supplied by each node, so clock skew can affect
+the apparent chronology. An explicit `tail=all` still reads all available
+history.
+
+Follow mode keeps Docker's arrival order and does not wait for delayed task
+logs. Its reader uses a bounded queue, avoiding unbounded buffering at the
+cost of not reordering late entries in a live stream.
+
 ### Pull Image from ghcr.io
 ```
 docker pull ghcr.io/heckenmann/docker-swarm-dashboard:master
