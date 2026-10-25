@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
+	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -54,6 +57,71 @@ func readServiceLogSnapshot(ctx context.Context, reader io.ReadCloser, tty bool)
 		}
 	}
 	return lines, nil
+}
+
+// orderServiceLogSnapshot orders complete lines by their Docker timestamp,
+// applies the requested tail, and optionally removes valid timestamp prefixes.
+// Docker timestamps each log line independently, so multiline messages remain
+// separate lines. Lines without a valid RFC3339 timestamp are retained in
+// arrival order before timestamped lines; malformed prefixes are never stripped.
+func orderServiceLogSnapshot(lines []string, tail int, displayTimestamps bool) []string {
+	type entry struct {
+		line      string
+		timestamp time.Time
+		valid     bool
+		position  int
+	}
+
+	entries := make([]entry, 0, len(lines))
+	for position, line := range lines {
+		item := entry{line: line, position: position}
+		if timestamp, remainder, ok := parseDockerLogTimestamp(line); ok {
+			item.timestamp = timestamp
+			item.valid = true
+			if !displayTimestamps {
+				item.line = remainder
+			}
+		}
+		entries = append(entries, item)
+	}
+
+	sort.SliceStable(entries, func(i, j int) bool {
+		left, right := entries[i], entries[j]
+		if left.valid != right.valid {
+			return !left.valid
+		}
+		if !left.valid {
+			return left.position < right.position
+		}
+		return left.timestamp.Before(right.timestamp)
+	})
+
+	start := 0
+	if tail >= 0 {
+		if tail == 0 {
+			return []string{}
+		}
+		if len(entries) > tail {
+			start = len(entries) - tail
+		}
+	}
+	ordered := make([]string, 0, len(entries)-start)
+	for _, item := range entries[start:] {
+		ordered = append(ordered, item.line)
+	}
+	return ordered
+}
+
+func parseDockerLogTimestamp(line string) (time.Time, string, bool) {
+	value, remainder, found := strings.Cut(line, " ")
+	if !found {
+		return time.Time{}, line, false
+	}
+	timestamp, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return time.Time{}, line, false
+	}
+	return timestamp, remainder, true
 }
 
 // copyServiceLogFrames requires complete Docker headers and payloads. StdCopy

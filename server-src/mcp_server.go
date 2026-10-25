@@ -284,10 +284,12 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 	defer cancel()
 
 	reader, err := openServiceLogStream(logCtx, cli, service.ID, container.LogsOptions{
+		// Swarm applies the requested tail to each task's log reader. This
+		// bounds the candidate set before the global chronological merge.
 		Tail:       tail,
 		Since:      normalizeSince(input.Since),
 		Follow:     false,
-		Timestamps: timestamps,
+		Timestamps: true,
 		ShowStdout: stdout,
 		ShowStderr: stderr,
 		Details:    details,
@@ -305,6 +307,8 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 	if err != nil {
 		return nil, err
 	}
+	count := tailCount(tail)
+	lines = orderServiceLogSnapshot(lines, count, timestamps)
 
 	return map[string]any{
 		"serviceId":   service.ID,
