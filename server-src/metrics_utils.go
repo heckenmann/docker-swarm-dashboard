@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
@@ -19,7 +18,7 @@ var (
 
 	// Shared HTTP client with timeout for metrics fetching
 	metricsHttpClient = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: metricsTimeout(),
 	}
 
 	// For testing

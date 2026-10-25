@@ -69,6 +69,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `DSD_MASK_ENV` | Masks the secrets of the container specs served by the services, tasks and nodes endpoints: environment variable values, labels, credential specs, and the secrets carried by the command line and by the health check. Variable names, flags and the values of the flags that do not look like secret holders stay visible, so `--log-level=debug` remains readable; a secret is replaced by a fixed-length placeholder. Set to `false` to expose the raw values. | `true` |
 | `DSD_NODE_EXPORTER_LABEL` | Docker service label to identify node-exporter service for metrics collection. | `dsd.node-exporter` |
 | `DSD_CADVISOR_LABEL` | Docker service label to identify cAdvisor service for container memory metrics. | `dsd.cadvisor` |
+| `DSD_METRICS_TIMEOUT` | Exporter HTTP request timeout: positive seconds or a Go duration such as `500ms` or `10s`. Invalid values fall back to the default. | `5s` |
 | `DSD_NODE_EXPORTER_PATH` / `DSD_CADVISOR_PATH` | Exporter metrics path, including an optional query string. | `/metrics` |
 | `DSD_NODE_EXPORTER_PORT` / `DSD_CADVISOR_PORT` | Explicit internal exporter port (1–65535), overriding service port discovery. | Auto-detected; fallback `9100` / `8080` |
 | `DSD_NODE_EXPORTER_SCHEME` / `DSD_CADVISOR_SCHEME` | Exporter URL scheme: `http` or `https`. | `http` |
