@@ -111,6 +111,11 @@ container_spec_memory_limit_bytes{id="/docker/container1",name="web.1.task1",con
 		case "/v1.35/services/service1/logs":
 			logOptions <- r.URL.Query()
 			payload := "first line\nsecond line\n" + strings.Repeat("x", 5000) + "\n"
+			if r.URL.Query().Get("timestamps") == "1" {
+				payload = "2026-10-25T13:07:00.000000002Z second line\n" +
+					"2026-10-25T13:06:00Z first line\n" +
+					"2026-10-25T13:08:00Z " + strings.Repeat("x", 5000) + "\n"
+			}
 			header := make([]byte, 8)
 			header[0] = 1
 			binary.BigEndian.PutUint32(header[4:], uint32(len(payload)))
@@ -202,7 +207,9 @@ func TestMCPTools_RepresentativeDataAndDiscovery(t *testing.T) {
 			}
 			if test.name == "get_service_logs" {
 				lines := output["lines"].([]any)
-				if len(lines) != 3 || lines[1] != "second line" || len(lines[2].(string)) != 5000 {
+				if len(lines) != 3 || lines[0] != "2026-10-25T13:06:00Z first line" ||
+					lines[1] != "2026-10-25T13:07:00.000000002Z second line" ||
+					len(strings.TrimPrefix(lines[2].(string), "2026-10-25T13:08:00Z ")) != 5000 {
 					t.Fatalf("corrupted Docker log snapshot: %v", lines)
 				}
 				options := <-logOptions
@@ -311,9 +318,14 @@ func TestMCPTools_MaskingParity(t *testing.T) {
 
 func TestMCPServiceLogs_DefaultsAndNumericTail(t *testing.T) {
 	session, options := mcpFixture(t)
-	previous := logsFormTail
+	previousTail := logsFormTail
+	previousTimestamps := logsFormTimestamps
 	logsFormTail = ""
-	t.Cleanup(func() { logsFormTail = previous })
+	logsFormTimestamps = false
+	t.Cleanup(func() {
+		logsFormTail = previousTail
+		logsFormTimestamps = previousTimestamps
+	})
 	for _, tail := range []string{"", "0", "5"} {
 		args := map[string]any{"service": "service1"}
 		if tail != "" {
@@ -324,8 +336,21 @@ func TestMCPServiceLogs_DefaultsAndNumericTail(t *testing.T) {
 		if expected == "" {
 			expected = "20"
 		}
-		if output["tail"] != expected || (<-options).Get("tail") != expected {
-			t.Fatalf("tail %q was not passed to Docker", tail)
+		if output["tail"] != expected {
+			t.Fatalf("returned tail is %q, want %q", output["tail"], expected)
+		}
+		if dockerTail := (<-options).Get("tail"); dockerTail != expected {
+			t.Fatalf("Docker tail=%q, want %q to bound per-task history", dockerTail, expected)
+		}
+		if tail == "5" {
+			lines := output["lines"].([]any)
+			if len(lines) != 3 || lines[0] != "first line" || lines[1] != "second line" ||
+				len(lines[2].(string)) != 5000 {
+				t.Fatalf("timestamps should be hidden while preserving sorted lines, got %v", lines)
+			}
+		}
+		if tail == "0" && len(output["lines"].([]any)) != 0 {
+			t.Fatalf("tail zero returned lines: %v", output["lines"])
 		}
 	}
 }
