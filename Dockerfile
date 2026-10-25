@@ -41,5 +41,5 @@ COPY --from=go /tmp/server-src/docker-swarm-dashboard .
 COPY --from=node /opt/dsd/build ./build
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:${DSD_HTTP_PORT}${DSD_PATH_PREFIX}/health | grep -q 'OK' || exit 1
+  CMD wget -qO- "http://127.0.0.1:${DSD_HTTP_PORT}${DSD_PATH_PREFIX%/}/health" | grep -qx 'OK' || exit 1
 CMD ["./docker-swarm-dashboard"]
