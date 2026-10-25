@@ -46,8 +46,9 @@ const McpComponent = React.memo(function McpComponent() {
   const body = (
     <div className="d-grid gap-3">
       <p className="mb-0">
-        Docker Swarm Dashboard exposes its read-only cluster information to
-        MCP-capable agents through a remote Model Context Protocol server.
+        Connect AI agents such as Codex, OpenCode, or Hermes to your Docker
+        Swarm cluster through the Model Context Protocol (MCP). Access is
+        read-only.
       </p>
 
       <dl className="row mb-0">
