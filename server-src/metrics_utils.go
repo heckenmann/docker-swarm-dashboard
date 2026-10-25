@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
@@ -19,7 +18,7 @@ var (
 
 	// Shared HTTP client with timeout for metrics fetching
 	metricsHttpClient = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: metricsTimeout(),
 	}
 
 	// For testing
@@ -143,7 +142,7 @@ func resolveServiceEndpoint(ctx context.Context, cli *client.Client, service *sw
 
 	serviceID := service.ID
 	if serviceID == "" && service.Spec.Name != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
+		return metricsEndpointURL(service.Spec.Name, port), nil
 	}
 
 	f := filters.NewArgs()
@@ -158,7 +157,7 @@ func resolveServiceEndpoint(ctx context.Context, cli *client.Client, service *sw
 			return "", ctx.Err()
 		}
 		if service.Spec.Name != "" {
-			return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
+			return metricsEndpointURL(service.Spec.Name, port), nil
 		}
 		return "", fmt.Errorf("failed to list tasks: %w", err)
 	}
@@ -183,7 +182,7 @@ func resolveServiceEndpoint(ctx context.Context, cli *client.Client, service *sw
 
 				// If this network is shared with the dashboard, use it immediately
 				if dashboardNets[na.Network.ID] {
-					return fmt.Sprintf("http://%s:%d/metrics", addr, port), nil
+					return metricsEndpointURL(addr, port), nil
 				}
 
 				// Otherwise keep as fallback
@@ -195,11 +194,11 @@ func resolveServiceEndpoint(ctx context.Context, cli *client.Client, service *sw
 	}
 
 	if fallbackAddr != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", fallbackAddr, port), nil
+		return metricsEndpointURL(fallbackAddr, port), nil
 	}
 
 	if service.Spec.Name != "" {
-		return fmt.Sprintf("http://%s:%d/metrics", service.Spec.Name, port), nil
+		return metricsEndpointURL(service.Spec.Name, port), nil
 	}
 
 	return "", fmt.Errorf("no task address found for service %s on node %s", serviceID, nodeID)

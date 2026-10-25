@@ -59,13 +59,16 @@ type serviceMetricsResponse struct {
 // It prefers the task's overlay network address so the dashboard can query the cadvisor
 // instance running on the same node as the target service task.
 func getCAdvisorEndpoint(ctx context.Context, cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	return resolveServiceEndpoint(ctx, cli, service, nodeID, 8080)
+	return resolveExporterEndpoint(ctx, cli, service, nodeID, "cadvisor", 8080)
 }
 
 // fetchMetricsFromCAdvisor fetches metrics from the cadvisor endpoint
 func fetchMetricsFromCAdvisor(ctx context.Context, url string) (string, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
+		return "", err
+	}
+	if err := applyMetricsHeaders(request, "CADVISOR"); err != nil {
 		return "", err
 	}
 	resp, err := metricsHttpClient.Do(request)

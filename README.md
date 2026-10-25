@@ -69,6 +69,11 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | `DSD_MASK_ENV` | Masks the secrets of the container specs served by the services, tasks and nodes endpoints: environment variable values, labels, credential specs, and the secrets carried by the command line and by the health check. Variable names, flags and the values of the flags that do not look like secret holders stay visible, so `--log-level=debug` remains readable; a secret is replaced by a fixed-length placeholder. Set to `false` to expose the raw values. | `true` |
 | `DSD_NODE_EXPORTER_LABEL` | Docker service label to identify node-exporter service for metrics collection. | `dsd.node-exporter` |
 | `DSD_CADVISOR_LABEL` | Docker service label to identify cAdvisor service for container memory metrics. | `dsd.cadvisor` |
+| `DSD_METRICS_TIMEOUT` | Exporter HTTP request timeout: positive seconds or a Go duration such as `500ms` or `10s`. Invalid values fall back to the default. | `5s` |
+| `DSD_NODE_EXPORTER_PATH` / `DSD_CADVISOR_PATH` | Exporter metrics path, including an optional query string. | `/metrics` |
+| `DSD_NODE_EXPORTER_PORT` / `DSD_CADVISOR_PORT` | Explicit internal exporter port (1–65535), overriding service port discovery. | Auto-detected; fallback `9100` / `8080` |
+| `DSD_NODE_EXPORTER_SCHEME` / `DSD_CADVISOR_SCHEME` | Exporter URL scheme: `http` or `https`. | `http` |
+| `DSD_NODE_EXPORTER_HEADERS` / `DSD_CADVISOR_HEADERS` | JSON object of additional HTTP headers for exporter requests, including optional `Host`. | None |
 | `LOCALE` | Timestamp format based on a [BCP 47](https://www.rfc-editor.org/bcp/bcp47.txt) language tag. | (system) |
 | `TZ` | [IANA Time zone](https://www.iana.org/time-zones) to display timestamps in. | (system) |
 | `DSD_VERSION_CHECK_ENABLED` | When `true`, the system will check for updates and notify in the UI if a new version is available. | `false` |
@@ -268,6 +273,38 @@ Docker Swarm Dashboard supports optional integration with Prometheus Node Export
 | **cAdvisor** | Container-level metrics (memory usage per container) | `dsd.cadvisor` | `dsd.cadvisor=true` |
 
 Both services should be deployed as **global services** on the same overlay network as the dashboard.
+
+Exporter endpoint settings use this priority: service labels, dashboard environment
+variables, then the existing discovery defaults. Set labels under `deploy.labels`
+on the exporter service, for example:
+
+```yaml
+deploy:
+  labels:
+    dsd.node-exporter: "true"
+    dsd.node-exporter.path: "/prometheus/metrics"
+    dsd.node-exporter.port: "19100"
+    dsd.node-exporter.scheme: "https"
+```
+
+For cAdvisor, use `dsd.cadvisor.path`, `dsd.cadvisor.port`, and
+`dsd.cadvisor.scheme`. These configuration labels remain fixed even if the
+discovery label is customized. Ports refer to the exporter listener reachable
+inside the overlay network. Discovery still selects the task on the requested
+node and prefers a network shared with the dashboard.
+
+Paths must start with a single `/`; fragments and absolute URLs are rejected.
+Invalid endpoint settings make the affected metrics unavailable with a diagnostic
+error. HTTPS uses the system certificate trust store. Reverse proxies can receive
+custom headers through the dashboard environment, for example
+`DSD_NODE_EXPORTER_HEADERS='{"Host":"metrics.internal","X-Tenant":"operations"}'`.
+Malformed header JSON fails the request without logging its contents. Keep
+credentials out of service labels.
+
+`DSD_METRICS_TIMEOUT` is read when the dashboard starts and limits each exporter
+HTTP request, including its response body. Earlier request cancellation still
+takes precedence. These settings apply to node, cluster, service, and task metrics
+in both the dashboard and MCP tools.
 
 ---
 
