@@ -133,13 +133,16 @@ type nodeMetricsResponse struct {
 // It prefers the task's overlay network address so the dashboard can query the exact
 // node instance instead of hitting the service VIP.
 func getNodeExporterEndpoint(ctx context.Context, cli *client.Client, service *swarm.Service, nodeID string) (string, error) {
-	return resolveServiceEndpoint(ctx, cli, service, nodeID, 9100)
+	return resolveExporterEndpoint(ctx, cli, service, nodeID, "node-exporter", 9100)
 }
 
 // fetchMetricsFromNodeExporter fetches metrics from the node-exporter endpoint
 func fetchMetricsFromNodeExporter(ctx context.Context, url string) (string, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
+		return "", err
+	}
+	if err := applyMetricsHeaders(request, "NODE_EXPORTER"); err != nil {
 		return "", err
 	}
 	resp, err := metricsHttpClient.Do(request)
