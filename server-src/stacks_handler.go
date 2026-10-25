@@ -4,11 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"sort"
-	"strings"
 	"time"
-
-	"github.com/docker/docker/api/types/swarm"
 )
 
 type StackSimpleService struct {
@@ -19,67 +15,21 @@ type StackSimpleService struct {
 	Created     time.Time
 	Updated     time.Time
 }
+
 type StacksHandlerSimpleStack struct {
 	Name     string
 	Services []StackSimpleService
 }
 
 func stacksHandler(w http.ResponseWriter, r *http.Request) {
-	cli, err := getCli()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	services, err := cli.ServiceList(r.Context(), swarm.ServiceListOptions{})
+	result, err := queryStacks(r.Context())
 	if err != nil {
 		http.Error(w, "Failed to list services: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resultMap := make(map[string]StacksHandlerSimpleStack)
-
-	// Find all Stacks
-	for _, service := range services {
-		stackname := service.Spec.Labels["com.docker.stack.namespace"]
-		if len(stackname) < 1 {
-			stackname = "(without stack)"
-		}
-		currentStack, exists := resultMap[stackname]
-		if !exists {
-			currentStack = StacksHandlerSimpleStack{Name: stackname}
-		}
-
-		simpleService := StackSimpleService{
-			ID:          service.ID,
-			ServiceName: service.Spec.Name,
-			Replication: extractReplicationFromService(service),
-			Created:     service.CreatedAt,
-			Updated:     service.UpdatedAt,
-		}
-		if strings.HasPrefix(service.Spec.Name, stackname) {
-			simpleService.ShortName = strings.Replace(service.Spec.Name, stackname+"_", "", 1)
-		}
-		currentStack.Services = append(currentStack.Services, simpleService)
-		resultMap[stackname] = currentStack
-	}
-
-	resultList := make([]StacksHandlerSimpleStack, 0, len(resultMap))
-	for _, stack := range resultMap {
-		// Sort Services
-		sort.SliceStable(stack.Services, func(i, j int) bool {
-			return stack.Services[i].ServiceName < stack.Services[j].ServiceName
-		})
-		resultList = append(resultList, stack)
-	}
-
-	// Sort Stacks
-	sort.SliceStable(resultList, func(i, j int) bool {
-		return resultList[i].Name < resultList[j].Name
-	})
-
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resultList); err != nil {
+	if err := json.NewEncoder(w).Encode(result); err != nil {
 		log.Printf("stacksHandler: encoding response failed: %v", err)
 	}
 }

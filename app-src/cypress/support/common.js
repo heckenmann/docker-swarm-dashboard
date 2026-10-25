@@ -27,7 +27,10 @@ export function setupConsoleInstrumentation() {
  */
 export function assertNoConsoleErrors() {
   cy.window().then((win) => {
-    expect(win.__consoleErrors, 'console.error')
+    expect(
+      win.__consoleErrors,
+      `console.error: ${JSON.stringify(win.__consoleErrors)}`,
+    )
       .to.be.an('array')
       .and.have.length(0)
     const warnings = win.__consoleWarns || []

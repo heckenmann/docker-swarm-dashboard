@@ -6,20 +6,23 @@ import (
 	"net/http"
 )
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func queryHealth(ctx context.Context) error {
 	cli, err := getCli()
 	if err != nil {
-		log.Printf("healthHandler: getCli error: %v", err)
-		http.Error(w, "Docker client error", http.StatusServiceUnavailable)
-		return
+		return err
 	}
-	_, err = cli.Info(context.Background())
-	if err != nil {
-		// Log the error for observability and return 503 so orchestrators know dependency is unavailable
-		log.Printf("healthHandler: docker Info error: %v", err)
+	_, err = cli.Info(ctx)
+	return err
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	if err := queryHealth(r.Context()); err != nil {
+		log.Printf("healthHandler: Docker API error: %v", err)
 		http.Error(w, "Docker API error", http.StatusServiceUnavailable)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("OK"))
+	if _, err := w.Write([]byte("OK")); err != nil {
+		log.Printf("healthHandler: writing response failed: %v", err)
+	}
 }
