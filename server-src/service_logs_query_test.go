@@ -48,6 +48,37 @@ func TestReadServiceLogSnapshot(t *testing.T) {
 	}
 }
 
+func TestOrderServiceLogSnapshot(t *testing.T) {
+	lines := []string{
+		"2026-10-25T13:07:00.000000002Z newest",
+		"2026-10-25T13:06:00Z older",
+		"2026-10-25T13:07:00.000000002Z tied",
+		"missing timestamp",
+		"2026-13-25T13:08:00Z malformed timestamp",
+	}
+	for _, tc := range []struct {
+		name              string
+		tail              int
+		displayTimestamps bool
+		want              []string
+	}{
+		{"chronological stable order and valid prefix removal", -1, false, []string{
+			"missing timestamp", "2026-13-25T13:08:00Z malformed timestamp", "older", "newest", "tied",
+		}},
+		{"display timestamps", 2, true, []string{
+			"2026-10-25T13:07:00.000000002Z newest", "2026-10-25T13:07:00.000000002Z tied",
+		}},
+		{"tail zero", 0, false, []string{}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got := orderServiceLogSnapshot(lines, tc.tail, tc.displayTimestamps)
+			if strings.Join(got, "\n") != strings.Join(tc.want, "\n") {
+				t.Fatalf("got %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
 func TestReadServiceLogSnapshot_TruncatedFrames(t *testing.T) {
 	frame := make([]byte, 8)
 	frame[0] = 1

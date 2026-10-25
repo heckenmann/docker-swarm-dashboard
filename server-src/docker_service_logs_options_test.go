@@ -206,3 +206,48 @@ func TestDockerServiceLogsHandler_TailSemantics(t *testing.T) {
 		})
 	}
 }
+
+func TestDockerServiceLogsHandler_SortsSnapshotBeforeTail(t *testing.T) {
+	options := make(chan url.Values, 1)
+	dockerSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "/logs") {
+			_, _ = w.Write([]byte(`{"Spec":{"TaskTemplate":{"ContainerSpec":{"TTY":false}}}}`))
+			return
+		}
+		options <- r.URL.Query()
+		for _, line := range []string{
+			"2026-10-25T13:07:00Z newest\n",
+			"2026-10-25T13:05:00Z oldest\n",
+			"2026-10-25T13:06:00Z middle\n",
+		} {
+			_, _ = w.Write(logTestFrame(line))
+		}
+	}))
+	defer dockerSrv.Close()
+	defer ResetCli()
+	SetCli(makeClientForServer(t, dockerSrv.URL))
+	router := mux.NewRouter()
+	router.HandleFunc("/docker/logs/{id}", dockerServiceLogsHandler)
+	server := httptest.NewServer(router)
+	defer server.Close()
+	address := "ws" + strings.TrimPrefix(server.URL, "http") + "/docker/logs/svc1?tail=2&stdout=true&follow=false&timestamps=false"
+	conn, _, err := websocket.DefaultDialer.Dial(address, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = conn.Close() }()
+	_ = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	for _, want := range []string{"middle", "newest"} {
+		_, got, err := conn.ReadMessage()
+		if err != nil || string(got) != want {
+			t.Fatalf("got %q, %v; want %q", got, err, want)
+		}
+	}
+	if _, _, err := conn.ReadMessage(); !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+		t.Fatalf("unexpected close: %v", err)
+	}
+	request := <-options
+	if request.Get("tail") != "2" || request.Get("timestamps") != "1" {
+		t.Fatalf("Docker options tail=%q timestamps=%q, want 2 and 1", request.Get("tail"), request.Get("timestamps"))
+	}
+}

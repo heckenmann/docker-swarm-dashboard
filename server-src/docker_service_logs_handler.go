@@ -180,10 +180,12 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 	tty := service.Spec.TaskTemplate.ContainerSpec != nil && service.Spec.TaskTemplate.ContainerSpec.TTY
 
 	logReader, err := openServiceLogStream(ctx, cli, opts.serviceID, container.LogsOptions{
+		// Swarm applies this tail to each task's log reader. Requesting N from
+		// each task provides enough candidates for a global newest-N merge.
 		Tail:       opts.tail,
 		Since:      opts.since,
 		Follow:     opts.follow,
-		Timestamps: opts.timestamps,
+		Timestamps: opts.timestamps || !opts.follow,
 		ShowStdout: opts.stdout,
 		ShowStderr: opts.stderr,
 		Details:    opts.details,
@@ -234,7 +236,7 @@ func dockerServiceLogsHandler(w http.ResponseWriter, r *http.Request) {
 		streamLogs(ctx, conn, decodedServiceLogReader(ctx, logReader, tty))
 		return
 	}
-	sendLogTail(ctx, conn, decodedServiceLogReader(ctx, logReader, tty), tailCount(opts.tail))
+	sendLogTail(ctx, conn, decodedServiceLogReader(ctx, logReader, tty), tailCount(opts.tail), opts.timestamps)
 }
 
 // closeWithError closes the websocket with an internal-error close frame
@@ -309,18 +311,14 @@ func streamLogs(ctx context.Context, conn *websocket.Conn, logReader io.Reader) 
 // sendLogTail answers a one-shot request: it collects the available log lines,
 // sends the last `tail` of them and closes normally only after a complete
 // snapshot. The request deadline bounds a daemon that does not finish.
-func sendLogTail(ctx context.Context, conn *websocket.Conn, logReader io.Reader, tail int) {
+func sendLogTail(ctx context.Context, conn *websocket.Conn, logReader io.Reader, tail int, displayTimestamps bool) {
 	lines, err := readServiceLogSnapshot(ctx, io.NopCloser(logReader), true)
 	if err != nil {
 		closeWithError(conn, "Docker logs error: "+err.Error())
 		return
 	}
 
-	start := 0
-	if tail >= 0 && len(lines) > tail {
-		start = len(lines) - tail
-	}
-	for _, line := range lines[start:] {
+	for _, line := range orderServiceLogSnapshot(lines, tail, displayTimestamps) {
 		if err := sendTextMessage(conn, []byte(line)); err != nil {
 			log.Printf("Websocket write failed: %v", err)
 			return
