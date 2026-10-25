@@ -147,6 +147,8 @@ describe('DashboardNavbar (combined)', () => {
     expect(stacksLink.textContent.trim()).toContain('Stacks')
     const nodesLink = screen.getByRole('button', { name: 'Nodes' })
     expect(nodesLink.textContent.trim()).toContain('Nodes')
+    expect(screen.getByRole('button', { name: 'About' })).toHaveTextContent('About')
+    expect(screen.getByRole('button', { name: 'Settings' })).toHaveTextContent('Settings')
   })
 
   test('nav link text labels are hidden when showNavLabels is false', () => {
@@ -158,6 +160,8 @@ describe('DashboardNavbar (combined)', () => {
     expect(stacksLink.textContent.trim()).toBe('')
     const nodesLink = screen.getByRole('button', { name: 'Nodes' })
     expect(nodesLink.textContent.trim()).toBe('')
+    expect(screen.getByRole('button', { name: 'About' })).toBeEmptyDOMElement()
+    expect(screen.getByRole('button', { name: 'Settings' })).toBeEmptyDOMElement()
   })
 
   // ---- maxContentWidthAtom effect ----

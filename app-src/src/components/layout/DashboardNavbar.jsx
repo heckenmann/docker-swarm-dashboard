@@ -254,18 +254,18 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
           className="justify-content-end"
         >
           <Nav>
-            <OverlayTrigger
-              placement="bottom"
-              overlay={<Tooltip id="tt-about">About</Tooltip>}
-            >
+            {navTip(
+              'tt-about',
+              'About',
               <Nav.Link
                 aria-label="About"
                 onClick={() => navigate(aboutId)}
                 active={view?.id === aboutId}
               >
                 <FontAwesomeIcon icon="info-circle" />
-              </Nav.Link>
-            </OverlayTrigger>
+                {showNavLabels && ' About'}
+              </Nav.Link>,
+            )}
             {dashboardSettings.mcpEnabled === true &&
               navTip(
                 'tt-mcp',
@@ -288,18 +288,18 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
                   {showNavLabels && ' MCP'}
                 </Nav.Link>,
               )}
-            <OverlayTrigger
-              placement="bottom"
-              overlay={<Tooltip id="tt-settings">Settings</Tooltip>}
-            >
+            {navTip(
+              'tt-settings',
+              'Settings',
               <Nav.Link
                 aria-label="Settings"
                 onClick={() => navigate(settingsId)}
                 active={view?.id === settingsId}
               >
                 <FontAwesomeIcon icon="gear" />
-              </Nav.Link>
-            </OverlayTrigger>
+                {showNavLabels && ' Settings'}
+              </Nav.Link>,
+            )}
           </Nav>
           <ButtonGroup>
             <OverlayTrigger
