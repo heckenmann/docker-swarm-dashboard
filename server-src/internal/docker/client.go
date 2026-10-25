@@ -17,6 +17,8 @@ var (
 // GetCli returns the shared Docker client, creating one from the environment if
 // none has been set yet. Returns an error if the client cannot be created.
 // Safe for concurrent use: initialization is guarded with a double-checked lock.
+// The SDK's HTTP transport reconnects on subsequent requests after a socket
+// outage; recovering connectivity does not require replacing the shared client.
 func GetCli() (*client.Client, error) {
 	mu.RLock()
 	c := cli
