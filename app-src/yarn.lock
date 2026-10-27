@@ -2605,17 +2605,17 @@ anymatch@^3.1.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apex-commons@^0.8.0:
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/apex-commons/-/apex-commons-0.8.1.tgz#4adc82a63c634435032d88522dded7325e9803cc"
-  integrity sha512-F7fqJVh0smeTu1d86uuRSNNZvaM/l11GNQMbu6oAiSvuXp+K8KCufg0oZTy2VQBEEipRLAdFqkHnphlVpTG0Gw==
+apex-commons@^0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/apex-commons/-/apex-commons-0.8.3.tgz#e58403335159adffa6908567f66325d3e22e6c56"
+  integrity sha512-WdU5lblyL1ByI/nkFOJkSgJYenCsHmay0P3UIcnSeUiCyF1b30SvPSZLbyxOCUOry8IlL7M0/3GvsGbZTMm8FA==
 
-apexcharts@^8.4.0:
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-8.4.0.tgz#dc82d1e1c9ebdb6edd601e41be92fa1f59b9f3ea"
-  integrity sha512-pPMkTOZG32qv1Dw3BwehojFoyq1ejUFOHZd6ufINvolUCBOU1tG5RTQ5j0KYv/+o14bytrcLEjkjYPfKu/PCJA==
+apexcharts@^8.4.1:
+  version "8.4.1"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-8.4.1.tgz#69e938521a32f1253b12cc8bab6ca71e46b9603b"
+  integrity sha512-29IbZ1rn3NRkDvete5EzZXy6yDSW7mjNXkytLpvaYHk0XbfsR+FvC7U78L3wMvJa699NBmix2z6r3Qm5YDvw0A==
   dependencies:
-    apex-commons "^0.8.0"
+    apex-commons "^0.8.3"
 
 arch@^3.0.0:
   version "3.0.0"
