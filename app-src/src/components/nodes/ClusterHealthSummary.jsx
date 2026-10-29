@@ -63,7 +63,26 @@ export default function ClusterHealthSummary() {
               aria-label="Configured managers"
             >
               <div className="small text-body-secondary mb-1">Managers</div>
-              <div className="fs-3 fw-semibold lh-1">{health.managers}</div>
+              <div className="fs-3 fw-semibold lh-1">
+                {health.managers}
+                {health.warnings
+                  .filter((warning) =>
+                    ['single_manager', 'even_managers', 'no_managers'].includes(
+                      warning.code,
+                    ),
+                  )
+                  .map((warning) => (
+                    <button
+                      key={warning.code}
+                      type="button"
+                      className="btn p-0 border-0 ms-2 fs-6 text-warning-emphasis"
+                      title={`${warningTitles[warning.code]}: ${warning.message}`}
+                      aria-label={`${warningTitles[warning.code]}: ${warning.message}`}
+                    >
+                      <FontAwesomeIcon icon="exclamation-triangle" />
+                    </button>
+                  ))}
+              </div>
               <div className="small text-body-secondary mt-2">
                 Configured in Swarm
               </div>
@@ -133,41 +152,53 @@ export default function ClusterHealthSummary() {
             </div>
           </div>
         </div>
-        {health.warnings.length > 0 && (
+        {health.warnings.some(
+          (warning) =>
+            !['single_manager', 'even_managers', 'no_managers'].includes(
+              warning.code,
+            ),
+        ) && (
           <div className="border rounded px-3 mb-3">
-            {health.warnings.map((warning, index) => (
-              <div
-                key={warning.code}
-                role="alert"
-                className={`d-flex gap-2 py-2 ${index > 0 ? 'border-top' : ''}`}
-              >
-                <FontAwesomeIcon
-                  icon="exclamation-triangle"
-                  className="text-warning-emphasis mt-1 flex-shrink-0"
-                />
-                <div className="flex-grow-1 small">
-                  <div className="fw-semibold">
-                    {warningTitles[warning.code] || 'Manager warning'}
-                  </div>
-                  <div className="text-body-secondary">{warning.message}</div>
-                  {warning.nodeIds.length > 0 && (
-                    <div className="d-flex flex-wrap gap-3 mt-1">
-                      {warning.nodeIds.map((id) => (
-                        <Button
-                          key={id}
-                          variant="link"
-                          size="sm"
-                          className="p-0"
-                          onClick={() => onOpen(id)}
-                        >
-                          {nodeName(id)}
-                        </Button>
-                      ))}
+            {health.warnings
+              .filter(
+                (warning) =>
+                  !['single_manager', 'even_managers', 'no_managers'].includes(
+                    warning.code,
+                  ),
+              )
+              .map((warning, index) => (
+                <div
+                  key={warning.code}
+                  role="alert"
+                  className={`d-flex gap-2 py-2 ${index > 0 ? 'border-top' : ''}`}
+                >
+                  <FontAwesomeIcon
+                    icon="exclamation-triangle"
+                    className="text-warning-emphasis mt-1 flex-shrink-0"
+                  />
+                  <div className="flex-grow-1 small">
+                    <div className="fw-semibold">
+                      {warningTitles[warning.code] || 'Manager warning'}
                     </div>
-                  )}
+                    <div className="text-body-secondary">{warning.message}</div>
+                    {warning.nodeIds.length > 0 && (
+                      <div className="d-flex flex-wrap gap-3 mt-1">
+                        {warning.nodeIds.map((id) => (
+                          <Button
+                            key={id}
+                            variant="link"
+                            size="sm"
+                            className="p-0"
+                            onClick={() => onOpen(id)}
+                          >
+                            {nodeName(id)}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </>

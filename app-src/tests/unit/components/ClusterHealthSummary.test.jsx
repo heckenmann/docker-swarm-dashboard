@@ -111,3 +111,19 @@ test('a failed refresh removes the previously successful observation', () => {
   ).toBeVisible()
   expect(screen.queryByLabelText('Configured managers')).not.toBeInTheDocument()
 })
+
+test.each([
+  [1, 'single_manager', 'No manager redundancy'],
+  [2, 'even_managers', 'Even manager count'],
+  [0, 'no_managers', 'No managers reported'],
+])('shows the manager count warning inline for %i managers', (managers, code, title) => {
+  mockResult.data = observation({
+    managers,
+    warnings: [{ code, message: 'Topology warning.', nodeIds: [] }],
+  })
+  render(<ClusterHealthSummary />)
+  const button = screen.getByRole('button', { name: `${title}: Topology warning.` })
+  expect(screen.getByLabelText('Configured managers')).toContainElement(button)
+  expect(button).toHaveAttribute('title', `${title}: Topology warning.`)
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+})
