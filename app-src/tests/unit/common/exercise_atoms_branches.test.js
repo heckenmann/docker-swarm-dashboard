@@ -19,7 +19,7 @@ describe('exercise many atoms to increase branch coverage', () => {
   test('call common atoms with various view states', async () => {
     global.fetch = jest
       .fn()
-      .mockResolvedValue({ json: async () => ({ ok: true, item: true }) })
+      .mockResolvedValue({ ok: true, json: async () => ({ ok: true, item: true }) })
     const atoms = require('../../../src/common/store/atoms')
 
     // common get returning baseUrl and empty view

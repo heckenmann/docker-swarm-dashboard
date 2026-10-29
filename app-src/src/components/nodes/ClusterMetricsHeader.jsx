@@ -1,44 +1,31 @@
 import React from 'react'
 import { useAtomValue } from 'jotai'
-import { Row, Col, ProgressBar, Spinner, Alert } from 'react-bootstrap'
+import { ProgressBar, Spinner, Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { loadable } from '../../common/store/loadable'
 import { clusterMetricsAtom } from '../../common/store/atoms/dashboardAtoms'
 import { formatBytes } from '../../common/utils/formatUtils'
-import DSDCard from '../common/DSDCard'
 
 const clusterMetricsLoadable = loadable(clusterMetricsAtom)
 
 /**
- * ClusterMetricsHeader - Displays aggregated cluster-wide metrics in a header row.
- *
- * Shows CPU, Memory, and Disk usage across all nodes in the swarm cluster.
- * Handles loading, error, and unavailable states gracefully.
- *
- * @returns {JSX.Element}
+ * Display cluster resources inside the shared cluster overview.
+ * @returns {JSX.Element} Resource totals or an explicit availability state.
  */
 const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
   const metricsRes = useAtomValue(clusterMetricsLoadable)
-
+  let body
   if (metricsRes.state === 'loading') {
-    return (
-      <Row className="mb-4 mt-2 px-2 text-center">
-        <Col>
-          <Spinner animation="border" size="sm" className="me-2" />
-          <span className="text-muted">Loading cluster metrics...</span>
-        </Col>
-      </Row>
+    body = (
+      <div className="small text-body-secondary" role="status">
+        <Spinner animation="border" size="sm" className="me-2" />
+        Loading cluster metrics...
+      </div>
     )
-  }
-
-  if (
-    metricsRes.state === 'hasError' ||
-    (metricsRes.data && metricsRes.data.error)
-  ) {
+  } else if (metricsRes.state === 'hasError' || metricsRes.data?.error) {
     const error = metricsRes.error || metricsRes.data?.error
-    return (
-      <Alert variant="warning" className="mx-2">
-        <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+    body = (
+      <Alert variant="warning" className="py-2 mb-0 small">
         <strong>Cluster metrics warning:</strong>{' '}
         {error
           ? error instanceof Error
@@ -47,54 +34,60 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
           : 'Failed to fetch metrics from nodes.'}
       </Alert>
     )
-  }
-
-  if (!metricsRes.data || !metricsRes.data.available) {
-    return (
-      <Alert variant="info" className="mx-2 shadow-sm border-0 bg-light-subtle">
-        <FontAwesomeIcon icon="info-circle" className="me-2 text-info" />
-        Cluster-wide metrics are not enabled. Deploy{' '}
-        <strong>node-exporter</strong> as a global service with the label{' '}
-        <code>
-          {metricsRes.data?.message?.includes('dsd.')
-            ? 'dsd.node-exporter=true'
-            : 'your configured label'}
-        </code>{' '}
-        to visualize cluster resources.
-      </Alert>
+  } else if (!metricsRes.data?.available) {
+    body = (
+      <details className="small text-body-secondary">
+        <summary className="cursor-pointer">
+          <FontAwesomeIcon icon="info-circle" className="me-2" />
+          Cluster resources unavailable
+        </summary>
+        <p className="mt-2 mb-0">
+          Cluster-wide metrics are not enabled. Deploy{' '}
+          <strong>node-exporter</strong> as a global service with the label{' '}
+          <code>
+            {metricsRes.data?.message?.includes('dsd.')
+              ? 'dsd.node-exporter=true'
+              : 'your configured label'}
+          </code>{' '}
+          to visualize cluster resources.
+        </p>
+      </details>
     )
-  }
-
-  const metrics = metricsRes.data
-
-  return (
-    <Row className="mb-4 mt-2 px-2">
-      <Col md={4} className="d-flex">
-        <DSDCard title="Cluster CPU" icon="microchip">
-          <div className="p-3">
-            <div className="d-flex justify-content-between mb-1">
-              <span>Total Cores</span>
-              <span className="fw-bold">{metrics.totalCpu}</span>
+  } else {
+    const metrics = metricsRes.data
+    body = (
+      <>
+        <div className="d-flex flex-wrap justify-content-between gap-1 mb-3 small text-body-secondary">
+          <span className="fw-semibold">Resources</span>
+          <span>Aggregated from {metrics.nodesAvailable} nodes</span>
+        </div>
+        <div className="row g-3">
+          <div className="col-12 col-md-4" aria-label="Cluster CPU">
+            <div className="d-flex align-items-center gap-2 small text-body-secondary mb-1">
+              <FontAwesomeIcon icon="microchip" />
+              Cluster CPU
             </div>
-            <div className="text-muted small">
-              Aggregated from {metrics.nodesAvailable} nodes
+            <div>
+              <span className="fs-4 fw-semibold">{metrics.totalCpu}</span>
+              <span className="text-body-secondary small ms-2">
+                Total cores
+              </span>
             </div>
           </div>
-        </DSDCard>
-      </Col>
-      <Col md={4} className="d-flex">
-        <DSDCard title="Cluster Memory" icon="memory">
-          <div className="p-3">
-            <div className="d-flex justify-content-between mb-1">
+          <div className="col-12 col-md-4" aria-label="Cluster Memory">
+            <div className="d-flex align-items-center gap-2 small text-body-secondary mb-2">
+              <FontAwesomeIcon icon="memory" />
+              Cluster Memory
+            </div>
+            <div className="d-flex justify-content-between gap-2 small mb-2">
               <span>
                 {formatBytes(metrics.usedMemory)} /{' '}
                 {formatBytes(metrics.totalMemory)}
               </span>
-              <span className="fw-bold">
-                {metrics.memoryPercent.toFixed(1)}%
-              </span>
+              <strong>{metrics.memoryPercent.toFixed(1)}%</strong>
             </div>
             <ProgressBar
+              aria-label="Cluster memory usage"
               now={metrics.memoryPercent}
               variant={
                 metrics.memoryPercent > 90
@@ -103,23 +96,23 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
                     ? 'warning'
                     : 'success'
               }
-              style={{ height: '8px' }}
-              className="mt-2"
+              style={{ height: '6px' }}
             />
           </div>
-        </DSDCard>
-      </Col>
-      <Col md={4} className="d-flex">
-        <DSDCard title="Cluster Disk" icon="hdd">
-          <div className="p-3">
-            <div className="d-flex justify-content-between mb-1">
+          <div className="col-12 col-md-4" aria-label="Cluster Disk">
+            <div className="d-flex align-items-center gap-2 small text-body-secondary mb-2">
+              <FontAwesomeIcon icon="hdd" />
+              Cluster Disk
+            </div>
+            <div className="d-flex justify-content-between gap-2 small mb-2">
               <span>
                 {formatBytes(metrics.usedDisk)} /{' '}
                 {formatBytes(metrics.totalDisk)}
               </span>
-              <span className="fw-bold">{metrics.diskPercent.toFixed(1)}%</span>
+              <strong>{metrics.diskPercent.toFixed(1)}%</strong>
             </div>
             <ProgressBar
+              aria-label="Cluster disk usage"
               now={metrics.diskPercent}
               variant={
                 metrics.diskPercent > 90
@@ -128,13 +121,17 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
                     ? 'warning'
                     : 'success'
               }
-              style={{ height: '8px' }}
-              className="mt-2"
+              style={{ height: '6px' }}
             />
           </div>
-        </DSDCard>
-      </Col>
-    </Row>
+        </div>
+      </>
+    )
+  }
+  return (
+    <section aria-label="Cluster resources" className="border-top pt-3 mt-3">
+      {body}
+    </section>
   )
 })
 
