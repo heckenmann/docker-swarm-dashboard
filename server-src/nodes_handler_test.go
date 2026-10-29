@@ -35,7 +35,7 @@ func TestNodesHandler_NodeListError(t *testing.T) {
 // TestNodesHandler verifies the UI nodes handler returns node hostnames
 // from the Docker API.
 func TestNodesHandler(t *testing.T) {
-	nodes := []swarmtypes.Node{{ID: "n1", Description: swarmtypes.NodeDescription{Hostname: "node1"}, Status: swarmtypes.NodeStatus{Addr: "10.0.0.5"}}}
+	nodes := []swarmtypes.Node{{ID: "n1", Description: swarmtypes.NodeDescription{Hostname: "node1", Engine: swarmtypes.EngineDescription{EngineVersion: "28.5.2"}, Platform: swarmtypes.Platform{OS: "linux", Architecture: "arm64"}}, Status: swarmtypes.NodeStatus{Addr: "10.0.0.5"}}}
 	b, _ := json.Marshal(nodes)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/v1.35/nodes" {
@@ -67,6 +67,12 @@ func TestNodesHandler(t *testing.T) {
 	if hn, ok := out[0]["Hostname"].(string); !ok || hn != "node1" {
 		t.Fatalf("expected Hostname node1, got %v", out[0]["Hostname"])
 	}
+	for field, want := range map[string]string{"EngineVersion": "28.5.2", "OS": "linux", "Architecture": "arm64"} {
+		if out[0][field] != want {
+			t.Fatalf("%s: got %v, want %s", field, out[0][field], want)
+		}
+	}
+
 }
 
 // TestNodesHandler_ManagerStatus verifies that manager status fields are included when present.

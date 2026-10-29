@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"sort"
-
-	"github.com/docker/docker/api/types/swarm"
 )
 
 // NodesHandlerSimpleNode represents a simplified node structure for the nodes handler response.
@@ -31,15 +29,16 @@ type NodesHandlerSimpleNode struct {
 	ManagerStatusAddr string
 	// Message contains any status message associated with the node
 	Message string
+	// EngineVersion is advertised by this node's agent.
+	EngineVersion string
+	// OS is the advertised operating system.
+	OS string
+	// Architecture is the advertised CPU architecture.
+	Architecture string
 }
 
 func nodesHandler(w http.ResponseWriter, r *http.Request) {
-	cli, err := getCli()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	nodes, err := cli.NodeList(r.Context(), swarm.NodeListOptions{})
+	nodes, err := queryNodes(r.Context())
 	if err != nil {
 		http.Error(w, "Failed to list nodes: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -50,13 +49,16 @@ func nodesHandler(w http.ResponseWriter, r *http.Request) {
 	// Find all Nodes
 	for _, node := range nodes {
 		simpleNode := NodesHandlerSimpleNode{
-			ID:           node.ID,
-			Hostname:     node.Description.Hostname,
-			Role:         string(node.Spec.Role),
-			State:        string(node.Status.State),
-			Availability: string(node.Spec.Availability),
-			StatusAddr:   node.Status.Addr,
-			Message:      node.Status.Message,
+			ID:            node.ID,
+			Hostname:      node.Description.Hostname,
+			Role:          string(node.Spec.Role),
+			State:         string(node.Status.State),
+			Availability:  string(node.Spec.Availability),
+			StatusAddr:    node.Status.Addr,
+			Message:       node.Status.Message,
+			EngineVersion: node.Description.Engine.EngineVersion,
+			OS:            node.Description.Platform.OS,
+			Architecture:  node.Description.Platform.Architecture,
 		}
 		if node.ManagerStatus != nil {
 			simpleNode.Leader = node.ManagerStatus.Leader
@@ -66,7 +68,7 @@ func nodesHandler(w http.ResponseWriter, r *http.Request) {
 		resultList = append(resultList, simpleNode)
 	}
 
-	// Sort Stacks
+	// Sort nodes by hostname.
 	sort.SliceStable(resultList, func(i, j int) bool {
 		return resultList[i].Hostname < resultList[j].Hostname
 	})

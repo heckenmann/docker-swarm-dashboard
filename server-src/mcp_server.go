@@ -68,6 +68,13 @@ func newMCPServer() *mcp.Server {
 	})
 
 	addMCPTool(server, &mcp.Tool{
+		Name:        "get_cluster_health",
+		Description: "Observe Swarm manager reachability, leader, required majority and estimated failure reserve. This is Docker-reported information, not an independent Raft consensus probe. Check available, state and observedAt before use. Does not require exporters.",
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
+		return nil, queryClusterHealth(ctx), nil
+	})
+
+	addMCPTool(server, &mcp.Tool{
 		Name:        "list_nodes",
 		Description: "List Docker Swarm nodes.",
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
