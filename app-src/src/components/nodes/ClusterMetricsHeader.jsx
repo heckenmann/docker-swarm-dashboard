@@ -67,12 +67,26 @@ const ClusterMetricsHeader = React.memo(function ClusterMetricsHeader() {
               <FontAwesomeIcon icon="microchip" />
               Cluster CPU
             </div>
-            <div>
-              <span className="fs-4 fw-semibold">{metrics.totalCpu}</span>
-              <span className="text-body-secondary small ms-2">
-                Total cores
-              </span>
+            <div className="d-flex justify-content-between gap-2 small mb-2">
+              <span>{metrics.totalCpu} cores</span>
+              <strong>
+                {metrics.cpuPercent === null || metrics.cpuPercent === undefined
+                  ? 'Unavailable'
+                  : `${metrics.cpuPercent.toFixed(1)}%`}
+              </strong>
             </div>
+            <ProgressBar
+              aria-label="Cluster CPU usage"
+              now={metrics.cpuPercent ?? 0}
+              variant={
+                metrics.cpuPercent > 90
+                  ? 'danger'
+                  : metrics.cpuPercent > 75
+                    ? 'warning'
+                    : 'success'
+              }
+              style={{ height: '6px' }}
+            />
           </div>
           <div className="col-12 col-md-4" aria-label="Cluster Memory">
             <div className="d-flex align-items-center gap-2 small text-body-secondary mb-2">
