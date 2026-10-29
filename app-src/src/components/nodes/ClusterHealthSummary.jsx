@@ -7,6 +7,12 @@ import { loadable } from '../../common/store/loadable'
 import { useEntityActions } from '../../common/hooks/useEntityActions'
 
 const healthLoadable = loadable(clusterHealthAtom)
+const managerCountWarningCodes = new Set([
+  'single_manager',
+  'even_managers',
+  'no_managers',
+])
+
 const warningTitles = {
   single_manager: 'No manager redundancy',
   even_managers: 'Even manager count',
@@ -67,9 +73,7 @@ export default function ClusterHealthSummary() {
                 {health.managers}
                 {health.warnings
                   .filter((warning) =>
-                    ['single_manager', 'even_managers', 'no_managers'].includes(
-                      warning.code,
-                    ),
+                    managerCountWarningCodes.has(warning.code),
                   )
                   .map((warning) => (
                     <button
@@ -153,19 +157,11 @@ export default function ClusterHealthSummary() {
           </div>
         </div>
         {health.warnings.some(
-          (warning) =>
-            !['single_manager', 'even_managers', 'no_managers'].includes(
-              warning.code,
-            ),
+          (warning) => !managerCountWarningCodes.has(warning.code),
         ) && (
           <div className="border rounded px-3 mb-3">
             {health.warnings
-              .filter(
-                (warning) =>
-                  !['single_manager', 'even_managers', 'no_managers'].includes(
-                    warning.code,
-                  ),
-              )
+              .filter((warning) => !managerCountWarningCodes.has(warning.code))
               .map((warning, index) => (
                 <div
                   key={warning.code}

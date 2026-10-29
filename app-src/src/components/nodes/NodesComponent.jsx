@@ -77,9 +77,6 @@ const NodesComponent = React.memo(function NodesComponent() {
     State: 'string',
     Availability: 'string',
     StatusAddr: 'string',
-    Reachability: 'string',
-    EngineVersion: 'string',
-    OS: 'string',
   }
 
   const sortedNodes = sortData(nodes, sortBy, sortDirection, columnTypes)
