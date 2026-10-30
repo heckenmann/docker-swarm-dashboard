@@ -7,16 +7,17 @@
     "test:esm": "node --experimental-vm-modules --no-warnings node_modules/jest/bin/jest.js --config jest-esm.config.mjs",
     "test:coverage": "jest --coverage --runInBand",
     "start-api-mock": "node --enable-source-maps mock/api/api-mock.mjs 3001",
-    "start-dev-server": "vite --port 3000",
+    "start-dev-server": "yarn generate:assets && vite --port 3000",
     "open-browser": "open http://localhost:3000#base=\"http%3A%2F%2Flocalhost%3A3001%2F\"",
     "start": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\" \"sleep 2 && yarn run open-browser\"",
     "start:servers": "concurrently \"yarn run start-api-mock\" \"yarn run start-dev-server\"",
     "format": "prettier --write \"src/**/*.{js,jsx}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx}\"",
-    "postinstall": "node download-files.js",
+    "generate:assets": "node scripts/generate-assets.mjs",
+    "postinstall": "yarn generate:assets",
     "lint": "eslint src",
     "lint:css": "stylelint src/**/*.css",
-    "build": "vite build",
+    "build": "yarn generate:assets && vite build",
     "cy:open": "yarn cypress open",
     "cy:run": "yarn cypress run",
     "cy:run:all-res": "yarn cypress run --config viewportWidth=3840,viewportHeight=2160 && yarn cypress run --config viewportWidth=1920,viewportHeight=1080",
@@ -24,12 +25,6 @@
     "dev:cy:run": "xvfb-run yarn cypress run",
     "test:e2e": "node scripts/run-e2e.js"
   },
-  "files": [
-    {
-      "name": "docker.png",
-      "url": "http://getcarina.github.io/jupyterhub-tutorial/slides/img/docker-swarm.png"
-    }
-  ],
   "engines": {
     "node": ">=26.0.0"
   },
@@ -85,6 +80,7 @@
     "jotai": "^3.0.1",
     "jotai-location": "^0.6.2",
     "json-server": "1.0.0-beta.15",
+    "png-to-ico": "^3.0.2",
     "prettier": "^3.9.10",
     "prop-types": "^15.8.1",
     "react": "^19.3.1",
@@ -93,6 +89,7 @@
     "react-dom": "^19.3.1",
     "react-transition-group": "^4.4.5",
     "react-use-websocket": "^4.13.0",
+    "sharp": "^0.35.5",
     "start-server-and-test": "^3.0.13",
     "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0",

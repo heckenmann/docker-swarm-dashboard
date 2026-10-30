@@ -18,7 +18,7 @@ import {
 } from './common/store/atoms/themeAtoms'
 import { maxContentWidthAtom } from './common/store/atoms/uiAtoms'
 import './App.css'
-import bgLogo from './assets/docker.png'
+import bgLogo from './assets/swarm-dashboard.png'
 
 library.add(fab, fas, far)
 

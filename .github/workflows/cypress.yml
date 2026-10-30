@@ -112,9 +112,6 @@ jobs:
           yarn cypress install
           yarn cypress verify
 
-      - name: Download assets
-        run: node download-files.js
-
       - name: Cypress run
         uses: cypress-io/github-action@v7
         with:

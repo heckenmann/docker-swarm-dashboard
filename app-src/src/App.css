@@ -13,7 +13,7 @@
   background: var(--bg);
 }
 
-/* Decorative docker logo shown bottom-right in original size */
+/* Decorative project logo shown bottom-right */
 .background-image {
   position: fixed;
   right: 1rem;
