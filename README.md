@@ -8,6 +8,11 @@
 [![Lint server-src](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-server-src.yml/badge.svg)](https://github.com/heckenmann/docker-swarm-dashboard/actions/workflows/lint-server-src.yml)
 
 # docker-swarm-dashboard
+
+<p align="center">
+  <img src="app-src/src/assets/swarm-dashboard.svg" alt="Docker Swarm Dashboard logo" width="240">
+</p>
+
 Dashboard for Docker Swarm Cluster
 
 Docker-Image Size: < 25 MB

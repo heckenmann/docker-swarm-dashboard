@@ -39,8 +39,8 @@ cd app-src && yarn start:servers
 # Production build
 cd app-src && yarn build
 
-# Asset downloads (postinstall)
-node download-files.js
+# Generate logo PNG and favicon (also runs on install, build, and dev startup)
+yarn generate:assets
 ```
 
 ### Backend Development (server-src directory)
@@ -247,7 +247,7 @@ Within each group, sort alphabetically.
     - Entity names (Services, Nodes, Stacks) must have `white-space: nowrap`.
     - Dashboard headers use a `service-name-container` for a "flag effect" (overflow without wrapping).
     - The last column in dashboard headers must use `colSpan={2}` to merge with the filler column for layout stability.
-- **`postinstall` downloads assets** via `node download-files.js` — offline builds will fail without them.
+- **Generated logo assets:** `yarn generate:assets` renders the tracked SVG to PNG and ICO locally. It also runs on install, build, and dev startup; cached dependency restores must generate assets before tests.
 
 ---
 

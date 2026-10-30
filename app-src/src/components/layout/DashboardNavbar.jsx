@@ -13,7 +13,7 @@ import {
 } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { loadable } from '../../common/store/loadable'
-import logo from '../../assets/docker.png'
+import logo from '../../assets/swarm-dashboard.png'
 import { RefreshIntervalToggleReducer } from '../../common/store/reducers'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
@@ -144,12 +144,12 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
           onClick={() => navigate(defaultLayout)}
         >
           <img
-            alt="logo"
+            alt="Docker Swarm Dashboard logo"
             id="dockerlogo"
             src={logo}
-            className="d-inline-block align-top cursor-pointer"
-            width="30"
-            height="30"
+            className="d-inline-block align-middle cursor-pointer bg-white rounded-circle border border-secondary-subtle p-0"
+            width="32"
+            height="32"
           />{' '}
           Docker Swarm Dashboard{' '}
           <small className="d-none d-sm-inline">{version.version}</small>

@@ -183,7 +183,7 @@ For every setting atom, verify the consuming component renders correctly.
 
 1. **Yarn required** - Do not use npm
 2. **Node >= 22.0.0** - Required engine version
-3. **postinstall script** - Downloads assets via `node download-files.js`
+3. **Logo assets** - `yarn generate:assets` creates the UI PNG and favicon locally from `src/assets/swarm-dashboard.svg`. It runs on install, build, and dev startup. Generated files are ignored by Git; regenerate them after restoring a dependency cache.
 4. **Bootstrap utilities first** - Custom CSS only as last resort
 5. **English only** - All code comments and documentation in English
 6. **90% coverage** - Minimum test coverage enforced
