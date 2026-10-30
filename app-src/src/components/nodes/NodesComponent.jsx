@@ -109,23 +109,23 @@ const NodesComponent = React.memo(function NodesComponent() {
             )}
           </div>
         </td>
-        <td className="align-middle">
-          <div>{node.Role}</div>
+        <td className="align-middle text-nowrap">
+          <span>{node.Role}</span>
           {node.Role === 'manager' && (
-            <div
-              className={`small ${node.Reachability === 'reachable' ? 'text-success-emphasis' : 'text-warning-emphasis'}`}
+            <span
+              className={`small ms-2 ${node.Reachability === 'reachable' ? 'text-success-emphasis' : 'text-warning-emphasis'}`}
               title="Manager reachability"
             >
               {node.Reachability || 'unknown'}
-            </div>
+            </span>
           )}
         </td>
         <td className="align-middle text-nowrap">
-          <div>{node.EngineVersion || 'Unknown'}</div>
-          <div className="small text-body-secondary">
+          <span>{node.EngineVersion || 'Unknown'}</span>
+          <span className="small text-body-secondary ms-2">
             {[node.OS, node.Architecture].filter(Boolean).join(' / ') ||
               'Unknown'}
-          </div>
+          </span>
         </td>
         <td className="align-middle text-nowrap">
           {(node['State'] === 'ready' && (
@@ -226,7 +226,7 @@ const NodesComponent = React.memo(function NodesComponent() {
                   className="text-nowrap"
                 />
 
-                <th>Engine / Platform</th>
+                <th className="text-nowrap">Engine / Platform</th>
                 <SortableHeader
                   column="State"
                   label="State"
