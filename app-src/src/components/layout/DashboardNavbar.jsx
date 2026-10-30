@@ -81,7 +81,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
 
   const navigate = useCallback(
     (id) => {
-      updateView((prev) => ({ ...prev, id }))
+      updateView({ id })
     },
     [updateView],
   )

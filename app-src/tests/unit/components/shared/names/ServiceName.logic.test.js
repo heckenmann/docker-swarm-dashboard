@@ -39,13 +39,7 @@ describe('ServiceName handleShowLogsInternal', () => {
     expect(mockSetFormName).toHaveBeenCalledWith('test-service')
     expect(mockUpdateView).toHaveBeenCalled()
 
-    // Check that the updateView function was called with a function
-    const updateViewArg = mockUpdateView.mock.calls[0][0]
-    expect(updateViewArg).toBeInstanceOf(Function)
-
-    // Test the function that was passed to updateView
-    const result = updateViewArg({})
-    expect(result.id).toBe(logsId)
+    expect(mockUpdateView).toHaveBeenCalledWith({ id: logsId })
   })
 
   test('closes the current session when logs are showing', () => {
@@ -58,13 +52,7 @@ describe('ServiceName handleShowLogsInternal', () => {
     expect(mockSetFormName).toHaveBeenCalledWith('test-service')
     expect(mockUpdateView).toHaveBeenCalled()
 
-    // Check that the updateView function was called with a function
-    const updateViewArg = mockUpdateView.mock.calls[0][0]
-    expect(updateViewArg).toBeInstanceOf(Function)
-
-    // Test the function that was passed to updateView
-    const result = updateViewArg({})
-    expect(result.id).toBe(logsId)
+    expect(mockUpdateView).toHaveBeenCalledWith({ id: logsId })
   })
 
   test('discards the lines of the previous service', () => {
