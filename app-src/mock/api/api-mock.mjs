@@ -456,6 +456,28 @@ function sendResource(res, resource, resourceName, id) {
   }
 }
 
+// Deterministic development fixture for the read-only control-plane summary.
+app.get('/docker/cluster/health', (_req, res) => {
+  const inventory = db.data?.nodes || []
+  const managers = inventory.filter(node => node.Role === 'manager' || node.Spec?.Role === 'manager')
+  const majority = Math.floor(managers.length / 2) + 1
+  const id = node => node.ID
+  res.json({
+    available: true,
+    observedAt: new Date().toISOString(),
+    state: managers.length % 2 === 0 || managers.length === 1 ? 'warning' : 'observed',
+    managers: managers.length,
+    reachable: managers.length,
+    unreachable: 0,
+    unknown: 0,
+    majority,
+    remainingFailures: Math.max(0, managers.length - majority),
+    leaderIds: managers.slice(0, 1).map(id),
+    warnings: managers.length % 2 === 0 ? [{code: 'even_managers', message: 'An even manager count does not improve manager failure tolerance.', nodeIds: managers.map(id)}] : [],
+    nodes: inventory.map(node => ({id: node.ID, hostname: node.Hostname || node.Description?.Hostname || node.ID, engineVersion: node.EngineVersion || '', os: node.OS || '', architecture: node.Architecture || '', availability: node.Availability || ''})),
+  })
+})
+
 // Mock cluster metrics endpoint
 app.get('/docker/nodes/metrics', (req, res) => {
   const nodeCount = db.data?.nodes?.length || 5

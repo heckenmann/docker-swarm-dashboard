@@ -109,6 +109,36 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_SHOW_NAV_LABELS` | Show navigation labels by default. Either `true` or `false`. | `false` |
 | `DSD_MAX_CONTENT_WIDTH` | Maximum content width. Either `fluid` (full width) or `fixed` (container width). | `fluid` |
 
+### Swarm control-plane observations
+
+The **Nodes** page groups control-plane status and cluster-wide resources in a
+shared **Cluster Overview**. It shows manager reachability, the reported leader,
+the majority required for quorum, and an estimated reserve for additional manager
+failures.
+Warnings identify single or even manager sets, unreachable or unknown managers,
+and missing leaders or insufficient observed reachable managers. Warning links
+open the affected nodes. The inventory includes each node's advertised Docker
+Engine version, OS, architecture, and scheduling availability.
+
+This uses Docker node information and works without node-exporter. Reachability
+is separate from scheduling availability: a drained manager may still participate
+in consensus. Docker-reported observations are not an independent Raft probe;
+existing workloads may continue while cluster administration is unavailable.
+
+`GET /docker/cluster/health` and MCP `get_cluster_health` share the same read-only
+assessment. Responses include `available`, `state`, `observedAt` (UTC), manager
+counts, `majority`, `remainingFailures`, `leaderIds`, structured `warnings`, and a
+node inventory. Unknown reachability or a missing/ambiguous leader makes the
+reserve unknown (`null`). Counts refer to managers configured in the returned
+node list, not an independently verified Raft membership list.
+
+Docker node queries for this assessment have a five-second deadline. On failure,
+REST returns HTTP 503 and MCP returns `available: false`, `state: "unavailable"`,
+with no successful observation timestamp or reserve. Old successful observations
+are never substituted for failed queries. Refresh uses the dashboard's existing
+refresh controls.
+The existing `/health` endpoint retains its Docker connectivity check.
+
 ### Model Context Protocol (MCP)
 
 Docker Swarm Dashboard includes a built-in, read-only MCP server so
@@ -143,7 +173,7 @@ timeline, dashboard settings, version, and health. Existing
 `DSD_MASK_ENV` masking is also applied to data returned through MCP.
 
 Tools include `list_services`, `get_service`, `get_service_metrics`,
-`list_nodes`, `get_node`, `get_node_metrics`, `get_cluster_metrics`,
+`list_nodes`, `get_node`, `get_node_metrics`, `get_cluster_metrics`, `get_cluster_health`,
 `list_tasks`, `get_task`, `get_task_metrics`, `list_stacks`,
 `list_published_ports`, `get_timeline`, `get_cluster_overview`,
 `get_dashboard_settings`, `get_version`, and `get_health`. When logs are

@@ -47,7 +47,22 @@ export const portsAtom = atom(async (get) => {
  */
 export const nodesAtomNew = atom(async (get) => {
   get(viewAtom)
-  return (await fetch(get(baseUrlAtom) + 'ui/nodes')).json()
+  const response = await fetch(get(baseUrlAtom) + 'ui/nodes')
+  if (!response.ok) throw new Error('Failed to fetch nodes')
+  return response.json()
+})
+
+/**
+ * Fetch the current Docker manager observation without retaining previous health.
+ * @returns {Promise<object>} Explicit available or unavailable observation.
+ */
+export const clusterHealthAtom = atom(async (get) => {
+  get(viewAtom)
+  const response = await fetch(get(baseUrlAtom) + 'docker/cluster/health')
+  if (!response.ok && response.status !== 503) {
+    throw new Error('Failed to fetch control-plane information')
+  }
+  return response.json()
 })
 
 /**

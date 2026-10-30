@@ -117,14 +117,7 @@ const AboutComponent = React.memo(function AboutComponent() {
             </li>
           </ul>
           <h2>Application</h2>
-          <Button
-            onClick={() =>
-              updateView((prev) => ({
-                ...prev,
-                id: debugId,
-              }))
-            }
-          >
+          <Button onClick={() => updateView({ id: debugId })}>
             <FontAwesomeIcon icon="bug" />
             Debug
           </Button>

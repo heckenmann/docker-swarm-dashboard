@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAtomValue, useAtom } from 'jotai'
-import { Table, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Table, Badge, OverlayTrigger, Tooltip, Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCallback } from 'react'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
@@ -15,6 +15,10 @@ import { sortData } from '../../common/sortUtils'
 import DSDCard from '../common/DSDCard.jsx'
 import ClusterMetricsHeader from './ClusterMetricsHeader'
 import NodeResourceBar from './NodeResourceBar'
+import ClusterHealthSummary from './ClusterHealthSummary'
+import { loadable } from '../../common/store/loadable'
+
+const nodesLoadable = loadable(nodesAtomNew)
 
 /**
  * NodesComponent is a React functional component that renders a table of nodes.
@@ -31,8 +35,8 @@ const NodesComponent = React.memo(function NodesComponent() {
   const sortBy = view?.sortBy || null
   const sortDirection = view?.sortDirection || 'asc'
 
-  const nodesRaw = useAtomValue(nodesAtomNew)
-  const nodes = nodesRaw || []
+  const nodesResult = useAtomValue(nodesLoadable)
+  const nodes = nodesResult.state === 'hasData' ? nodesResult.data || [] : []
 
   /**
    * Handle sorting when a column header is clicked
@@ -76,6 +80,9 @@ const NodesComponent = React.memo(function NodesComponent() {
   }
 
   const sortedNodes = sortData(nodes, sortBy, sortDirection, columnTypes)
+  const engineVersions = new Set(
+    nodes.map((node) => node.EngineVersion).filter(Boolean),
+  )
 
   sortedNodes.forEach((node) => {
     trows.push(
@@ -83,11 +90,12 @@ const NodesComponent = React.memo(function NodesComponent() {
         key={'tr' + node['ID']}
         className={node['State'] === 'ready' ? null : 'table-warning'}
       >
-        <td className="px-2">
-          <FontAwesomeIcon icon="server" />
-        </td>
-        <td className="align-middle text-nowrap">
+        <td className="align-middle text-nowrap ps-3">
           <div className="d-flex align-items-center flex-nowrap">
+            <FontAwesomeIcon
+              icon="server"
+              className="text-body-secondary me-2"
+            />
             <NodeName name={node['Hostname']} id={node.ID} />
             {node['Leader'] && (
               <OverlayTrigger
@@ -101,35 +109,52 @@ const NodesComponent = React.memo(function NodesComponent() {
             )}
           </div>
         </td>
-        <td className="align-middle col-md-1">{node['Role']}</td>
-        <td className="align-middle col-md-1">
+        <td className="align-middle text-nowrap">
+          <span>{node.Role}</span>
+          {node.Role === 'manager' && (
+            <span
+              className={`small ms-2 ${node.Reachability === 'reachable' ? 'text-success-emphasis' : 'text-warning-emphasis'}`}
+              title="Manager reachability"
+            >
+              {node.Reachability || 'unknown'}
+            </span>
+          )}
+        </td>
+        <td className="align-middle text-nowrap">
+          <span>{node.EngineVersion || 'Unknown'}</span>
+          <span className="small text-body-secondary ms-2">
+            {[node.OS, node.Architecture].filter(Boolean).join(' / ') ||
+              'Unknown'}
+          </span>
+        </td>
+        <td className="align-middle text-nowrap">
           {(node['State'] === 'ready' && (
-            <Badge bg="success" className="w-100">
+            <Badge bg="success" className="fw-medium">
               Ready
             </Badge>
           )) ||
             (node['State'] === 'down' && (
-              <Badge bg="danger" className="w-100">
+              <Badge bg="danger" className="fw-medium">
                 Down
               </Badge>
             )) || (
-              <Badge bg="warning" className="w-100">
+              <Badge bg="warning" className="fw-medium">
                 {node['State']}
               </Badge>
             )}
         </td>
-        <td className="align-middle col-md-1">
+        <td className="align-middle text-nowrap">
           {(node['Availability'] === 'active' && (
-            <Badge bg="success" className="w-100">
+            <Badge bg="success" className="fw-medium">
               {node['Availability']}
             </Badge>
           )) || (
-            <Badge bg="warning" className="w-100">
+            <Badge bg="warning" className="fw-medium">
               {node['Availability']}
             </Badge>
           )}
         </td>
-        <td className="align-middle col-md-1">{node['StatusAddr']}</td>
+        <td className="align-middle text-nowrap">{node['StatusAddr']}</td>
         <td className="align-middle text-center" style={{ width: '80px' }}>
           <NodeResourceBar nodeId={node.ID} type="memory" />
         </td>
@@ -142,71 +167,102 @@ const NodesComponent = React.memo(function NodesComponent() {
 
   return (
     <div className="nodes-container">
-      <ClusterMetricsHeader />
-      <DSDCard icon="server" title="Nodes" bodyClassName="p-0">
-        <Table
-          variant={currentVariant}
-          key="nodesTable"
-          id="nodes-table"
-          striped
-          hover
-          size={tableSize}
-        >
-          <thead>
-            <tr>
-              <th style={{ width: '25px' }} />
-              <SortableHeader
-                column="Hostname"
-                label="Node"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="node-attribute"
-              />
-              <SortableHeader
-                column="Role"
-                label="Role"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="node-attribute-small"
-              />
+      <DSDCard
+        title="Cluster Overview"
+        icon="server"
+        body={
+          <>
+            <ClusterHealthSummary />
+            <ClusterMetricsHeader />
+          </>
+        }
+      />
+      {nodesResult.state === 'hasError' && (
+        <Alert variant="warning">Node inventory is unavailable.</Alert>
+      )}
+      {nodesResult.state === 'loading' && <p role="status">Loading nodes...</p>}
+      {engineVersions.size > 1 && (
+        <Alert variant="info">
+          Nodes advertise different Docker Engine versions. Review the inventory
+          below before maintenance.
+        </Alert>
+      )}
+      <DSDCard
+        icon="server"
+        title="Nodes"
+        bodyClassName="p-0"
+        headerActions={
+          <span className="small text-body-secondary">
+            {nodes.length} {nodes.length === 1 ? 'node' : 'nodes'}
+          </span>
+        }
+        body={
+          <Table
+            variant={currentVariant}
+            key="nodesTable"
+            id="nodes-table"
+            striped
+            responsive
+            hover
+            size={tableSize}
+            className="mb-0"
+          >
+            <thead>
+              <tr>
+                <SortableHeader
+                  column="Hostname"
+                  label="Node"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="ps-3"
+                />
+                <SortableHeader
+                  column="Role"
+                  label="Role"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="text-nowrap"
+                />
 
-              <SortableHeader
-                column="State"
-                label="State"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="node-attribute-small"
-              />
-              <SortableHeader
-                column="Availability"
-                label="Availability"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="node-attribute-small"
-              />
-              <SortableHeader
-                column="StatusAddr"
-                label="IP"
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-                className="node-attribute-small"
-              />
-              <th className="text-center" style={{ width: '80px' }}>
-                Memory
-              </th>
-              <th className="text-center" style={{ width: '80px' }}>
-                Disk
-              </th>
-            </tr>
-          </thead>
-          <tbody>{trows}</tbody>
-        </Table>
-      </DSDCard>
+                <th className="text-nowrap">Engine / Platform</th>
+                <SortableHeader
+                  column="State"
+                  label="State"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="text-nowrap"
+                />
+                <SortableHeader
+                  column="Availability"
+                  label="Availability"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="text-nowrap"
+                />
+                <SortableHeader
+                  column="StatusAddr"
+                  label="IP"
+                  sortBy={sortBy}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  className="text-nowrap"
+                />
+                <th className="text-center" style={{ width: '80px' }}>
+                  Memory
+                </th>
+                <th className="text-center" style={{ width: '80px' }}>
+                  Disk
+                </th>
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
+        }
+      />
     </div>
   )
 })

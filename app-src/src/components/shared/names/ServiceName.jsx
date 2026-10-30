@@ -53,7 +53,7 @@ export function handleShowLogsInternal({
   setFormName(serviceName)
 
   // Navigate to logs view; the form will be shown because logsShowLogs is false
-  updateView((prev) => ({ ...prev, id: logsId }))
+  updateView({ id: logsId })
 }
 
 /**

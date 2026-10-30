@@ -168,7 +168,7 @@ func TestMCPTools_RepresentativeDataAndDiscovery(t *testing.T) {
 	}{
 		{"list_services", nil, "services"}, {"get_service", map[string]any{"identifier": "web"}, "service"},
 		{"get_service_metrics", map[string]any{"identifier": "web"}, "metrics"},
-		{"list_nodes", nil, "nodes"}, {"get_node", map[string]any{"identifier": "host1"}, "node"},
+		{"get_cluster_health", nil, "observedAt"}, {"list_nodes", nil, "nodes"}, {"get_node", map[string]any{"identifier": "host1"}, "node"},
 		{"get_cluster_metrics", nil, "nodeCount"}, {"get_node_metrics", map[string]any{"identifier": "manager"}, "metrics"},
 		{"list_tasks", map[string]any{"service": "web", "node": "host1"}, "tasks"},
 		{"get_task", map[string]any{"identifier": "task1"}, "NodeName"},

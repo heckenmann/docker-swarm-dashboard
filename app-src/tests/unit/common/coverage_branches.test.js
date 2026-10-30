@@ -57,7 +57,7 @@ describe('coverage boost for parseHashToObj and entityActions', () => {
     const { result: taskRes } = renderHook(() => useEntityActions('task'))
     act(() => taskRes.current.onOpen('t1'))
     updater = mockUpdateView.mock.calls.pop()[0]
-    expect(updater({})).toEqual({ id: nav.tasksId, detail: 't1' })
+    expect(updater({})).toEqual({ id: nav.tasksDetailId, detail: 't1' })
   })
 
   test('additional entityActions branches exercise service and stack filter paths', () => {

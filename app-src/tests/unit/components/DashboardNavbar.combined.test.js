@@ -197,20 +197,14 @@ describe('DashboardNavbar (combined)', () => {
     const { mockUpdateView } = setup({ defaultLayout: 'dashboardV' })
     fireEvent.click(screen.getByRole('button', { name: 'Dashboard' }))
     expect(mockUpdateView).toHaveBeenCalledTimes(1)
-    expect(mockUpdateView).toHaveBeenCalledWith(expect.any(Function))
-    // Verify the updater function returns the defaultLayout
-    const updater = mockUpdateView.mock.calls[0][0]
-    const result = updater({ id: 'dashboardH' })
-    expect(result.id).toBe('dashboardV')
+    expect(mockUpdateView).toHaveBeenCalledWith({ id: 'dashboardV' })
   })
 
   test('clicking navbar brand navigates to default layout', () => {
     const { mockUpdateView } = setup({ defaultLayout: 'dashboardV' })
     fireEvent.click(screen.getByText(/Docker Swarm Dashboard/))
     expect(mockUpdateView).toHaveBeenCalled()
-    const updater = mockUpdateView.mock.calls[0][0]
-    const result = updater({ id: 'dashboardH' })
-    expect(result.id).toBe('dashboardV')
+    expect(mockUpdateView).toHaveBeenCalledWith({ id: 'dashboardV' })
   })
 
   test('clicking Timeline nav link calls updateView with timelineId', () => {
@@ -225,9 +219,11 @@ describe('DashboardNavbar (combined)', () => {
     expect(mockUpdateView).toHaveBeenCalledTimes(1)
   })
 
-  test('clicking Nodes nav link calls updateView with nodesId', () => {
+  test.each(['Nodes', 'Tasks', 'Ports', 'Timeline', 'Stacks', 'About', 'Settings'])('navigation to %s removes the previous detail', (label) => {
     const { mockUpdateView } = setup()
-    fireEvent.click(screen.getByRole('button', { name: 'Nodes' }))
+    fireEvent.click(screen.getByRole('button', { name: label }))
+    const next = mockUpdateView.mock.calls[0][0]
+    expect(next).toEqual({ id: label.toLowerCase() })
     expect(mockUpdateView).toHaveBeenCalledTimes(1)
   })
 
@@ -608,7 +604,6 @@ describe('DashboardNavbar (combined)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'MCP' }))
 
     expect(mockUpdateView).toHaveBeenCalledTimes(1)
-    const updater = mockUpdateView.mock.calls[0][0]
-    expect(updater({ id: 'dashboardH' }).id).toBe('mcp')
+    expect(mockUpdateView).toHaveBeenCalledWith({ id: 'mcp' })
   })
 })

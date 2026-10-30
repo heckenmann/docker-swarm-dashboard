@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
@@ -148,7 +149,24 @@ func queryNodeMetrics(ctx context.Context, identifier string) nodeMetricsRespons
 	return nodeMetricsResponse{Available: true, Metrics: metrics}
 }
 
+// queryClusterMetrics obtains a second counter sample when no utilization is available yet.
 func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
+	result := queryClusterMetricsSnapshot(ctx)
+	if !result.Available || result.Error != nil || result.NodesAvailable == 0 || result.CPUPercent != nil {
+		return result
+	}
+	timer := time.NewTimer(time.Second)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		message := "Cluster metrics request cancelled: " + ctx.Err().Error()
+		return clusterMetricsResponse{Available: false, Error: &message}
+	case <-timer.C:
+		return queryClusterMetricsSnapshot(ctx)
+	}
+}
+
+func queryClusterMetricsSnapshot(ctx context.Context) clusterMetricsResponse {
 	cli, err := getCli()
 	if err != nil {
 		errMsg := "Error getting Docker client: " + err.Error()
@@ -184,6 +202,7 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 	}
 
 	type nodeResult struct {
+		nodeID  string
 		metrics *ParsedMetrics
 		err     error
 	}
@@ -206,11 +225,12 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 				return
 			}
 			parsed, err := parsePrometheusMetrics(metricsText)
-			results <- nodeResult{metrics: parsed, err: err}
+			results <- nodeResult{nodeID: task.NodeID, metrics: parsed, err: err}
 		}(task)
 	}
 
 	var totalCPU int
+	var busyCPU, sampledCPU float64
 	var totalMemory, availableMemory float64
 	var totalDisk, availableDisk float64
 	nodesWithMetrics := 0
@@ -227,6 +247,9 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 		}
 		nodesWithMetrics++
 		totalCPU += result.metrics.System.NumCPUs
+		busy, total := sampleClusterCPUCapacity(result.nodeID, result.metrics)
+		busyCPU += busy
+		sampledCPU += total
 		totalMemory += result.metrics.Memory.Total
 		availableMemory += result.metrics.Memory.Available
 
@@ -269,7 +292,13 @@ func queryClusterMetrics(ctx context.Context) clusterMetricsResponse {
 		diskPercent = (usedDisk / totalDisk) * 100
 	}
 
+	var cpuPercent *float64
+	if sampledCPU > 0 {
+		value := 100 * busyCPU / sampledCPU
+		cpuPercent = &value
+	}
 	return clusterMetricsResponse{
+		CPUPercent:     cpuPercent,
 		Available:      true,
 		TotalCPU:       totalCPU,
 		TotalMemory:    totalMemory,

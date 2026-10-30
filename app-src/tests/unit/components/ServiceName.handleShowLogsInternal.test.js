@@ -73,12 +73,7 @@ describe('handleShowLogsInternal', () => {
   test('navigates to logs view with correct ID', () => {
     callHandler({ serviceId: 'svc-789', serviceName: 'test-service' })
 
-    // Check that updateView was called with a function
     expect(mockSetters.updateView).toHaveBeenCalledTimes(1)
-    const updateFn = mockSetters.updateView.mock.calls[0][0]
-
-    // The function should set id to logsId ('logs')
-    const result = updateFn({ otherProp: 'value' })
-    expect(result).toMatchObject({ otherProp: 'value', id: 'logs' })
+    expect(mockSetters.updateView).toHaveBeenCalledWith({ id: 'logs' })
   })
 })

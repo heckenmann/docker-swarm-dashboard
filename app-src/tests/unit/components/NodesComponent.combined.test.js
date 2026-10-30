@@ -36,6 +36,11 @@ jest.mock('jotai', () => ({
   atom: (fn) => mockAtom(fn),
 }))
 
+jest.mock('../../../src/components/nodes/ClusterHealthSummary', () => () => <div>Swarm Control Plane</div>)
+jest.mock('../../../src/common/store/loadable', () => ({
+ loadable: (source) => ({ debugLabel: 'nodesLoadable', source }),
+}))
+
 // Mock ClusterMetricsHeader
 jest.mock('../../../src/components/nodes/ClusterMetricsHeader', () => {
   return () => <div data-testid="cluster-header">Cluster Header</div>
@@ -53,7 +58,7 @@ describe('NodesComponent (combined)', () => {
       if (id === 'showNamesButtonsAtom') return true
       if (id === 'currentVariantAtom') return 'light'
       if (id === 'tableSizeAtom') return 'sm'
-      if (id === 'nodesAtomNew') return []
+      if (id === 'nodesLoadable') return {state: 'hasData', data: []}
       return null
     })
     
@@ -70,7 +75,7 @@ describe('NodesComponent (combined)', () => {
       { ID: 'n3', Hostname: 'node3', State: 'starting', Availability: 'pause' },
     ]
     mockUseAtomValue.mockImplementation((atom) => {
-      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesLoadable') return {state: 'hasData', data: nodes}
       return 'sm'
     })
     render(<NodesComponent />)
@@ -97,7 +102,7 @@ describe('NodesComponent (combined)', () => {
       { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'active', Leader: true },
     ]
     mockUseAtomValue.mockImplementation((atom) => {
-      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesLoadable') return {state: 'hasData', data: nodes}
       return 'sm'
     })
     render(<NodesComponent />)
@@ -109,7 +114,7 @@ describe('NodesComponent (combined)', () => {
       { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'active' },
     ]
     mockUseAtomValue.mockImplementation((atom) => {
-      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesLoadable') return {state: 'hasData', data: nodes}
       return 'sm'
     })
     render(<NodesComponent />)
@@ -121,7 +126,7 @@ describe('NodesComponent (combined)', () => {
       { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'drain' },
     ]
     mockUseAtomValue.mockImplementation((atom) => {
-      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesLoadable') return {state: 'hasData', data: nodes}
       return 'sm'
     })
     render(<NodesComponent />)
@@ -178,7 +183,7 @@ describe('NodesComponent (combined)', () => {
       { ID: 'n1', Hostname: 'node1', State: 'ready', Availability: 'active' },
     ]
     mockUseAtomValue.mockImplementation((atom) => {
-      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesLoadable') return {state: 'hasData', data: nodes}
       return 'sm'
     })
     
@@ -193,7 +198,7 @@ describe('NodesComponent (combined)', () => {
       { ID: 'n1', Hostname: 'node1', State: 'down', Availability: 'active' },
     ]
     mockUseAtomValue.mockImplementation((atom) => {
-      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesAtomNew') return nodes
+      if ((typeof atom === 'string' ? atom : atom?.debugLabel) === 'nodesLoadable') return {state: 'hasData', data: nodes}
       return 'sm'
     })
     
@@ -201,4 +206,35 @@ describe('NodesComponent (combined)', () => {
     const row = container.querySelector('tbody tr')
     expect(row).toHaveClass('table-warning')
   })
+  test('renders advertised versions and platforms independently of reachability', () => {
+    mockUseAtomValue.mockImplementation(atom => {
+      const id = typeof atom === 'string' ? atom : atom?.debugLabel
+      if(id === 'nodesLoadable') return {state:'hasData',data:[
+        {ID:'m1',Hostname:'manager',Role:'manager',Reachability:'reachable',Availability:'drain',EngineVersion:'28.5.2',OS:'linux',Architecture:'arm64'},
+        {ID:'w1',Hostname:'worker',Role:'worker',EngineVersion:'27.0.0'},
+        {ID:'m2',Hostname:'missing',Role:'manager'},
+      ]}
+      return 'sm'
+    })
+    render(<NodesComponent />)
+    expect(screen.getByText('28.5.2')).toBeVisible()
+    expect(screen.getByText('27.0.0')).toBeVisible()
+    expect(screen.getByText('linux / arm64')).toBeVisible()
+    expect(screen.getByText('reachable')).toBeVisible()
+    expect(screen.getByText('drain')).toBeVisible()
+    expect(screen.getByText('unknown')).toBeVisible()
+    expect(screen.getAllByText('Unknown').length).toBeGreaterThan(0)
+  })
+
+  test.each(['loading','hasError'])('keeps the health summary visible when inventory is %s', state => {
+    mockUseAtomValue.mockImplementation(atom => {
+      const id = typeof atom === 'string' ? atom : atom?.debugLabel
+      if(id === 'nodesLoadable') return {state}
+      return 'sm'
+    })
+    render(<NodesComponent />)
+    expect(screen.getByText('Swarm Control Plane')).toBeVisible()
+    expect(screen.getByText(state === 'loading' ? 'Loading nodes...' : 'Node inventory is unavailable.')).toBeVisible()
+  })
+
 })

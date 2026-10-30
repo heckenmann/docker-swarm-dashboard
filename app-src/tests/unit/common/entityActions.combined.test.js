@@ -63,7 +63,7 @@ describe('useEntityActions branches', () => {
     act(() => taskRes.current.onOpen('t1'))
     expect(mockUpdateView).toHaveBeenCalled()
     updater = mockUpdateView.mock.calls.pop()[0]
-    expect(updater({})).toEqual({ id: nav.tasksId, detail: 't1' })
+    expect(updater({})).toEqual({ id: nav.tasksDetailId, detail: 't1' })
   })
 
   test('stack filter sets types and clears service filter', () => {
@@ -164,6 +164,6 @@ describe('useEntityActions branches', () => {
     const { result: taskRes } = renderHook(() => useEntityActions('task'))
     act(() => taskRes.current.onOpen('t2'))
     updater = mockUpdateView.mock.calls.pop()[0]
-    expect(updater(null)).toEqual({ id: nav.tasksId, detail: 't2' })
+    expect(updater(null)).toEqual({ id: nav.tasksDetailId, detail: 't2' })
   })
 })

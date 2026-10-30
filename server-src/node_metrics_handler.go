@@ -666,18 +666,19 @@ func nodeMetricsHandler(w http.ResponseWriter, r *http.Request) {
 
 // clusterMetricsResponse represents the response structure for cluster metrics endpoint.
 type clusterMetricsResponse struct {
-	Available      bool    `json:"available"`
-	TotalCPU       int     `json:"totalCpu"`
-	TotalMemory    float64 `json:"totalMemory"`
-	UsedMemory     float64 `json:"usedMemory"`
-	MemoryPercent  float64 `json:"memoryPercent"`
-	TotalDisk      float64 `json:"totalDisk"`
-	UsedDisk       float64 `json:"usedDisk"`
-	DiskPercent    float64 `json:"diskPercent"`
-	NodeCount      int     `json:"nodeCount"`
-	NodesAvailable int     `json:"nodesAvailable"`
-	Message        *string `json:"message,omitempty"`
-	Error          *string `json:"error,omitempty"`
+	Available      bool     `json:"available"`
+	CPUPercent     *float64 `json:"cpuPercent"`
+	TotalCPU       int      `json:"totalCpu"`
+	TotalMemory    float64  `json:"totalMemory"`
+	UsedMemory     float64  `json:"usedMemory"`
+	MemoryPercent  float64  `json:"memoryPercent"`
+	TotalDisk      float64  `json:"totalDisk"`
+	UsedDisk       float64  `json:"usedDisk"`
+	DiskPercent    float64  `json:"diskPercent"`
+	NodeCount      int      `json:"nodeCount"`
+	NodesAvailable int      `json:"nodesAvailable"`
+	Message        *string  `json:"message,omitempty"`
+	Error          *string  `json:"error,omitempty"`
 }
 
 // clusterMetricsHandler handles requests for aggregated cluster metrics.

@@ -96,7 +96,7 @@ describe('useEntityActions extra behaviors', () => {
     const updater = updateView.mock.calls[0][0]
     expect(typeof updater).toBe('function')
     const nav = require('../../src/common/navigationConstants')
-    expect(updater({})).toEqual({ id: nav.tasksId, detail: 'tid' })
+    expect(updater({})).toEqual({ id: nav.tasksDetailId, detail: 'tid' })
   })
 
   test('onOpen does nothing when no id provided', () => {

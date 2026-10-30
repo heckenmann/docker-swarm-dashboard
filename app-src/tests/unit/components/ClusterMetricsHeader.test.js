@@ -75,6 +75,7 @@ describe('ClusterMetricsHeader', () => {
     const mockData = {
       available: true,
       totalCpu: 16,
+      cpuPercent: 25,
       nodesAvailable: 4,
       usedMemory: 8000,
       totalMemory: 16000,
@@ -88,7 +89,8 @@ describe('ClusterMetricsHeader', () => {
     render(<ClusterMetricsHeader />)
     
     expect(screen.getByText('Cluster CPU')).toBeInTheDocument()
-    expect(screen.getByText('16')).toBeInTheDocument()
+    expect(screen.getByLabelText('Cluster CPU usage').querySelector('[role="progressbar"]')).toHaveAttribute('aria-valuenow', '25')
+    expect(screen.getByText('16 cores')).toBeInTheDocument()
     expect(screen.getByText(/Aggregated from 4 nodes/i)).toBeInTheDocument()
     
     expect(screen.getByText('Cluster Memory')).toBeInTheDocument()
@@ -102,6 +104,7 @@ describe('ClusterMetricsHeader', () => {
     const mockData = {
       available: true,
       totalCpu: 16,
+      cpuPercent: 25,
       nodesAvailable: 4,
       usedMemory: 15000,
       totalMemory: 16000,
@@ -115,7 +118,7 @@ describe('ClusterMetricsHeader', () => {
     const { container } = render(<ClusterMetricsHeader />)
     
     const progressBars = container.querySelectorAll('.progress-bar')
-    expect(progressBars[0]).toHaveClass('bg-danger') // Memory
-    expect(progressBars[1]).toHaveClass('bg-warning') // Disk
+    expect(progressBars[1]).toHaveClass('bg-danger') // Memory
+    expect(progressBars[2]).toHaveClass('bg-warning') // Disk
   })
 })

@@ -81,7 +81,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
 
   const navigate = useCallback(
     (id) => {
-      updateView((prev) => ({ ...prev, id }))
+      updateView({ id })
     },
     [updateView],
   )
@@ -151,7 +151,8 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
             width="30"
             height="30"
           />{' '}
-          Docker Swarm Dashboard <small>{version.version}</small>
+          Docker Swarm Dashboard{' '}
+          <small className="d-none d-sm-inline">{version.version}</small>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-left">
