@@ -147,9 +147,9 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
             alt="Docker Swarm Dashboard logo"
             id="dockerlogo"
             src={logo}
-            className="d-inline-block align-top cursor-pointer"
-            width="30"
-            height="30"
+            className="d-inline-block align-middle cursor-pointer bg-white rounded-circle border border-secondary-subtle p-0"
+            width="32"
+            height="32"
           />{' '}
           Docker Swarm Dashboard{' '}
           <small className="d-none d-sm-inline">{version.version}</small>
