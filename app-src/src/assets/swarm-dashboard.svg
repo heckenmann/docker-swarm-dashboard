@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 432 432" role="img" aria-labelledby="title description">
+  <title id="title">Swarm Dashboard</title>
+  <desc id="description">A flat Docker-blue whale carries three Ocean Blue shipping containers with light-blue interiors and simple deep-blue frames in a centered two-plus-one stack. Two slightly offset copies use deep blue and light blue.</desc>
+  <defs>
+    <g id="container">
+      <!-- An opaque face hides the layers behind it; a simple frame sits on top. -->
+      <rect width="82" height="36" rx="2" fill="currentColor" stroke="none"/>
+      <rect x="4" y="4" width="74" height="30" rx="1.5" fill="inherit" stroke="inherit" stroke-width="2"/>
+      <path d="M24 10v18m17-18v18m17-18v18" fill="none" stroke="inherit" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.45"/>
+    </g>
+    <g id="carrier" fill="currentColor">
+      <!-- The eye is transparent negative space within a single-color silhouette. -->
+      <path id="whale" fill-rule="evenodd" stroke="none" d="M112 200H296C330 200 352 222 352 249C352 284 316 310 260 310C190 310 143 284 116 244C102 237 91 236 80 242C64 250 48 250 34 244C44 225 59 215 79 213C56 201 41 181 39 160C62 159 84 172 98 192C102 196 107 199 112 200ZM323 245a5 5 0 1 0-10 0a5 5 0 1 0 10 0Z"/>
+      <g id="container-stack">
+        <!-- Lower containers overlap by 1 unit; their bases overlap the back by 2. -->
+        <use href="#container" x="123" y="166"/>
+        <use href="#container" x="204" y="166"/>
+        <!-- The centered upper container overlaps the lower tier by 2 units. -->
+        <use href="#container" x="163.5" y="132"/>
+      </g>
+    </g>
+  </defs>
+  <g transform="translate(20 -14)">
+    <!-- Paint rear to front; only the foreground containers have visible details. -->
+    <use href="#carrier" transform="translate(10 -10)" color="#D9E5FC" stroke="none"/>
+    <use href="#carrier" transform="translate(5 -5)" color="#00153C" stroke="none"/>
+    <g fill="currentColor" color="#2560FF" stroke="#00153C">
+      <use href="#whale" color="#2560FF"/>
+      <path d="M53 175Q75 181 89 199M49 236Q65 225 84 223" fill="none" stroke="#00153C" stroke-width="3" stroke-linecap="round"/>
+      <use href="#container-stack" fill="#D9E5FC"/>
+    </g>
+  </g>
+</svg>

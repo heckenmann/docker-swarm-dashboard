@@ -14,11 +14,11 @@
 .glide/
 
 /dockerswarmdashboard
-docker.png
 
 /app-src/node_modules
 /app-src/build
-/app-src/src/assets
+/app-src/src/assets/swarm-dashboard.png
+/app-src/public/generated/
 /build
 
 .eslintcache
