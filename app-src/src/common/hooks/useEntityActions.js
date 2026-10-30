@@ -21,7 +21,7 @@ import { viewAtom } from '../store/atoms/navigationAtoms'
 import {
   servicesDetailId,
   nodesDetailId,
-  tasksId,
+  tasksDetailId,
 } from '../constants/navigationConstants'
 
 /**
@@ -53,7 +53,7 @@ export function useEntityActions(entityType = 'service') {
     } else if (entityType === 'task') {
       updateView((prev) => ({
         ...(prev || {}),
-        id: tasksId,
+        id: tasksDetailId,
         detail: detailId,
       }))
     }
