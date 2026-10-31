@@ -82,6 +82,19 @@ describe('StacksComponent', () => {
     mockUseAtomValue.mockImplementation((atom) => config[atom])
   }
 
+  test.each(['sm', 'lg'])('updates table density to %s', (size) => {
+    setupMocks({ tableSizeAtom: size === 'sm' ? 'lg' : 'sm' })
+    const { rerender } = render(<StacksComponent />)
+    expect(screen.getByRole('table').classList.contains('table-sm')).toBe(
+      size !== 'sm',
+    )
+    setupMocks({ tableSizeAtom: size })
+    rerender(<StacksComponent />)
+    expect(screen.getByRole('table').classList.contains('table-sm')).toBe(
+      size === 'sm',
+    )
+  })
+
   test('renders stacks and services', () => {
     setupMocks()
     render(<StacksComponent />)

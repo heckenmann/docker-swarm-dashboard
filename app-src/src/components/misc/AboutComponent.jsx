@@ -6,6 +6,7 @@ import DSDCard from '../common/DSDCard.jsx'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 import { versionAtom } from '../../common/store/atoms/dashboardAtoms'
 import { viewAtom } from '../../common/store/atoms/navigationAtoms'
+import { tableSizeAtom } from '../../common/store/atoms/uiAtoms'
 import { debugId } from '../../common/navigationConstants'
 
 /**
@@ -15,6 +16,7 @@ import { debugId } from '../../common/navigationConstants'
 const AboutComponent = React.memo(function AboutComponent() {
   const currentVariant = useAtomValue(currentVariantAtom)
   const version = useAtomValue(versionAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
 
   const [, updateView] = useAtom(viewAtom)
 
@@ -26,7 +28,7 @@ const AboutComponent = React.memo(function AboutComponent() {
         <>
           <h1>Docker Swarm Dashboard '{version.version}'</h1>
           <h2>by heckenmann</h2>
-          <Table variant={currentVariant}>
+          <Table variant={currentVariant} size={tableSize}>
             <tbody>
               <tr>
                 <td>License:</td>

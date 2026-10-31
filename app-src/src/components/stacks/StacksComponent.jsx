@@ -33,7 +33,7 @@ const StacksComponent = React.memo(function StacksComponent() {
   const serviceNameFilter = useAtomValue(serviceNameFilterAtom)
   const stackNameFilter = useAtomValue(stackNameFilterAtom)
   const stacksData = useAtomValue(stacksAtom)
-  const _tableSize = useAtomValue(tableSizeAtom)
+  const tableSize = useAtomValue(tableSizeAtom)
 
   // Shared sorting state for all stack tables
   const [sortBy, setSortBy] = useState(null)
@@ -147,7 +147,7 @@ const StacksComponent = React.memo(function StacksComponent() {
         title={<StackName name={stack['Name']} />}
         bodyClassName="p-0"
         body={
-          <Table variant={currentVariant} size="sm" hover>
+          <Table variant={currentVariant} size={tableSize} hover>
             <thead>
               <tr>
                 <SortableHeader
