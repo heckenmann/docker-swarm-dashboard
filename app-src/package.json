@@ -84,7 +84,7 @@
     "prettier": "^3.9.10",
     "prop-types": "^15.8.1",
     "react": "^19.3.1",
-    "react-apexcharts": "^2.1.1",
+    "react-apexcharts": "^2.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.3.1",
     "react-transition-group": "^4.4.5",
