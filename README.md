@@ -66,6 +66,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 |---|---|---|
 | `DSD_HTTP_PORT` | HTTP port within the container. Usually does not need to be changed. | `8080` |
 | `DSD_HANDLE_LOGS` | Set to `false` to prevent fetching and displaying logs. | `true` |
+| `DSD_LOG_BUFFER_SIZE` | Maximum number of log lines buffered while streaming to a slow WebSocket client. Must be a positive integer. | `64` |
 | `DSD_MCP_ENABLED` | Enable the built-in Model Context Protocol (MCP) server and MCP connection page. | `true` |
 | `DSD_DASHBOARD_LAYOUT` | Default dashboard layout. Either `row` (default) or `column`. | `row` |
 | `DSD_HIDE_SERVICE_STATES` | Comma-separated list of states to not show in the main dashboard. | (none) |

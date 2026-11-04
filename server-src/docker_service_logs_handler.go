@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -39,10 +40,26 @@ const writeWait = 10 * time.Second
 // considered dead. It must be longer than pingInterval.
 const pongWait = 60 * time.Second
 
-// logChannelSize bounds how many log lines may wait for a slow client. A full
-// channel applies backpressure on the docker reader instead of buffering
-// without limit.
-const logChannelSize = 64
+// defaultLogChannelSize bounds how many log lines may wait for a slow client
+// when DSD_LOG_BUFFER_SIZE is unset or invalid. A full channel applies
+// backpressure on the docker reader instead of buffering without limit.
+const defaultLogChannelSize = 64
+
+// logChannelSize returns the configured number of log lines to buffer for a
+// slow WebSocket client.
+func logChannelSize() int {
+	value := strings.TrimSpace(os.Getenv("DSD_LOG_BUFFER_SIZE"))
+	if value == "" {
+		return defaultLogChannelSize
+	}
+
+	size, err := strconv.Atoi(value)
+	if err != nil || size <= 0 {
+		log.Printf("Invalid DSD_LOG_BUFFER_SIZE=%q; using %d", value, defaultLogChannelSize)
+		return defaultLogChannelSize
+	}
+	return size
+}
 
 // logSnapshotTimeout bounds non-follow requests without treating a pause as EOF.
 const logSnapshotTimeout = 20 * time.Second
@@ -302,7 +319,7 @@ func readLogLines(ctx context.Context, logReader io.Reader, lines chan<- []byte,
 // instead of dropping the connection, and a client that stops consuming
 // altogether is dropped by the write deadline in writeLogPipeToClient.
 func streamLogs(ctx context.Context, conn *websocket.Conn, logReader io.Reader) {
-	lines := make(chan []byte, logChannelSize)
+	lines := make(chan []byte, logChannelSize())
 	result := make(chan error, 1)
 	go readLogLines(ctx, logReader, lines, result)
 	writeLogPipeToClient(conn, lines, result)
