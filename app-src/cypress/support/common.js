@@ -1,25 +1,34 @@
 import { CY_BASE_URL } from './constants'
 
+const consoleErrors = []
+const consoleWarnings = []
+
+function instrumentConsole(win) {
+  win.__consoleErrors = consoleErrors
+  win.__consoleWarns = consoleWarnings
+
+  const originalError = win.console.error.bind(win.console)
+  const originalWarn = win.console.warn.bind(win.console)
+  win.console.error = (...args) => {
+    consoleErrors.push(args)
+    originalError(...args)
+  }
+  win.console.warn = (...args) => {
+    consoleWarnings.push(args)
+    originalWarn(...args)
+  }
+}
+
+// Keep the listener across page reloads and test retries, including in browsers
+// where the AUT window is replaced during cy.reload().
+Cypress.on('window:before:load', instrumentConsole)
+
 /**
  * Capture console errors and warnings on each application window before load.
- * Cypress removes this listener at the end of the current test.
  */
 export function setupConsoleInstrumentation() {
-  cy.on('window:before:load', (win) => {
-    win.__consoleErrors = []
-    win.__consoleWarns = []
-
-    const originalError = win.console.error.bind(win.console)
-    const originalWarn = win.console.warn.bind(win.console)
-    win.console.error = (...args) => {
-      win.__consoleErrors.push(args)
-      originalError(...args)
-    }
-    win.console.warn = (...args) => {
-      win.__consoleWarns.push(args)
-      originalWarn(...args)
-    }
-  })
+  consoleErrors.length = 0
+  consoleWarnings.length = 0
 }
 
 /**
@@ -33,8 +42,10 @@ export function assertNoConsoleErrors() {
     )
       .to.be.an('array')
       .and.have.length(0)
-    const warnings = win.__consoleWarns || []
-    expect(warnings, `console.warn: ${JSON.stringify(warnings)}`)
+    expect(
+      win.__consoleWarns,
+      `console.warn: ${JSON.stringify(win.__consoleWarns)}`,
+    )
       .to.be.an('array')
       .and.have.length(0)
   })
@@ -45,8 +56,10 @@ export function assertNoConsoleErrors() {
  */
 export function clearConsoleErrors() {
   cy.window().then((win) => {
-    win.__consoleErrors = []
-    win.__consoleWarns = []
+    consoleErrors.length = 0
+    consoleWarnings.length = 0
+    win.__consoleErrors = consoleErrors
+    win.__consoleWarns = consoleWarnings
   })
 }
 
