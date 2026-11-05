@@ -7,6 +7,33 @@ import { Highlight, themes } from 'prism-react-renderer'
 import { currentVariantAtom } from '../../common/store/atoms/themeAtoms'
 
 /**
+ * Select highlighting for JSON, leading XML/HTML, or the YAML fallback.
+ * @param {string} value - Complete source text.
+ * @returns {string} Prism language identifier.
+ */
+export function detectCodeLanguage(value) {
+  try {
+    JSON.parse(value)
+    return 'json'
+  } catch {
+    // Scan each leading comment once, avoiding regex backtracking between comments.
+    let offset = 0
+    while (offset < value.length) {
+      while (offset < value.length && /\s/.test(value[offset])) offset++
+      if (!value.startsWith('<!--', offset)) break
+      const end = value.indexOf('-->', offset + 4)
+      if (end === -1) return 'yaml'
+      offset = end + 3
+    }
+    return /^<(?:\?[\p{L}_:][\p{L}\p{N}\p{M}_.:-]*(?:\s|\?>)|!doctype\s+[\p{L}_:][\p{L}\p{N}\p{M}_.:-]*(?:\s|\[|>)|[\p{L}_:][\p{L}\p{N}\p{M}_.:-]*(?:\s|\/?>))/iu.test(
+      value.slice(offset),
+    )
+      ? 'markup'
+      : 'yaml'
+  }
+}
+
+/**
  * Read-only highlighted code field; copying preserves the original payload.
  * @param {object} props - Component properties.
  * @param {string} props.value - Complete source text.
@@ -17,15 +44,12 @@ const CodeField = ({ value, binary = false }) => {
   const variant = useAtomValue(currentVariantAtom)
   const [language, setLanguage] = useState('auto')
   const [copyStatus, setCopyStatus] = useState('')
-  let detected = 'plain'
-  try {
-    JSON.parse(value)
-    detected = 'json'
-  } catch {
-    /* Arbitrary text stays readable without guessing its syntax. */
-  }
   const lineEndings = value.match(/\r\n|\r|\n/g) || []
-  const syntax = binary ? 'plain' : language === 'auto' ? detected : language
+  const syntax = binary
+    ? 'plain'
+    : language === 'auto'
+      ? detectCodeLanguage(value)
+      : language
   const copy = async () => {
     try {
       if (!navigator.clipboard?.writeText)
@@ -47,7 +71,7 @@ const CodeField = ({ value, binary = false }) => {
           disabled={binary}
           onChange={(event) => setLanguage(event.target.value)}
         >
-          <option value="auto">Auto (JSON / text)</option>
+          <option value="auto">Auto (JSON / XML / YAML)</option>
           <option value="plain">Plain text</option>
           <option value="json">JSON</option>
           <option value="yaml">YAML</option>
