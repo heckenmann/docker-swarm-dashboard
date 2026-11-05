@@ -61,7 +61,7 @@ func queryResourceInventory(ctx context.Context, kind string, filter resourceFil
 	result := resourceInventory{Resources: []resourceMetadata{}}
 	cli, err := getCli()
 	if err != nil {
-		return result, errors.New("Docker client unavailable")
+		return result, errors.New("docker client unavailable")
 	}
 	resources := map[string]*resourceMetadata{}
 	add := func(id string, meta swarm.Meta, annotations swarm.Annotations) {
@@ -75,7 +75,7 @@ func queryResourceInventory(ctx context.Context, kind string, filter resourceFil
 	case "configs":
 		configs, err := cli.ConfigList(ctx, swarm.ConfigListOptions{})
 		if err != nil {
-			return result, errors.New("Failed to list configs")
+			return result, errors.New("failed to list configs")
 		}
 		for _, config := range configs {
 			add(config.ID, config.Meta, config.Spec.Annotations)
@@ -83,13 +83,13 @@ func queryResourceInventory(ctx context.Context, kind string, filter resourceFil
 	case "secrets":
 		secrets, err := cli.SecretList(ctx, swarm.SecretListOptions{})
 		if err != nil {
-			return result, errors.New("Failed to list secrets")
+			return result, errors.New("failed to list secrets")
 		}
 		for _, secret := range secrets {
 			add(secret.ID, secret.Meta, secret.Spec.Annotations)
 		}
 	default:
-		return result, errors.New("Unknown resource kind")
+		return result, errors.New("unknown resource kind")
 	}
 	services, err := cli.ServiceList(ctx, swarm.ServiceListOptions{})
 	result.UsageKnown = err == nil
@@ -210,7 +210,7 @@ func findResource(inventory resourceInventory, id string) (resourceMetadata, err
 			return resource, nil
 		}
 	}
-	return resourceMetadata{}, errors.New("Resource not found")
+	return resourceMetadata{}, errors.New("resource not found")
 }
 
 // Resource payload visibility is independent of DSD_MASK_ENV. Invalid settings

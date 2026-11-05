@@ -176,7 +176,11 @@ func TestResourceInventoryMCP(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer session.Close()
+	defer func() {
+		if err := session.Close(); err != nil {
+			t.Errorf("close MCP session: %v", err)
+		}
+	}()
 	for _, kind := range []string{"configs", "secrets"} {
 		for _, mask := range []string{"true", "false"} {
 			t.Run(kind+mask, func(t *testing.T) {
@@ -333,7 +337,11 @@ func TestConfigContentVisibility(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer session.Close()
+			defer func() {
+				if err := session.Close(); err != nil {
+					t.Errorf("close MCP session: %v", err)
+				}
+			}()
 			_, output := callMCPTool(t, session, "get_config", map[string]any{"identifier": "c1"})
 			raw, _ := json.Marshal(output)
 			var mcpDetail resourceDetail
