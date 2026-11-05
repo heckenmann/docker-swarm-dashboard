@@ -121,6 +121,7 @@ const ServiceTasksTab = React.memo(function ServiceTasksTab({
       noBody={true}
     >
       <Table
+        responsive
         striped
         bordered
         hover

@@ -65,6 +65,7 @@ Docker Swarm Dashboard supports environment variables for configuration.
 | Environment variable | Description | Default |
 |---|---|---|
 | `DSD_HTTP_PORT` | HTTP port within the container. Usually does not need to be changed. | `8080` |
+| `DSD_HIDE_CONFIG_CONTENT` | Hide config content in detail views, REST detail responses, and MCP `get_config`. Set to `false` to display the full content independently of `DSD_MASK_ENV`. Invalid values keep content hidden. | `true` |
 | `DSD_HANDLE_LOGS` | Set to `false` to prevent fetching and displaying logs. | `true` |
 | `DSD_LOG_BUFFER_SIZE` | Maximum number of log lines buffered while streaming to a slow WebSocket client. Must be a positive integer. | `64` |
 | `DSD_MCP_ENABLED` | Enable the built-in Model Context Protocol (MCP) server and MCP connection page. | `true` |
@@ -114,6 +115,45 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_SHOW_NAMES_BUTTONS` | Show action buttons in entity names by default. Either `true` or `false`. | `true` |
 | `DSD_SHOW_NAV_LABELS` | Show navigation labels by default. Either `true` or `false`. | `false` |
 | `DSD_MAX_CONTENT_WIDTH` | Maximum content width. Either `fluid` (full width) or `fixed` (container width). | `fluid` |
+
+### Configs and Secrets inventories
+
+The **Configs** and **Secrets** pages provide separate read-only inventories and
+metadata details. Details list every consuming service
+and its declared file target, UID, GID, and octal mode; runtime config targets are
+identified separately. Service and stack links lead back to the existing views. The service detail
+page shows tasks, configs, and secrets together in the first **Resources** tab.
+Config and secret names use the standard detail action to open their dedicated
+detail pages directly by ID. Inventories and
+detail pages have separate URL-hash views (`configs` / `configsDetail` and
+`secrets` / `secretsDetail`); details can be linked directly and refreshed.
+
+REST endpoints are `GET /docker/configs`, `GET /docker/secrets`, and their
+`/{id}` detail routes (under `DSD_PATH_PREFIX` when configured). List queries
+accept `name` (case-insensitive substring), `stack` (exact name), and `usage`
+(`referenced`, `unreferenced`, or `unknown`). Equivalent MCP tools are
+`list_configs`, `list_secrets`, `get_config`, and `get_secret`; detail tools take
+`identifier` as the resource ID.
+
+Responses include IDs, names, Docker version indexes, creation/update timestamps,
+stack labels, masked metadata labels, and service mount references. List responses
+always exclude payloads. Config details show a content visibility status: content
+is hidden by default (`DSD_HIDE_CONFIG_CONTENT=true`). Set this variable to `false`
+to retrieve and display the full config content through the detail page, REST
+`GET /docker/configs/{id}`, and MCP `get_config`. Text is returned as UTF-8;
+binary content is represented as Base64. Empty configs are distinguished from
+unavailable content. Secret payloads are never returned.
+
+`DSD_MASK_ENV` continues to control metadata masking independently; it has no
+effect on config content visibility. Names and timestamps do not imply
+an expiry date, rotation schedule, or version-name convention.
+
+Usage is recomputed from current service specifications on every refresh. If the
+service query fails, `usageKnown=false` and resources have `usage=unknown`; they
+are never classified as unused. Missing resource IDs still referenced by services
+are included with `missing=true`, accounting for changes between Docker queries.
+These queries are not an atomic cluster snapshot. Unreferenced resources are
+shown as cleanup candidates for operator review; the dashboard never deletes them.
 
 ### Swarm control-plane observations
 

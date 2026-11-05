@@ -1,5 +1,5 @@
 // Combined tests for DetailsServiceComponent
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
 
 jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
@@ -488,7 +488,7 @@ describe('DetailsServiceComponent', () => {
     })
 
     expect(screen.getByText('Metrics')).toBeInTheDocument()
-    expect(screen.getByText('Tasks')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Resources' })).toBeInTheDocument()
     expect(screen.getByText('Table')).toBeInTheDocument()
     expect(screen.getByText('JSON')).toBeInTheDocument()
   })
@@ -851,4 +851,25 @@ describe('DetailsServiceComponent', () => {
     // Should use 'unknown' fallback
     expect(screen.getByText(/Service "unknown"/)).toBeInTheDocument()
   })
+})
+
+test.each([['Configs', 'configs', 'Config'], ['Secrets', 'secrets', 'Secret']])('links %s from service container references', async (label, kind, prefix) => {
+ mockUseAtomValue.mockImplementation((atom) => {
+  if (atom === 'serviceDetailAtom') return { service: { ID: 'service-linked', Spec: { Name: 'linked-service', TaskTemplate: { ContainerSpec: { [label]: [{ [prefix + 'ID']: 'resource-id', [prefix + 'Name']: 'linked-resource', File: { Name: '/target', Mode: 292 } }] } } } }, tasks: [] }
+  if (atom === 'baseUrlAtom') return '/'
+  if (atom === 'currentVariantAtom') return 'light'
+  if (atom === 'tableSizeAtom') return 'sm'
+  return null
+ })
+ global.fetch.mockResolvedValue({ json: async () => ({ available: false }) })
+ await act(async () => { render(<DetailsServiceComponent />) })
+ fireEvent.click(screen.getByRole('tab', { name: 'Resources' }))
+ fireEvent.click(screen.getByRole('button', { name: 'linked-resource' }))
+ expect(mockSetView).toHaveBeenCalledWith({ id: kind + 'Detail', detail: 'resource-id' })
+})
+
+// Resource navigation is exercised independently through the shared name component.
+jest.mock('../../../src/components/shared/names/ResourceName', () => ({ name, id, kind }) => {
+  const [, setView] = require('jotai').useAtom(require('../../../src/common/store/atoms/navigationAtoms').viewAtom)
+  return <button disabled={!id} onClick={() => setView({ id: kind + 'Detail', detail: id })}>{name}</button>
 })

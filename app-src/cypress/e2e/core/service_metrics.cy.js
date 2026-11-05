@@ -34,8 +34,8 @@ describe('Service Metrics Tests', () => {
         .find('button.name-open-btn')
         .click()
 
-      // Click on Tasks tab
-      cy.contains('button', 'Tasks', { timeout: 5000 }).should('be.visible').click()
+      // Open the shared resources tab
+      cy.contains('button', 'Resources', { timeout: 5000 }).should('be.visible').click()
 
       // Verify tasks table exists
       cy.get('table', { timeout: 5000 }).should('exist')
@@ -60,8 +60,8 @@ describe('Service Metrics Tests', () => {
         .find('button.name-open-btn')
         .click()
 
-      // Click on Tasks tab
-      cy.contains('button', 'Tasks', { timeout: 5000 }).should('be.visible').click()
+      // Open the shared resources tab
+      cy.contains('button', 'Resources', { timeout: 5000 }).should('be.visible').click()
 
       // Verify table exists
       cy.get('table', { timeout: 5000 }).should('exist')
@@ -72,7 +72,7 @@ describe('Service Metrics Tests', () => {
     
   })
 
-  it('metrics tab is the default/first tab in service details', () => {
+  it('resources tab is the default/first tab in service details', () => {
     
       // Navigate to Dashboard
       cy.get('a[aria-label="Dashboard"]').click()
@@ -85,10 +85,8 @@ describe('Service Metrics Tests', () => {
         .find('button.name-open-btn')
         .click()
 
-      // Verify Metrics tab is active (has 'active' class or is visible)
-      cy.contains('button', 'Metrics', { timeout: 5000 })
-        .should('be.visible')
-        .should('have.class', 'active')
+      // Verify the first resources tab is active
+      cy.get('[role=tab]').first().should('have.text', 'Resources').should('have.class', 'active')
     
   })
 
@@ -105,8 +103,8 @@ describe('Service Metrics Tests', () => {
         .find('button.name-open-btn')
         .click()
 
-      // Verify Metrics tab is shown (should be default)
-      cy.contains('button', 'Metrics', { timeout: 5000 }).should('be.visible')
+      // Open the metrics tab
+      cy.contains('button', 'Metrics', { timeout: 5000 }).should('be.visible').click()
 
       // Check for canvas elements (charts) or metric content
       // In mock environment, we might see "not available" messages instead
