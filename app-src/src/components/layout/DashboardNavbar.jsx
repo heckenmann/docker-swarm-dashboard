@@ -34,6 +34,8 @@ import {
 } from '../../common/store/atoms/dashboardAtoms'
 import {
   aboutId,
+  configsId,
+  secretsId,
   dashboardHId,
   logsId,
   mcpId,
@@ -221,6 +223,25 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
                 {showNavLabels && ' Tasks'}
               </Nav.Link>,
             )}
+            {[
+              [configsId, 'Configs', 'file'],
+              [secretsId, 'Secrets', 'key'],
+            ].map(([id, label, icon]) => (
+              <React.Fragment key={id}>
+                {navTip(
+                  'tt-' + id,
+                  label,
+                  <Nav.Link
+                    aria-label={label}
+                    onClick={() => navigate(id)}
+                    active={view?.id === id || view?.id === id + 'Detail'}
+                  >
+                    <FontAwesomeIcon icon={icon} />
+                    {showNavLabels && ' ' + label}
+                  </Nav.Link>,
+                )}
+              </React.Fragment>
+            ))}
             {navTip(
               'tt-ports',
               'Ports',

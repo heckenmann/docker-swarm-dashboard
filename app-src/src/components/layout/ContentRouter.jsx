@@ -3,6 +3,10 @@ import React from 'react'
 import { loadable } from '../../common/store/loadable'
 import {
   aboutId,
+  configsId,
+  configsDetailId,
+  secretsDetailId,
+  secretsId,
   dashboardHId,
   dashboardVId,
   debugId,
@@ -25,6 +29,8 @@ import DashboardComponent from '../dashboard/DashboardComponent'
 import DashboardVerticalComponent from '../dashboard/DashboardVerticalComponent'
 import TimelineComponent from '../timeline/TimelineComponent.jsx'
 import DetailsServiceComponent from '../services/DetailsServiceComponent'
+import DetailsResourceComponent from '../resources/DetailsResourceComponent.jsx'
+import ResourceInventoryComponent from '../resources/ResourceInventoryComponent.jsx'
 import StacksComponent from '../stacks/StacksComponent'
 import PortsComponent from '../ports/PortsComponent'
 import NodesComponent from '../nodes/NodesComponent'
@@ -76,6 +82,14 @@ const ContentRouter = React.memo(function ContentRouter() {
     [timelineId]: <TimelineComponent />,
     [servicesDetailId]: <DetailsServiceComponent />,
     [stacksId]: <StacksComponent />,
+    [configsId]: <ResourceInventoryComponent key="configs" kind="configs" />,
+    [secretsId]: <ResourceInventoryComponent key="secrets" kind="secrets" />,
+    [configsDetailId]: (
+      <DetailsResourceComponent key="configsDetail" kind="configs" />
+    ),
+    [secretsDetailId]: (
+      <DetailsResourceComponent key="secretsDetail" kind="secrets" />
+    ),
     [portsId]: <PortsComponent />,
     [nodesId]: <NodesComponent />,
     [nodesDetailId]: <DetailsNodeComponent />,

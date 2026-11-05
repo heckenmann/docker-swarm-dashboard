@@ -55,6 +55,8 @@ jest.mock('../../../src/common/store/reducers', () => ({
 
 jest.mock('../../../src/common/navigationConstants', () => ({
   aboutId: 'about',
+  configsId: 'configs',
+  secretsId: 'secrets',
   dashboardHId: 'dashboardH',
   logsId: 'logs',
   mcpId: 'mcp',
@@ -606,4 +608,10 @@ describe('DashboardNavbar (combined)', () => {
     expect(mockUpdateView).toHaveBeenCalledTimes(1)
     expect(mockUpdateView).toHaveBeenCalledWith({ id: 'mcp' })
   })
+})
+
+test.each([['Configs', 'configs'], ['Secrets', 'secrets']])('opens %s inventory', (label, id) => {
+ const { mockUpdateView } = setup()
+ fireEvent.click(screen.getByRole('button', { name: label }))
+ expect(mockUpdateView).toHaveBeenCalledWith({ id })
 })
