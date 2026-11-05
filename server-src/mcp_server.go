@@ -195,6 +195,7 @@ func newMCPServer() *mcp.Server {
 		registerMCPLogTools(server)
 	}
 
+	addResourceInventoryTools(server)
 	return server
 }
 
@@ -332,4 +333,25 @@ func queryServiceLogs(ctx context.Context, input mcpServiceLogsInput) (map[strin
 func addMCPTool[In, Out any](server *mcp.Server, tool *mcp.Tool, handler mcp.ToolHandlerFor[In, Out]) {
 	tool.Annotations = &mcp.ToolAnnotations{ReadOnlyHint: true, IdempotentHint: true}
 	mcp.AddTool(server, tool, handler)
+}
+
+// addResourceInventoryTools shares the same visibility policy as REST.
+func addResourceInventoryTools(server *mcp.Server) {
+	for _, kind := range []string{"configs", "secrets"} {
+		addMCPTool(server, &mcp.Tool{Name: "get_" + strings.TrimSuffix(kind, "s"), Description: "Get Docker " + kind + " metadata and every service mount by resource ID. Content is hidden by default; DSD_HIDE_CONFIG_CONTENT controls config content independently of DSD_MASK_ENV. Secret payloads are never returned. Usage can be unknown."}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
+			inventory, err := queryResourceInventory(ctx, kind, resourceFilter{})
+			if err != nil {
+				return nil, nil, err
+			}
+			resource, err := findResource(inventory, input.Identifier)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, queryResourceDetail(ctx, kind, resource), nil
+		})
+		addMCPTool(server, &mcp.Tool{Name: "list_" + kind, Description: "List Docker " + kind + " metadata and service mount usage. Payloads are never returned. Missing resources are marked; unknown usage must not be treated as unused."}, func(ctx context.Context, _ *mcp.CallToolRequest, input resourceFilter) (*mcp.CallToolResult, any, error) {
+			result, err := queryResourceInventory(ctx, kind, input)
+			return nil, result, err
+		})
+	}
 }
