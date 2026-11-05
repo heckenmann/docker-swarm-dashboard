@@ -13,6 +13,7 @@ import { viewAtom } from '../../common/store/atoms/navigationAtoms'
 import JsonTable from '../shared/JsonTable.jsx'
 import ServiceMetricsComponent from './ServiceMetricsComponent'
 import ServiceTasksTab from './details/ServiceTasksTab'
+import ServiceResourcesTab from './details/ServiceResourcesTab'
 
 import MetricCard from '../shared/MetricCard.jsx'
 
@@ -20,7 +21,7 @@ import MetricCard from '../shared/MetricCard.jsx'
  * DetailsServiceComponent - Displays comprehensive details for a Docker service.
  *
  * Shows service metrics (memory usage charts), a tasks table with per-task
- * metrics (memory, CPU), structured properties table, and raw JSON view.
+ * metrics (memory, CPU), linked configs/secrets, structured properties, and JSON.
  * Fetches task metrics from the backend API.
  *
  * @returns {JSX.Element|null} The service details view or null if no service is selected
@@ -114,16 +115,30 @@ const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
         </div>
       </Card.Header>
       <Card.Body style={{ overflowY: 'auto' }}>
-        <Tabs className="mb-3" defaultActiveKey="metrics">
+        <Tabs className="mb-3" defaultActiveKey="resources">
+          <Tab eventKey="resources" title="Resources">
+            <div className="d-flex flex-column gap-3">
+              <ServiceTasksTab
+                tasksForService={tasksForService}
+                taskMetrics={taskMetrics}
+                metricsLoading={metricsLoading}
+              />
+              <ServiceResourcesTab
+                kind="configs"
+                references={
+                  serviceObj?.Spec?.TaskTemplate?.ContainerSpec?.Configs || []
+                }
+              />
+              <ServiceResourcesTab
+                kind="secrets"
+                references={
+                  serviceObj?.Spec?.TaskTemplate?.ContainerSpec?.Secrets || []
+                }
+              />
+            </div>
+          </Tab>
           <Tab eventKey="metrics" title="Metrics">
             <ServiceMetricsComponent serviceId={serviceObj?.ID} />
-          </Tab>
-          <Tab eventKey="tasks" title="Tasks">
-            <ServiceTasksTab
-              tasksForService={tasksForService}
-              taskMetrics={taskMetrics}
-              metricsLoading={metricsLoading}
-            />
           </Tab>
           <Tab eventKey="table" title="Table">
             <MetricCard title="Service Properties" icon="table" noBody={true}>

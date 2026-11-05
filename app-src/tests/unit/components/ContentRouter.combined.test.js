@@ -45,6 +45,9 @@ jest.mock('../../../src/components/misc/DebugComponent', () => () => <div data-t
 jest.mock('../../../src/components/misc/VersionUpdateComponent.jsx', () => () => <div data-testid="version-update" />)
 jest.mock('../../../src/components/misc/McpComponent.jsx', () => () => <div data-testid="mcp" />)
 
+jest.mock('../../../src/components/resources/ResourceInventoryComponent.jsx', () => ({ kind }) => <div data-testid={kind} />)
+
+jest.mock('../../../src/components/resources/DetailsResourceComponent.jsx', () => ({ kind }) => <div data-testid={kind + '-details'} />)
 const ContentRouter = require('../../../src/components/layout/ContentRouter').default
 
 describe('ContentRouter', () => {
@@ -153,4 +156,17 @@ describe('ContentRouter', () => {
     expect(screen.getByTestId('mcp')).toBeInTheDocument()
   })
 
+})
+
+test.each(['configs', 'secrets'])('routes to %s', (kind) => {
+ mockUseAtomValue.mockImplementation((atom) => atom === 'viewAtom' ? { id: kind } : null)
+ render(<ContentRouter />)
+ expect(screen.getByTestId(kind)).toBeInTheDocument()
+})
+
+test.each(['configs', 'secrets'])('routes to a dedicated %s detail page', (kind) => {
+ mockUseAtomValue.mockImplementation((atom) => atom === 'viewAtom' ? { id: kind + 'Detail', detail: 'resource1' } : null)
+ render(<ContentRouter />)
+ expect(screen.getByTestId(kind + '-details')).toBeInTheDocument()
+ expect(screen.queryByTestId(kind)).not.toBeInTheDocument()
 })

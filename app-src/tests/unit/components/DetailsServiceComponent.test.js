@@ -1,5 +1,5 @@
 // Combined tests for DetailsServiceComponent
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
 
 jest.mock('../../../src/common/store/atoms/themeAtoms', () => ({
   currentVariantAtom: 'currentVariantAtom',
@@ -81,6 +81,7 @@ global.fetch = jest.fn()
 const mockUseAtomValue = jest.fn()
 const mockSetView = jest.fn()
 jest.mock('jotai', () => ({
+  useSetAtom: () => mockSetView,
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (atom) => {
     if (atom === 'viewAtom')
@@ -488,7 +489,7 @@ describe('DetailsServiceComponent', () => {
     })
 
     expect(screen.getByText('Metrics')).toBeInTheDocument()
-    expect(screen.getByText('Tasks')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Resources' })).toBeInTheDocument()
     expect(screen.getByText('Table')).toBeInTheDocument()
     expect(screen.getByText('JSON')).toBeInTheDocument()
   })
@@ -852,3 +853,22 @@ describe('DetailsServiceComponent', () => {
     expect(screen.getByText(/Service "unknown"/)).toBeInTheDocument()
   })
 })
+
+test.each([['Configs', 'configs', 'Config'], ['Secrets', 'secrets', 'Secret']])('links %s from service container references', async (label, kind, prefix) => {
+ mockUseAtomValue.mockImplementation((atom) => {
+  if (atom === 'serviceDetailAtom') return { service: { ID: 'service-linked', Spec: { Name: 'linked-service', TaskTemplate: { ContainerSpec: { [label]: [{ [prefix + 'ID']: 'resource-id', [prefix + 'Name']: 'linked-resource', File: { Name: '/target', Mode: 292 } }] } } } }, tasks: [] }
+  if (atom === 'baseUrlAtom') return '/'
+  if (atom === 'currentVariantAtom') return 'light'
+  if (atom === 'tableSizeAtom') return 'sm'
+  return null
+ })
+ global.fetch.mockResolvedValue({ json: async () => ({ available: false }) })
+ await act(async () => { render(<DetailsServiceComponent />) })
+ fireEvent.click(screen.getByRole('tab', { name: 'Resources' }))
+ fireEvent.click(screen.getByRole('button', { name: 'linked-resource' }))
+ expect(mockSetView).toHaveBeenCalledWith({ id: kind + 'Detail', detail: 'resource-id' })
+})
+
+jest.mock('../../../src/components/shared/names/EntityName', () =>
+  require('../mocks/MockEntityName').default,
+)

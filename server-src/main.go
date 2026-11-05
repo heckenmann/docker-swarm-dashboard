@@ -58,6 +58,10 @@ func buildHandler() http.Handler {
 	originsOk := handlers.AllowedOriginValidator(isCORSOriginAllowed)
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
+	apiRouter.HandleFunc("/docker/configs/{id}", resourceInventoryHandler("configs"))
+	apiRouter.HandleFunc("/docker/secrets/{id}", resourceInventoryHandler("secrets"))
+	apiRouter.HandleFunc("/docker/configs", resourceInventoryHandler("configs"))
+	apiRouter.HandleFunc("/docker/secrets", resourceInventoryHandler("secrets"))
 	apiRouter.HandleFunc("/docker/services", dockerServicesHandler)
 	apiRouter.HandleFunc("/docker/services/{id}", dockerServicesDetailsHandler)
 	apiRouter.HandleFunc("/docker/services/{id}/metrics", serviceMetricsHandler)

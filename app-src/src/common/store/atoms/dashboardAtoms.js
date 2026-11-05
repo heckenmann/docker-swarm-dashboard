@@ -162,3 +162,42 @@ export const dashboardSettingsDefaultLayoutViewIdAtom = atom((get) =>
     defaultLayout === 'row' ? dashboardHId : dashboardVId,
   ),
 )
+
+/**
+ * Fetch resource metadata again whenever navigation or refresh changes.
+ * @param {string} kind - Docker resource kind.
+ * @returns {object} Async inventory atom.
+ */
+const resourceInventoryAtom = (kind) =>
+  atom(async (get) => {
+    get(viewAtom)
+    const response = await fetch(get(baseUrlAtom) + 'docker/' + kind)
+    if (!response.ok) throw new Error('Failed to fetch ' + kind)
+    return response.json()
+  })
+
+export const configsAtom = resourceInventoryAtom('configs')
+export const secretsAtom = resourceInventoryAtom('secrets')
+
+/**
+ * Fetch a resource detail independently of the inventory page.
+ * @param {string} kind - Configs or secrets.
+ * @returns {object} Async detail atom.
+ */
+const resourceDetailAtom = (kind) =>
+  atom(async (get) => {
+    const view = get(viewAtom)
+    if (view?.id !== kind + 'Detail' || !view.detail) return null
+    const response = await fetch(
+      get(baseUrlAtom) +
+        'docker/' +
+        kind +
+        '/' +
+        encodeURIComponent(view.detail),
+    )
+    if (response.status === 404) return null
+    if (!response.ok) throw new Error('Failed to fetch resource details')
+    return response.json()
+  })
+export const configDetailAtom = resourceDetailAtom('configs')
+export const secretDetailAtom = resourceDetailAtom('secrets')

@@ -15,3 +15,9 @@ export const logsId = 'logs'
 export const mcpId = 'mcp'
 export const debugId = 'debug'
 export const versionUpdateId = 'versionUpdate'
+
+export const configsId = 'configs'
+export const secretsId = 'secrets'
+
+export const configsDetailId = 'configsDetail'
+export const secretsDetailId = 'secretsDetail'
