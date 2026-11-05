@@ -81,6 +81,7 @@ global.fetch = jest.fn()
 const mockUseAtomValue = jest.fn()
 const mockSetView = jest.fn()
 jest.mock('jotai', () => ({
+  useSetAtom: () => mockSetView,
   useAtomValue: (...args) => mockUseAtomValue(...args),
   useAtom: (atom) => {
     if (atom === 'viewAtom')
@@ -868,8 +869,6 @@ test.each([['Configs', 'configs', 'Config'], ['Secrets', 'secrets', 'Secret']])(
  expect(mockSetView).toHaveBeenCalledWith({ id: kind + 'Detail', detail: 'resource-id' })
 })
 
-// Resource navigation is exercised independently through the shared name component.
-jest.mock('../../../src/components/shared/names/ResourceName', () => ({ name, id, kind }) => {
-  const [, setView] = require('jotai').useAtom(require('../../../src/common/store/atoms/navigationAtoms').viewAtom)
-  return <button disabled={!id} onClick={() => setView({ id: kind + 'Detail', detail: id })}>{name}</button>
-})
+jest.mock('../../../src/components/shared/names/EntityName', () =>
+  require('../mocks/MockEntityName').default,
+)

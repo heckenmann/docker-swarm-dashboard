@@ -43,7 +43,7 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
       name:
         (isConfig ? reference.ConfigName : reference.SecretName) ||
         (isConfig ? reference.ConfigID : reference.SecretID) ||
-        '',
+        'Unknown resource',
       target:
         isConfig && reference.Runtime
           ? 'Runtime target'
@@ -94,28 +94,19 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
         </thead>
         <tbody>
           {resources.map((reference, index) => {
-            const id = isConfig ? reference.ConfigID : reference.SecretID
-            const name =
-              (isConfig ? reference.ConfigName : reference.SecretName) ||
-              id ||
-              'Unknown resource'
-            const file = reference.File
+            const { id, name, target, uid, gid, mode } = reference
             return (
               <tr key={`${id}:${index}`}>
                 <td className="text-nowrap">
                   <ResourceName name={name} id={id} kind={kind} />
                 </td>
                 <td className="font-monospace text-nowrap">{id || '—'}</td>
-                <td className="font-monospace text-break">
-                  {isConfig && reference.Runtime
-                    ? 'Runtime target'
-                    : file?.Name || '—'}
-                </td>
-                <td className="text-nowrap">{file?.UID || '—'}</td>
-                <td className="text-nowrap">{file?.GID || '—'}</td>
+                <td className="font-monospace text-break">{target || '—'}</td>
+                <td className="text-nowrap">{uid || '—'}</td>
+                <td className="text-nowrap">{gid || '—'}</td>
                 <td className="font-monospace text-nowrap">
-                  {typeof file?.Mode === 'number'
-                    ? file.Mode.toString(8).padStart(4, '0')
+                  {typeof mode === 'number'
+                    ? mode.toString(8).padStart(4, '0')
                     : '—'}
                 </td>
               </tr>

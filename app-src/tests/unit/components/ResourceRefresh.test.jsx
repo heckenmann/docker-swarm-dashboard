@@ -180,21 +180,7 @@ it.each(['hidden', 'error'])(
   },
 )
 
-// Resource navigation is exercised independently through the shared name component.
 jest.mock(
-  '../../../src/components/shared/names/ResourceName',
-  () =>
-    ({ name, id, kind }) => {
-      const [, setView] = require('jotai').useAtom(
-        require('../../../src/common/store/atoms/navigationAtoms').viewAtom,
-      )
-      return (
-        <button
-          disabled={!id}
-          onClick={() => setView({ id: kind + 'Detail', detail: id })}
-        >
-          {name}
-        </button>
-      )
-    },
+  '../../../src/components/shared/names/EntityName',
+  () => require('../mocks/MockEntityName').default,
 )

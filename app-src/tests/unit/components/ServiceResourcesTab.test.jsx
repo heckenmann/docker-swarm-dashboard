@@ -6,6 +6,7 @@ let mockVariant = 'light'
 const mockSetView = jest.fn()
 jest.mock('jotai', () => ({
   useAtom: () => [null, mockSetView],
+  useSetAtom: () => mockSetView,
   useAtomValue: (atom) => (atom === 'size' ? mockSize : mockVariant),
 }))
 jest.mock('../../../src/common/store/atoms/navigationAtoms', () => ({
@@ -125,8 +126,7 @@ it('sorts names and numeric modes with the standard reset cycle', () => {
   expect(table.closest('.card').querySelector('.card-body')).toBeNull()
 })
 
-// Resource navigation is exercised independently through the shared name component.
-jest.mock('../../../src/components/shared/names/ResourceName', () => ({ name, id, kind }) => {
-  const [, setView] = require('jotai').useAtom(require('../../../src/common/store/atoms/navigationAtoms').viewAtom)
-  return <button disabled={!id} onClick={() => setView({ id: kind + 'Detail', detail: id })}>{name}</button>
-})
+jest.mock(
+  '../../../src/components/shared/names/EntityName',
+  () => require('../mocks/MockEntityName').default,
+)

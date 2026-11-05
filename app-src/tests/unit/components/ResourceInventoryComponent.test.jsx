@@ -8,7 +8,10 @@ let mockDetail
 const mockSetStack = jest.fn()
 jest.mock('jotai', () => ({
   useAtom: () => require('react').useContext(mockNavigationContext),
-  useSetAtom: () => mockSetStack,
+  useSetAtom: (atom) =>
+    atom === 'view'
+      ? require('react').useContext(mockNavigationContext)[1]
+      : mockSetStack,
   useAtomValue: (atom) => {
     const [view] = require('react').useContext(mockNavigationContext)
     if (atom === 'configDetail' || atom === 'secretDetail') {
@@ -363,21 +366,7 @@ it('uses a separate detail page with the standard header', () => {
   ).not.toBeInTheDocument()
 })
 
-// Resource navigation is exercised independently through the shared name component.
 jest.mock(
-  '../../../src/components/shared/names/ResourceName',
-  () =>
-    ({ name, id, kind }) => {
-      const [, setView] = require('jotai').useAtom(
-        require('../../../src/common/store/atoms/navigationAtoms').viewAtom,
-      )
-      return (
-        <button
-          disabled={!id}
-          onClick={() => setView({ id: kind + 'Detail', detail: id })}
-        >
-          {name}
-        </button>
-      )
-    },
+  '../../../src/components/shared/names/EntityName',
+  () => require('../mocks/MockEntityName').default,
 )
