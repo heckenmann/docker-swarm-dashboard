@@ -55,6 +55,7 @@ jest.mock('../../../src/common/store/reducers', () => ({
 
 jest.mock('../../../src/common/navigationConstants', () => ({
   aboutId: 'about',
+  networksId: 'networks',
   configsId: 'configs',
   secretsId: 'secrets',
   dashboardHId: 'dashboardH',

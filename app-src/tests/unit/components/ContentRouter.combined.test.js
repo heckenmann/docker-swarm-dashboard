@@ -27,6 +27,8 @@ jest.mock('../../../src/common/store/loadable', () => ({
   loadable: (atom) => ({ __loadable: atom }),
 }))
 
+jest.mock('../../../src/components/networks/NetworksComponent.jsx', () => () => <div data-testid="networks" />)
+
 // Mock all components to test routing logic only
 jest.mock('../../../src/components/dashboard/DashboardComponent', () => () => <div data-testid="dashboard-h" />)
 jest.mock('../../../src/components/dashboard/DashboardVerticalComponent', () => () => <div data-testid="dashboard-v" />)
@@ -170,3 +172,9 @@ test.each(['configs', 'secrets'])('routes to a dedicated %s detail page', (kind)
  expect(screen.getByTestId(kind + '-details')).toBeInTheDocument()
  expect(screen.queryByTestId(kind)).not.toBeInTheDocument()
 })
+
+ test.each(['networks', 'networksDetail'])('routes to %s', id => {
+ mockUseAtomValue.mockImplementation(atom => atom === 'viewAtom' ? {id} : 'dashboardH')
+ render(<ContentRouter />)
+ expect(screen.getByTestId('networks')).toBeInTheDocument()
+ })
