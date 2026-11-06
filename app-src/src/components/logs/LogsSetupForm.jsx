@@ -130,7 +130,7 @@ const LogsSetupForm = React.memo(function LogsSetupForm() {
         <Col sm="10">
           <InputGroup className="mb-2">
             <InputGroup.Text>
-              <FontAwesomeIcon icon="search" />
+              <FontAwesomeIcon icon="filter" />
             </InputGroup.Text>
             <Form.Control
               type="text"

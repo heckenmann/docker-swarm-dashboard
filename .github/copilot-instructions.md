@@ -137,6 +137,14 @@ go vet ./...
 
 ---
 
+## UI consistency (mandatory)
+
+Read [`docs/ui-guidelines.md`](../docs/ui-guidelines.md) before changing UI.
+It defines table styling, sorting, density, entity actions, filter navigation,
+responsive verification, and the icon-to-meaning mapping. Never use the same
+icon for two different concepts (for example, `server` is nodes, while
+`network-wired` is networks). Reuse existing components and patterns.
+
 ## 3. Code Style Guidelines
 
 ### Imports Organization
@@ -241,7 +249,7 @@ Within each group, sort alphabetically.
 - **JSDoc:** keep `@param` / `@returns` comments current on all exported functions and components.
 - **UI styling:** Bootstrap utility classes first; custom CSS only as last resort.
 - **CSS Modularization:** Prefer component-specific `.css` files (e.g., `DSDCard.css`) over global `App.css`.
-- **DSDCard:** Always use the `body` prop for table content to ensure the `.card-body` wrapper (and thus proper padding/background) is rendered.
+- **Table cards:** Tables must render directly inside the card, without a `Card.Body` wrapper or surrounding padding. Pass table content as `DSDCard` children; use `MetricCard noBody={true}`. Do not use the `body` prop or a padded container for table cards.
 - **Table Layout & Density:**
     - Header height is fixed at **28px** for high data density.
     - Entity names (Services, Nodes, Stacks) must have `white-space: nowrap`.
