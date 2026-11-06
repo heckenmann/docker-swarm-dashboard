@@ -195,6 +195,14 @@ func newMCPServer() *mcp.Server {
 		registerMCPLogTools(server)
 	}
 
+	addMCPTool(server, &mcp.Tool{Name: "list_networks", Description: "List network configuration and service attachments. " + networkObservation}, func(ctx context.Context, _ *mcp.CallToolRequest, input networkFilter) (*mcp.CallToolResult, any, error) {
+		result, err := queryNetworkInventory(ctx, input)
+		return nil, result, err
+	})
+	addMCPTool(server, &mcp.Tool{Name: "get_network", Description: "Inspect a network by full ID, including daemon-local endpoints and peers. " + networkObservation}, func(ctx context.Context, _ *mcp.CallToolRequest, input mcpEntityInput) (*mcp.CallToolResult, any, error) {
+		result, err := queryNetworkDetail(ctx, input.Identifier)
+		return nil, result, err
+	})
 	addResourceInventoryTools(server)
 	return server
 }

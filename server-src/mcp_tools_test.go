@@ -80,6 +80,10 @@ container_spec_memory_limit_bytes{id="/docker/container1",name="web.1.task1",con
 			return false
 		}
 		switch r.URL.Path {
+		case "/v1.35/networks":
+			_, _ = fmt.Fprint(w, `[{"Id":"network1","Name":"shared","Driver":"overlay","Scope":"swarm"}]`)
+		case "/v1.35/networks/network1":
+			_, _ = fmt.Fprint(w, `{"Id":"network1","Name":"shared","Driver":"overlay","Scope":"swarm"}`)
 		case "/v1.35/configs", "/v1.35/secrets":
 			_, _ = fmt.Fprint(w, `[{"ID":"resource1","Spec":{"Name":"example"}}]`)
 		case "/v1.35/services":
@@ -175,6 +179,7 @@ func TestMCPTools_RepresentativeDataAndDiscovery(t *testing.T) {
 		{"list_tasks", map[string]any{"service": "web", "node": "host1"}, "tasks"},
 		{"get_task", map[string]any{"identifier": "task1"}, "NodeName"},
 		{"get_task_metrics", map[string]any{"identifier": "task1"}, "metrics"},
+		{"list_networks", nil, "networks"}, {"get_network", map[string]any{"identifier": "network1"}, "network"},
 		{"list_configs", nil, "resources"}, {"list_secrets", nil, "resources"},
 		{"get_config", map[string]any{"identifier": "resource1"}, "id"}, {"get_secret", map[string]any{"identifier": "resource1"}, "id"},
 		{"list_stacks", nil, "stacks"}, {"list_published_ports", nil, "ports"},
