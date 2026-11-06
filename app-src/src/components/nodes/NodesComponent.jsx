@@ -190,79 +190,78 @@ const NodesComponent = React.memo(function NodesComponent() {
       <DSDCard
         icon="server"
         title="Nodes"
-        bodyClassName="p-0"
+
         headerActions={
           <span className="small text-body-secondary">
             {nodes.length} {nodes.length === 1 ? 'node' : 'nodes'}
           </span>
         }
-        body={
-          <Table
-            variant={currentVariant}
-            key="nodesTable"
-            id="nodes-table"
-            striped
-            responsive
-            hover
-            size={tableSize}
-            className="mb-0"
-          >
-            <thead>
-              <tr>
-                <SortableHeader
-                  column="Hostname"
-                  label="Node"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="ps-3"
-                />
-                <SortableHeader
-                  column="Role"
-                  label="Role"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="text-nowrap"
-                />
+      >
+        <Table
+          variant={currentVariant}
+          key="nodesTable"
+          id="nodes-table"
+          striped
+          responsive
+          hover
+          size={tableSize}
+          className="mb-0"
+        >
+          <thead>
+            <tr>
+              <SortableHeader
+                column="Hostname"
+                label="Node"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="ps-3"
+              />
+              <SortableHeader
+                column="Role"
+                label="Role"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="text-nowrap"
+              />
 
-                <th className="text-nowrap">Engine / Platform</th>
-                <SortableHeader
-                  column="State"
-                  label="State"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="text-nowrap"
-                />
-                <SortableHeader
-                  column="Availability"
-                  label="Availability"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="text-nowrap"
-                />
-                <SortableHeader
-                  column="StatusAddr"
-                  label="IP"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="text-nowrap"
-                />
-                <th className="text-center" style={{ width: '80px' }}>
-                  Memory
-                </th>
-                <th className="text-center" style={{ width: '80px' }}>
-                  Disk
-                </th>
-              </tr>
-            </thead>
-            <tbody>{trows}</tbody>
-          </Table>
-        }
-      />
+              <th className="text-nowrap">Engine / Platform</th>
+              <SortableHeader
+                column="State"
+                label="State"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="text-nowrap"
+              />
+              <SortableHeader
+                column="Availability"
+                label="Availability"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="text-nowrap"
+              />
+              <SortableHeader
+                column="StatusAddr"
+                label="IP"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="text-nowrap"
+              />
+              <th className="text-center" style={{ width: '80px' }}>
+                Memory
+              </th>
+              <th className="text-center" style={{ width: '80px' }}>
+                Disk
+              </th>
+            </tr>
+          </thead>
+          <tbody>{trows}</tbody>
+        </Table>
+      </DSDCard>
     </div>
   )
 })

@@ -145,49 +145,48 @@ const StacksComponent = React.memo(function StacksComponent() {
       <DSDCard
         icon="cubes"
         title={<StackName name={stack['Name']} />}
-        bodyClassName="p-0"
-        body={
-          <Table variant={currentVariant} size={tableSize} hover>
-            <thead>
-              <tr>
-                <SortableHeader
-                  column="ServiceNameSortable"
-                  label="Service Name"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                />
-                <SortableHeader
-                  column="ReplicationSortable"
-                  label="Replication"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="col-md-1"
-                />
-                <SortableHeader
-                  column="CreatedSortable"
-                  label="Created"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="col-md-2"
-                />
-                <SortableHeader
-                  column="UpdatedSortable"
-                  label="Updated"
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  className="col-md-2"
-                />
-              </tr>
-            </thead>
-            <tbody>{createServicesForStack(stack)}</tbody>
-          </Table>
-        }
+
         key={'card_' + stack['Name']}
-      />
+      >
+        <Table variant={currentVariant} size={tableSize} hover>
+          <thead>
+            <tr>
+              <SortableHeader
+                column="ServiceNameSortable"
+                label="Service Name"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                column="ReplicationSortable"
+                label="Replication"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="col-md-1"
+              />
+              <SortableHeader
+                column="CreatedSortable"
+                label="Created"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="col-md-2"
+              />
+              <SortableHeader
+                column="UpdatedSortable"
+                label="Updated"
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                className="col-md-2"
+              />
+            </tr>
+          </thead>
+          <tbody>{createServicesForStack(stack)}</tbody>
+        </Table>
+      </DSDCard>
     ))
 
   return (

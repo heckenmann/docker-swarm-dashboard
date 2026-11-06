@@ -153,46 +153,44 @@ const DashboardVerticalComponent = React.memo(
         icon="grip-vertical"
         title="Dashboard"
         headerActions={<DashboardSettingsComponent />}
-        bodyClassName="p-0"
-        body={
-          <div className="dashboard-table-wrapper table-responsive">
-            <Table
-              variant={isDarkMode ? currentVariant : null}
-              id="dashboardTable"
-              key="dashboardTable"
-              className="dashboard-table vertical-dashboard"
-              striped
-              size={tableSize}
-              role="table"
-              aria-label="Docker Swarm Dashboard (vertical)"
-            >
-              <colgroup>
-                <col className="service-col-v" />
-                <col className="stack-column" />
-                <col style={{ width: '120px', minWidth: '120px' }} />
-                {nodes.map((node, idx) => (
-                  <col
-                    key={`col-${node?.ID || idx}`}
-                    style={{ width: '120px', minWidth: '120px' }}
-                  />
-                ))}
-                <col className="fill-col" />
-              </colgroup>
-              <thead role="rowgroup">
-                <tr role="row">
-                  <th className="service-col-v">Service</th>
-                  <th className="stack-column">Stack</th>
-                  <th style={{ width: '120px', minWidth: '120px' }}>
-                    Replication
-                  </th>
-                  {theads}
-                </tr>
-              </thead>
-              <tbody>{trows}</tbody>
-            </Table>
-          </div>
-        }
-      />
+      >
+        <div className="dashboard-table-wrapper table-responsive">
+          <Table
+            variant={isDarkMode ? currentVariant : null}
+            id="dashboardTable"
+            key="dashboardTable"
+            className="dashboard-table vertical-dashboard"
+            striped
+            size={tableSize}
+            role="table"
+            aria-label="Docker Swarm Dashboard (vertical)"
+          >
+            <colgroup>
+              <col className="service-col-v" />
+              <col className="stack-column" />
+              <col style={{ width: '120px', minWidth: '120px' }} />
+              {nodes.map((node, idx) => (
+                <col
+                  key={`col-${node?.ID || idx}`}
+                  style={{ width: '120px', minWidth: '120px' }}
+                />
+              ))}
+              <col className="fill-col" />
+            </colgroup>
+            <thead role="rowgroup">
+              <tr role="row">
+                <th className="service-col-v">Service</th>
+                <th className="stack-column">Stack</th>
+                <th style={{ width: '120px', minWidth: '120px' }}>
+                  Replication
+                </th>
+                {theads}
+              </tr>
+            </thead>
+            <tbody>{trows}</tbody>
+          </Table>
+        </div>
+      </DSDCard>
     )
   },
 )

@@ -93,9 +93,16 @@ describe('Dashboard Layout Consistency', () => {
     })
 
     it('should verify no black gap exists inside the card', () => {
-      // Check the background color of the area to the right of the table
-      cy.get('.card-body').first().should('be.visible')
-      dashboardPage.getTable().invoke('outerWidth').should('be.greaterThan', 100)
+      cy.get('.dashboard-table-wrapper').should(($wrapper) => {
+        const wrapper = $wrapper[0]
+        const card = wrapper.closest('.card')
+        expect(card.querySelector('.card-body')).to.equal(null)
+        const bounds = wrapper.getBoundingClientRect()
+        const cardBounds = card.getBoundingClientRect()
+        const style = getComputedStyle(card)
+        expect(Math.abs(bounds.left - cardBounds.left - parseFloat(style.borderLeftWidth))).to.be.lessThan(1)
+        expect(Math.abs(cardBounds.right - bounds.right - parseFloat(style.borderRightWidth))).to.be.lessThan(1)
+      })
     })
   })
 
