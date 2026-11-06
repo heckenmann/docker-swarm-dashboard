@@ -92,7 +92,7 @@
     "react-use-websocket": "^4.13.0",
     "sharp": "^0.35.5",
     "start-server-and-test": "^3.0.13",
-    "stylelint": "^17.16.0",
+    "stylelint": "^18.0.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-config-twbs-bootstrap": "^16.1.0",
     "vite": "^8.3.5",
