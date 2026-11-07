@@ -167,7 +167,7 @@ For every setting atom, verify the consuming component renders correctly.
 | `babel.config.json` | Babel presets (@babel/preset-env, @babel/preset-react) |
 | `jest.config.cjs` | Jest configuration (90% coverage threshold) |
 | `eslint.config.cjs` | ESLint rules |
-| `.stylelintrc.json` | Stylelint rules (extends bootstrap) |
+| `.stylelintrc.cjs` | Stylelint rules (extends bootstrap) |
 | `.prettierrc` | Prettier (singleQuote, no semi, 2 spaces, 80 chars) |
 | `setupTests.js` | Jest setup (polyfills, matchers) |
 

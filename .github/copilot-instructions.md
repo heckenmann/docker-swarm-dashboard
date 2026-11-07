@@ -121,7 +121,7 @@ cd app-src && yarn format:check
 
 ### Configuration Files
 - **ESLint:** `app-src/eslint.config.cjs`
-- **Stylelint:** `app-src/.stylelintrc.json` (extends stylelint-config-standard, stylelint-config-twbs-bootstrap)
+- **Stylelint:** `app-src/.stylelintrc.cjs` (extends stylelint-config-standard, stylelint-config-twbs-bootstrap)
 - **Prettier:** `app-src/.prettierrc` (singleQuote, no semi, tabWidth 2, printWidth 80)
 - **Jest:** `app-src/jest.config.cjs` (90% coverage threshold)
 - **Babel:** `app-src/babel.config.json` (@babel/preset-env, @babel/preset-react)
