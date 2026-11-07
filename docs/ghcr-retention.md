@@ -5,9 +5,15 @@ The workflow runs the official
 Scheduled runs preview untagged dashboard package versions older than 30 days.
 Snok excludes direct children of retained tagged multi-platform indexes.
 
-Release images must remain available even if their tags move or disappear.
-Current GHCR metadata cannot establish whether an untagged candidate was ever
-part of a release. The dashboard package is therefore preview-only.
+Each successful preview is checked automatically against the current package
+inventory and registry. Current tags and the manifests they reference define
+which releases are protected. The check also protects references from any
+other version that will remain in the package.
+
+Snok targets GHCR package version IDs. It does not delete layer blobs directly.
+A retained image continues to reference its layers even if a candidate uses
+the same layers. A candidate that is itself a referenced manifest blocks the
+batch. Deletion is currently disabled.
 
 ## Verify and apply in a disposable package
 
@@ -18,16 +24,18 @@ part of a release. The dashboard package is therefore preview-only.
 2. Stop all other writers to that package, including restores and retags, and
    run the workflow manually with the test package name. Review the exact
    candidate IDs in Snok's preview log.
-3. Run the workflow again from the same revision of `master`, with the same
+3. To repeat verification manually, run the workflow again from the same
+   revision of `master`, with the same
    test package and the successful first-attempt preview's run ID (no more
    than 24 hours old). The check reads Snok's
    candidate IDs from that run and verifies them against the current package
    inventory, retained manifest trees (including untagged indexes), and
    referrers. A missing or used candidate blocks the entire batch. The check
    reads the inventory again before passing the exclusions to Snok.
-4. If every candidate passes, Snok runs with all other current digests
-   excluded. The final check confirms that only the verified versions disappeared.
-   Test fresh pulls for both `linux/amd64` and `linux/arm64`.
+4. The workflow keeps the deletion and final inventory check commented out
+   during validation. If enabled for the disposable package, the final check
+   confirms that only the verified versions disappeared. Test fresh pulls for
+   both `linux/amd64` and `linux/arm64`.
 
 Snok does not accept an exact apply list, so the workflow uses its digest
 exclusion list. Test packages must have no concurrent writers and must never

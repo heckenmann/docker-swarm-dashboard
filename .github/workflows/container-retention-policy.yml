@@ -7,7 +7,7 @@ on:
         description: Disposable ghcr-retention-test-* package (empty previews production)
         type: string
       reviewed-run:
-        description: Successful test preview run ID to verify and apply (empty previews only)
+        description: Successful test preview run ID to verify again (optional)
         type: string
   schedule:
     - cron: "0 1 * * *"
@@ -23,13 +23,14 @@ jobs:
     if: github.repository == 'heckenmann/docker-swarm-dashboard' && github.ref == 'refs/heads/master' && inputs.reviewed-run == ''
     runs-on: ubuntu-26.04
     timeout-minutes: 30
+    outputs:
+      package: ${{ steps.target.outputs.package }}
     steps:
       - name: Scope the preview
         id: target
         env:
           TEST_PACKAGE: ${{ inputs.test-package }}
         run: |
-          # Production only gets a preview; release history is unavailable.
           if [[ -z "$TEST_PACKAGE" ]]; then
             package=docker-swarm-dashboard
             cutoff=30d
@@ -56,9 +57,14 @@ jobs:
           timestamp-to-use: created_at
           dry-run: true
 
-  apply:
-    name: Verify test retention candidates
-    if: github.repository == 'heckenmann/docker-swarm-dashboard' && github.ref == 'refs/heads/master' && github.event_name == 'workflow_dispatch' && inputs.reviewed-run != ''
+  verify:
+    name: Verify retention candidates
+    needs: preview
+    if: >-
+      !cancelled() && github.repository == 'heckenmann/docker-swarm-dashboard' &&
+      github.ref == 'refs/heads/master' &&
+      (needs.preview.result == 'success' ||
+      (github.event_name == 'workflow_dispatch' && inputs.reviewed-run != ''))
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     permissions:
@@ -79,8 +85,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          PACKAGE: ${{ inputs.test-package }}
-          PREVIEW_RUN: ${{ inputs.reviewed-run }}
+          PACKAGE: ${{ needs.preview.outputs.package || inputs.test-package }}
+          REVIEWED_RUN: ${{ inputs.reviewed-run }}
         run: bash .github/scripts/check-retention-preview.sh
 
       # Temporarily disabled while validating the preview on GitHub. Keep the

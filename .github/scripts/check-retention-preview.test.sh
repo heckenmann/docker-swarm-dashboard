@@ -37,6 +37,14 @@ case "$*" in
       denied-log) echo "HTTP 403" >&2; exit 1 ;;
     esac
     printf '2026-11-07T06:51:11.615Z Retention preview package: %s\n' "$LOG_PACKAGE"
+    case "$SCENARIO" in
+      snok-registry-error)
+        printf '2026-11-07T02:43:50.4641020Z \033[33m WARN\033[0m container_retention_policy::core::filter_out_multi_arch_children: Failed to fetch multi-arch manifests, skipping deletion for this package\n'
+        ;;
+      snok-partial)
+        echo "2026-11-07T02:43:50.4641020Z WARN container_retention_policy::core::delete_package_versions: There aren't enough requests remaining in the rate limit to delete all package versions. Prioritizing deleting the first 1 untagged package versions."
+        ;;
+    esac
     for id in $CANDIDATE_IDS; do
       if [[ "$SCENARIO" == legacy-log ]]; then
         printf '2026-11-07T06:51:11.6154964Z Would delete image %s:%s.\n' "$LOG_PACKAGE" "$id"
@@ -95,10 +103,11 @@ case "$1 $2" in
     digest=${4##*@}
     [[ "$SCENARIO" != manifest-error ]] || { echo "HTTP 404" >&2; exit 1; }
     jq -n --arg digest "$digest" --arg root "$ROOT" --arg child "$CHILD" \
-      --arg orphan "$ORPHAN" --arg other "$OTHER" --arg scenario "$SCENARIO" '
+      --arg orphan "$ORPHAN" --arg other "$OTHER" --arg layer "$LAYER" --arg scenario "$SCENARIO" '
       def image($digest):
         {reference:{Digest:$digest},
-         manifest:{schemaVersion:2,mediaType:"application/vnd.oci.image.manifest.v1+json"}};
+         manifest:{schemaVersion:2,mediaType:"application/vnd.oci.image.manifest.v1+json",
+                   layers:[{digest:$layer}]}};
       def index($digest; $children):
         {reference:{Digest:$digest},
          manifest:{schemaVersion:2,mediaType:"application/vnd.oci.image.index.v1+json",
@@ -115,7 +124,9 @@ case "$1 $2" in
       | if $scenario == "unknown-manifest" then .manifest.mediaType = "application/unknown" else . end
     '
     ;;
-  'manifest get') echo '{"schemaVersion":2,"mediaType":"application/vnd.oci.image.manifest.v1+json"}' ;;
+  'manifest get')
+    jq -nc --arg layer "$LAYER" '{schemaVersion:2,mediaType:"application/vnd.oci.image.manifest.v1+json",layers:[{digest:$layer}]}'
+    ;;
   'artifact list') printf '%s\n' "$REFERRERS" ;;
   *) echo "Unexpected regctl call" >&2; exit 99 ;;
 esac
@@ -127,6 +138,7 @@ root=$(printf 'sha256:%064d' 1)
 child=$(printf 'sha256:%064d' 2)
 orphan=$(printf 'sha256:%064d' 3)
 other=$(printf 'sha256:%064d' 4)
+layer=$(printf 'sha256:%064d' 5)
 
 run_preview_check() {
   : > "$fixtures/outputs"
@@ -134,9 +146,10 @@ run_preview_check() {
   # Isolate each case from local GitHub credentials and other runner settings.
   env -i PATH="$fixtures:$PATH" GH_TOKEN=fixture GHCR_TOKEN=fixture \
     PACKAGE="$1" LOG_PACKAGE="$2" CANDIDATE_IDS="$3" PREVIEW_SHA="$4" REFERRERS="$5" SCENARIO="${6:-normal}" \
-    GITHUB_REPOSITORY=heckenmann/docker-swarm-dashboard GITHUB_SHA=fixture PREVIEW_RUN=123 \
+    GITHUB_REPOSITORY=heckenmann/docker-swarm-dashboard GITHUB_SHA=fixture GITHUB_RUN_ID=123 \
+    REVIEWED_RUN="${7-123}" \
     INVENTORY_SEEN="$fixtures/inventory-seen" SIGNATURE="sha256-${orphan#sha256:}.sig" \
-    GITHUB_OUTPUT="$fixtures/outputs" ROOT="$root" CHILD="$child" ORPHAN="$orphan" OTHER="$other" \
+    GITHUB_OUTPUT="$fixtures/outputs" ROOT="$root" CHILD="$child" ORPHAN="$orphan" OTHER="$other" LAYER="$layer" \
     bash "$script_dir/check-retention-preview.sh" > "$fixtures/log" 2>&1
 }
 
@@ -154,11 +167,11 @@ expect_rejected() {
 
 if ! run_preview_check "$test_package" "$test_package" 3 fixture '[]' ||
    [[ "$(cat "$fixtures/outputs")" != "$(printf 'skip-shas=%s,%s,%s\nverified-ids=[3]' "$root" "$child" "$other")" ]]; then
-  echo 'FAIL: orphan approved with exact exclusions' >&2
+  echo 'FAIL: orphan with a shared layer approved with exact exclusions' >&2
   cat "$fixtures/log" "$fixtures/outputs" >&2
   exit 1
 fi
-echo 'PASS: orphan approved with exact exclusions'
+echo 'PASS: orphan with a shared layer approved with exact exclusions'
 
 expect_rejected 'referenced child blocks the whole batch' 'reachable from retained manifest' \
   "$test_package" "$test_package" '3 2' fixture '[]'
@@ -176,8 +189,31 @@ expect_rejected 'malformed candidate ID' 'Unexpected candidate in Snok dry-run l
   "$test_package" "$test_package" invalid fixture '[]'
 expect_rejected 'empty preview' 'No candidates in the Snok dry run' \
   "$test_package" "$test_package" '' fixture '[]'
-expect_rejected 'production package' 'Only disposable test packages can be deleted' \
+expect_rejected 'production cannot use a manually selected run' 'Production must use the preview from this run' \
   docker-swarm-dashboard docker-swarm-dashboard 3 fixture '[]'
+
+if ! run_preview_check docker-swarm-dashboard docker-swarm-dashboard 3 fixture '[]' normal '' ||
+   ! grep -Fq 'Verified 1 Snok preview candidates' "$fixtures/log" ||
+   [[ -s "$fixtures/outputs" ]]; then
+  echo 'FAIL: automatic production preview is verified without apply outputs' >&2
+  cat "$fixtures/log" "$fixtures/outputs" >&2
+  exit 1
+fi
+echo 'PASS: automatic production preview is verified without apply outputs'
+if ! run_preview_check docker-swarm-dashboard docker-swarm-dashboard '' fixture '[]' normal '' ||
+   ! grep -Fq 'No candidates in the Snok dry run' "$fixtures/log" ||
+   [[ -s "$fixtures/outputs" ]]; then
+  echo 'FAIL: automatic preview with no candidates succeeds' >&2
+  cat "$fixtures/log" "$fixtures/outputs" >&2
+  exit 1
+fi
+echo 'PASS: automatic preview with no candidates succeeds'
+expect_rejected 'Snok registry error is not an empty preview' 'Snok did not complete the candidate selection' \
+  docker-swarm-dashboard docker-swarm-dashboard '' fixture '[]' snok-registry-error ''
+expect_rejected 'Snok rate limit blocks a partial preview' 'Snok did not complete the candidate selection' \
+  docker-swarm-dashboard docker-swarm-dashboard 3 fixture '[]' snok-partial ''
+expect_rejected 'automatic production preview protects referenced children' 'reachable from retained manifest' \
+  docker-swarm-dashboard docker-swarm-dashboard 2 fixture '[]' normal ''
 
 expect_rejected 'candidate belongs to a retained untagged nested index' 'reachable from retained manifest' \
   "$test_package" "$test_package" 3 fixture '[]' untagged-index
