@@ -130,3 +130,25 @@ jest.mock(
   '../../../src/components/shared/names/EntityName',
   () => require('../mocks/MockEntityName').default,
 )
+
+it('renders networks as a sortable table without a card body and opens their details', () => {
+  render(<ServiceResourcesTab kind="networks" references={[{Target:'network-id',Aliases:['web','api']}]} />)
+  const table = screen.getByRole('table')
+  expect(table).toHaveClass('table-striped','table-bordered','table-hover','table-sm','align-middle')
+  expect(table.closest('.card').querySelector('.card-body')).toBeNull()
+  expect(screen.getByText('web, api')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button',{name:/Sort by Network/}))
+  expect(screen.getByRole('button',{name:/Sort by Network/})).toHaveAttribute('aria-sort','ascending')
+  fireEvent.click(screen.getByRole('button',{name:'network-id'}))
+  expect(mockSetView).toHaveBeenCalledWith({id:'networksDetail',detail:'network-id'})
+})
+
+it('joins virtual IPs by network ID and identifies published ports as service-wide', () => {
+  render(<ServiceResourcesTab kind="networks" references={[{Target:'one'},{Target:'two'}]} virtualIPs={[{NetworkID:'one',Addr:'10.0.0.2/24'},{NetworkID:'two',Addr:'10.1.0.2/24'}]} ports={[{PublishedPort:8080,TargetPort:80,Protocol:'tcp',PublishMode:'ingress'}]} />)
+  const rows = screen.getAllByRole('row').slice(1)
+  expect(rows[0]).toHaveTextContent('10.0.0.2/24')
+  expect(rows[0]).not.toHaveTextContent('10.1.0.2/24')
+  expect(rows[1]).toHaveTextContent('10.1.0.2/24')
+  expect(rows[1]).not.toHaveTextContent('10.0.0.2/24')
+  expect(rows[0]).toHaveTextContent('8080 → 80/tcp (ingress)')
+})

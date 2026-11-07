@@ -437,6 +437,35 @@ await ensureNodeServiceDetails()
 const app = new App()
 app.use(cors())
 
+// Network fixtures use the same structure as the shared REST/MCP projection.
+const mockNetwork = {
+  network: {
+    Id: 'mock-overlay',
+    Name: 'demo_overlay',
+    Driver: 'overlay',
+    Scope: 'swarm',
+    Created: '2026-01-01T00:00:00Z',
+    Ingress: false,
+    Internal: false,
+    Attachable: true,
+    Labels: { 'com.docker.stack.namespace': 'demo' },
+    Options: {},
+    IPAM: { Config: [{ Subnet: '10.0.0.0/24', Gateway: '10.0.0.1' }] },
+  },
+  services: [],
+  missing: false,
+}
+const networkObservation =
+  'Configuration and service specifications do not prove end-to-end connectivity. Endpoints and peers are daemon-local observations and may omit remote overlay endpoints.'
+app.get('/docker/networks', (_req, res) =>
+  res.json({ networks: [mockNetwork], observation: networkObservation }),
+)
+app.get('/docker/networks/:id', (req, res) =>
+  req.params.id === mockNetwork.network.Id
+    ? res.json({ ...mockNetwork, observation: networkObservation })
+    : res.status(404).send('Network not found'),
+)
+
 app.get('/health', (_req, res) => {
   res.status(200).send('OK')
 })

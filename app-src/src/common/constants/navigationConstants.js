@@ -21,3 +21,6 @@ export const secretsId = 'secrets'
 
 export const configsDetailId = 'configsDetail'
 export const secretsDetailId = 'secretsDetail'
+
+export const networksId = 'networks'
+export const networksDetailId = 'networksDetail'

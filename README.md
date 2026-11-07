@@ -116,6 +116,32 @@ These environment variables control the default UI state. All settings can be ch
 | `DSD_SHOW_NAV_LABELS` | Show navigation labels by default. Either `true` or `false`. | `false` |
 | `DSD_MAX_CONTENT_WIDTH` | Maximum content width. Either `fluid` (full width) or `fixed` (container width). | `fluid` |
 
+### Network inventory
+
+The **Networks** page lists Docker networks and missing network IDs referenced by
+service specifications. Details show IPAM subnets/gateways, options,
+encryption configuration, aliases, endpoint mode, VIPs, and published ports.
+Network details present all sections together in a responsive dashboard without
+tabs: metadata, services, IPAM, options, labels, local endpoints, peers, and raw JSON.
+Service, stack, and port links open the corresponding dashboard views. Service
+details link back to networks. Network details use the shareable `networksDetail`
+URL-hash view with the full Docker network ID.
+
+`GET /docker/networks` accepts `name`, `stack`, `driver`, and `scope` filters.
+`GET /docker/networks/{id}` inspects one network on demand. Equivalent read-only
+MCP tools are `list_networks` (same filters) and `get_network` (`identifier`: full
+network ID). Both interfaces share their queries and metadata masking policy.
+List refreshes use one NetworkList and one ServiceList, without per-network
+inspection. Docker failures produce errors rather than an empty inventory.
+
+Attachments are joined by network ID, including observed VIP references such as
+ingress. Missing references and networks deleted between list and inspect are
+marked explicitly. Endpoints and peers belong to the queried Docker daemon;
+remote overlay endpoints may be absent. Missing optional data is not evidence
+of connectivity. Configuration and service attachments do not prove end-to-end
+reachability. See [Docker Swarm networking](https://docs.docker.com/engine/swarm/networking/)
+and the [overlay driver](https://docs.docker.com/engine/network/drivers/overlay/).
+
 ### Configs and Secrets inventories
 
 The **Configs** and **Secrets** pages provide separate read-only inventories and
@@ -221,7 +247,7 @@ timeline, dashboard settings, version, and health. Existing
 Tools include `list_services`, `get_service`, `get_service_metrics`,
 `list_nodes`, `get_node`, `get_node_metrics`, `get_cluster_metrics`, `get_cluster_health`,
 `list_tasks`, `get_task`, `get_task_metrics`, `list_stacks`,
-`list_published_ports`, `get_timeline`, `get_cluster_overview`,
+`list_networks`, `get_network`, `list_published_ports`, `get_timeline`, `get_cluster_overview`,
 `get_dashboard_settings`, `get_version`, and `get_health`. When logs are
 enabled, `list_log_services` and `get_service_logs` are also discoverable.
 Service queries accept IDs or exact names, node queries accept IDs, node
@@ -509,6 +535,9 @@ docker service create --name logger chentex/random-logger:latest 50 200
 ```
 
 ## Development
+
+Read the [UI guidelines](docs/ui-guidelines.md) before changing frontend tables,
+icons, filters, or entity actions.
 ### Local Build
 ```
 docker build -t ghcr.io/heckenmann/docker-swarm-dashboard:local .

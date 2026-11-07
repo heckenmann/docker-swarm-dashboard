@@ -75,6 +75,13 @@ const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
 
   const serviceObj = currentService.service
   const tasksForService = currentService.tasks || []
+  const networkReferences = serviceObj?.Spec?.TaskTemplate?.Networks?.length
+    ? serviceObj.Spec.TaskTemplate.Networks
+    : serviceObj?.Spec?.Networks || []
+  const networkIDs = new Set(networkReferences.map((ref) => ref.Target))
+  const observedNetworks = (serviceObj?.Endpoint?.VirtualIPs || [])
+    .filter((vip) => !networkIDs.has(vip.NetworkID))
+    .map((vip) => ({ Target: vip.NetworkID }))
 
   // Sanitize object keys that map to HTML element attributes (e.g. src, image)
   const sanitizeAttrs = (obj) => {
@@ -122,6 +129,16 @@ const DetailsServiceComponent = React.memo(function DetailsServiceComponent() {
                 tasksForService={tasksForService}
                 taskMetrics={taskMetrics}
                 metricsLoading={metricsLoading}
+              />
+              <ServiceResourcesTab
+                kind="networks"
+                references={[...networkReferences, ...observedNetworks]}
+                virtualIPs={serviceObj?.Endpoint?.VirtualIPs || []}
+                ports={
+                  serviceObj?.Endpoint?.Ports?.length
+                    ? serviceObj.Endpoint.Ports
+                    : serviceObj?.Spec?.EndpointSpec?.Ports || []
+                }
               />
               <ServiceResourcesTab
                 kind="configs"

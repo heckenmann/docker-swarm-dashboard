@@ -34,6 +34,7 @@ import {
 } from '../../common/store/atoms/dashboardAtoms'
 import {
   aboutId,
+  networksId,
   configsId,
   secretsId,
   dashboardHId,
@@ -224,6 +225,7 @@ const DashboardNavbar = React.memo(function DashboardNavbar() {
               </Nav.Link>,
             )}
             {[
+              [networksId, 'Networks', 'network-wired'],
               [configsId, 'Configs', 'file'],
               [secretsId, 'Secrets', 'key'],
             ].map(([id, label, icon]) => (

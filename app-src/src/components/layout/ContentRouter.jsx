@@ -3,6 +3,8 @@ import React from 'react'
 import { loadable } from '../../common/store/loadable'
 import {
   aboutId,
+  networksId,
+  networksDetailId,
   configsId,
   configsDetailId,
   secretsDetailId,
@@ -30,6 +32,7 @@ import DashboardVerticalComponent from '../dashboard/DashboardVerticalComponent'
 import TimelineComponent from '../timeline/TimelineComponent.jsx'
 import DetailsServiceComponent from '../services/DetailsServiceComponent'
 import DetailsResourceComponent from '../resources/DetailsResourceComponent.jsx'
+import NetworksComponent from '../networks/NetworksComponent.jsx'
 import ResourceInventoryComponent from '../resources/ResourceInventoryComponent.jsx'
 import StacksComponent from '../stacks/StacksComponent'
 import PortsComponent from '../ports/PortsComponent'
@@ -90,6 +93,8 @@ const ContentRouter = React.memo(function ContentRouter() {
     [secretsDetailId]: (
       <DetailsResourceComponent key="secretsDetail" kind="secrets" />
     ),
+    [networksId]: <NetworksComponent />,
+    [networksDetailId]: <NetworksComponent />,
     [portsId]: <PortsComponent />,
     [nodesId]: <NodesComponent />,
     [nodesDetailId]: <DetailsNodeComponent />,

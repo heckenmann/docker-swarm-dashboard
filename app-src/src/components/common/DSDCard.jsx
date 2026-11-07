@@ -17,7 +17,7 @@ import './DSDCard.css'
  * @param {string} [props.icon] - FontAwesome icon name for the card header.
  * @param {string} [props.title] - Title text for the card header.
  * @param {React.ReactNode} [props.headerActions] - Additional actions/content for the header (right side).
- * @param {React.ReactNode} [props.body] - Content for the card body.
+ * @param {React.ReactNode} [props.body] - Padded text/metadata content. Tables must use children instead.
  * @param {string} [props.className] - Additional classes for the card.
  * @param {string} [props.headerClassName] - Additional classes for the card header.
  * @param {string} [props.bodyClassName] - Additional classes for the card body.
@@ -29,8 +29,9 @@ import './DSDCard.css'
  * <DSDCard
  *   icon="server"
  *   title="Nodes"
- *   body={<NodeTable />}
- * />
+ * >
+ *   <NodeTable />
+ * </DSDCard>
  *
  * @example
  * // With header actions (e.g., filter component)
@@ -38,15 +39,17 @@ import './DSDCard.css'
  *   icon="tasks"
  *   title="Tasks"
  *   headerActions={<FilterComponent />}
- *   body={<TasksTable />}
- * />
+ * >
+ *   <TasksTable />
+ * </DSDCard>
  *
  * @example
  * // Legacy usage with custom header
  * <DSDCard
  *   header={<h5>Node Details</h5>}
- *   body={<NodeTable />}
- * />
+ * >
+ *   <NodeTable />
+ * </DSDCard>
  *
  * @example
  * // Usage with children (no body prop)

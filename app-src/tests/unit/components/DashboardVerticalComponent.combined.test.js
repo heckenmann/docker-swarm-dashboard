@@ -48,11 +48,11 @@ jest.mock('../../../src/components/shared/names/ServiceName', () => ({ name }) =
 jest.mock('../../../src/components/shared/names/StackName', () => ({ name }) => <div data-testid="stack-name">{name}</div>)
 jest.mock('../../../src/components/services/ServiceStatusBadge.jsx', () => () => <div data-testid="service-status-badge" />)
 jest.mock('../../../src/components/dashboard/DashboardSettingsComponent', () => () => <div data-testid="dashboard-settings" />)
-jest.mock('../../../src/components/common/DSDCard', () => ({ title, body, headerActions }) => (
+jest.mock('../../../src/components/common/DSDCard', () => ({ title, body, headerActions, children }) => (
   <div data-testid="dsd-card">
     <div data-testid="card-title">{title}</div>
     {headerActions}
-    <div data-testid="card-body">{body}</div>
+    {body ? <div data-testid="card-body">{body}</div> : children}
   </div>
 ))
 

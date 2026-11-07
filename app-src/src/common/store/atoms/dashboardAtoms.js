@@ -201,3 +201,6 @@ const resourceDetailAtom = (kind) =>
   })
 export const configDetailAtom = resourceDetailAtom('configs')
 export const secretDetailAtom = resourceDetailAtom('secrets')
+
+export const networksAtom = resourceInventoryAtom('networks')
+export const networkDetailAtom = resourceDetailAtom('networks')

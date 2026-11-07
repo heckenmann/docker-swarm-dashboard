@@ -37,11 +37,11 @@ jest.mock('jotai', () => ({
 jest.mock('../../../src/components/shared/names/StackName', () => ({ name }) => <div data-testid="stack-name">{name}</div>)
 jest.mock('../../../src/components/shared/names/ServiceName', () => ({ name }) => <div data-testid="service-name">{name}</div>)
 jest.mock('../../../src/components/shared/FilterComponent', () => () => <div data-testid="filter-component" />)
-jest.mock('../../../src/components/common/DSDCard.jsx', () => ({ title, body, headerActions }) => (
+jest.mock('../../../src/components/common/DSDCard.jsx', () => ({ title, body, headerActions, children }) => (
   <div data-testid="dsd-card">
     <div data-testid="card-title">{title}</div>
     {headerActions}
-    <div data-testid="card-body">{body}</div>
+    {body ? <div data-testid="card-body">{body}</div> : children}
   </div>
 ))
 

@@ -5,6 +5,7 @@ import { Table } from 'react-bootstrap'
 import { tableSizeAtom } from '../../../common/store/atoms/uiAtoms'
 import { currentVariantAtom } from '../../../common/store/atoms/themeAtoms'
 import ResourceName from '../../shared/names/ResourceName'
+import NetworkName from '../../shared/names/NetworkName'
 import MetricCard from '../../shared/MetricCard.jsx'
 import SortableHeader from '../../shared/SortableHeader.jsx'
 import { sortData } from '../../../common/sortUtils'
@@ -12,15 +13,23 @@ import { sortData } from '../../../common/sortUtils'
 /**
  * Show the resource references declared in a service's container specification.
  * @param {object} props - Component properties.
- * @param {string} props.kind - Configs or secrets.
+ * @param {string} props.kind - Configs, secrets, or networks.
  * @param {Array<object>} [props.references] - Docker resource mount references.
+ * @param {Array<object>} [props.virtualIPs] - Observed service VIPs joined by network ID.
+ * @param {Array<object>} [props.ports] - Service-wide published port mappings.
  * @returns {React.ReactElement} Resource links and declared mount metadata.
  */
-const ServiceResourcesTab = ({ kind, references = [] }) => {
+const ServiceResourcesTab = ({
+  kind,
+  references = [],
+  virtualIPs = [],
+  ports = [],
+}) => {
   const size = useAtomValue(tableSizeAtom)
   const variant = useAtomValue(currentVariantAtom)
+  const isNetwork = kind === 'networks'
   const isConfig = kind === 'configs'
-  const title = isConfig ? 'Configs' : 'Secrets'
+  const title = isNetwork ? 'Networks' : isConfig ? 'Configs' : 'Secrets'
   const [sortBy, setSortBy] = useState(null)
   const [sortDirection, setSortDirection] = useState('asc')
   const handleSort = useCallback(
@@ -39,9 +48,29 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
   const resources = sortData(
     references.filter(Boolean).map((reference) => ({
       ...reference,
-      id: (isConfig ? reference.ConfigID : reference.SecretID) || '',
+      id:
+        (isNetwork
+          ? reference.Target
+          : isConfig
+            ? reference.ConfigID
+            : reference.SecretID) || '',
+      aliases: (reference.Aliases || []).join(', '),
+      ips: virtualIPs
+        .filter((vip) => vip.NetworkID === reference.Target)
+        .map((vip) => vip.Addr)
+        .join(', '),
+      portsText: ports
+        .map(
+          (port) =>
+            `${port.PublishedPort || 'Dynamic'} → ${port.TargetPort}/${port.Protocol || 'tcp'} (${port.PublishMode || 'ingress'})`,
+        )
+        .join(', '),
       name:
-        (isConfig ? reference.ConfigName : reference.SecretName) ||
+        (isNetwork
+          ? reference.Target
+          : isConfig
+            ? reference.ConfigName
+            : reference.SecretName) ||
         (isConfig ? reference.ConfigID : reference.SecretID) ||
         'Unknown resource',
       target:
@@ -59,7 +88,7 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
   return (
     <MetricCard
       title={`${title} in this Service`}
-      icon={isConfig ? 'file' : 'key'}
+      icon={isNetwork ? 'network-wired' : isConfig ? 'file' : 'key'}
       noBody
     >
       <Table
@@ -73,14 +102,22 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
       >
         <thead>
           <tr>
-            {[
-              ['name', 'Name'],
-              ['id', 'ID'],
-              ['target', 'Target'],
-              ['uid', 'UID'],
-              ['gid', 'GID'],
-              ['mode', 'Mode'],
-            ].map(([column, label]) => (
+            {(isNetwork
+              ? [
+                  ['name', 'Network'],
+                  ['aliases', 'Aliases'],
+                  ['ips', 'Virtual IPs'],
+                  ['portsText', 'Published ports (service)'],
+                ]
+              : [
+                  ['name', 'Name'],
+                  ['id', 'ID'],
+                  ['target', 'Target'],
+                  ['uid', 'UID'],
+                  ['gid', 'GID'],
+                  ['mode', 'Mode'],
+                ]
+            ).map(([column, label]) => (
               <SortableHeader
                 key={column}
                 column={column}
@@ -95,6 +132,19 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
         <tbody>
           {resources.map((reference, index) => {
             const { id, name, target, uid, gid, mode } = reference
+            if (isNetwork)
+              return (
+                <tr key={`${id}:${index}`}>
+                  <td className="text-nowrap">
+                    <NetworkName name={name} id={id} />
+                  </td>
+                  <td>{reference.aliases || '—'}</td>
+                  <td className="font-monospace text-nowrap">
+                    {reference.ips || '—'}
+                  </td>
+                  <td className="text-nowrap">{reference.portsText || '—'}</td>
+                </tr>
+              )
             return (
               <tr key={`${id}:${index}`}>
                 <td className="text-nowrap">
@@ -114,7 +164,10 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
           })}
           {!resources.length && (
             <tr>
-              <td colSpan={6} className="text-center text-muted py-3">
+              <td
+                colSpan={isNetwork ? 4 : 6}
+                className="text-center text-muted py-3"
+              >
                 No {kind} linked to this service.
               </td>
             </tr>
@@ -126,7 +179,9 @@ const ServiceResourcesTab = ({ kind, references = [] }) => {
 }
 
 ServiceResourcesTab.propTypes = {
-  kind: PropTypes.oneOf(['configs', 'secrets']).isRequired,
+  kind: PropTypes.oneOf(['configs', 'secrets', 'networks']).isRequired,
   references: PropTypes.arrayOf(PropTypes.object),
+  virtualIPs: PropTypes.arrayOf(PropTypes.object),
+  ports: PropTypes.arrayOf(PropTypes.object),
 }
 export default ServiceResourcesTab
