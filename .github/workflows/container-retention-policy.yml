@@ -1,23 +1,117 @@
-name: Delete old container images
+name: GHCR container retention
 
 on:
   workflow_dispatch:
+    inputs:
+      test-package:
+        description: Disposable ghcr-retention-test-* package (empty previews production)
+        type: string
+      reviewed-run:
+        description: Successful test preview run ID to verify and apply (empty previews only)
+        type: string
   schedule:
     - cron: "0 1 * * *"
 
+concurrency:
+  group: ghcr-dashboard-retention
+
+permissions: {}
 
 jobs:
-  clean-ghcr:
-    name: Delete old unused container images
+  preview:
+    name: Retention preview
+    if: github.repository == 'heckenmann/docker-swarm-dashboard' && github.ref == 'refs/heads/master' && inputs.reviewed-run == ''
     runs-on: ubuntu-26.04
+    timeout-minutes: 30
     steps:
-      - name: Delete old containers
-        uses: snok/container-retention-policy@v2
+      - name: Scope the preview
+        id: target
+        env:
+          TEST_PACKAGE: ${{ inputs.test-package }}
+        run: |
+          # Production only gets a preview; release history is unavailable.
+          if [[ -z "$TEST_PACKAGE" ]]; then
+            package=docker-swarm-dashboard
+            cutoff=30d
+          elif [[ "$TEST_PACKAGE" =~ ^ghcr-retention-test-[a-z0-9-]+$ ]]; then
+            package=$TEST_PACKAGE
+            cutoff=1h
+          else
+            echo "::error::Invalid test package name"
+            exit 1
+          fi
+          # The apply check uses this log marker to bind the preview to the package.
+          echo "Retention preview package: $package"
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+          echo "cutoff=$cutoff" >> "$GITHUB_OUTPUT"
+
+      - name: Preview GHCR retention
+        uses: snok/container-retention-policy@d3bdcf5ce9b05f685154e4a16c39233b245e3d53 # v3.1.0
         with:
-          image-names: "*"
-          dry-run: true
-          untagged-only: true
-          cut-off: Two minutes ago UTC
-          account-type: personal
-          keep-at-least: 1
+          account: user
           token: ${{ secrets.GHCR_TOKEN }}
+          image-names: ${{ steps.target.outputs.package }}
+          tag-selection: untagged
+          cut-off: ${{ steps.target.outputs.cutoff }}
+          timestamp-to-use: created_at
+          dry-run: true
+
+  apply:
+    name: Verify test retention candidates
+    if: github.repository == 'heckenmann/docker-swarm-dashboard' && github.ref == 'refs/heads/master' && github.event_name == 'workflow_dispatch' && inputs.reviewed-run != ''
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install registry client
+        uses: regclient/actions/regctl-installer@dd58ad94f76adb73d8ac1bf75ed25f01545d5b32
+        with:
+          release: v0.11.7
+
+      - name: Verify exact Snok preview candidates
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          PACKAGE: ${{ inputs.test-package }}
+          PREVIEW_RUN: ${{ inputs.reviewed-run }}
+        run: bash .github/scripts/check-retention-preview.sh
+
+      # Temporarily disabled while validating the preview on GitHub. Keep the
+      # actual deletion and post-deletion assertion together so this job only
+      # verifies candidates and cannot remove container images.
+      # - name: Delete verified test versions with Snok
+      #   uses: snok/container-retention-policy@d3bdcf5ce9b05f685154e4a16c39233b245e3d53 # v3.1.0
+      #   with:
+      #     account: user
+      #     token: ${{ secrets.GHCR_TOKEN }}
+      #     image-names: ${{ inputs.test-package }}
+      #     tag-selection: untagged
+      #     cut-off: 1h
+      #     timestamp-to-use: created_at
+      #     # Match the test preview cutoff and exclude every unapproved digest.
+      #     skip-shas: ${{ steps.check.outputs.skip-shas }}
+      #     dry-run: false
+
+      # - name: Confirm only the verified versions were deleted
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      #     PACKAGE: ${{ inputs.test-package }}
+      #     VERIFIED_IDS: ${{ steps.check.outputs.verified-ids }}
+      #     RETAINED_DIGESTS: ${{ steps.check.outputs.skip-shas }}
+      #   run: |
+      #     set -euo pipefail
+      #     # Verify the outcome directly because Snok can finish with individual
+      #     # deletion failures. Compare both removed IDs and retained digests.
+      #     gh api --paginate --slurp "users/heckenmann/packages/container/$PACKAGE/versions?state=active&per_page=100" |
+      #       jq -e --argjson verified "$VERIFIED_IDS" --arg retained "$RETAINED_DIGESTS" '
+      #         [ .[][] | .id ] as $remaining |
+      #         all($verified[]; . as $id | $remaining | index($id) == null) and
+      #         ([ .[][] | .name ] | sort) == ($retained | split(",") | sort)
+      #       ' >/dev/null
