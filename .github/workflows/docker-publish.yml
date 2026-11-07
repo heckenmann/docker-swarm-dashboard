@@ -12,7 +12,9 @@ on:
     branches: [ master ]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Share the retention lock for registry writes so its verified allowlist
+  # cannot race with a publish. Pull-request builds do not write to GHCR.
+  group: ${{ github.event_name == 'pull_request' && format('{0}-{1}', github.workflow, github.ref) || 'ghcr-dashboard-retention' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Environment variables for the Docker registry and image name

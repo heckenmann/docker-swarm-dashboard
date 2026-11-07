@@ -153,14 +153,25 @@ current_versions=$(read_inventory) || fail "Could not recheck the package invent
 [[ "$current_versions" == "$versions" ]] || fail "Package inventory changed during verification"
 
 echo "Verified $(jq 'length' <<< "$ids") Snok preview candidates against the current registry"
-# Only a manually reviewed disposable preview can produce apply inputs.
-[[ -n "${REVIEWED_RUN:-}" ]] || exit 0
+
+# A production preview is verified and applied in the same workflow run.
+# Disposable test packages require a separate, manually reviewed preview run.
+if ! "$production" && [[ -z "${REVIEWED_RUN:-}" ]]; then
+  echo "Test package preview verified; deletion requires a reviewed-run input"
+  exit 0
+fi
 
 # Snok recalculates its candidates on apply. Exclude every known version
 # outside the verified preview because Snok has no exact-ID allowlist.
 skip=$(jq -er --argjson ids "$ids" '
   [.[] | select(.id as $id | $ids | index($id) == null) | .digest] | join(",")
 ' <<< "$versions")
+(( ${#skip} <= 500000 )) || fail "Verified exclusion list is too large to pass safely to the apply step"
+retained_ids=$(jq -cer --argjson ids "$ids" '
+  [.[] | select(.id as $id | $ids | index($id) == null) | .id] | sort
+' <<< "$versions")
+echo "apply=true" >> "$GITHUB_OUTPUT"
 echo "skip-shas=$skip" >> "$GITHUB_OUTPUT"
 echo "verified-ids=$(jq -c . <<< "$ids")" >> "$GITHUB_OUTPUT"
+echo "retained-ids=$retained_ids" >> "$GITHUB_OUTPUT"
 echo "Verified Snok preview IDs: $(jq -r 'join(", ")' <<< "$ids")"
