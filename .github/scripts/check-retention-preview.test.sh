@@ -166,7 +166,7 @@ expect_rejected() {
 }
 
 if ! run_preview_check "$test_package" "$test_package" 3 fixture '[]' ||
-   [[ "$(cat "$fixtures/outputs")" != "$(printf 'skip-shas=%s,%s,%s\nverified-ids=[3]' "$root" "$child" "$other")" ]]; then
+   [[ "$(cat "$fixtures/outputs")" != "$(printf 'apply=true\nskip-shas=%s,%s,%s\nverified-ids=[3]\nretained-ids=[1,2,4]' "$root" "$child" "$other")" ]]; then
   echo 'FAIL: orphan with a shared layer approved with exact exclusions' >&2
   cat "$fixtures/log" "$fixtures/outputs" >&2
   exit 1
@@ -194,12 +194,20 @@ expect_rejected 'production cannot use a manually selected run' 'Production must
 
 if ! run_preview_check docker-swarm-dashboard docker-swarm-dashboard 3 fixture '[]' normal '' ||
    ! grep -Fq 'Verified 1 Snok preview candidates' "$fixtures/log" ||
-   [[ -s "$fixtures/outputs" ]]; then
-  echo 'FAIL: automatic production preview is verified without apply outputs' >&2
+   [[ "$(cat "$fixtures/outputs")" != "$(printf 'apply=true\nskip-shas=%s,%s,%s\nverified-ids=[3]\nretained-ids=[1,2,4]' "$root" "$child" "$other")" ]]; then
+  echo 'FAIL: automatic production preview produces an exact apply allowlist' >&2
   cat "$fixtures/log" "$fixtures/outputs" >&2
   exit 1
 fi
-echo 'PASS: automatic production preview is verified without apply outputs'
+echo 'PASS: automatic production preview produces an exact apply allowlist'
+if ! run_preview_check "$test_package" "$test_package" 3 fixture '[]' normal '' ||
+   ! grep -Fq 'deletion requires a reviewed-run input' "$fixtures/log" ||
+   [[ -s "$fixtures/outputs" ]]; then
+  echo 'FAIL: standalone test preview does not produce apply inputs' >&2
+  cat "$fixtures/log" "$fixtures/outputs" >&2
+  exit 1
+fi
+echo 'PASS: standalone test preview does not produce apply inputs'
 if ! run_preview_check docker-swarm-dashboard docker-swarm-dashboard '' fixture '[]' normal '' ||
    ! grep -Fq 'No candidates in the Snok dry run' "$fixtures/log" ||
    [[ -s "$fixtures/outputs" ]]; then
