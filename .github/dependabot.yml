@@ -35,6 +35,11 @@ updates:
         patterns:
           - "react"
           - "react-dom"
+      stylelint:
+        patterns:
+          - "stylelint"
+          - "stylelint-config-standard"
+          - "stylelint-config-twbs-bootstrap"
       security-updates:
         applies-to: "security-updates"
         patterns:
