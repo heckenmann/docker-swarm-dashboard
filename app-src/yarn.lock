@@ -6417,10 +6417,10 @@ qs@~6.14.1:
   dependencies:
     side-channel "^1.1.0"
 
-react-apexcharts@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/react-apexcharts/-/react-apexcharts-2.2.0.tgz#674d912d6d96da0756085eed4ed72d4806eb1afe"
-  integrity sha512-MEiH/T65ooUNf8V7Cq7fCu1femP3+lN9Svzsv+jNNS6AcRSciyA1LLvc1VETWqAiqMxQyX8NYEhZxOYnMf262g==
+react-apexcharts@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-apexcharts/-/react-apexcharts-2.2.1.tgz#a1806fa095afe0f4c898b9c5d4ac0b6729f636f3"
+  integrity sha512-cRx+RpRk6WG0SZelOvqDOqbJOWoUSHWAreAkgpNJwsG9axV+uEtTh8zOATW2uK0IjfmFZA8KenSIipslbras4g==
   dependencies:
     prop-types "^15.8.1"
 
