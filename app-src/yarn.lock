@@ -4033,10 +4033,10 @@ eslint-plugin-import@^2.32.0:
     string.prototype.trimend "^1.0.9"
     tsconfig-paths "^3.15.0"
 
-eslint-plugin-jsdoc@^65.4.7:
-  version "65.4.7"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.7.tgz#1f27cd2ffe6d0f13ab8b04f60596f67d965fcfe7"
-  integrity sha512-0YkgM+tFsOlPL0EOlzvzf2BQIgK1DEgjD1yp5g9KpD3/h8LUqdX9N6i4u3WqU+HdXnsTVyiABTWI4nlxZZTNUQ==
+eslint-plugin-jsdoc@^65.4.8:
+  version "65.4.8"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.8.tgz#b95e81fd46d87985875878db72d8d52ad7481a00"
+  integrity sha512-uwXu7/Y+R+bpPgQHi7m0xk2kOv0LHLEQjyo/oB8ZQoIj3dtR1+zx4uJ5D8NThhBPpIFwEPNtt+Cl+/+zHPBNHg==
   dependencies:
     "@es-joy/escodegen" "^5.0.1"
     "@es-joy/jsdoccomment" "~1.2.0"
